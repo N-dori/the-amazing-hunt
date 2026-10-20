@@ -1,0 +1,67 @@
+.beat {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.index {
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  animation: arrive var(--dur-base) var(--ease-out) both;
+}
+
+.heading {
+  font-size: clamp(2.25rem, 10vw, 4rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  animation: arrive var(--dur-slow) var(--ease-out) both;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.body {
+  max-width: 34ch;
+  margin-block-start: 0.5rem;
+  font-size: clamp(1.1875rem, 4.6vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+// Sentences arrive one after another; --i is the sentence's position.
+.sentence {
+  display: inline;
+  animation: arrive var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(400ms + var(--i) * 900ms);
+}
+
+.name {
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  letter-spacing: 0.04em;
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index,
+  .heading,
+  .sentence {
+    animation: none;
+  }
+}

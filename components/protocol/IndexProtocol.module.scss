@@ -1,0 +1,47 @@
+.flow {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  animation: enterForward var(--dur-base) var(--ease-out) both;
+}
+
+.screenBack {
+  animation-name: enterBack;
+}
+
+@keyframes enterForward {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enterBack {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    animation: none;
+  }
+}

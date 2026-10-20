@@ -1,0 +1,63 @@
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100svh;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+// HARMONY's brief is the one Ink stage, as in the opening transmission.
+.dark {
+  color: var(--chalk);
+  background: var(--ink);
+}
+
+.inner {
+  width: min(100% - 2rem, 48rem);
+  margin-inline: auto;
+}
+
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  animation: stageIn var(--dur-base) var(--ease-out) both;
+}
+
+.note {
+  width: min(100% - 2rem, 48rem);
+  margin-inline: auto;
+  padding-block: 0 1.5rem;
+  font-size: 0.75rem;
+}
+
+@keyframes stageIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    transition: none;
+  }
+
+  .stage {
+    animation: none;
+  }
+}

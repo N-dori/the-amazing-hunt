@@ -1,0 +1,78 @@
+.screen {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.inner {
+  flex: 1;
+  width: min(100% - 2rem, 56rem);
+  margin-inline: auto;
+}
+
+.session {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--zaatar);
+  white-space: nowrap;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-block: 2rem 1.5rem;
+}
+
+.heading {
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.lede {
+  max-width: 38ch;
+  font-size: 1.0625rem;
+}
+
+// Sticky on phones so the next action stays in reach of the thumb.
+.actionBar {
+  position: sticky;
+  inset-block-end: 0;
+  padding-block: 1rem calc(1rem + env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--chalk-shade);
+  background: var(--chalk);
+}
+
+.actionInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: min(100% - 2rem, 56rem);
+  margin-inline: auto;
+}
+
+.note {
+  font-size: 0.75rem;
+  color: var(--zaatar);
+}
+
+@media (min-width: 48rem) {
+  .intro {
+    padding-block: 3.5rem 2.5rem;
+  }
+
+  .actionBar {
+    position: static;
+    border: 0;
+    padding-block: 2rem 3rem;
+  }
+}

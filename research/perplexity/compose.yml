@@ -1,0 +1,31 @@
+# Its own Compose project: no ports, nothing shared with the live dori-platform stack.
+# Run from this folder:  docker compose run --rm scavenger-hunt
+name: dori-research
+
+services:
+  scavenger-hunt:
+    build: .
+    image: dori-research-perplexity
+    env_file: .env
+    # Runs as the host owner of the results folder so it can write there.
+    user: "${RESULTS_UID:-0}:${RESULTS_GID:-0}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    volumes:
+      - ../prompts:/prompts:ro
+      - ../results:/results
+    command:
+      - --prepend
+      - /prompts/_context.md
+      - --append
+      - /prompts/_rules.md
+      - --out-dir
+      - /results
+      - /prompts/01_camera_microphone_pwa.md
+      - /prompts/02_puzzle_animation_tech.md
+      - /prompts/03_media_formats_audio_offline.md
+      - /prompts/04_harmony_openai_feedback.md
+      - /prompts/05_library_sources_and_access.md
+      - /prompts/06_nahlaot_market_sites_verification.md

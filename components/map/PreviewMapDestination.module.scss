@@ -1,0 +1,201 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem 1.25rem;
+  border: 1px solid var(--ink);
+  border-block-start: 3px solid var(--sumac);
+  background: var(--chalk);
+  animation: cardIn var(--dur-base) var(--ease-out) both;
+}
+
+.cardDone {
+  border-block-start-color: var(--zaatar);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.state {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-inline-end: -0.5rem;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--chalk-tint);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 0;
+  }
+}
+
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+// Photo slot: the frame a destination photograph will fill once taken in the field.
+.photo {
+  display: grid;
+  place-items: center;
+  gap: 0.5rem;
+  aspect-ratio: 4 / 3;
+  padding: 1rem;
+  border: 1px dashed var(--neutral-line);
+  background: var(--chalk-tint);
+  text-align: center;
+}
+
+.photoIcon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.photoCaption {
+  max-width: 28ch;
+  font-size: 0.8125rem;
+}
+
+.name {
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.status {
+  font-size: 0.875rem;
+}
+
+.provisional {
+  display: inline-block;
+  margin-inline-end: 0.5rem;
+  padding: 0 0.375rem;
+  border: 1px dashed var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-block: 0.75rem;
+  border-block: 1px solid var(--chalk-shade);
+}
+
+.navLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.navIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.navLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--amber);
+  text-underline-offset: 0.3em;
+}
+
+.navLinkIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.navNote {
+  font-size: 0.75rem;
+}
+
+.memory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-inline-start: 3px solid var(--sumac);
+  background: var(--chalk-tint);
+  animation: cardIn var(--dur-slow) var(--ease-out) both;
+}
+
+.memoryTitle {
+  color: var(--sumac);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.memoryChange {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.memoryArrow {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.memoryNote {
+  font-size: 0.875rem;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .memory {
+    animation: none;
+  }
+}

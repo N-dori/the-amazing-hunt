@@ -1,0 +1,233 @@
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: min(100% - 2rem, 40rem);
+  margin-inline: auto;
+  padding-block: 1.75rem 2rem;
+}
+
+.title {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stepLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stepNumber {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+}
+
+.text {
+  font-size: 1.0625rem;
+}
+
+.locator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// The photo is a tall phone shot; show the band with the "−2" sign and the panel.
+.locatorImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 50% 45%;
+}
+
+.caption {
+  color: var(--zaatar);
+  font-size: 0.75rem;
+}
+
+// The clue is the artefact on screen: framed like an evidence print, with amber corners.
+.clue {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--ink);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-color: var(--amber);
+    border-style: solid;
+  }
+
+  &::before {
+    inset-block-start: -0.375rem;
+    inset-inline-start: -0.375rem;
+    border-width: 2px 0 0 2px;
+  }
+
+  &::after {
+    inset-block-end: -0.375rem;
+    inset-inline-end: -0.375rem;
+    border-width: 0 2px 2px 0;
+  }
+}
+
+.clueImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.clueCaption {
+  color: var(--chalk);
+  font-size: 0.9375rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding-block-start: 1.5rem;
+  border-block-start: 1px solid var(--ink);
+}
+
+.prompt {
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.answerRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.25rem;
+  color: var(--ink);
+  background: var(--chalk-highlight);
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  letter-spacing: 0.3em;
+
+  &::placeholder {
+    color: var(--neutral-line);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+}
+
+.feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wrong {
+  color: var(--sumac);
+  font-size: 0.9375rem;
+  animation: nudge var(--dur-base) var(--ease-out);
+}
+
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 0.875rem;
+  border-inline-start: 2px solid var(--amber);
+  background: var(--chalk-tint);
+  font-size: 0.9375rem;
+}
+
+.hintIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.guide {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: 0;
+  color: var(--ink);
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+}
+
+.guideIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+@keyframes nudge {
+  25% {
+    transform: translateX(-0.25rem);
+  }
+
+  75% {
+    transform: translateX(0.25rem);
+  }
+}
+
+@media (min-width: 48rem) {
+  .question {
+    padding-block-start: 3rem;
+  }
+
+  .locatorImage {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrong {
+    animation: none;
+  }
+}

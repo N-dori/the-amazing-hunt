@@ -1,0 +1,298 @@
+// Phones: a bottom sheet over the map. Wide screens: the top of the side column.
+.card {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-height: 78svh;
+  padding: 1rem 1rem calc(1.25rem + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  border-block-start: 3px solid var(--sumac);
+  background: var(--chalk);
+  box-shadow: 0 -0.75rem 2rem color-mix(in srgb, var(--ink) 14%, transparent);
+  animation: sheetIn var(--dur-base) var(--ease-out) both;
+}
+
+.closed {
+  border-block-start-color: var(--neutral-line);
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.75rem;
+  padding-block-start: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.order {
+  font-size: 0.8125rem;
+}
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--sumac);
+}
+
+.closed .state {
+  color: var(--ink);
+}
+
+.stateIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.close {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-inline-end: -0.5rem;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--chalk-tint);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 0;
+  }
+}
+
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.photo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.photoImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.photoCaption {
+  font-size: 0.75rem;
+}
+
+.mission {
+  color: var(--sumac);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.statusNote,
+.locationNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.statusIcon,
+.locationIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-block-start: 0.125rem;
+}
+
+.statusIcon {
+  color: var(--zaatar);
+}
+
+// The memory a completed mission restored at this stop.
+.memory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-inline-start: 3px solid var(--sumac);
+  background: var(--chalk-tint);
+}
+
+.memoryTitle {
+  color: var(--sumac);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.memoryImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0.5rem;
+  background: var(--ink);
+}
+
+.memoryChange {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.memoryArrow {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.memoryNote,
+.illustrative {
+  font-size: 0.8125rem;
+}
+
+.name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: clamp(1.5rem, 6vw, 1.875rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.hebrew {
+  color: var(--zaatar);
+  font-size: 1.125rem;
+  font-weight: 400;
+}
+
+.summary {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.clue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 0.875rem;
+  border-inline-start: 2px solid var(--amber);
+  background: var(--chalk-tint);
+}
+
+.clueLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.clueIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.clueText {
+  font-size: 0.9375rem;
+}
+
+.locked {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
+  border-block: 1px dashed var(--neutral-line);
+  font-size: 0.9375rem;
+}
+
+.lockedIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-block-start: 0.125rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-block-start: 0.25rem;
+}
+
+@keyframes sheetIn {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media (min-width: 64rem) {
+  .card {
+    position: static;
+    max-height: none;
+    margin-block-end: 1.5rem;
+    padding: 0.75rem 1.25rem 1.5rem;
+    overflow: visible;
+    border: 1px solid var(--ink);
+    border-block-start-width: 3px;
+    border-block-start-color: var(--sumac);
+    box-shadow: none;
+    animation-name: panelIn;
+  }
+
+  .closed {
+    border-block-start-color: var(--neutral-line);
+  }
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}

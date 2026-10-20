@@ -1,0 +1,175 @@
+.unlocked {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: min(100% - 2rem, 40rem);
+  margin-inline: auto;
+  padding-block: 2rem 2.5rem;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.headIcon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--sumac);
+}
+
+.heading {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.intro {
+  max-width: 36ch;
+  font-size: 1.0625rem;
+}
+
+.list {
+  list-style: none;
+  border-block-start: 1px solid var(--chalk-shade);
+}
+
+.item {
+  --team: var(--sumac);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1rem;
+  padding: 1.25rem 0.75rem 1.25rem 1rem;
+  border-block-end: 1px solid var(--chalk-shade);
+  animation: open var(--dur-base) var(--ease-out) both;
+
+  &:nth-child(2) {
+    animation-delay: 160ms;
+  }
+}
+
+.teamB {
+  --team: var(--zaatar);
+}
+
+.yours {
+  background: var(--chalk-tint);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--team);
+  }
+}
+
+.letter {
+  color: var(--team);
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 0.9;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.where {
+  font-size: 0.9375rem;
+}
+
+.done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--zaatar);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.doneIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.itemAction {
+  align-self: flex-start;
+  margin-block-start: 0.5rem;
+}
+
+.devAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.next {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--chalk-shade);
+}
+
+.nextTitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.noticeIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-block-start: 0.125rem;
+  color: var(--zaatar);
+}
+
+@keyframes open {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    animation: none;
+  }
+}

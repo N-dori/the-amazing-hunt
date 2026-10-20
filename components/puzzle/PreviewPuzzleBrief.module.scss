@@ -1,0 +1,77 @@
+.brief {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: min(100% - 2rem, 48rem);
+  margin-inline: auto;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  padding-block: 2.5rem;
+}
+
+.signal {
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+}
+
+.title {
+  font-size: clamp(2.25rem, 10vw, 3.75rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 32ch;
+  list-style: none;
+}
+
+.line {
+  color: var(--chalk-shade);
+  font-size: clamp(1.1875rem, 4.6vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+// The newest line is full Chalk; earlier ones step back.
+.lineNew {
+  color: var(--chalk);
+  animation: arrive var(--dur-slow) var(--ease-out) both;
+}
+
+.controls {
+  padding-block: 1rem calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineNew {
+    animation: none;
+  }
+}

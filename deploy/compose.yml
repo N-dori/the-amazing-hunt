@@ -1,0 +1,49 @@
+# THE MEMORY PROTOCOL: its own compose project, separate from the dori platform stack.
+# Deploying or restarting it never touches dori-platform or dori-site. No ports are published
+# on the host; only revivo's Caddy reaches it, over the shared network dori_net.
+name: dori-game
+
+services:
+  game:
+    image: dori-game:current
+    container_name: dori-game
+    restart: unless-stopped
+    user: node
+    read_only: true
+    tmpfs:
+      - /tmp
+    # Server-authoritative game state (SQLite). Never removed by a deploy or rollback.
+    volumes:
+      - game_data:/data
+    # OPENAI_API_KEY / OPENAI_MODEL / GUIDE_CREATE_KEY, all optional. Without OpenAI settings
+    # HARMONY uses its scripted replies. The file is gitignored; see .env.example.
+    env_file:
+      - path: .env
+        required: false
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 100
+    networks:
+      - dori_net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/memory-protocol/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dori_net:
+    external: true
+
+volumes:
+  game_data:

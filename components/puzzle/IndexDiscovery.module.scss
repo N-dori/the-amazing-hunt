@@ -1,0 +1,22 @@
+// The same screen shell as Mission 00B: dark for HARMONY's brief, Chalk for the walk.
+@forward "./IndexPuzzle.module";
+
+// The mission code carries the team's colour, as on the team and map screens.
+.code {
+  --team: var(--sumac);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.teamB .code {
+  --team: var(--zaatar);
+}
+
+.teamDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--team);
+}

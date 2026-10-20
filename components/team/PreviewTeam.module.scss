@@ -1,0 +1,192 @@
+// Team colour: Sumac for A, Za'atar for B. Used only for the large letter, rules and seat
+// fills, never for small text (Za'atar falls below AA on the tinted selected state).
+.team {
+  --team: var(--sumac);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.5rem 0.75rem 1.5rem 1rem;
+  border: 0;
+  color: var(--ink);
+  background: none;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--dur-base) var(--ease-out);
+
+  // The selection rule on the leading edge.
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--team);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--chalk-highlight);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.teamB {
+  --team: var(--zaatar);
+}
+
+.chosen {
+  background: var(--chalk-tint);
+
+  &:hover:not(:disabled) {
+    background: var(--chalk-tint);
+  }
+
+  &::before {
+    transform: scaleY(1);
+  }
+}
+
+.letter {
+  color: var(--team);
+  font-size: 3.5rem;
+  font-weight: 300;
+  line-height: 0.9;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.track {
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.summary {
+  max-width: 36ch;
+  font-size: 1rem;
+}
+
+.seats {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block-start: 0.75rem;
+}
+
+.seat {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.taken {
+  background: var(--team);
+  opacity: 0.45;
+}
+
+.open {
+  border: 1px dashed var(--neutral-line);
+}
+
+.youLabel {
+  margin-inline-start: 0.5rem;
+  font-weight: 500;
+}
+
+.you {
+  color: var(--chalk);
+  background: var(--team);
+  animation: seatIn var(--dur-base) var(--ease-out) both;
+}
+
+.seatIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.count {
+  margin-inline-start: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+}
+
+@keyframes seatIn {
+  from {
+    transform: scale(0.4);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .team {
+    height: 100%;
+    grid-template-columns: 1fr;
+    align-content: start;
+    padding: 2rem 1.75rem;
+    border: 1px solid var(--chalk-shade);
+  }
+
+  .team::before {
+    inset-inline: 0;
+    inset-block: 0 auto;
+    width: auto;
+    height: 3px;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .chosen::before {
+    transform: scaleX(1);
+  }
+
+  .letter {
+    font-size: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team,
+  .team::before,
+  .seat {
+    transition: none;
+  }
+
+  .you {
+    animation: none;
+  }
+}

@@ -1,0 +1,27 @@
+.page {
+  display: grid;
+  flex: 1;
+  min-height: 100svh;
+  place-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.title {
+  color: var(--sumac);
+  font-size: 1.75rem;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  max-width: 32ch;
+  margin-inline: auto;
+  font-style: italic;
+}
+
+@media (min-width: 48rem) {
+  .title {
+    font-size: 2.5rem;
+  }
+}

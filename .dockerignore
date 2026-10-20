@@ -1,0 +1,9 @@
+node_modules
+.next
+deploy
+docs
+research
+.env*
+README.md
+.claude
+CLAUDE.md

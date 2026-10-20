@@ -1,0 +1,246 @@
+// Phones: map full-bleed, then the stop list, with the next action pinned to the bottom.
+// Wide screens: map and a side column holding the open card and the stop list.
+.layout {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.mapColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+  color: var(--ink);
+  font-size: 0.8125rem;
+}
+
+.disclaimerIcon {
+  width: 1rem;
+  height: 1rem;
+  margin-block-start: 0.125rem;
+  color: var(--zaatar);
+}
+
+.aside {
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+
+.legendHeading {
+  margin-block-end: 0.5rem;
+  color: var(--zaatar);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.legend {
+  list-style: none;
+  border-block-start: 1px solid var(--chalk-shade);
+}
+
+.stop {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.25rem;
+  border: 0;
+  border-block-end: 1px solid var(--chalk-shade);
+  color: var(--ink);
+  background: none;
+  text-align: start;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+
+  &:hover {
+    background: var(--chalk-highlight);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: -2px;
+  }
+}
+
+.stopActive {
+  background: var(--chalk-tint);
+}
+
+.stopOrder {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.stopName {
+  font-size: 1rem;
+}
+
+.stopState {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stopIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.next {
+  .stopOrder,
+  .stopState {
+    color: var(--sumac);
+  }
+
+  .stopName {
+    font-weight: 500;
+  }
+}
+
+.locked,
+.conditional {
+  .stopName,
+  .stopOrder {
+    opacity: 0.7;
+  }
+}
+
+.complete .stopState {
+  color: var(--zaatar);
+}
+
+// The obvious next action, always within thumb reach on phones.
+.nextBar {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 5;
+  padding-block: 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-block-start: 1px solid var(--ink);
+  background: var(--chalk);
+  animation: barIn var(--dur-base) var(--ease-out) both;
+}
+
+.nextInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+
+.nextText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nextLabel {
+  color: var(--sumac);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nextName {
+  overflow: hidden;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nextButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding-inline: 1.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  color: var(--chalk);
+  background: var(--sumac);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sumac-deep);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+  }
+}
+
+.nextIcon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+@keyframes barIn {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@media (min-width: 64rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+    gap: 2rem;
+    width: min(100% - 4rem, 80rem);
+    margin-inline: auto;
+  }
+
+  .disclaimer,
+  .aside {
+    width: 100%;
+  }
+
+  .aside {
+    position: sticky;
+    inset-block-start: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nextBar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stop {
+    transition: none;
+  }
+
+  .nextBar {
+    animation: none;
+  }
+}

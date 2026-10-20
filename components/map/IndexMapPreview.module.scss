@@ -1,0 +1,142 @@
+.page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: 100svh;
+  padding-block: 1.5rem 3rem;
+}
+
+.head,
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: clamp(1.75rem, 7vw, 2.75rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.intro {
+  max-width: 48ch;
+}
+
+.steps {
+  padding-inline-start: 1.25rem;
+  font-size: 0.9375rem;
+}
+
+.switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 0;
+}
+
+.legend {
+  width: 100%;
+  margin-block-end: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:focus-within {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+}
+
+.optionOn {
+  color: var(--chalk);
+  background: var(--ink);
+}
+
+.notice {
+  font-size: 0.8125rem;
+}
+
+.layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+
+.pending {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pendingHeading {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pendingList {
+  list-style: none;
+  border-block-start: 1px solid var(--chalk-shade);
+}
+
+.pendingItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-block: 0.625rem;
+  border-block-end: 1px solid var(--chalk-shade);
+}
+
+.pendingName {
+  font-weight: 500;
+}
+
+.pendingStatus,
+.audit {
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 64rem) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+    width: min(100% - 4rem, 80rem);
+    margin-inline: auto;
+  }
+
+  .aside {
+    width: 100%;
+  }
+}

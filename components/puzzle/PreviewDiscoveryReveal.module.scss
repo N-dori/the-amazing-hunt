@@ -1,0 +1,106 @@
+// Same reveal as 00B (kicker, documented quote, HARMONY panel, sources). The answer here is a
+// word or a title rather than a year, so it gets a smaller stamp.
+@forward "./PreviewPuzzleReveal.module";
+
+.answer {
+  color: var(--ink);
+  font-size: clamp(2.5rem, 12vw, 4.5rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  animation: stamp var(--dur-slow) var(--ease-out) both;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+// The whole photograph, held back until now.
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--ink);
+  animation: develop var(--dur-slow) var(--ease-out) both;
+}
+
+.figureImage {
+  display: block;
+  width: 100%;
+  max-height: 80svh;
+  object-fit: contain;
+}
+
+.figureCaption {
+  color: var(--chalk);
+  font-size: 0.75rem;
+}
+
+// The object's own label, set like a museum caption.
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.recordLines {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid var(--chalk-shade);
+  background: var(--chalk-highlight);
+}
+
+.recordLine {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+
+  &:nth-child(2) {
+    font-style: italic;
+  }
+}
+
+.reading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.readingText {
+  padding: 0.875rem 1rem;
+  border-inline-start: 2px solid var(--amber);
+  background: var(--chalk-tint);
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.messageText {
+  font-size: clamp(1.25rem, 5vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+@keyframes develop {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer,
+  .figure {
+    animation: none;
+  }
+}

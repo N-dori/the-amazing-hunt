@@ -1,0 +1,89 @@
+// Deliberately utilitarian and dashed, so it can't be mistaken for visitor UI.
+.panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  width: min(100% - 2rem, 80rem);
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--ink);
+  font-size: 0.875rem;
+}
+
+.heading {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+}
+
+.legend {
+  float: inline-start;
+  margin-inline-end: 0.5rem;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.875rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:focus-within {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+}
+
+.optionOn {
+  color: var(--chalk);
+  background: var(--ink);
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.hide,
+.reopen {
+  min-height: 2.75rem;
+  padding-inline: 0.5rem;
+  border: 0;
+  color: var(--ink);
+  background: none;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+}
+
+// When hidden: a tiny dashed tab, still dev-only.
+.reopen {
+  display: block;
+  margin: 0 auto 0.5rem;
+  border: 1px dashed var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  text-decoration: none;
+}
