@@ -13,7 +13,7 @@ Same conventions as the editorial platform (the platform repo's `app/globals.scs
 ## Tokens
 
 - Colours come from the custom properties: `--ink`, `--chalk`, `--zaatar`, `--sumac`, `--amber`, the derived neutrals and `--background` / `--foreground`. Never hard-code a hex in a module.
-- Fonts come from `--font-body` and `--font-mono` (Geist, loaded in `app/layout.tsx`).
+- Fonts come from `--font-body` and `--font-mono`: IBM Plex Sans and IBM Plex Sans Hebrew for body, IBM Plex Mono for mono, loaded in `app/layout.tsx`.
 - Add a new token to `globals.scss` only when the brand doc supports it, and mark derived values as "not yet confirmed against the brand book", as the platform does.
 
 ## Naming and units
@@ -27,6 +27,7 @@ Same conventions as the editorial platform (the platform repo's `app/globals.scs
 - Mobile first: base styles are for phones at a 16 px side gutter, with no horizontal scroll.
 - Widen with the platform's breakpoints: `@media (min-width: 48rem)`, then `@media (min-width: 64rem)`. Use a `max-width` query only when a rule truly applies to small screens only (the platform uses `max-width: 47.99rem`).
 - Touch targets are at least `2.75rem` (44 px).
+- Outdoor game screens (The Amazing Shuk, played in sun and on the move by every age) use at least `3rem` (48 px). This overrides the 44 px rule for those screens.
 - Use `100svh`/`100dvh` rather than `100vh` for full-height phone screens.
 
 ## Icons
