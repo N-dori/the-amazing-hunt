@@ -14,3 +14,19 @@ next-env.d.ts
 # debug and OS files
 npm-debug.log*
 .DS_Store
+
+# design input archives: too big for git, kept on disk only
+design/inputs/**/*.zip
+
+# photos and images are never committed: kept on disk only.
+# Only the photo index CSV is versioned. App assets in public/ are not affected.
+design/inputs/photos/*
+!design/inputs/photos/.gitkeep
+!design/inputs/photos/photo_index_ALL.csv
+docs/**/*.png
+docs/**/*.jpg
+docs/**/*.jpeg
+docs/**/*.gif
+docs/**/*.webp
+docs/**/*.heic
+docs/**/*.zip
