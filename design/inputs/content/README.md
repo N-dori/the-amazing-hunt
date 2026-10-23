@@ -15,7 +15,7 @@ Most of the background files here were copied from the platform's creative-treat
 
 **Also read:** the brand book and logo in `../brand/`, and each photo in `../photos/` before you cite it or plan a crop from it.
 
-**Consult only when a deliverable needs it:** the authoring system, the guiding methods, research runs 01–04 and the endowment-effect transcript below. Don't read them up front; name the ones you used.
+**Consult only when a deliverable needs it:** the guiding stories, the authoring system, the guiding methods, research runs 01–04 and the endowment-effect transcript below. Don't read them up front; name the ones you used.
 
 ## Rules that still apply
 
@@ -33,6 +33,12 @@ Most of the background files here were copied from the platform's creative-treat
 | [Photo index](../photos/photo_index_ALL.csv) | Index of the 114 field photos (23 Oct 2026): original and new file names, description, mission link, faces and consent. Kept in `../photos/` | Choosing photos and crops; checking for faces |
 | [Machane Yehuda and Nachlaot stories](machane-yehuda-nachlaot-stories.md) | Stories, anecdotes and facts extracted from Nadav's Google Drive (15 Oct 2026), each tagged with its source file | Story candidates for stops and reveals; each needs its source and an evidence label |
 | [Run 06: site verification](06_nahlaot_market_sites_verification.md) | Perplexity research run (16 Oct 2026) checking which Nahlaot and market sites are publicly visible and documented. Same file as `research/results/06_nahlaot_market_sites_verification.md` | Which stops can carry evidence, and which claims to avoid |
+
+### General knowledge
+
+| Document | What it is | Use it for |
+|---|---|---|
+| [Guiding stories](DORI_Machane_Yehouda__Guiding_Stories.md) | Five refined guiding scripts (Oct 2026): Rachmo, the market, Raphael the butcher, the blue roof and Nachlaot. Each has a spoken story plus research notes that sort documented, oral, folklore and interpretation, with sources | Background on the stories the guide tells, and the oral sources behind ideas such as *Why blue?*, Rivka's roses and the abaday vote. Not approved game copy. Its links to `01_Rachmo_Refined.md` … `05_Nachlaot_Refined.md` point to separate files that aren't in this repo; the scripts are all inside this one file |
 
 ### Authoring system and practice
 
