@@ -1,6 +1,39 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Claude review of Codex work, 24 Oct 2026
+## Latest handoff - mural challenge, first slice, 24 Oct 2026
+
+Owner chose the mural, "Is It Real or Is It Painted?", as mission 2 (the twelve-tribes door is postponed). Claude built a first slice on the per-mission state (`7fa1eea`, committed locally, not pushed). This slice is committed locally too (not pushed).
+
+**Built**
+- Generic "choose N" challenge, `lib/amazing-shuk/choice-task.ts`: shared picks, toggle with catalogue order and an N limit, and deterministic `evaluateChoice` (`accepted`, `incorrect`, `incomplete`, `unverified`).
+- Mural content and mission, `lib/amazing-shuk/mural-task.ts`; catalogue order is now well, then mural.
+  - Story: two lines, 35 words, from the English tour, Stop 8. "In 2001, CitéCréation in Lyon…" is labelled Historical fact; the cardboard-box anecdote is labelled Attributed tradition.
+  - Question: the owner's own wording, "Find 2 things on this wall that are real, not painted."
+  - Hints: the tour's three questions, verbatim.
+  - Eight sourced options, each recording its source and whether it's real.
+- Store: mission records carry `kind` (`water` with `cups`, `choice` with `selected`). Schema-5 records without `kind` load as the well.
+  - New mission action `toggle-choice` (needs `missionId`). Followers may change the shared picks; only the answer-submitter or guide submits, and guide approval can't bypass the key.
+  - Timing is invisible, as for the well: the clock starts on an authorized Start and stops on the accepted submission.
+  - Rewards and the hint limit now come from each mission definition (`rewards`, `hintCount`); `awardWaterPerformance` takes the config.
+- UI: `IndexWaterTask` now tracks the previewed mission (`missionId`), polls `?mission=`, and opens the well or the mural by the record's `kind`. New `ListMuralTask`, `PreviewMuralTask` and `PreviewMuralStory`; the styles `@forward` the well's modules. Options are `aria-pressed` buttons with a check mark (not colour alone), and there's a "Clear choices" reset. The map now shows marker 2.
+- Verified in a clean container: `test:shuk` 79/79 (13 new across `mural-task`, `mural-mission-integration` and `mural-task-ui`), `npm test` 61/61, `tsc` pass, both new Sass modules compile, lint unchanged. Not checked in a browser or on a phone.
+
+**Gaps, all deliberate**
+- **The answer key is not verified** (`answerKeyVerified: false`). Submitting returns "can't be checked yet… ask your guide" and awards nothing; tests prove scoring with a test-only verified key.
+  - Air vents, plaque and the treble-clef sign are real per the owner's notes from photos #103-105.
+  - Cardboard boxes and the bicycle are painted per Israel Post (S1, run 07). The antenna phone is painted per the tour and the owner's notes; the laundry per the owner's notes.
+  - The "103" tile stays `null`: the ideas file says real, run 07 says painted.
+  - Not in the key: the building's real blinds and railings repainted to match (S1), and the balconies (Rafi Kfir's Nahlaot page says painted balconies blend with the real ones). Both are ambiguous.
+  - The owner must field-check each item, then set `correct` and `answerKeyVerified: true`.
+- **No mural image anywhere**, preview included: rights are unresolved (`product-decisions.md`), and a photo would show the answers.
+- **No GPS:** `destination: null`. Sources give house numbers 70, 84 or 88; Rafi Kfir's page puts it at HaRav Shmuel Baruch St on the corner of Sha'arei Tzedek. "We're Here?" shows the friendly fallback; guide confirmation works.
+- **The marker is a manual guess** (480, 478) on Agripas St, flagged unverified.
+- **Rewards are a provisional copy** of the well's values (`MURAL_REWARDS`), including the 20-point arrival bonus. Owner approval needed.
+- **Draft copy for owner review:** the two story lines, the option labels, the marker name "Market Mural", and the UI lines "Talk it over…", "Clear choices", "Choices cleared.", "Not quite. Look again and talk it over." and the draft-key notice.
+- **New source, not yet in the research files:** [Rafi Kfir, "ציור הקיר ברחוב אגריפס"](https://www.nahlaot.co.il/%D7%A6%D7%99%D7%95%D7%A8-%D7%94%D7%A7%D7%99%D7%A8-%D7%91%D7%A8%D7%97%D7%95%D7%91-%D7%90%D7%92%D7%A8%D7%99%D7%A4%D7%A1.html), read 24 Oct 2026. It adds: painted on canvas glued to the wall; a Lyon group active since 1978 with 11 members (run 07 says 12 artists, founded 1983); initiated by the municipality and the Ministry of Tourism. CitéCréation's project page adds nothing on real vs painted.
+- `IndexWaterTask` now hosts both missions; renaming it (e.g. to `IndexShukGame`) is a later clean-up.
+
+## Earlier handoff - Claude review of Codex work, 24 Oct 2026
 
 Claude (Claude Code, on the VPS checkout `/root/projects/The-Amazing-Hunt`) reviewed everything from `969ae8d` (Claude's last commit) to `ca9cf1e`, read-only, then fast-forwarded the VPS checkout to `ca9cf1e` at the owner's request. No code, decision, roadmap or designer file was changed; this section is the only edit. The owner's uncommitted Memory Protocol edits on the VPS (`docs/HANDOFF.md`, `docs/RUN_PREVIEW.md`) are unrelated to Shuk; leave them.
 

@@ -46,9 +46,10 @@ export function adjustWaterTiming(state: WaterPerformance, operation: TimingOper
   if (operation === "exclude" && !state.excluded) next = { ...state, excluded: true };
   return next === state ? state : { ...next, adjustments: [...state.adjustments, { operation, at: now, actorId }] };
 }
-export function awardWaterPerformance(state: WaterPerformance, now: number): WaterPerformance {
+/** Each mission passes its own reward settings; the well's are the default. */
+export function awardWaterPerformance(state: WaterPerformance, now: number, config = WELL_REWARDS): WaterPerformance {
   if (state.award) return state;
   if (state.startedAt === null || state.solvedAt === null) throw new Error("Start and solve the challenge before submitting");
   const elapsedMs = state.excluded ? null : measuredWaterTime(state, now);
-  return { ...state, award: { ...calculateWaterReward(elapsedMs, state.hintsUsed), awardedAt: now, elapsedMs } };
+  return { ...state, award: { ...calculateWaterReward(elapsedMs, state.hintsUsed, config), awardedAt: now, elapsedMs } };
 }

@@ -1,0 +1,12 @@
+// Shares the well's task layout, result, hint and button styles.
+@forward "./PreviewWaterTask.module";
+
+.options { list-style: none; padding: 0; margin-block: 1.5rem; display: grid; gap: .75rem; max-width: 42rem; }
+.option { display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 3rem; padding: .75rem 1rem; border: 1px solid var(--ink); border-radius: .25rem; background: var(--chalk); color: var(--ink); font: inherit; text-align: start; cursor: pointer; overflow-wrap: anywhere; }
+.option:disabled { cursor: default; }
+.option:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+// Chosen items carry a check mark and a heavier border, not colour alone.
+.optionSelected { border: 2px solid var(--sumac); font-weight: 500; }
+.mark { flex: none; display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 2px solid var(--ink); border-radius: .25rem; color: var(--sumac); }
+.keyNotice { font-size: .875rem; line-height: 1.5; color: var(--ink); border-inline-start: .25rem solid var(--neutral-line); padding-inline-start: .75rem; max-width: 42rem; }
+@media (forced-colors: active) { .optionSelected { border-color: Highlight; } }

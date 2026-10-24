@@ -1,6 +1,7 @@
 import { checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
+import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
@@ -12,8 +13,11 @@ import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPA
 export const SESSION_COOKIE = "shuk_session";
 const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
-/** One mission's shared progress. Its award and arrival bonus are immutable once recorded. */
-type MissionRecord = { cups: WaterCups; completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance };
+/** One mission's shared progress. Its award and arrival bonus are immutable once recorded.
+ * `kind` follows the mission's challenge: the well keeps cups, a "choose N" challenge keeps the group's picks.
+ */
+type MissionRecord = { completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance }
+  & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[] });
 /** Schema 4 and earlier held a single mission: the well. */
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
 type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
@@ -23,12 +27,17 @@ export class AccessError extends Error {
 }
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 const secret = () => randomBytes(32).toString("base64url");
-const emptyMission = (): MissionRecord => ({ cups: EMPTY_WATER_CUPS, completed: false, arrival: null, performance: createWaterPerformance() });
+function emptyMission(definition: MissionDefinition): MissionRecord {
+  const base = { completed: false, arrival: null, performance: createWaterPerformance() };
+  return definition.challenge.kind === "water" ? { ...base, kind: "water", cups: EMPTY_WATER_CUPS } : { ...base, kind: "choice", selected: [] };
+}
+const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
 function initial(): Database {
   return { version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} };
 }
 function isValidMission(record: MissionRecord): boolean {
-  return Boolean(record) && (record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0)) && isValidCups(record.cups);
+  if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
+  return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string");
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
@@ -49,12 +58,19 @@ async function load(path: string): Promise<Database> {
     if (legacy.version !== 4 || !legacy.group) throw new Error("Unsupported Shuk storage state");
     // Keep the well's progress, timing and rewards under its stable mission ID.
     const { group, arrival, performance, ...rest } = legacy;
-    stored = { ...rest, version: 5, roles: group.roles, missions: { [WATER_TASK_ID]: { cups: group.cups, completed: group.completed, arrival, performance } } };
+    stored = { ...rest, version: 5, roles: group.roles, missions: { [WATER_TASK_ID]: { kind: "water", cups: group.cups, completed: group.completed, arrival, performance } } };
   }
   const db = stored as Database;
-  if (!db.roles || !db.missions || !Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
+  if (!db.roles || !db.missions) throw new Error("Unsupported Shuk storage state");
+  // The first schema-5 records had no kind; they were all the well.
+  for (const [id, record] of Object.entries(db.missions)) if (record && !("kind" in record)) db.missions = { ...db.missions, [id]: { ...(record as object), kind: "water" } as MissionRecord };
+  if (!Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
   // A mission added to the catalogue starts empty. Records of missions no longer listed are kept, with their rewards.
-  for (const mission of SHUK_MISSIONS) if (!db.missions[mission.id]) db.missions = { ...db.missions, [mission.id]: emptyMission() };
+  for (const mission of SHUK_MISSIONS) {
+    const record = db.missions[mission.id];
+    if (!record) db.missions = { ...db.missions, [mission.id]: emptyMission(mission) };
+    else if (record.kind !== mission.challenge.kind || (record.kind === "choice" && !isValidChoiceSelection(mission.challenge as ChoiceChallenge, record.selected))) throw new Error("Unsupported Shuk storage state");
+  }
   return db;
 }
 
@@ -129,7 +145,8 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     puzzleRevision: WATER_PUZZLE_REVISION,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
     mission: missionView(definition, record),
-    session: { roles: db.roles, cups: record.cups, completed: record.completed, activeActorId: participantId },
+    session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
+      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected }) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
     // The group's balance covers every mission's recorded rewards.
@@ -139,8 +156,8 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       stoppedElapsedMs: record.performance.solvedAt === null ? null : measuredWaterTime(record.performance, now), paused: record.performance.pausedAt !== null, excluded: record.performance.excluded } } : {}),
   };
 }
-/** `arrivalPolicy` overrides the mission's own policy; tests use it to supply a verified destination. */
-export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy) {
+/** `arrivalPolicy` and `choiceChallenge` override the mission's own settings; tests use them for a verified destination or answer key. */
+export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy, choiceChallenge?: ChoiceChallenge) {
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
@@ -180,29 +197,58 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (mission.performance.startedAt === null) {
             // Existing in-progress puzzles are retained, but their earlier time is unknown.
             mission.performance = { ...mission.performance, startedAt: now, clockStartedAt: now,
-              excluded: mission.cups.small + mission.cups.large + mission.cups.jar > 0,
-              solvedAt: isWaterPuzzleSolved(mission.cups) ? now : null };
+              excluded: !isEmptyProgress(mission),
+              solvedAt: mission.kind === "water" && isWaterPuzzleSolved(mission.cups) ? now : null };
           }
         } else if (action.type === "timing") {
           if (!guide) throw new Error("Only the guide may adjust timing");
           if (mission.completed) throw new Error("This challenge is already complete");
           mission.performance = adjustWaterTiming(mission.performance, action.operation, now, participantId);
         } else if (action.type === "hint") {
-          if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > 3) throw new Error("Invalid hint");
+          if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > definition.hintCount) throw new Error("Invalid hint");
           if (action.hint > mission.performance.hintsUsed) {
             if (mission.performance.startedAt === null || mission.performance.solvedAt !== null || mission.completed) throw new Error("Hints are available during the challenge");
             if (action.hint !== mission.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
             mission.performance = { ...mission.performance, hintsUsed: action.hint };
           }
-        } else {
+        } else if (mission.kind === "water") {
+          if (action.type === "toggle-choice") throw new Error("This action doesn't fit this mission");
           if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
           const result = applyDevWaterAction({ roles: db.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
           if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && mission.performance.solvedAt === null) mission.performance = { ...mission.performance, solvedAt: now };
           if (action.type === "reset") mission.performance = { ...mission.performance, solvedAt: null };
-          if (result.session.completed && !mission.completed) mission.performance = awardWaterPerformance(mission.performance, now);
+          if (result.session.completed && !mission.completed) mission.performance = awardWaterPerformance(mission.performance, now, definition.rewards);
           mission.cups = result.session.cups;
           mission.completed = result.session.completed;
           message = result.message;
+        } else {
+          const challenge = choiceChallenge ?? definition.challenge as ChoiceChallenge;
+          if (action.type === "move") throw new Error("This action doesn't fit this mission");
+          if (action.type === "guide-approve" && !guide) throw new Error("Only the guide may approve a task.");
+          if (mission.completed) {
+            if (action.type === "toggle-choice" || action.type === "reset") throw new Error("This challenge is already complete");
+            message = "This task is already complete.";
+          } else if (mission.performance.startedAt === null) {
+            throw new Error("Start the challenge after reading the story");
+          } else if (action.type === "toggle-choice") {
+            const selected = toggleChoice(challenge, mission.selected, action.optionId);
+            if (!selected) throw new Error(`Choose up to ${challenge.required}.`);
+            mission.selected = [...selected];
+          } else if (action.type === "reset") {
+            mission.selected = [];
+            message = "Choices cleared.";
+          } else {
+            // Submit and guide approval both check the group's shared picks; neither can bypass the key.
+            const result = evaluateChoice(challenge, mission.selected);
+            if (result === "accepted") {
+              mission.completed = true;
+              mission.performance = awardWaterPerformance({ ...mission.performance, solvedAt: mission.performance.solvedAt ?? now }, now, definition.rewards);
+            }
+            message = result === "accepted" ? "The group's answer is correct. Task complete."
+              : result === "incomplete" ? `Choose ${challenge.required} before submitting.`
+              : result === "unverified" ? "This answer can't be checked yet: the answer key still needs a field check. Ask your guide."
+              : "Not quite. Look again and talk it over.";
+          }
         }
         db.missions = { ...db.missions, [action.missionId]: mission };
       }

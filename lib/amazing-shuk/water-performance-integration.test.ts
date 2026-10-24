@@ -7,6 +7,8 @@ import { parseAction } from "./parse-water-action.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { schema4Snapshot } from "./legacy-store-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
+// The well's detail; null if the view is for a "choose N" mission.
+const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
 async function fixture(run: (path: string, tokens: Record<string, string>, base: number) => Promise<void>) {
   await mkdir(".local", { recursive: true });
   const directory = await mkdtemp(join(process.cwd(), ".local", "shuk-performance-"));
@@ -102,7 +104,7 @@ test("existing progress migrates without invented timing or retroactive rewards"
   old.group.cups = { small: 3, large: 0, jar: 2 };
   await writeFile(path, JSON.stringify(old));
   const migrated = await sessionView(path, tokens["player-2"], base);
-  assert.deepEqual(migrated.session.cups, old.group.cups);
+  assert.deepEqual(cupsOf(migrated), old.group.cups);
   assert.equal(migrated.performance.started, false);
   assert.equal(migrated.performance.reward, null);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "start" }, "migrated-start-001", base);

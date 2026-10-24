@@ -20,7 +20,7 @@ export default function ListArrivalMission({ missions, mission, ...props }: Prop
     return definition ? buildMissionPresentation(definition, { id, state, arrivalPoints, arrivalMethod, gpsEnabled }, SHUK_MISSIONS.indexOf(definition) + 1) : null;
   }, [id, state, arrivalPoints, arrivalMethod, gpsEnabled]);
   return <>
-    <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with Gan HaTut mission"
+    <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with mission markers"
       markers={markers} selectedId={props.selected ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
       notice="Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."
       onSelect={props.onSelect} onBackground={props.onDismiss} />

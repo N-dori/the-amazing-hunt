@@ -1,4 +1,7 @@
 import { WATER_TASK_ID } from "./water-measurement.ts";
+import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
+import { WATER_HINTS } from "./water-hints.ts";
+import type { ChoiceChallenge } from "./choice-task.ts";
 
 export type ArrivalReading = Readonly<{ latitude: number; longitude: number; accuracy: number; timestamp: number }>;
 export type ArrivalPolicy = Readonly<{
@@ -14,6 +17,9 @@ export type MissionDefinition = Readonly<{
   photo: Readonly<{ src: string; alt: string }> | null;
   placement: Readonly<{ x: number; y: number; verified: boolean }>;
   arrival: ArrivalPolicy;
+  // The challenge decides the shape of the mission's shared progress.
+  challenge: Readonly<{ kind: "water" }> | ChoiceChallenge;
+  rewards: WaterRewardConfig; hintCount: number;
 }>;
 export const GAN_HATUT_MISSION = Object.freeze({
   id: WATER_TASK_ID, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
@@ -28,6 +34,8 @@ export const GAN_HATUT_MISSION = Object.freeze({
     destination: Object.freeze({ latitude: 31.7834802, longitude: 35.2128322, verified: false }),
     radiusMeters: 100, maxAccuracyMeters: 50, maxAgeMs: 60_000, futureToleranceMs: 5_000, rewardPoints: 20,
   }) satisfies ArrivalPolicy,
+  challenge: Object.freeze({ kind: "water" as const }),
+  rewards: WELL_REWARDS, hintCount: WATER_HINTS.length,
 }) satisfies MissionDefinition;
 const radians = (degrees: number) => degrees * Math.PI / 180;
 export function distanceMeters(a: Pick<ArrivalReading, "latitude" | "longitude">, b: Pick<ArrivalReading, "latitude" | "longitude">): number {

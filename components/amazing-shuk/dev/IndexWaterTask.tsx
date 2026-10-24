@@ -15,13 +15,18 @@ import { WATER_TASK } from "@/lib/amazing-shuk/water-task";
 import { INITIAL_WATER_INTERACTION, type WaterInteraction, type WaterContainerId, type WaterActionView } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterPerformanceView, GuideTimingView } from "@/lib/amazing-shuk/water-performance";
 import { WATER_PUZZLE_REVISION, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
+import { findMission } from "@/lib/amazing-shuk/missions";
+import { MURAL_TASK } from "@/lib/amazing-shuk/mural-task";
+import ListMuralTask from "./ListMuralTask";
+import PreviewMuralStory from "./PreviewMuralStory";
 import styles from "./IndexWaterTask.module.scss";
 
 const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
-// This page plays the well challenge; its shared progress is keyed by this mission ID.
 const WELL_MISSION_ID = GAN_HATUT_MISSION.id;
 
-type ServerView = { missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: DevWaterSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+// The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
+type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[] };
+type ServerView = { missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 export default function IndexWaterTask() {
   const [view, setView] = useState<ServerView | null>(null);
@@ -33,6 +38,8 @@ export default function IndexWaterTask() {
   const [arrivalBusy, setArrivalBusy] = useState(false);
   const [arrivalFeedback, setArrivalFeedback] = useState("");
   const [missionSelected, setMissionSelected] = useState(false);
+  // The mission shown in the preview card; its challenge opens when `missionSelected` is true.
+  const [missionId, setMissionId] = useState<string>(WELL_MISSION_ID);
   const [busy, setBusy] = useState(false);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
@@ -63,13 +70,13 @@ export default function IndexWaterTask() {
   };
   const refresh = useCallback(async () => {
     try {
-      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev?mission=" + encodeURIComponent(WELL_MISSION_ID), { cache: "no-store" });
+      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev?mission=" + encodeURIComponent(missionId), { cache: "no-store" });
       if (response.status === 401) setView(null);
       if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : "The local simulation is unavailable.");
       setView(await response.json() as ServerView);
       setMessage("");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not load the local simulation."); }
-  }, []);
+  }, [missionId]);
   useEffect(() => {
     void refresh();
     const timer = window.setInterval(() => { void refresh(); }, 1500);
@@ -94,7 +101,7 @@ export default function IndexWaterTask() {
       if (currentActor.current !== actorId || generation !== arrivalGeneration.current) return;
       // GPS evidence is sent once, never put in the persistent offline action queue.
       const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arrival", missionId: WELL_MISSION_ID,
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arrival", missionId,
           reading, actionId: crypto.randomUUID(), expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION }),
       });
       const data = await response.json() as ServerView;
@@ -146,7 +153,7 @@ export default function IndexWaterTask() {
   });
   const moveWater = async (move: WaterMove) => {
     setInteraction(current => ({ ...current, pouring: false }));
-    await act({ type: "move", move, missionId: WELL_MISSION_ID });
+    await act({ type: "move", move, missionId });
     focusPuzzle();
   };
   const selectContainer = (id: WaterContainerId, destinationMove: WaterMove | null) => {
@@ -159,7 +166,7 @@ export default function IndexWaterTask() {
     window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-pour-destination="true"]')?.focus());
   };
   const revealHint = () => {
-    if (view && view.performance.hintsUsed < 3) void act({ type: "hint", hint: view.performance.hintsUsed + 1, missionId: WELL_MISSION_ID });
+    if (view) void act({ type: "hint", hint: view.performance.hintsUsed + 1, missionId });
   };
 
   if (invitation) return <main className={styles.page}><p>Local development invitation</p><button type="button" disabled={busy} onClick={() => void login()}>Sign in with this invitation</button><p role="status">{message}</p></main>;
@@ -168,7 +175,7 @@ export default function IndexWaterTask() {
     <main className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>The Amazing Shuk</p>
-        <h1>{missionSelected ? GAN_HATUT_MISSION.name : "Explore the market"}</h1>
+        <h1>{missionSelected ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
       </header>
       <section className={styles.balance} aria-label="Shared group rewards">
         <div><span>Group points</span><strong>{view.sharedBalance.points}</strong></div>
@@ -176,9 +183,16 @@ export default function IndexWaterTask() {
       </section>
       <ListArrivalMission missions={view.missions} mission={view.mission} selected={missionSelected} guide={activeRole === "guide"} busy={busy || arrivalBusy}
         feedback={arrivalFeedback} onArrival={() => void checkArrival()}
-        onSelect={(id) => { if (id !== WELL_MISSION_ID) return; setMissionSelected(true); window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "start" })); }}
-        onDismiss={() => setMissionSelected(false)} onConfirm={() => void act({ type: "confirm-arrival", missionId: WELL_MISSION_ID })} />
-      {missionSelected ? <>
+        onSelect={(id) => { if (!findMission(id)) return; setMissionId(id); setMissionSelected(true); window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "start" })); }}
+        onDismiss={() => setMissionSelected(false)} onConfirm={() => void act({ type: "confirm-arrival", missionId })} />
+      {missionSelected && view.mission.id === missionId && view.session.kind === "choice" ? <>
+      <h2>{MURAL_TASK.title}</h2>
+      <PreviewMuralStory {...MURAL_TASK.story} instruction={MURAL_TASK.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
+      <ListMuralTask selected={view.session.selected ?? []} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
+        performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
+        onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })}
+        onReset={() => void act({ type: "reset", missionId })} />
+      </> : missionSelected && view.mission.id === missionId ? <>
       <h2>{WATER_TASK.title}</h2>
       <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
         setStoryOpen(!storyOpen);
@@ -187,9 +201,9 @@ export default function IndexWaterTask() {
       <ListWaterTask cups={view.session.cups} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
         interaction={interaction} performance={view.performance} onSelect={selectContainer} onAction={contextualAction}
         onCancelPour={() => { setInteraction(current => ({ ...current, pouring: false })); window.requestAnimationFrame(() => document.getElementById(`water-container-${interaction.selected}`)?.focus()); }}
-        onStart={() => void act({ type: "start", missionId: WELL_MISSION_ID })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId: WELL_MISSION_ID })} onReset={() => {
+        onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })} onReset={() => {
           setInteraction(INITIAL_WATER_INTERACTION);
-          void act({ type: "reset", missionId: WELL_MISSION_ID }).then(focusPuzzle);
+          void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />
       </> : null}
       <section className={styles.simulation} aria-label="Group participants and roles">
@@ -207,7 +221,7 @@ export default function IndexWaterTask() {
         </div>
 
       </section>
-      {activeRole === "guide" ? <IndexGuideWaterTask missionId={WELL_MISSION_ID} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
+      {activeRole === "guide" ? <IndexGuideWaterTask missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
       {message ? <p className={styles.message} role="status">{message}</p> : null}
       <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>
       <button className={styles.refresh} type="button" onClick={() => void refresh()} disabled={busy}>Refresh shared state</button>

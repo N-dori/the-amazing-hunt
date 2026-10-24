@@ -10,7 +10,10 @@ import { issueInvitation, redeemInvitation, sessionView, sessionAction, logout, 
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { MURAL_MISSION_ID } from "./mural-task.ts";
 const WELL = GAN_HATUT_MISSION.id;
+// The well's detail; null if the view is for a "choose N" mission.
+const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
 const env = { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" } as const;
 async function fixture(run: (path: string) => Promise<void>) {
   await mkdir(".local", { recursive: true });
@@ -81,7 +84,7 @@ test("two isolated cookie jars retain identities and share persistent progress (
   assert.equal((await (await call(b)).json()).session.completed, true);
   const solvedState = await (await call(b)).json();
   // New reads reopen the JSON file, independent of process memory.
-  assert.equal((await sessionView(path, b.split("=")[1])).session.cups.jar, 4);
+  assert.equal(cupsOf(await sessionView(path, b.split("=")[1]))?.jar, 4);
   const reopened = await promisify(execFile)(process.execPath, ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--input-type=module", "-e",
     'import { sessionView } from "./lib/amazing-shuk/participant-store.ts"; process.stdout.write(JSON.stringify(await sessionView(process.argv[1], process.argv[2])));', path, b.split("=")[1]]);
   assert.equal(JSON.parse(reopened.stdout).session.activeActorId, "player-2");
@@ -136,7 +139,7 @@ test("invitation reissue, session replacement, CLI link and identity mismatch", 
   const second = await redeemInvitation(path, await issueInvitation(path, "player-2"), Date.now(), first);
   await assert.rejects(sessionView(path, first));
   await assert.rejects(sessionAction(path, second, { missionId: WELL, type: "move", move: "fill-large" }, "identity-mismatch-001", Date.now(), "player-1"), { status: 409 });
-  assert.equal((await sessionView(path, second)).session.cups.large, 0);
+  assert.equal(cupsOf(await sessionView(path, second))?.large, 0);
   const cli = await promisify(execFile)(process.execPath, ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", "scripts/shuk-invite.ts", "guide"], {
     env: { ...process.env, ...env, SHUK_DATA_FILE: path },
   });
@@ -173,14 +176,14 @@ test("legacy cup state migrates without losing login or roles; stale queued acti
   assert.equal(view.puzzleRevision, WATER_PUZZLE_REVISION);
   assert.equal(view.session.activeActorId, "player-2");
   assert.deepEqual(view.session.roles, old.group.roles);
-  assert.deepEqual(view.session.cups, { small: 0, large: 0, jar: 0 });
+  assert.deepEqual(cupsOf(view), { small: 0, large: 0, jar: 0 });
   assert.equal(view.session.completed, false);
   const request = new Request("http://127.0.0.1:3000/api", {
     method: "POST", headers: { host: "127.0.0.1:3000", origin: "http://127.0.0.1:3000", "content-type": "application/json", cookie: `shuk_session=${token}` },
     body: JSON.stringify({ missionId: WELL, type: "move", move: "fill-large", actionId: "stale-water-move-001", expectedParticipantId: "player-2", puzzleRevision: 1 }),
   });
   assert.equal((await handleParticipantRequest(request, path, env)).status, 422);
-  assert.deepEqual((await sessionView(path, token)).session.cups, view.session.cups);
+  assert.deepEqual(cupsOf(await sessionView(path, token)), cupsOf(view));
 }));
 
 test("guide cannot bypass the jar goal; reset and repeated completion preserve the shared result", () => fixture(async path => {
@@ -191,7 +194,7 @@ test("guide cannot bypass the jar goal; reset and repeated completion preserve t
   assert.equal((await sessionView(path, player)).session.completed, false);
   await sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "player-reset-fill-001");
   await sessionAction(path, player, { missionId: WELL, type: "reset" }, "player-reset-task-001");
-  assert.deepEqual((await sessionView(path, guide)).session.cups, { small: 0, large: 0, jar: 0 });
+  assert.deepEqual(cupsOf(await sessionView(path, guide)), { small: 0, large: 0, jar: 0 });
   await sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "player-final-fill-001");
   await sessionAction(path, player, { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "player-final-pour-001");
   await sessionAction(path, guide, { missionId: WELL, type: "submit" }, "guide-final-submit-001");
@@ -210,9 +213,9 @@ test("two participants measure two liters twice and finalize the same shared jar
   const sequence = ["fill-large", "pour-large-into-small", "pour-large-into-jar", "empty-small", "fill-large", "pour-large-into-small", "pour-large-into-jar"] as const;
   for (const [index, move] of sequence.entries()) {
     await sessionAction(path, index % 2 ? submitter : first, { missionId: WELL, type: "move", move }, `two-rounds-move-${index}`);
-    assert.deepEqual((await sessionView(path, first)).session.cups, (await sessionView(path, submitter)).session.cups);
+    assert.deepEqual(cupsOf(await sessionView(path, first)), cupsOf(await sessionView(path, submitter)));
   }
-  assert.deepEqual((await sessionView(path, first)).session.cups, { small: 3, large: 0, jar: 4 });
+  assert.deepEqual(cupsOf(await sessionView(path, first)), { small: 3, large: 0, jar: 4 });
   await assert.rejects(sessionAction(path, first, { missionId: WELL, type: "submit" }, "two-rounds-wrong-submit"));
   await sessionAction(path, submitter, { missionId: WELL, type: "submit" }, "two-rounds-final-submit");
   await sessionAction(path, submitter, { missionId: WELL, type: "submit" }, "two-rounds-final-submit");
@@ -235,11 +238,11 @@ test("concurrent queued actions retry lock contention without overwriting shared
       await sessionAction(path, item.token, item.action, item.id);
     }
   }
-  assert.deepEqual((await sessionView(path, first)).session.cups, { small: 3, large: 5, jar: 0 });
+  assert.deepEqual(cupsOf(await sessionView(path, first)), { small: 3, large: 5, jar: 0 });
   await sessionAction(path, first, { missionId: WELL, type: "move", move: "empty-small" }, "concurrent-return-small");
   // A delayed duplicate fill must not put returned water back into the small vessel.
   await sessionAction(path, first, actions[0].action, actions[0].id);
-  assert.deepEqual((await sessionView(path, second)).session.cups, { small: 0, large: 5, jar: 0 });
+  assert.deepEqual(cupsOf(await sessionView(path, second)), { small: 0, large: 5, jar: 0 });
 }));
 
 test("polling reads take no lock, never rewrite storage and cannot block group actions", () => fixture(async path => {
@@ -258,7 +261,7 @@ test("polling reads take no lock, never rewrite storage and cannot block group a
   const move = sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "poll-fill-large-001");
   const results = await Promise.allSettled([...polls, move]);
   assert.deepEqual(results.filter(result => result.status === "rejected"), []);
-  assert.deepEqual((await sessionView(path, player)).session.cups, { small: 0, large: 5, jar: 0 });
+  assert.deepEqual(cupsOf(await sessionView(path, player)), { small: 0, large: 5, jar: 0 });
   assert.equal(JSON.parse(await readFile(path, "utf8")).version, 5);
 }));
 
@@ -307,8 +310,8 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.equal((await post({ type: "move", move: "fill-large", missionId: WELL, actionId: "listed-mission-fill-001" })).status, 200);
   assert.equal((await post({ type: "reset", missionId: "retired-mission", actionId: "retired-mission-reset-001" })).status, 403);
   const view = await sessionView(path, player);
-  assert.deepEqual(view.missions.map(mission => mission.id), [WELL]);
-  assert.deepEqual(view.session.cups, { small: 0, large: 5, jar: 0 });
+  assert.deepEqual(view.missions.map(mission => mission.id), [WELL, MURAL_MISSION_ID]);
+  assert.deepEqual(cupsOf(view), { small: 0, large: 5, jar: 0 });
   assert.deepEqual(view.sharedBalance, { points: 55, foodTokens: 1, status: "Provisional local-development rewards" });
   assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions["retired-mission"], retired);
 }));

@@ -3,10 +3,13 @@ import type { DevWaterAction } from "./dev-water-session.ts";
 import type { GroupAction, MissionAction } from "./group-action.ts";
 import { WATER_MOVES } from "./water-measurement.ts";
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
-const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset"]);
+const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice"]);
 
 /** Role changes are group-wide; every other action must name its mission. */
 export function parseAction(value: unknown): GroupAction | null {
+  if (isRecord(value) && value.type === "toggle-choice") {
+    return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
+  }
   const action = parseActionBody(value);
   if (!action || !MISSION_SCOPED.has(action.type)) return action as GroupAction | null;
   return isRecord(value) && typeof value.missionId === "string" ? { ...action, missionId: value.missionId } as MissionAction : null;
