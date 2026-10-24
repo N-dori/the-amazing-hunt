@@ -9,7 +9,7 @@ import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
 const MURAL = MURAL_MISSION_ID, WELL = GAN_HATUT_MISSION.id;
-const verified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: true };
+const unverified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: false };
 const env = { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" } as const;
 async function fixture(run: (path: string, tokens: Record<string, string>, now: number) => Promise<void>) {
   await mkdir(".local", { recursive: true });
@@ -46,20 +46,21 @@ test("the mural keeps its own shared picks, separate from the well", () => fixtu
 }));
 
 test("only the submitter or guide submits; an unverified key scores nothing", () => fixture(async (path, tokens, now) => {
-  await sessionAction(path, tokens["player-1"], { missionId: MURAL, type: "start" }, "mural-start-unverified", now);
+  const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset, undefined, undefined, unverified);
+  await act("player-1", { missionId: MURAL, type: "start" }, "mural-start-unverified", 0);
   for (const [index, optionId] of ["air-vents", "plaque"].entries()) {
-    await sessionAction(path, tokens["player-3"], { missionId: MURAL, type: "toggle-choice", optionId }, `mural-unverified-pick-${index}`, now + 1);
+    await act("player-3", { missionId: MURAL, type: "toggle-choice", optionId }, `mural-unverified-pick-${index}`, 1);
   }
-  await assert.rejects(sessionAction(path, tokens["player-1"], { missionId: MURAL, type: "submit" }, "mural-navigator-submit", now + 2), { status: 403 });
-  const message = await sessionAction(path, tokens["player-2"], { missionId: MURAL, type: "submit" }, "mural-unverified-submit", now + 2);
+  await assert.rejects(act("player-1", { missionId: MURAL, type: "submit" }, "mural-navigator-submit", 2), { status: 403 });
+  const message = await act("player-2", { missionId: MURAL, type: "submit" }, "mural-unverified-submit", 2);
   assert.match(message, /field check/);
   const view = await sessionView(path, tokens["player-2"], now + 3, MURAL);
   assert.equal(view.session.completed, false); assert.equal(view.performance.reward, null);
   assert.deepEqual(view.sharedBalance, { points: 0, foodTokens: 0, status: "Provisional local-development rewards" });
 }));
 
-test("with a verified key: wrong picks don't complete; the right pair completes once with hints counted", () => fixture(async (path, tokens, now) => {
-  const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset, undefined, undefined, verified);
+test("the field-checked key: wrong picks don't complete; the right pair completes once with hints counted", () => fixture(async (path, tokens, now) => {
+  const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset);
   await act("player-2", { missionId: MURAL, type: "start" }, "verified-mural-start-1", 0);
   await act("player-3", { missionId: MURAL, type: "hint", hint: 1 }, "verified-mural-hint-01", 1);
   await assert.rejects(act("player-3", { missionId: MURAL, type: "hint", hint: 4 }, "verified-mural-hint-04", 1));
@@ -97,4 +98,17 @@ test("browsers send toggle-choice over HTTP with the mission ID; the GET returns
   const body = await read.json();
   assert.equal(body.mission.id, MURAL); assert.deepEqual(body.session.selected, ["plaque"]);
   assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [WELL, MURAL]);
+}));
+
+test("We're Here? uses the mural's confirmed corner: near earns the bonus once, far never blocks play", () => fixture(async (path, tokens, now) => {
+  const reading = (latitude: number) => ({ type: "arrival", missionId: MURAL, reading: { latitude, longitude: 35.2087861, accuracy: 20, timestamp: now } }) as const;
+  // About 220 m north of the corner: friendly refusal, no bonus, and the challenge still starts.
+  await assert.rejects(sessionAction(path, tokens["player-1"], reading(31.7877892), "mural-far-arrival-0001", now));
+  await sessionAction(path, tokens["player-1"], { missionId: MURAL, type: "start" }, "mural-start-before-gps", now);
+  await sessionAction(path, tokens["player-1"], reading(31.7858892), "mural-near-arrival-001", now);
+  await sessionAction(path, tokens["player-2"], reading(31.7857892), "mural-second-arrival-1", now);
+  const view = await sessionView(path, tokens["player-3"], now, MURAL);
+  assert.equal(view.mission.gpsEnabled, true); assert.equal(view.mission.arrivalPoints, 20); assert.equal(view.mission.arrivalMethod, "gps");
+  assert.equal((await sessionView(path, tokens["player-3"], now, WELL)).mission.arrivalPoints, 0);
+  assert.doesNotMatch(await readFile(path, "utf8"), /latitude|longitude|accuracy/);
 }));

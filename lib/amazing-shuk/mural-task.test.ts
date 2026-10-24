@@ -5,16 +5,17 @@ import { MURAL_CHALLENGE, MURAL_MISSION, MURAL_TASK } from "./mural-task.ts";
 import { buildChoiceTaskView } from "./mural-task-view.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 
-// Test-only key: the real key is not field-verified. "103" stays unknown, as in the sources.
-const verified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: true };
+// An unverified copy, to prove that a key without a field check never scores.
+const unverified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: false };
 
-test("mural options are sourced, unique and the key is not verified", () => {
+test("mural options are sourced, unique, and the field-checked key marks every item", () => {
   const ids = MURAL_CHALLENGE.options.map(option => option.id);
   assert.equal(new Set(ids).size, ids.length);
   assert.ok(MURAL_CHALLENGE.options.every(option => option.label && option.source));
   assert.equal(MURAL_CHALLENGE.required, 2);
-  assert.equal(MURAL_CHALLENGE.answerKeyVerified, false);
-  assert.equal(MURAL_CHALLENGE.options.find(option => option.id === "tile-103")?.correct, null);
+  assert.equal(MURAL_CHALLENGE.answerKeyVerified, true);
+  assert.ok(MURAL_CHALLENGE.options.every(option => typeof option.correct === "boolean"));
+  assert.deepEqual(MURAL_CHALLENGE.options.filter(option => option.correct).map(option => option.id), ["air-vents", "plaque", "music-sign"]);
   assert.ok(MURAL_CHALLENGE.options.filter(option => option.correct === true).length >= MURAL_CHALLENGE.required);
 });
 
@@ -29,22 +30,24 @@ test("picks keep catalogue order, allow at most two and reject unknown options",
   assert.equal(isValidChoiceSelection(MURAL_CHALLENGE, ["air-vents", "plaque", "music-sign"]), false);
 });
 
-test("answers are judged only against a verified key; unknown items never count as real", () => {
+test("any two real items are accepted; a painted pick is wrong; an unverified key never scores", () => {
   assert.equal(evaluateChoice(MURAL_CHALLENGE, ["air-vents"]), "incomplete");
-  assert.equal(evaluateChoice(MURAL_CHALLENGE, ["air-vents", "plaque"]), "unverified");
-  assert.equal(evaluateChoice(verified, ["air-vents", "plaque"]), "accepted");
-  assert.equal(evaluateChoice(verified, ["air-vents", "cardboard-boxes"]), "incorrect");
-  assert.equal(evaluateChoice(verified, ["air-vents", "tile-103"]), "incorrect");
+  for (const pair of [["air-vents", "plaque"], ["air-vents", "music-sign"], ["plaque", "music-sign"]]) assert.equal(evaluateChoice(MURAL_CHALLENGE, pair), "accepted");
+  assert.equal(evaluateChoice(MURAL_CHALLENGE, ["air-vents", "cardboard-boxes"]), "incorrect");
+  assert.equal(evaluateChoice(MURAL_CHALLENGE, ["air-vents", "tile-103"]), "incorrect");
+  assert.equal(evaluateChoice(unverified, ["air-vents", "plaque"]), "unverified");
+  assert.equal(evaluateChoice({ ...MURAL_CHALLENGE, options: MURAL_CHALLENGE.options.map(option => option.id === "plaque" ? { ...option, correct: null } : option) }, ["air-vents", "plaque"]), "incorrect");
 });
 
-test("story is short, labels each statement and has no Hebrew; mission has no photo or unverified coordinates", () => {
+test("story is short, labels each statement and has no Hebrew; mission has no photo and a confirmed GPS point", () => {
   const words = MURAL_TASK.story.paragraphs.map(paragraph => paragraph.text).join(" ").split(/\s+/).length;
   assert.ok(words <= 40, `${words} words`);
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
   assert.ok(!/[֐-׿]/.test(JSON.stringify(MURAL_TASK)));
   assert.equal(MURAL_TASK.hints.length, 3);
+  assert.ok(MURAL_TASK.story.image.alt && MURAL_TASK.story.image.caption);
   assert.equal(MURAL_MISSION.photo, null);
-  assert.equal(MURAL_MISSION.arrival.destination, null);
+  assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);
   assert.equal(findMission(MURAL_MISSION.id), MURAL_MISSION);
   assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice"]);
