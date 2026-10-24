@@ -1,6 +1,42 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - optional GPS map slice, 24 Oct 2026
+## Latest handoff - Claude review of Codex work, 24 Oct 2026
+
+Claude (Claude Code, on the VPS checkout `/root/projects/The-Amazing-Hunt`) reviewed everything from `969ae8d` (Claude's last commit) to `ca9cf1e`, read-only, then fast-forwarded the VPS checkout to `ca9cf1e` at the owner's request. No code, decision, roadmap or designer file was changed; this section is the only edit. The owner's uncommitted Memory Protocol edits on the VPS (`docs/HANDOFF.md`, `docs/RUN_PREVIEW.md`) are unrelated to Shuk; leave them.
+
+### Verified on the VPS (throwaway `node:22-alpine` container, clean `npm ci`)
+
+- `npm run test:shuk`: 64/64 pass. `npm test`: 61/61 pass. `npx tsc --noEmit`: pass.
+- `npm run lint`: 3 errors, all in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs` (`no-require-imports`), plus 11 older `<img>` warnings in Memory Protocol components. Matches your report.
+- Not checked: browsers, phones, screen readers, the Line Face CC0 entry in the DiceBear styles `LICENSE.md` (still only your record).
+
+### Findings for Codex, in priority order
+
+1. **Every poll rewrites the state file.** `sessionView` (`lib/amazing-shuk/participant-store.ts:86`) runs inside `transact`: it takes the exclusive lock and rewrites `state.json`. `IndexWaterTask` polls every 1.5 s per browser, so eight players plus the guide is about six full writes a second. Concurrent moves will get 503 "Storage busy" and polls will show "unavailable"; a crash during any poll leaves the stale lock that blocks everyone. Current tests use one or two identities, so they don't show it.
+2. **Two-move solution.** Because the jar holds exactly 4 L, "fill 5 L, pour into jar" solves it (`water-measurement.test.ts:43` asserts it). The hints describe the 2 L + 2 L route. Owner decision pending; don't change the rule without it.
+3. **Well story wording** (facts are faithful, nothing invented): the source (`HE_trans.txt` 54-66) is a rainwater cistern fed from gutters (בור מים), but the UI says "well"; line 2 answers line 1's "punishment or honor?" at once, losing the guide's "מה אתם חושבים?" pause; "dubious honor" (כבוד מפוקפק) and the Yossi Banai attribution appear only in collapsed source notes; the title "How many families share the water?" doesn't match the challenge; the three tiers of water use (drinking, washing, floors) are unused. Owner decision pending; not a rewrite request.
+4. **No phone can reach the game.** The loopback gate reads the Host header, so it is safe only while `next dev` is bound with `--hostname 127.0.0.1` (the default binds all interfaces). Production stays closed via `NODE_ENV=production` in the Dockerfile. GPS/mobile acceptance waits on an approved boundary.
+5. **One mission is hard-wired.** The store holds single `group.cups`, `performance` and `arrival` records, with no per-mission keys, so a second mission can't be added as is.
+6. **Smaller items:** `ListParticipantIdentity` shows raw role IDs to players ("Your role: navigatorAndAnswerSubmitter"); expired sessions and the `applied` receipts are never pruned; the running "Group points / Food tokens" bar conflicts with "scores stay hidden until the end" in both designer files.
+
+### Documentation conflicts noticed (not edited)
+
+- `current-state.md` still calls the GPS slice uncommitted; `ca9cf1e` committed it.
+- `AGENTS.md` says `npm test` runs the tests but leaves out `npm run test:shuk`, and copies content/coding rules that also live in `.claude/rules/` (drift risk). Scoring values are repeated in four documents.
+- Encoding damage from Windows: `?` instead of a dash in several headings (this file, `current-state.md`, the roadmap) and `â€œ`/`â€` in `AGENTS.md`.
+- `design/output/01_assumptions.md` §1.7 still names NextAuth/Auth.js, superseded by the invitation-link decision.
+- `.claude/agents/dori-ux-designer.md` (protected; owner approval needed to edit) still lists a "team setup" flow and "stops that unlock one by one", both superseded by the one-group, no-prerequisite decisions. Until the owner approves an edit, brief that designer on the decisions explicitly.
+- `.claude/rules/content.md` doesn't mention the owner's Hebrew-first adaptation exception recorded in `product-decisions.md`.
+
+### Claude's planned next changes (proposed; waiting for the owner's go-ahead)
+
+1. **Read-only session view.** `sessionView` reads `state.json` without the lock and without writing; moving pruning of expired sessions and invitations into the write path. Add a test with several concurrent pollers and a move. No change to the auth model, cookies or the action protocol.
+2. **Per-mission state.** Store cups, performance, arrival and award per mission ID behind a schema-5 migration that keeps the well's current data, credentials, roles and receipts; a small mission catalogue feeds the map. No retroactive rewards.
+3. **Mission 2.** One deterministic task from the existing shortlist (likely #13, the twelve-tribes door count), only with an owner-confirmed answer and approved copy; gaps marked `TODO(copy)`.
+
+Codex: if you start any of these first, record it here so we don't overlap. Claude won't touch `docs/design/codex-amazing-shuk-partner.md` and won't commit, push or deploy without the owner.
+
+## Earlier handoff - optional GPS map slice, 24 Oct 2026
 
 **Current owner rule supersedes earlier GPS-unlock and no-GPS plans:** location assistance encourages exploration and never gates participation. Button is **We're Here?** (question mark intentional). Story/puzzle are available immediately after mission selection; all normal challenge rewards work without location or bonus. Read [decisions](product-decisions.md), [current state](current-state.md), [well/map record](water-task.md) and [roadmap](../../design/amazing-shuk-roadmap.md); older checkpoint below is historical.
 

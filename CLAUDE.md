@@ -34,3 +34,13 @@ Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit
 ## Shared Amazing Shuk project memory
 
 For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.
+
+### Claude's next Shuk changes (24 Oct 2026, waiting for the owner's go-ahead)
+
+Claude's review of the Codex work (`969ae8d..ca9cf1e`) and its findings are in `docs/project/agent-handoff.md`, under "Latest handoff - Claude review of Codex work". Planned, in this order:
+
+1. Make `sessionView` in `lib/amazing-shuk/participant-store.ts` read `state.json` without the lock or a write, so polling browsers don't contend with moves; test it with several concurrent pollers.
+2. Key cups, performance, arrival and award by mission ID, with a schema-5 migration that keeps the well's data, credentials, roles and receipts; a small mission catalogue feeds the map.
+3. Build mission 2 from the existing shortlist (likely #13, the twelve-tribes door count), only with an owner-confirmed answer and approved copy.
+
+Waiting on the owner: whether to keep the well puzzle's two-move solution, and whether to revise the well story's wording (cistern vs. well, the question answered too soon, the title).
