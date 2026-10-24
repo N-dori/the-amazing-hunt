@@ -9,11 +9,11 @@ Most of the background files here were copied from the platform's creative-treat
 **Read in full before designing:**
 
 1. [Mission and task ideas](Mission_Task_Ideas.md): the working bank of stops, tasks, the food-token loop and the start sequence.
-2. [Photo index](../photos/photo_index_ALL.csv): what each field photo shows, its mission link, and whether it has faces and consent.
+2. [Photo index](photo_index_ALL.csv): the master index. What each photo shows, its mission link, whether it has faces and consent, and archive IDs and rights.
 3. [Cognitive load](Cognitive_Load.md), [Audience engagement mechanics](Audience_Engagement_Mechanics.md) and [DORI digital platform research](DORI_Digital_Platform_Research.md): the UX and platform research the brief cites.
 4. [Machane Yehuda and Nachlaot stories](machane-yehuda-nachlaot-stories.md) and [Run 06: Nahlaot and market site verification](06_nahlaot_market_sites_verification.md): the place content and what has been checked about it.
 
-**Also read:** the brand book and logo in `../brand/`, and each photo in `../photos/` before you cite it or plan a crop from it.
+**Also read:** the brand book and logo in `../brand/`, and each photo in `../photos/no-faces/` before you cite it or plan a crop from it. Photos in `../photos/faces/`, and any photo showing an identifiable person, are for context only: never crop, copy or reproduce them, and refer to them by index number. Photos are kept on disk only, never in git.
 
 **Consult only when a deliverable needs it:** the guiding stories, the authoring system, the guiding methods, research runs 01–04 and the endowment-effect transcript below. Don't read them up front; name the ones you used.
 
@@ -30,7 +30,7 @@ Most of the background files here were copied from the platform's creative-treat
 | Document | What it is | Use it for |
 |---|---|---|
 | [Mission and task ideas](Mission_Task_Ideas.md) | Nadav's working bank of ideas (23–24 Oct 2026), tagged DOC, FIELD, ORAL or FOLK. Raw material, not approved missions | The stops, tasks, bonus rounds and food-token loop |
-| [Photo index](../photos/photo_index_ALL.csv) | Index of the 114 field photos (23 Oct 2026): original and new file names, description, mission link, faces and consent. Kept in `../photos/` | Choosing photos and crops; checking for faces |
+| [Photo index](photo_index_ALL.csv) | Master index of 117 photos (23 Oct 2026): 107 field photos in `../photos/no-faces/` and `../photos/faces/`, plus archival images and the map. Original and new file names, description, mission link, faces and consent, archive item ID, credit and rights. A copy is kept in `../photos/` | Choosing photos and crops; checking for faces |
 | [Machane Yehuda and Nachlaot stories](machane-yehuda-nachlaot-stories.md) | Stories, anecdotes and facts extracted from Nadav's Google Drive (15 Oct 2026), each tagged with its source file | Story candidates for stops and reveals; each needs its source and an evidence label |
 | [Run 06: site verification](06_nahlaot_market_sites_verification.md) | Perplexity research run (16 Oct 2026) checking which Nahlaot and market sites are publicly visible and documented. Same file as `research/results/06_nahlaot_market_sites_verification.md` | Which stops can carry evidence, and which claims to avoid |
 
