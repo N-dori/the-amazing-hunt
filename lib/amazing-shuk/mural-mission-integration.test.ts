@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { issueInvitation, redeemInvitation, sessionAction, sessionView } from "./participant-store.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
 import { MURAL_CHALLENGE, MURAL_MISSION_ID } from "./mural-task.ts";
+import { SYNAGOGUE_MISSION_ID } from "./synagogue-task.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
@@ -97,7 +98,7 @@ test("browsers send toggle-choice over HTTP with the mission ID; the GET returns
   const read = await handleParticipantRequest(new Request(`http://127.0.0.1:3000/api?mission=${MURAL}`, { headers }), path, env);
   const body = await read.json();
   assert.equal(body.mission.id, MURAL); assert.deepEqual(body.session.selected, ["plaque"]);
-  assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [WELL, MURAL]);
+  assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [WELL, MURAL, SYNAGOGUE_MISSION_ID]);
 }));
 
 test("We're Here? uses the mural's confirmed corner: near earns the bonus once, far never blocks play", () => fixture(async (path, tokens, now) => {

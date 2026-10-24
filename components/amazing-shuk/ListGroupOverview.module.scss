@@ -1,0 +1,11 @@
+.group { display: grid; gap: 1.25rem; margin-block: 1rem; color: var(--ink); }
+.title { font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 500; line-height: 1.2; }
+.progress { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin: 0; padding-block: 1rem; border-block: 1px solid var(--neutral-line); }
+.progress div { display: grid; gap: .25rem; min-width: 0; }
+.progress dt { font-size: .875rem; line-height: 1.3; }
+.progress dd { margin: 0; font-size: 1.5rem; font-weight: 500; }
+.roster { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.roster li { min-width: 0; padding: .5rem .75rem; border-radius: .5rem; }
+// The signed-in participant: a tinted row plus the "You" label, not colour alone.
+.current { background: var(--chalk-tint); }
+@media (min-width: 48rem) { .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

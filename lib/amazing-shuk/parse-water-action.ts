@@ -5,8 +5,17 @@ import { WATER_MOVES } from "./water-measurement.ts";
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice"]);
 
-/** Role changes are group-wide; every other action must name its mission. */
+const BONUS_ACTIONS: ReadonlySet<string> = new Set(["toggle-choice", "reset", "submit"]);
+
+/** Role changes are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
 export function parseAction(value: unknown): GroupAction | null {
+  if (!isRecord(value) || !("part" in value)) return parseMissionAction(value);
+  if (value.part !== "bonus" || !BONUS_ACTIONS.has(value.type as string)) return null;
+  const action = parseMissionAction(value);
+  return action && "missionId" in action ? { ...action, part: "bonus" } as GroupAction : null;
+}
+
+function parseMissionAction(value: unknown): GroupAction | null {
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
   }

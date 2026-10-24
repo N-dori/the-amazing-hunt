@@ -12,18 +12,23 @@ export type ArrivalPolicy = Readonly<{
 export type MissionArrival = Readonly<{ method: "gps" | "guide"; acceptedAt: number; points: number }>;
 export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>;
 export type MissionState = "available" | "arrived" | "completed";
+/** `src` is a path under `public/`, without the base path. */
+export type MissionPhoto = Readonly<{ src: string; alt: string }>;
 /** A map destination. Its stable ID keys the group's shared progress for that mission. */
 export type MissionDefinition = Readonly<{
   // `title` names the challenge; `name` names the place.
   id: string; title: string; name: string; shortName: string; neighborhood: string; clue: string;
   // What players need to recognise the place: shown in the preview (summary) and location details.
   location: Readonly<{ hebrewName: string | null; summary: string; landmarks: readonly string[] }>;
-  photo: Readonly<{ src: string; alt: string }> | null;
+  // `photo` shows the place (preview and location details); `cluePhoto` shows the thing to look for, under "Look for".
+  photo: MissionPhoto | null; cluePhoto: MissionPhoto | null;
   placement: Readonly<{ x: number; y: number; verified: boolean }>;
   arrival: ArrivalPolicy;
   // The challenge decides the shape of the mission's shared progress.
   challenge: Readonly<{ kind: "water" }> | ChoiceChallenge;
   rewards: WaterRewardConfig; hintCount: number;
+  // An optional second question, open only after the main answer is accepted; its points never include food tokens.
+  bonus?: Readonly<{ challenge: ChoiceChallenge; points: number }>;
 }>;
 export const GAN_HATUT_MISSION = Object.freeze({
   id: WATER_TASK_ID, title: WATER_TASK.title, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
@@ -37,8 +42,10 @@ export const GAN_HATUT_MISSION = Object.freeze({
     ]),
   }),
   clue: "Find Gan HaTut, the historic courtyard in the Ohel Moshe neighborhood. Look for the garden and its recognizable surroundings.",
-  // No identified current garden photograph exists in the checked-in index/local assets.
-  photo: null as Readonly<{ src: string; alt: string }> | null,
+  // Owner's photographs, chosen 24 Oct 2026: the Montefiore Testimonial gate as the way in (cropped to leave out passers-by,
+  // originals in public/shuk/ and photo index #05) and the cistern as the thing to find. Web copies, metadata stripped.
+  photo: Object.freeze({ src: "/shuk/gan-hatut-gate.jpg", alt: "A stone archway in Ohel Moshe, under carved panels reading \"Sir Moses Montefiore Testimonial\"." }) as MissionPhoto | null,
+  cluePhoto: Object.freeze({ src: "/shuk/gan-hatut-cistern.jpg", alt: "A round cistern opening under a glass cover, set on a stone block." }) as MissionPhoto | null,
   // Manual prototype point only. Not derived from geographic coordinates; owner review required.
   placement: Object.freeze({ x: 600, y: 650, verified: false }),
   arrival: Object.freeze({

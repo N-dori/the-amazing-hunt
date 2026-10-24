@@ -1,5 +1,9 @@
-.page { width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 2rem 0 4rem; }
-.header { margin-bottom: 1.5rem; }
+// --shuk-nav-offset is the fixed bottom bar's height: the page leaves room for it, and sticky sheets and bars sit above it.
+.page { --shuk-nav-offset: calc(4rem + 1px + env(safe-area-inset-bottom)); width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 2rem 0 calc(var(--shuk-nav-offset) + 2rem); }
+// Title on the start side, the avatar on the end side, the role badges on one line beneath: no extra cards above the map.
+.header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: .5rem 1rem; margin-bottom: 1rem; }
+.headerTitle { min-width: 0; }
+.header > ul { grid-column: 1 / -1; }
 .eyebrow, .draft, .label, .target { color: var(--ink); font-size: .8rem; }
 .eyebrow { text-transform: uppercase; letter-spacing: .08em; }
 .header h1 { margin: .4rem 0; font-size: clamp(1.7rem, 6vw, 2.5rem); font-weight: 500; line-height: 1.1; }
@@ -20,3 +24,8 @@
 .page button:focus-visible, .page select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .page button { min-height: 3rem; }
 .journey { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
+.dev { margin-block-start: 1.5rem; color: var(--ink); }
+.dev summary { min-height: 3rem; padding-block: .75rem; font-size: .875rem; cursor: pointer; }
+.empty { display: grid; gap: 1rem; justify-items: start; margin-block: 1.5rem; color: var(--ink); }
+.empty h2 { font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 500; line-height: 1.2; }
+.empty p { font-size: 1.0625rem; line-height: 1.5; }

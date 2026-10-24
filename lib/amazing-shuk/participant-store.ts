@@ -16,8 +16,11 @@ type Credential = { participantId: string; expiresAt: number };
 /** One mission's shared progress. Its award and arrival bonus are immutable once recorded.
  * `kind` follows the mission's challenge: the well keeps cups, a "choose N" challenge keeps the group's picks.
  */
-type MissionRecord = { completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance }
+type MissionRecord = { completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance; bonus?: BonusRecord }
   & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[] });
+/** An optional bonus question's shared picks and its one-time points, recorded once and never changed. */
+type BonusRecord = { selected: string[]; award: { points: number; awardedAt: number } | null };
+const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 /** Schema 4 and earlier held a single mission: the well. */
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
 type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
@@ -28,7 +31,7 @@ export class AccessError extends Error {
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 const secret = () => randomBytes(32).toString("base64url");
 function emptyMission(definition: MissionDefinition): MissionRecord {
-  const base = { completed: false, arrival: null, performance: createWaterPerformance() };
+  const base = { completed: false, arrival: null, performance: createWaterPerformance(), ...(definition.bonus ? { bonus: EMPTY_BONUS } : {}) };
   return definition.challenge.kind === "water" ? { ...base, kind: "water", cups: EMPTY_WATER_CUPS } : { ...base, kind: "choice", selected: [] };
 }
 const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
@@ -37,6 +40,8 @@ function initial(): Database {
 }
 function isValidMission(record: MissionRecord): boolean {
   if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
+  if (record.bonus !== undefined && !(record.bonus && Array.isArray(record.bonus.selected) && record.bonus.selected.every(id => typeof id === "string")
+    && (record.bonus.award === null || (Boolean(record.bonus.award) && Number.isSafeInteger(record.bonus.award.points) && record.bonus.award.points >= 0)))) return false;
   return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string");
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
@@ -70,6 +75,9 @@ async function load(path: string): Promise<Database> {
     const record = db.missions[mission.id];
     if (!record) db.missions = { ...db.missions, [mission.id]: emptyMission(mission) };
     else if (record.kind !== mission.challenge.kind || (record.kind === "choice" && !isValidChoiceSelection(mission.challenge as ChoiceChallenge, record.selected))) throw new Error("Unsupported Shuk storage state");
+    // A bonus added to an existing mission starts empty; the main record is kept as it is.
+    else if (mission.bonus && !record.bonus) db.missions = { ...db.missions, [mission.id]: { ...record, bonus: EMPTY_BONUS } };
+    else if (mission.bonus && record.bonus && !isValidChoiceSelection(mission.bonus.challenge, record.bonus.selected)) throw new Error("Unsupported Shuk storage state");
   }
   return db;
 }
@@ -146,11 +154,12 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
     mission: missionView(definition, record),
     session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
-      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected }) },
+      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected }),
+      ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
     // The group's balance covers every mission's recorded rewards.
-    sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0), 0),
+    sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
       foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0), status: "Provisional local-development rewards" },
     ...(guide ? { guideTiming: { startedAt: record.performance.startedAt, solvedAt: record.performance.solvedAt,
       stoppedElapsedMs: record.performance.solvedAt === null ? null : measuredWaterTime(record.performance, now), paused: record.performance.pausedAt !== null, excluded: record.performance.excluded } } : {}),
@@ -211,6 +220,30 @@ export async function sessionAction(path: string, token: string, action: GroupAc
             if (action.hint !== mission.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
             mission.performance = { ...mission.performance, hintsUsed: action.hint };
           }
+        } else if ("part" in action && action.part === "bonus") {
+          // The optional bonus: shared picks like the main challenge, retries allowed, points recorded once. No timing or hints.
+          if (!definition.bonus || !mission.bonus) throw new Error("This mission has no bonus question");
+          if (!mission.completed) throw new Error("The bonus opens after the main challenge");
+          const bonus = { ...mission.bonus };
+          if (bonus.award) {
+            if (action.type !== "submit") throw new Error("The bonus is already complete");
+            message = "The bonus is already complete.";
+          } else if (action.type === "toggle-choice") {
+            const selected = toggleChoice(definition.bonus.challenge, bonus.selected, action.optionId);
+            if (!selected) throw new Error(`Choose up to ${definition.bonus.challenge.required}.`);
+            bonus.selected = [...selected];
+          } else if (action.type === "reset") {
+            bonus.selected = [];
+          } else if (action.type === "submit") {
+            const result = evaluateChoice(definition.bonus.challenge, bonus.selected);
+            if (result === "accepted" && (!Number.isSafeInteger(definition.bonus.points) || definition.bonus.points < 0)) throw new Error("Bonus reward configuration is unavailable");
+            if (result === "accepted") bonus.award = { points: definition.bonus.points, awardedAt: now };
+            message = result === "accepted" ? "That's right! Bonus complete."
+              : result === "incomplete" ? `Choose ${definition.bonus.challenge.required} before submitting.`
+              : result === "unverified" ? "This answer can't be checked yet. Ask your guide."
+              : "Not quite. Talk it over and try again.";
+          } else throw new Error("This action doesn't fit the bonus");
+          mission.bonus = bonus;
         } else if (mission.kind === "water") {
           if (action.type === "toggle-choice") throw new Error("This action doesn't fit this mission");
           if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");

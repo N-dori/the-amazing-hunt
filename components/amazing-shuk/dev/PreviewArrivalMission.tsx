@@ -14,11 +14,12 @@ export default function PreviewArrivalMission({ view, guide, busy, feedback, onA
     <h2 id="mission-location-title">{view.name}</h2>
     {view.location.hebrewName ? <p className={`rtl ${styles.hebrew}`} lang="he">{view.location.hebrewName}</p> : null}
     <p className={styles.area}>{view.neighborhood}</p>
-    {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={640} height={420} className={styles.photo} />
+    {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} />
       : <p className={styles.photoGap}>Reference photograph not yet available. Use the landmark clue and your guide.</p>}
     <p>{view.location.summary}</p>
     <h3>Look for</h3>
     <p>{view.clue}</p>
+    {view.cluePhoto ? <Image src={BASE_PATH + view.cluePhoto.src} alt={view.cluePhoto.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} /> : null}
     {view.location.landmarks.length ? <>
       <h3>Landmarks</h3>
       <ul className={styles.landmarks}>{view.location.landmarks.map(landmark => <li key={landmark}>{landmark}</li>)}</ul>

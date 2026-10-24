@@ -11,7 +11,7 @@ const NO_MEMORY_LAYERS: [] = [];
 export type MissionStage = "map" | "preview" | "location";
 type Props = { missions: readonly MissionView[]; mission: MissionView; stage: MissionStage; guide: boolean; busy: boolean; feedback: string;
   mapView: MapView | null; onMapViewChange: (view: MapView) => void;
-  onSelect: (id: string) => void; onDismiss: () => void; onViewLocation: () => void;
+  onSelect: (id: string) => void; onDismiss: () => void; onClosePreview: () => void; onViewLocation: () => void;
   onArrival: () => void; onConfirm: () => void; onOpenChallenge: () => void };
 /** Pure shared-state projection: a marker per catalogue mission, and the selected mission's preview or details. The Index owns requests and GPS. */
 export default function ListArrivalMission({ missions, mission, stage, mapView, onMapViewChange, ...props }: Props) {
@@ -33,6 +33,6 @@ export default function ListArrivalMission({ missions, mission, stage, mapView, 
       markers={markers} selectedId={stage === "preview" ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
       notice="Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."
       initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss} />
-    {stage === "preview" && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onDismiss} /> : null}
+    {stage === "preview" && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onClosePreview} /> : null}
   </>;
 }

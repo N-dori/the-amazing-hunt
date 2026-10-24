@@ -1,0 +1,45 @@
+// Shares the well's task layout, result, hint and button styles.
+@forward "./PreviewWaterTask.module";
+
+// The objective is the biggest line on the screen: something to look up and do, not a form label.
+.question { max-width: 36rem; margin-block: .75rem 1.25rem; font-size: clamp(1.5rem, 6.5vw, 2.125rem); font-weight: 500; line-height: 1.2; }
+
+// Cards in two columns from a typical phone width, so all eight fit in about one screen.
+.options { display: grid; grid-template-columns: minmax(0, 1fr); gap: .625rem; max-width: 42rem; margin: 0 0 1.25rem; padding: 0; border: 0; min-width: 0; }
+@media (min-width: 22rem) { .options { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+// Unpicked: a quiet tinted card with no outline. Picked: Warm Chalk with a Sumac edge, a filled check and heavier text,
+// so the state never rests on colour alone.
+.option { position: relative; display: flex; align-items: flex-start; gap: .625rem; min-height: 4.5rem; padding: .875rem .75rem; border: 2px solid transparent; border-radius: .5rem; background: var(--chalk-tint); color: var(--ink); font-size: 1.0625rem; line-height: 1.35; cursor: pointer; overflow-wrap: anywhere; transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out); }
+.option:hover { background: var(--chalk-shade); }
+.option:focus-within { outline: 2px solid var(--amber); outline-offset: 2px; }
+.optionSelected, .optionSelected:hover { border-color: var(--sumac); background: var(--chalk); font-weight: 500; }
+.optionDisabled { cursor: default; opacity: .55; }
+.optionDisabled:hover { background: var(--chalk-tint); }
+// The native checkbox stays in the page for keyboards and screen readers; the drawn mark replaces its look.
+.input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: inherit; }
+.mark { flex: none; display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; margin-block-start: .0625rem; border: 2px solid var(--ink); border-radius: .25rem; background: var(--chalk); color: var(--chalk); }
+.optionSelected .mark { border-color: var(--sumac); background: var(--sumac); }
+.markIcon { width: 1rem; height: 1rem; }
+.optionLabel { min-width: 0; }
+
+// Progress and the one main action, kept under the cards and pinned to the foot of the screen while they scroll.
+.submitBar { position: sticky; inset-block-end: var(--shuk-nav-offset, 0px); z-index: 10; display: grid; gap: .5rem; max-width: 42rem; margin-block: 0 1rem; padding: .75rem 0; border-block-start: 1px solid var(--neutral-line); background: var(--chalk); }
+.progress { display: flex; align-items: center; gap: .75rem; font-size: 1.0625rem; font-weight: 500; }
+.progress p { flex: 1; }
+.pips { display: inline-flex; gap: .375rem; }
+.pip, .pipOn { width: .875rem; height: .875rem; border: 2px solid var(--sumac); border-radius: 50%; }
+.pipOn { background: var(--sumac); }
+.feedback { padding: .5rem .75rem; border-inline-start: .25rem solid var(--amber); background: var(--chalk-tint); line-height: 1.5; }
+.followerNote { line-height: 1.5; }
+
+.keyNotice { font-size: .875rem; line-height: 1.5; color: var(--ink); border-inline-start: .25rem solid var(--neutral-line); padding-inline-start: .75rem; max-width: 42rem; }
+@media (forced-colors: active) { .optionSelected { border-color: Highlight; } .optionSelected .mark, .pipOn { background: Highlight; forced-color-adjust: none; } }
+@media (prefers-reduced-motion: reduce) { .option { transition: none; } }
+// The reveal after an accepted answer: what to look for next and what the place's sources say, each statement with its own label.
+.revealText { max-width: 40rem; margin-block-start: 1rem; color: var(--ink); font-weight: 400; font-size: 1.125rem; line-height: 1.6; }
+.revealLabel { color: var(--sumac); font-family: var(--font-mono); font-size: .8125rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; margin-block-end: .25rem; }
+// The "before" photo in the completion reveal: full width on phones, capped at 24rem on wider screens.
+.figure { margin: 1rem 0 0; max-width: 24rem; }
+.image { display: block; width: 100%; height: auto; }
+.caption { font-size: .875rem; line-height: 1.5; color: var(--ink); font-weight: 400; margin-block-start: .5rem; }

@@ -1,35 +1,34 @@
-# The Amazing Shuk ? Current Implementation State
+# The Amazing Shuk — Current Implementation State
 
-**Updated: 24 Oct 2026, optional GPS map iteration.** Local Windows checkout `the-amazing-hunt`, branch `main`. This summary supersedes older implementation counts/environment notes in the [handoff history](agent-handoff.md). No commit, push, revert or deployment during this checkpoint.
+**Updated: 24 Oct 2026 (Claude), after the map UX, navigation and mission 3 work.** Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
-- One fixed development roster (`guide`, `player-1` through `player-7`), independent server-validated browser sessions and one shared JSON group. Manual single-use invitations/session secrets are hashed; invitations expire in 24 hours, sessions in seven days. Roles are backend-enforced; navigator and submitter may coincide. No external authentication provider/SMTP.
-- JSON writers use a filesystem lock, synced temporary snapshot and atomic rename; action receipts prevent duplicate actions/rewards. Queued browser actions retry using participant/revision-specific local storage. A stale lock requires stopping all writers before manual recovery. See [login runbook](local-participant-login.md).
-- One playable local well task: 3 L and 5 L measuring vessels, distinct 4 L family jar, contextual selection/pouring/return-to-well, reset and optional progressive hints. Jar cannot fill directly or pour out. Maximal pours retain the documented shortcut; repeated 2 L solution is also tested. Only jar=4 and authorized official submission finalize completion.
-- Hebrew-first sourced English story, attributed tradition, read-aloud invitation and collapsed references. Original Hebrew is development-only. Brand Book/tokens/ActionButton reused; no unrelated visual system. See [task/source/brand record](water-task.md).
-- Invisible shared server timing starts explicitly after story and stops on the solving move. Shared hint accounting; guide-only pause/resume/reset/exclude. No participant timer, countdown, live score, automatic timeout or leaderboard. Configurable provisional well rewards: 100 maximum/40 minimum points, two food tokens; atomically awarded once on authorized submission. Schema/action revision 4 adds optional arrival metadata and preserves identities/progress and does not fabricate retroactive rewards/times.
-- Schema/action revision 5 (Claude, 24 Oct 2026, committed locally, not pushed): progress, timing and rewards are stored per mission ID with group-wide roles; the catalogue is `lib/amazing-shuk/missions.ts`; polling reads take no lock. Refresh browsers after upgrading. Details in the [handoff](agent-handoff.md).
-- DiceBear local SVG avatars integrated into current identity and assigned-role displays. Pinned core10.7.0/styles10.6.0; Line Face CC0, core MIT. Immutable ID seed, nickname-independent, no stored avatar files or remote default requests. Custom-image precedence and initials fallback supported by component; no existing profile-image storage/enrollment flow was added. See exact files and tests in [handoff](agent-handoff.md).
+- One fixed development roster (`guide`, `player-1` to `player-7`), server-validated browser sessions and one shared JSON group. Single-use invitations (24 h) and sessions (7 days) are hashed. Roles are enforced by the server; navigator and answer-submitter may be the same person. No external sign-in or SMTP. See the [login runbook](local-participant-login.md). Invitations: `npm run shuk:invite -- <participant> http://localhost:3300` inside the dev container.
+- JSON writers use a filesystem lock, a synced temporary snapshot and an atomic rename; action receipts prevent duplicate actions and rewards. Browsers queue actions locally and retry.
+- Progress, invisible timing, hints and rewards are stored per mission (schema 5, protocol revision 5); `lib/amazing-shuk/missions.ts` is the catalogue. A mission may also have an optional bonus question with its own picks and one-time points.
+- **Three playable missions**, all on the standard journey (map → preview → location → optional We're Here? → challenge → rewards → map):
+  1. **Gan HaTut, the well** — the 3 L / 5 L / 4 L family-jar puzzle. See the [well record](water-task.md).
+  2. **The market mural, "Is It Real or Is It Painted?"** — pick 2 of 8, answer key field-checked by the owner, GPS point confirmed.
+  3. **Chesed VeRachamim, "What Was This Building Before?"** — pick 1 of 4 (the tavern), then the blue heritage sign and Yitzhak Armoza; an optional bonus on the novel *The Beauty Queen of Jerusalem* (10 points, no food tokens) and an unscored Eshet Chayil moment. Sources and the Luna findings are in the [handoff](agent-handoff.md).
+- Rewards: provisional well values for every mission (100 max / 40 min points, 2 food tokens), awarded once on an authorised submission; optional arrival bonus of 20 points once.
+- Player UI: illustrated Leaflet map; a bottom-sheet mission preview tied to its marker; a location view with photo, names, landmarks and clue; checkbox-card answers with a sticky submit bar; a profile panel from the header avatar and compact role badges; a fixed bottom bar (Map, Mission, Food, Group) with browser history and refresh kept in the tab.
+- DiceBear Line Face avatars from the participant's immutable ID (core 10.7.0 / styles 10.6.0), with initials fallback.
 
-## Partial / prototype / unverified
+## Partial, provisional or unverified
 
-- Owner reported Next starts, water page HTTP200 and working puzzle mechanics. Independent browser identities, reconnection, rendered avatars, phone/accessibility acceptance and production HTTP404 remain unverified end-to-end. Handler cookie-jar tests are not real-browser proof.
-- Existing Leaflet renderer now also serves a Shuk Gan HaTut marker/preview on the same gated water route. Selection reveals the existing story/puzzle immediately, independent of arrival status. Shared JSON projects Available/Arrival confirmed/Completed labels and distinct marker symbols. No GPS dot, second map, routing or georeferencing. Shared renderer consumes neutral image geometry (`lib/map/image-map.ts`), not Memory Protocol domain/content.
-- Optional **We're Here?** uses a one-shot fresh browser reading and server validation; a separate20-point group bonus is idempotent and guide-confirmable. Current destination coordinates are unverified, so live GPS bonus checks stay disabled; the button gives friendly fallback without requesting an unnecessary reading. Actual confirmed-coordinate path is tested with injected/mock evidence only. Candidate pin is manual(600,650), flagged approximate; no documented Gan HaTut placement was found.
-- No identified garden photograph exists in the checked-in/local photo set; preview honestly reports its absence rather than substituting an unrelated image. HTTPS real-phone GPS/mobile/screen-reader/Next end-to-end acceptance remains pending. Current image's label/provenance concerns remain in the [map audit](../map/nahlaot-map-audit.md).
-- No six-task set yet: one local playable challenge is not six field-verified tasks. Shared task catalogue/map adapter, onboarding, approved food offers/prices/redemption, rights/access verification and production boundary remain open.
+- **Nothing has been checked on a real phone.** The owner has reviewed some screens in a desktop browser by screenshot; layout, safe areas, back navigation and HTTPS GPS on a phone are unverified.
+- Marker placements are manual guesses for all three missions. GPS is on only for the mural (owner-confirmed point); Gan HaTut and the synagogue fall back to guide confirmation.
+- Photos: Gan HaTut gate and cistern, the mural street view and the synagogue facade are the owner's photographs, connected by the owner's choice. Mural reuse rights are still recorded as unresolved in [decisions](product-decisions.md); the before photo's photographer, date and rights are not recorded.
+- Much visitor-facing copy is draft (stories, hints, reveals, location text, UI labels); each slice lists its drafts in the handoff. Food offers are not approved; the Food tab shows the token balance and a marked gap.
+- Not yet built: mission 4 (Montefiore, three languages and the Hebrew year), onboarding, food redemption, the separate Shuk app boundary (planned before real-phone testing), production deployment.
 
-## Current verification
+## Current verification (clean `node:22-alpine` container)
 
-- `npm.cmd run test:shuk`: **64 passed, 0 failed** (including15 new arrival/map tests, eight avatar/identity tests, login/persistence/authorization, gameplay, scoring, shared actions and actual TSX static rendering).
-- `npm.cmd test`: **61 passed, 0 failed**, including14 map-helper tests.
-- `npx.cmd tsc --noEmit`: pass. Targeted ESLint for changed map/arrival/integration files: pass; Both changed Sass files compile. Full lint fails on three pre-existing require-import errors in the isolated prototype and eleven existing warnings.
-- `git diff --check`: pass after documentation edits; all94 local documentation file links resolve. No build over the owner's development output, browser review, screenshot, deployment or live VPS test performed.
-- Dependencies are installed and Next16.3.8/React19.2.8 declared. Earlier missing-executable/network reports are historical; do not infer Next is absent from `next.cmd` errors. Node emits a non-failing MODULE_TYPELESS_PACKAGE_JSON warning; no broad module-type change was made to suppress it.
+- `npm run test:shuk`: **103 passed, 0 failed.**
+- `npm test`: **61 passed, 0 failed.**
+- `npx next typegen && npx tsc --noEmit`: pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk`: clean; full lint still has the three pre-existing errors in the isolated prototype and eleven warnings in Memory Protocol files. Changed Sass modules compile. `git diff --check`: pass.
 
-## Boundary, preservation and next step
+## Boundary and how to run
 
-Shuk page and API remain development-only, explicit `SHUK_DEV_SIMULATION=1`, loopback Host, 404 otherwise. Production isolation, durable VPS storage/backups and real enrollment are unverified. `lib/base-path.ts` remains the deployment-prefix source; repository name differs from the existing app prefix.
-
-Owner committed the earlier checkpoint as `5d6d595`; this map/optional-GPS iteration remains uncommitted. Preserve its dirty files. No dependency changes or commit/push were performed in this iteration. See [handoff](agent-handoff.md) for exact file inventory, blockers and acceptance criteria; [roadmap](../../design/amazing-shuk-roadmap.md) for priority; [decisions](product-decisions.md) for approved/deferred/superseded directions.
+The Shuk page and API are development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. `lib/base-path.ts` remains the only source of the `/memory-protocol` prefix.

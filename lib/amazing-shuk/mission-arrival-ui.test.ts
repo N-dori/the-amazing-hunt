@@ -24,7 +24,7 @@ function load(path: string, reactOverride?: object): ComponentType<Record<string
     if (id.endsWith(".scss")) return { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) };
     if (id === "@/components/icons") return { Icon: () => null };
     // Map/browser and identity subtrees are outside this static content/access test.
-    if (["@/components/map/LeafletBaseMap", "@/components/amazing-shuk/ListParticipantIdentity", "./IndexGuideWaterTask"].includes(id)) return { __esModule: true, default: () => null };
+    if (["@/components/map/LeafletBaseMap", "@/components/amazing-shuk/IndexParticipantMenu", "@/components/amazing-shuk/ListParticipantBadges", "./IndexGuideWaterTask"].includes(id)) return { __esModule: true, default: () => null };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     if (id.startsWith("@/components/")) return { __esModule: true, default: load(id.replace("@/", "") + ".tsx", reactOverride) };
     if (id.startsWith("./")) return { __esModule: true, default: load(resolve(dirname(path), id + ".tsx"), reactOverride) };
@@ -41,7 +41,8 @@ test("mission preview uses We're Here? and ordinary GPS uncertainty has no failu
     const view = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state, arrivalPoints: state === "available" ? 0 : 20, arrivalMethod: null, gpsEnabled: true }, 1);
     const html = renderToStaticMarkup(createElement(Preview, { view, selected: true, guide: false, busy: false, feedback: LOCATION_UNAVAILABLE_MESSAGE, ...callbacks }));
     assert.match(html, /Here\?/); assert.doesNotMatch(html, /Here!|role="alert"|latitude|longitude|timer|countdown/);
-    assert.match(html, /play without checking/); assert.match(html, /Reference photograph not yet available/);
+    assert.match(html, /play without checking/);
+    assert.match(html, /gan-hatut-gate\.jpg/); assert.match(html, /gan-hatut-cistern\.jpg/); assert.match(html, /Montefiore Testimonial/);
     assert.doesNotMatch(html, /Confirm Group Arrival/);
     assert.match(html, /Open Challenge/); assert.match(html, /Back to map/);
     assert.match(html, /Landmarks/); assert.match(html, /lang="he"/);
@@ -55,8 +56,28 @@ test("first tap shows a compact preview: title, place, summary, status and View 
     const html = renderToStaticMarkup(createElement(Card, { view, onViewLocation() {}, onClose() {} }));
     assert.ok(html.includes(escapeText(definition.title)) && html.includes(escapeText(definition.name)) && html.includes(escapeText(definition.location.summary)));
     assert.match(html, /View Location/); assert.match(html, /Available/); assert.match(html, /aria-label="Close preview"/);
-    assert.doesNotMatch(html, /STORY|Start challenge|Find 2 things|air vents|plaque|treble|Here\?/i);
+    // The badge repeats the tapped pin's number, hidden from assistive tech (the status says it in words).
+    assert.match(html, new RegExp(`aria-hidden="true">${index + 1}</span>`));
+    assert.doesNotMatch(html, /STORY|Start challenge|spot TWO things|air vents|plaque|treble|Here\?/i);
   }
+});
+
+test("an approved photo replaces the gap notice in the preview and location view, under the base path, with its alt text", () => {
+  const Card = load("components/amazing-shuk/dev/PreviewMissionCard.tsx");
+  const Location = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
+  // A stand-in path, so the test checks the wiring rather than a particular asset.
+  const definition = { ...GAN_HATUT_MISSION, photo: { src: "/shuk/example-location.jpg", alt: "Example location" }, cluePhoto: null };
+  const view = buildMissionPresentation(definition, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
+  for (const html of [renderToStaticMarkup(createElement(Card, { view, onViewLocation() {}, onClose() {} })),
+    renderToStaticMarkup(createElement(Location, { view, guide: false, busy: false, feedback: "", ...callbacks }))]) {
+    assert.match(html, /alt="Example location"/);
+    assert.match(html, /memory-protocol%2Fshuk%2Fexample-location\.jpg/);
+    assert.doesNotMatch(html, /Reference photograph not yet available/);
+  }
+  // Without a photo, both views fall back to the notice.
+  const bare = buildMissionPresentation({ ...definition, photo: null }, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
+  assert.match(renderToStaticMarkup(createElement(Card, { view: bare, onViewLocation() {}, onClose() {} })), /Reference photograph not yet available/);
+  assert.match(renderToStaticMarkup(createElement(Location, { view: bare, guide: false, busy: false, feedback: "", ...callbacks })), /Reference photograph not yet available/);
 });
 
 test("location details orient without spoilers: the mural view names the confirmed corner but no answers", () => {
@@ -87,7 +108,7 @@ test("actual selected mission renders existing story and playable challenge for 
       useEffect() {}, useRef: (value: unknown) => ({ current: value }), useMemo: (factory: () => unknown) => factory(), useCallback: (fn: unknown) => fn };
     // Open the challenge stage directly: the journey's first stage is "map".
     const stateFor = react.useState;
-    react.useState = (initial: unknown) => initial === "map" ? ["challenge", () => {}] : stateFor(initial);
+    react.useState = (initial: unknown) => initial && typeof initial === "object" && "stage" in initial ? [{ ...initial, stage: "challenge" }, () => {}] : stateFor(initial);
     const Index = load("components/amazing-shuk/dev/IndexWaterTask.tsx", react);
     const html = renderToStaticMarkup(createElement(Index));
     assert.match(html, /THE STORY OF THE WELL/); assert.match(html, /Start challenge/);

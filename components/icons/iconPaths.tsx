@@ -34,6 +34,10 @@ export const iconPaths = {
   timer: <><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2.5" /><path d="M9.5 2.5h5" /></>,
   score: <><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" /></>,
   team: <><circle cx="9" cy="8" r="3" /><path d="M3.5 19a5.5 5.5 0 0 1 11 0" /><circle cx="16.5" cy="9" r="2.5" /><path d="M15 14.2a4.5 4.5 0 0 1 5.5 4.8" /></>,
+  // A folded paper map: the mission map tab.
+  map: <><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z" /><path d="M9 4v13.5" /><path d="M15 6.5V20" /></>,
+  // A bowl with rising steam: food rewards.
+  food: <><path d="M3.5 12h17a8.5 8.5 0 0 1-17 0z" /><path d="M9 8c0-1 1-1.5 1-2.5S9 4 9 3" /><path d="M14 8c0-1 1-1.5 1-2.5S14 4 14 3" /></>,
   reward: <><path d="M4 10h16v10H4z" /><path d="M3 7h18v3H3z" /><path d="M12 7v13" /><path d="M12 7c-2.5 0-4.5-.6-4.5-2s2.5-1.5 4.5 2" /><path d="M12 7c2.5 0 4.5-.6 4.5-2S14 3.5 12 7" /></>,
   locked: <><rect x="5" y="11" width="14" height="9" rx="1.5" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></>,
   unlocked: <><rect x="5" y="11" width="14" height="9" rx="1.5" /><path d="M8 11V8a4 4 0 0 1 7.5-2" /></>,

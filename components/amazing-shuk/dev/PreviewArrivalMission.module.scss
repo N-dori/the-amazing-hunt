@@ -5,7 +5,8 @@
 .status { font-weight: 500; margin-block-start: 1rem; }
 .hebrew { font-size: 1.125rem; }
 .area { margin-block-end: 1rem; }
-.photo { width: 100%; max-width: 42rem; height: auto; object-fit: contain; margin-block: .5rem 1rem; }
+// The whole photo, never cropped: tall phone shots are capped by height so the text below stays in reach.
+.photo { display: block; width: auto; max-width: min(100%, 42rem); height: auto; max-height: 60svh; object-fit: contain; margin-block: .5rem 1rem; border-radius: .25rem; }
 .photoGap { padding: 1rem; margin-block: .5rem 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
 .landmarks { padding-inline-start: 1.25rem; max-width: 42rem; line-height: 1.5; }
 .landmarks li { margin-block: .25rem; }

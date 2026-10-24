@@ -19,6 +19,9 @@ function loadComponent(path: string, reactOverride?: object): ComponentType<Reco
     if (id.endsWith(".scss")) return { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) };
     if (id === "@/lib/amazing-shuk/participant-avatar") return avatars;
     if (id === "@/lib/amazing-shuk/participant-identity") return identities;
+    if (id === "@/components/icons") return { Icon: () => null };
+    if (id === "@/components/ui/StatusTag") return { __esModule: true, default: ({ status }: { status: string }) => createElement("span", null, status === "draft" ? "Draft" : "") };
+    if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx", reactOverride) };
     if (id.startsWith("./")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx"), reactOverride) };
     return nativeRequire(id);
   };
@@ -71,4 +74,63 @@ test("current and role identity rendering shows names and one row for a dual-rol
   assert.match(html, /Navigator \/ Answer-submitter/);
   assert.equal((html.match(/<li>/g) ?? []).length, 1);
   assert.equal((html.match(/src="data:image\/svg/g) ?? []).length, 2);
+});
+
+// React separates adjacent text with empty comments; drop them so assertions read like the visible text.
+const text = (element: ReactElement) => renderToStaticMarkup(element).replace(/<!-- -->/g, "");
+
+test("role badges stay visible in one compact list: a dual-role participant once, an empty role as Unassigned", () => {
+  const Badges = loadComponent("components/amazing-shuk/ListParticipantBadges.tsx");
+  const participants = [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }];
+  const both = text(createElement(Badges, { participants, currentId: "b", roles: { navigator: "a", answerSubmitter: "a" } }));
+  assert.match(both, /aria-label="Group roles"/);
+  assert.match(both, /<strong>Ari<\/strong> Navigator \/ Answer-submitter/);
+  assert.equal((both.match(/<li/g) ?? []).length, 1);
+  assert.doesNotMatch(both, /<strong>Bea<|Sign out/);
+  const empty = text(createElement(Badges, { participants, currentId: "b", roles: { navigator: null, answerSubmitter: "b" } }));
+  assert.match(empty, /Navigator: Unassigned/); assert.match(empty, /<strong>Bea<\/strong> Answer-submitter/);
+});
+
+test("profile menu shows only the avatar until opened; the open panel holds identity, roles and Sign out", () => {
+  const props = { participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }], roles: { navigator: "a", answerSubmitter: null }, currentId: "b", currentRole: "follower", busy: false, onSignOut() {} };
+  const Closed = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx");
+  const closed = text(createElement(Closed, props));
+  assert.match(closed, /aria-label="Profile: Bea"/); assert.match(closed, /aria-expanded="false"/);
+  assert.doesNotMatch(closed, /Sign out|Signed in as/);
+  const openReact = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === false ? true : initial, () => {}] };
+  const Open = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx", openReact);
+  const open = text(createElement(Open, props));
+  assert.match(open, /aria-expanded="true"/); assert.match(open, /aria-label="Close profile"/);
+  assert.match(open, /Signed in as/); assert.match(open, /Your role: follower/); assert.match(open, /Sign out/);
+  assert.match(open, /Answer-submitter: Unassigned/);
+});
+
+test("bottom bar: four labelled buttons, one marked as the current page, and no game actions", () => {
+  const Nav = loadComponent("components/amazing-shuk/PreviewShukNav.tsx");
+  const html = text(createElement(Nav, { active: "mission", onSelect() {} }));
+  assert.match(html, /<nav[^>]*aria-label="Game"/);
+  assert.deepEqual([...html.matchAll(/<span>([^<]+)<\/span>/g)].map(match => match[1]), ["Map", "Mission", "Food", "Group"]);
+  assert.equal((html.match(/aria-current="page"/g) ?? []).length, 1);
+  assert.match(html, /aria-current="page"><span>Mission<\/span>/);
+  assert.doesNotMatch(html, /Submit|We're Here|Assign|Sign out/);
+});
+
+test("Group tab lists everyone with roles and marks you; progress and balance come from shared state", () => {
+  const Group = loadComponent("components/amazing-shuk/ListGroupOverview.tsx");
+  const html = text(createElement(Group, {
+    participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }, { id: "c", name: "Cal" }], roles: { navigator: "a", answerSubmitter: "a" }, currentId: "b",
+    missions: [{ state: "completed" }, { state: "available" }], balance: { points: 120, foodTokens: 4 },
+  }));
+  assert.match(html, /<dd>1 of 2<\/dd>/); assert.match(html, /<dd>120<\/dd>/); assert.match(html, /<dd>4<\/dd>/);
+  assert.match(html, /<strong>Ari<\/strong><span>Navigator \/ Answer-submitter<\/span>/);
+  assert.match(html, /You<\/span><strong>Bea<\/strong>/);
+  assert.equal((html.match(/<li/g) ?? []).length, 3);
+  assert.doesNotMatch(html, /Sign out|<select/);
+});
+
+test("Food tab shows the shared token balance and a marked draft gap, never invented offers", () => {
+  const Food = loadComponent("components/amazing-shuk/PreviewFoodRewards.tsx");
+  const html = text(createElement(Food, { foodTokens: 3 }));
+  assert.match(html, /<strong>3<\/strong>/); assert.match(html, /aren't confirmed yet|aren&#x27;t confirmed yet/); assert.match(html, /Draft/);
+  assert.doesNotMatch(html, /₪|shekel|falafel|hummus|redeem now/i);
 });

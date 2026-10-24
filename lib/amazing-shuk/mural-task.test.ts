@@ -39,7 +39,7 @@ test("any two real items are accepted; a painted pick is wrong; an unverified ke
   assert.equal(evaluateChoice({ ...MURAL_CHALLENGE, options: MURAL_CHALLENGE.options.map(option => option.id === "plaque" ? { ...option, correct: null } : option) }, ["air-vents", "plaque"]), "incorrect");
 });
 
-test("story is short, labels each statement and has no Hebrew; mission has no photo and a confirmed GPS point", () => {
+test("story is short, labels each statement and has no Hebrew; the street photo names no answer, and the GPS point is confirmed", () => {
   const words = MURAL_TASK.story.paragraphs.map(paragraph => paragraph.text).join(" ").split(/\s+/).length;
   assert.ok(words <= 40, `${words} words`);
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
@@ -47,11 +47,13 @@ test("story is short, labels each statement and has no Hebrew; mission has no ph
   assert.equal(MURAL_TASK.hints.length, 3);
   assert.ok(MURAL_TASK.reveal.image.alt && MURAL_TASK.reveal.image.caption);
   assert.ok(!("image" in MURAL_TASK.story));
-  assert.equal(MURAL_MISSION.photo, null);
+  // The owner chose a street view of the whole wall (24 Oct 2026); its name and alt text must not point at any option.
+  assert.ok(MURAL_MISSION.photo && MURAL_MISSION.photo.src !== MURAL_TASK.reveal.image.src);
+  assert.doesNotMatch(`${MURAL_MISSION.photo.src} ${MURAL_MISSION.photo.alt}`, /vent|plaque|treble|clef|103|box|carton|phone|antenna|bicycle|laundry/i);
   assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);
   assert.equal(findMission(MURAL_MISSION.id), MURAL_MISSION);
-  assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice"]);
+  assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice", "choice"]);
 });
 
 test("view: followers discuss but can't submit; a full selection locks the other options", () => {
@@ -61,6 +63,6 @@ test("view: followers discuss but can't submit; a full selection locks the other
   assert.equal(full.canSubmit, false);
   assert.deepEqual(full.options.filter(option => !option.disabled).map(option => option.id), ["air-vents", "plaque"]);
   const submitter = buildChoiceTaskView(MURAL_CHALLENGE, ["air-vents", "plaque"], false, "answerSubmitter", false, true);
-  assert.equal(submitter.canSubmit, true); assert.equal(submitter.submitDisabled, false); assert.equal(submitter.status, "2 of 2 chosen");
+  assert.equal(submitter.canSubmit, true); assert.equal(submitter.submitDisabled, false); assert.equal(submitter.status, "2 of 2 selected");
   assert.equal(buildChoiceTaskView(MURAL_CHALLENGE, ["air-vents"], false, "answerSubmitter", false, true).submitDisabled, true);
 });

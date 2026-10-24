@@ -1,15 +1,111 @@
-// A compact bottom sheet: it stays at the foot of the screen while the map scrolls above it.
-.sheet { position: sticky; bottom: 0; z-index: 1000; margin-block: 1rem; padding: 1rem; background: var(--chalk); color: var(--ink); border-block-start: 2px solid var(--ink); max-height: 60svh; overflow-y: auto; overflow-wrap: anywhere; }
-.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.status { font-weight: 500; }
-.close { display: inline-grid; place-items: center; min-width: 3rem; min-height: 3rem; border: 1px solid var(--ink); border-radius: .25rem; background: var(--chalk); color: var(--ink); cursor: pointer; }
-.close:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.icon { width: 1.25rem; height: 1.25rem; }
-.body { display: flex; gap: 1rem; align-items: flex-start; margin-block: .75rem 1rem; }
-.text { min-width: 0; }
-.text h2 { font-size: 1.25rem; font-weight: 500; line-height: 1.25; margin-block-end: .25rem; }
-.text p { line-height: 1.5; }
-.place { font-weight: 500; }
-.photo { flex: none; width: 6rem; height: auto; border-radius: .25rem; object-fit: cover; }
-.photoGap { flex: none; width: 6rem; padding: .5rem; font-size: .875rem; line-height: 1.4; border: 1px dashed var(--ink); }
+// A bottom sheet joined to the map's lower edge. On phones it sticks to the foot of the screen and overlays the map;
+// it sits outside Leaflet's container, so touches on it never pan or zoom the map.
+.sheet {
+  position: sticky;
+  inset-block-end: var(--shuk-nav-offset, 0px);
+  z-index: 1000;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1.25rem;
+  border-block-start: 3px solid var(--sumac);
+  background: var(--chalk);
+  color: var(--ink);
+  max-height: 70svh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+  animation: sheetIn var(--dur-base) var(--ease-out) both;
+}
+
+.sheetDone { border-block-start-color: var(--zaatar); }
+
+.top { display: flex; align-items: center; gap: 0.75rem; }
+
+// Same colours as the map pins (LeafletBaseMap.module.scss): sumac available, za'atar completed, dashed once arrived.
+.badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  font-weight: 500;
+}
+
+.badgeActive { border-color: var(--sumac); background: var(--sumac); color: var(--chalk); }
+.badgeArrived { border-style: dashed; background: var(--chalk); color: var(--ink); }
+.badgeDone { border-color: var(--zaatar); background: var(--zaatar); color: var(--chalk); }
+
+.status {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  margin-inline-end: -0.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+
+  &:hover { background: var(--chalk-tint); }
+
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 0; }
+}
+
+.icon { flex: none; width: 1.25rem; height: 1.25rem; }
+
+// Focus lands here programmatically when the sheet opens; the heading isn't a control, so it shows no ring.
+.title {
+  font-size: clamp(1.5rem, 6vw, 1.875rem);
+  font-weight: 500;
+  line-height: 1.15;
+
+  &:focus { outline: none; }
+}
+
+.place { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 1.0625rem; font-weight: 500; line-height: 1.4; }
+.placeIcon { flex: none; width: 1.25rem; height: 1.25rem; margin-block-start: 0.0625rem; color: var(--sumac); }
+
+// 4:3 keeps the middle of a portrait shot (the gate panels, the mural above the shopfront) without making the sheet tall.
+.photo { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 0.25rem; }
+
+.photoGap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--neutral-line);
+  background: var(--chalk-tint);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.summary { max-width: 40rem; font-size: 1.0625rem; line-height: 1.5; }
+
 .sheet button { max-width: 100%; }
+
+@media (min-width: 48rem) {
+  .sheet { padding-inline: 1.5rem; }
+}
+
+@keyframes sheetIn {
+  from { opacity: 0; transform: translateY(1rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet { animation: none; }
+}

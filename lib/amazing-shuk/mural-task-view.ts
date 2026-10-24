@@ -22,6 +22,6 @@ export function buildChoiceTaskView(challenge: ChoiceChallenge, selected: readon
     submitDisabled: busy || completed || !started || selected.length !== challenge.required,
     canReset: started && !busy && !completed && selected.length > 0,
     answerKeyVerified: challenge.answerKeyVerified,
-    status: completed ? "Group answer accepted." : started ? `${selected.length} of ${challenge.required} chosen` : "",
+    status: completed ? "Group answer accepted." : started ? `${selected.length} of ${challenge.required} selected` : "",
   };
 }

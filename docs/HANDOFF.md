@@ -35,7 +35,7 @@ A fixed, mandatory sequence. It supersedes the spec's older "optional, disabled 
 
 - **Tests:** `npm test` (that is, `node --experimental-strip-types --test lib/game/*.test.ts`) gives 61 passing. The host has Node 22 but no `node_modules`.
 - **Type-check and build:** `/game-verify`, or `docker build -t dori-game:test` in tmux. Check `free -h && df -h /` first.
-- **Local preview** (not live): container `dori-game-preview` on `127.0.0.1:3100`, started with `-e MP_DEV_PREVIEW=1`, so `/memory-protocol/dev/map` and the dev controls work there. It runs whichever `dori-game:test` image it was started from, so it must be recreated to show new work. Remove it with `docker rm -f dori-game-preview`.
+- **Local preview** (not live): container `dori-game-preview` on `127.0.0.1:3200` (how to run it: `docs/RUN_PREVIEW.md`), started with `-e MP_DEV_PREVIEW=1`, so `/memory-protocol/dev/map` and the dev controls work there. It runs whichever `dori-game:test` image it was started from, so it must be recreated to show new work. Remove it with `docker rm -f dori-game-preview`.
 - **Live state:** the `dori-game` container runs commit `859055c` (before 00C), but Caddy has no `/memory-protocol` handler, so it can't be reached from outside. Caddy and production routing are untouched.
 
 ## Assets and rights

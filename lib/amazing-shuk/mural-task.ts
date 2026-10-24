@@ -41,9 +41,11 @@ export const MURAL_TASK = Object.freeze({
     ],
     source: `${TOUR}; ${POST} ("a bare concrete wall"); before photo supplied by the owner, 24 Oct 2026.`,
   },
-  question: "Find 2 things on this wall that are real, not painted.",
+  // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
+  question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
   // Shown only after the group's answer is accepted, so it can't hint at what was already there.
   reveal: {
+    paragraphs: [],
     image: { src: "/shuk/mural-before.jpg", width: 1023, height: 1537,
       alt: "Black-and-white photo of the same corner before the mural: a tall, bare, blank building wall above low sheds, a lamp post and a telegraph pole.",
       caption: "The wall before the mural. Photographer and date not yet recorded." },
@@ -71,8 +73,10 @@ export const MURAL_MISSION = Object.freeze({
   // Location confirmed by the owner, 24 Oct 2026: the corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St.
   neighborhood: "HaRav Shmuel Baruch St, corner of Sha'arei Tzedek St, Mahane Yehuda, Jerusalem",
   clue: "Corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St, by Agripas St. Look for a market that isn't there.",
-  // No photo: the mural's image rights are unresolved, and a photo would show the answers.
-  photo: null,
+  // Owner's photograph #103, chosen 24 Oct 2026 as the street view of the corner (web copy, rotated, metadata stripped).
+  // It shows the whole wall, as players will see it on arrival; it doesn't say which details are real.
+  photo: Object.freeze({ src: "/shuk/mural-street.jpg", alt: "The corner building: a large painted market scene high on the wall, and a low painted shopfront beneath it, beside a tree and grey utility cabinets." }),
+  cluePhoto: null,
   // Manual prototype point on Agripas St at the market's south-west edge; not field-checked.
   placement: Object.freeze({ x: 480, y: 478, verified: false }),
   arrival: Object.freeze({

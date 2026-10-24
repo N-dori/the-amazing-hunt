@@ -1,0 +1,11 @@
+// Same cards, progress and reveal styles as the main challenge.
+@forward "./PreviewChoiceTask.module";
+
+// A clear break after the main result, so the bonus reads as optional and separate.
+.bonus { max-width: 42rem; margin-block: 2rem 1rem; padding-block-start: 1.5rem; border-block-start: 1px solid var(--neutral-line); color: var(--ink); }
+.bonusTitle { font-family: var(--font-mono); font-size: .875rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--sumac); }
+.bonusIntro { margin-block: .5rem; font-size: 1.0625rem; line-height: 1.5; }
+.bonusQuestion { margin-block: .75rem 1rem; font-size: clamp(1.25rem, 5vw, 1.5rem); font-weight: 500; line-height: 1.3; }
+.bonusActions { display: grid; gap: .5rem; }
+.bonusPoints { font-size: 1.125rem; }
+.bonusPoints strong { font-size: 1.5rem; font-weight: 500; }

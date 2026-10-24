@@ -35,14 +35,19 @@ Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit
 
 For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.
 
-### Where Claude's Shuk work stands (24 Oct 2026)
+### Where Claude's Shuk work stands (24 Oct 2026, evening)
 
-Start from the top entries of `docs/project/agent-handoff.md`. Done and pushed: lock-free session reads, progress stored per mission (schema 5, protocol revision 5), the mural challenge with the owner's field-checked answer key and confirmed GPS point, and the standard mission journey (map → preview → location → challenge). Both missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
+Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/current-state.md`. Committed on `main`, not pushed: three playable missions (the well, the mural, and Chesed VeRachamim with its optional novel bonus and Eshet Chayil moment), the redesigned mission preview, the profile panel and role badges, the bottom navigation bar (Map, Mission, Food, Group), the mural's checkbox-card UX and the owner's location photos. All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
 
-To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404.
+To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404. The dev server writes the repo's `.next/`: don't delete it while `shuk-dev` runs. Invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`.
+
+Next: mission 4, Montefiore (iteration C, the three languages; then D, the Hebrew year), then the slim header.
 
 Waiting on the owner:
-- the well: keep the two-move solution? Revise the story wording (cistern vs. well, the question answered too soon, the title)?
-- location photos for both missions (the mural's must not show the painted details); Gan HaTut's GPS point; the before photo's source and rights;
-- mural rewards (a provisional copy of the well's) and the draft copy listed in the handoff;
+- draft copy for all three missions, the UI labels and the alt texts (listed per slice in the handoff); rewards for the mural, the synagogue and its bonus (provisional);
+- mural image rights (product-decisions still says unresolved) and the before photo's source and rights;
+- field checks: every marker placement, and GPS points for Gan HaTut and the synagogue;
+- Luna: no source gives her relationship to Yitzhak Armoza; only the literary version is built;
+- the well: keep the two-move solution? Story wording (cistern vs. well, the question answered too soon, the title)?
+- the original photos left untracked in `public/shuk/` (move them to `design/inputs/photos/`);
 - the app split (option 2 in `design/amazing-shuk-roadmap.md`), planned for before real-phone testing.

@@ -1,0 +1,6 @@
+// Warm and quiet: a tinted panel with a Za'atar edge, no buttons, so it never feels like another task.
+.moment { display: grid; gap: .75rem; max-width: 42rem; margin-block: 2rem 1rem; padding: 1.25rem; border-inline-start: .25rem solid var(--zaatar); background: var(--chalk-tint); color: var(--ink); font-size: 1.0625rem; line-height: 1.6; }
+.title { font-family: var(--font-mono); font-size: .875rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.label { color: var(--ink); font-family: var(--font-mono); font-size: .8125rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.invitation { font-size: clamp(1.1875rem, 4.8vw, 1.375rem); font-weight: 500; line-height: 1.4; }
+.note { font-size: .9375rem; }

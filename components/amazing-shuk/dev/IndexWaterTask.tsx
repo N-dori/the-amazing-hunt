@@ -4,9 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BASE_PATH } from "@/lib/base-path";
 import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
-import ListParticipantIdentity from "@/components/amazing-shuk/ListParticipantIdentity";
+import IndexParticipantMenu from "@/components/amazing-shuk/IndexParticipantMenu";
+import ListParticipantBadges from "@/components/amazing-shuk/ListParticipantBadges";
+import ListGroupOverview from "@/components/amazing-shuk/ListGroupOverview";
+import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
+import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
+import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
-import ListArrivalMission, { type MissionStage } from "./ListArrivalMission";
+import ListArrivalMission from "./ListArrivalMission";
 import ActionButton from "@/components/ui/ActionButton";
 import type { MapView } from "@/components/map/LeafletBaseMap";
 import { GAN_HATUT_MISSION, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
@@ -18,16 +23,22 @@ import { INITIAL_WATER_INTERACTION, type WaterInteraction, type WaterContainerId
 import type { WaterPerformanceView, GuideTimingView } from "@/lib/amazing-shuk/water-performance";
 import { WATER_PUZZLE_REVISION, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
 import { findMission } from "@/lib/amazing-shuk/missions";
-import { MURAL_TASK } from "@/lib/amazing-shuk/mural-task";
-import ListMuralTask from "./ListMuralTask";
-import PreviewMuralStory from "./PreviewMuralStory";
+import { findChoiceTask } from "@/lib/amazing-shuk/choice-missions";
+import ListChoiceTask from "./ListChoiceTask";
+import PreviewChoiceStory from "./PreviewChoiceStory";
+import ListChoiceBonus from "./ListChoiceBonus";
+import PreviewAppreciation from "./PreviewAppreciation";
 import styles from "./IndexWaterTask.module.scss";
 
 const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
 const WELL_MISSION_ID = GAN_HATUT_MISSION.id;
+const INITIAL_NAV = initialNavState(WELL_MISSION_ID);
+// Where the player is survives a refresh in this tab; shared progress always comes from the server.
+const NAV_STORAGE_KEY = "shuk:navigation";
+const isMission = (id: string) => Boolean(findMission(id));
 
 // The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
-type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[] };
+type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; bonus?: { selected: string[]; completed: boolean; points: number } };
 type ServerView = { missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 export default function IndexWaterTask() {
@@ -40,11 +51,34 @@ export default function IndexWaterTask() {
   const [arrivalBusy, setArrivalBusy] = useState(false);
   const [arrivalFeedback, setArrivalFeedback] = useState("");
   // Every mission follows map → preview → location → challenge; `missionId` is the mission on screen.
-  const [stage, setStage] = useState<MissionStage | "challenge">("map");
-  const [missionId, setMissionId] = useState<string>(WELL_MISSION_ID);
+  // The bottom bar switches between that journey, Food and Group without losing the journey's place.
+  const [nav, setNav] = useState<ShukNavState>(INITIAL_NAV);
+  const { stage, missionId } = nav;
   // The map's last position, so returning to the map lands where the group left it.
   const [mapView, setMapView] = useState<MapView | null>(null);
-  const goTo = (next: MissionStage | "challenge") => { setStage(next); window.requestAnimationFrame(() => window.scrollTo({ top: 0 })); };
+  // Each screen change is a browser history entry, so the phone's Back button steps back through the game.
+  const navigate = (next: ShukNavState, scrollToTop = true) => {
+    if (next.missionId !== nav.missionId) setArrivalFeedback("");
+    setNav(next);
+    try { window.history.pushState({ shukNav: next }, ""); sessionStorage.setItem(NAV_STORAGE_KEY, JSON.stringify(next)); } catch { /* Navigation still works without history or storage. */ }
+    if (scrollToTop) window.requestAnimationFrame(() => window.scrollTo({ top: 0 }));
+  };
+  const goTo = (next: JourneyStage) => navigate(goToStage(nav, next));
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = parseNavState(JSON.parse(sessionStorage.getItem(NAV_STORAGE_KEY) ?? "null"), isMission);
+        if (saved) { setNav(saved); window.history.replaceState({ shukNav: saved }, ""); }
+      } catch { /* Start from the map when storage is unavailable. */ }
+    }, 0);
+    const back = (event: PopStateEvent) => {
+      const restored = parseNavState((event.state as { shukNav?: unknown } | null)?.shukNav, isMission);
+      setNav(current => restored ?? goToTab(current, "map"));
+      try { if (restored) sessionStorage.setItem(NAV_STORAGE_KEY, JSON.stringify(restored)); } catch { /* Optional. */ }
+    };
+    window.addEventListener("popstate", back);
+    return () => { window.clearTimeout(timer); window.removeEventListener("popstate", back); };
+  }, []);
   const [busy, setBusy] = useState(false);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
@@ -87,6 +121,8 @@ export default function IndexWaterTask() {
     const timer = window.setInterval(() => { void refresh(); }, 1500);
     return () => window.clearInterval(timer);
   }, [refresh]);
+  // The mural, the synagogue and any other "choose N" mission share one challenge screen; this is its content.
+  const choiceTask = findChoiceTask(missionId);
   const activeRole = useMemo(() => view ? getDevWaterActorRole(view.session) : null, [view]);
 
   const actorId = view?.session.activeActorId;
@@ -152,6 +188,16 @@ export default function IndexWaterTask() {
     await flush();
   };
 
+  const signOut = async () => {
+    setBusy(true);
+    try {
+      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "logout" }) });
+      if (!response.ok) throw new Error("Could not sign out; retry.");
+      setView(null); await refresh();
+    } catch { setMessage("Could not sign out; retry."); }
+    finally { setBusy(false); }
+  };
+
   const focusPuzzle = () => window.requestAnimationFrame(() => {
     const target = document.getElementById("water-puzzle-status") ?? document.getElementById("water-controls-heading");
     target?.focus();
@@ -179,35 +225,57 @@ export default function IndexWaterTask() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>The Amazing Shuk</p>
-        <h1>{stage === "location" || stage === "challenge" ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
+        <div className={styles.headerTitle}>
+          <p className={styles.eyebrow}>The Amazing Shuk</p>
+          <h1>{nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
+        </div>
+        <IndexParticipantMenu participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
+          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />
+        <ListParticipantBadges participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} />
       </header>
       <section className={styles.balance} aria-label="Shared group rewards">
         <div><span>Group points</span><strong>{view.sharedBalance.points}</strong></div>
         <div><span>Food tokens</span><strong>{view.sharedBalance.foodTokens}</strong></div>
       </section>
-      {stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
+      {nav.area === "noMission" ? <section className={styles.empty} aria-labelledby="no-mission-title">
+        <h2 id="no-mission-title">No mission open yet</h2>
+        <p>Choose a mission on the map, then open its location.</p>
+        <ActionButton icon="arrowForward" onClick={() => navigate(goToTab(nav, "map"))}>Go to the map</ActionButton>
+      </section> : null}
+      {nav.area === "food" ? <PreviewFoodRewards foodTokens={view.sharedBalance.foodTokens} /> : null}
+      {nav.area === "group" ? <ListGroupOverview participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
+        missions={view.missions} balance={view.sharedBalance} /> : null}
+      {nav.area === "journey" && stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
         feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
         onSelect={(id) => {
           if (!findMission(id)) return;
-          if (id !== missionId) setArrivalFeedback("");
-          setMissionId(id); setStage("preview");
+          navigate(previewMission(nav, id), false);
           window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "nearest" }));
         }}
-        onDismiss={() => goTo("map")} onViewLocation={() => goTo("location")} onOpenChallenge={() => goTo("challenge")}
+        onDismiss={() => goTo("map")} onClosePreview={() => {
+          // Closing with the button or Escape hands focus back to the map, where the group chooses again.
+          goTo("map");
+          window.requestAnimationFrame(() => document.querySelector<HTMLElement>(".leaflet-container")?.focus({ preventScroll: true }));
+        }} onViewLocation={() => goTo("location")} onOpenChallenge={() => goTo("challenge")}
         onConfirm={() => void act({ type: "confirm-arrival", missionId })} /> : null}
-      {stage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
+      {nav.area === "journey" && stage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
         <ActionButton variant="quiet" onClick={() => goTo("location")}>Back to location</ActionButton>
         <ActionButton variant="quiet" onClick={() => goTo("map")}>Back to map</ActionButton>
       </nav> : null}
-      {stage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" ? <>
-      <h2>{MURAL_TASK.title}</h2>
-      <PreviewMuralStory {...MURAL_TASK.story} instruction={MURAL_TASK.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
-      <ListMuralTask selected={view.session.selected ?? []} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
+      {nav.area === "journey" && stage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
+      <h2>{choiceTask.task.title}</h2>
+      <PreviewChoiceStory {...choiceTask.task.story} instruction={choiceTask.task.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
+      <ListChoiceTask task={choiceTask.task} challenge={choiceTask.challenge} selected={view.session.selected ?? []} completed={view.session.completed} feedback={message} activeRole={activeRole ?? "follower"} busy={busy}
         performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
         onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })}
         onReset={() => void act({ type: "reset", missionId })} />
-      </> : stage === "challenge" && view.mission.id === missionId ? <>
+      {/* Optional extras after the accepted answer: they never change the mission's completion or its food tokens. */}
+      {view.session.completed && choiceTask.bonus && view.session.bonus ? <ListChoiceBonus content={choiceTask.bonus.content} challenge={choiceTask.bonus.challenge}
+        state={view.session.bonus} activeRole={activeRole ?? "follower"} busy={busy} feedback={message}
+        onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId, part: "bonus" })}
+        onSubmit={() => void act({ type: "submit", missionId, part: "bonus" })} onReset={() => void act({ type: "reset", missionId, part: "bonus" })} /> : null}
+      {view.session.completed && choiceTask.appreciation ? <PreviewAppreciation {...choiceTask.appreciation} /> : null}
+      </> : nav.area === "journey" && stage === "challenge" && view.mission.id === missionId && view.session.kind !== "choice" ? <>
       <h2>{WATER_TASK.title}</h2>
       <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
         setStoryOpen(!storyOpen);
@@ -221,25 +289,15 @@ export default function IndexWaterTask() {
           void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />
       </> : null}
-      <section className={styles.simulation} aria-label="Group participants and roles">
-        <div>
-          <ListParticipantIdentity participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} currentRole={activeRole ?? "follower"} />
-          <button type="button" disabled={busy} onClick={async () => {
-            setBusy(true);
-            try {
-              const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "logout" }) });
-              if (!response.ok) throw new Error("Could not sign out; retry.");
-              setView(null); await refresh();
-            } catch { setMessage("Could not sign out; retry."); }
-            finally { setBusy(false); }
-          }}>Sign out</button>
-        </div>
-
-      </section>
       {activeRole === "guide" ? <IndexGuideWaterTask missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
-      {message ? <p className={styles.message} role="status">{message}</p> : null}
-      <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>
-      <button className={styles.refresh} type="button" onClick={() => void refresh()} disabled={busy}>Refresh shared state</button>
+      {/* On the mural, replies to an action appear beside its submit button instead. */}
+      {message && !(nav.area === "journey" && stage === "challenge" && view.session.kind === "choice") ? <p className={styles.message} role="status">{message}</p> : null}
+      <details className={styles.dev}>
+        <summary>Development</summary>
+        <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>
+        <button className={styles.refresh} type="button" onClick={() => void refresh()} disabled={busy}>Refresh shared state</button>
+      </details>
+      <PreviewShukNav active={activeTab(nav)} onSelect={tab => navigate(goToTab(nav, tab))} />
     </main>
   );
 }
