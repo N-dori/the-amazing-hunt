@@ -5,7 +5,7 @@ export type WaterSubmissionRole = "navigator" | "answerSubmitter" | "navigatorAn
 export type WaterSubmissionResult = "accepted" | "incorrect" | "unauthorized";
 
 export const WATER_TASK_ID = "water-measurement-family-jar";
-export const WATER_PUZZLE_REVISION = 3;
+export const WATER_PUZZLE_REVISION = 4;
 export const WATER_TARGET_LITERS = 4;
 export const WATER_CAPACITY = Object.freeze({ small: 3, large: 5, jar: 4 });
 export const EMPTY_WATER_CUPS: WaterCups = Object.freeze({ small: 0, large: 0, jar: 0 });

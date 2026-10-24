@@ -1,0 +1,8 @@
+.preview { margin-block: 1rem; padding-block: 1rem; border-block: 1px solid var(--neutral-line); color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.preview h2 { font-weight: 500; line-height: 1.2; }
+.preview p { line-height: 1.5; max-width: 42rem; }
+.status { font-weight: 500; }
+.photo { width: 100%; height: auto; object-fit: contain; }
+.photoGap { padding: 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
+.success { padding: 1rem; background: var(--chalk); border-inline-start: .25rem solid var(--zaatar); }
+.preview button { margin-block: .5rem; max-width: 100%; }

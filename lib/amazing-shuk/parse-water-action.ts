@@ -1,3 +1,4 @@
+import { validArrivalReading } from "./mission-arrival.ts";
 import type { DevWaterAction } from "./dev-water-session.ts";
 import { WATER_MOVES } from "./water-measurement.ts";
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
@@ -5,6 +6,13 @@ function isRecord(value: unknown): value is Record<string, unknown> { return typ
 export function parseAction(value: unknown): DevWaterAction | null {
   if (!isRecord(value) || typeof value.type !== "string") return null;
   switch (value.type) {
+    case "confirm-arrival":
+      return typeof value.missionId === "string" ? { type: value.type, missionId: value.missionId } : null;
+    case "arrival": {
+      if (typeof value.missionId !== "string" || !validArrivalReading(value.reading)) return null;
+      const { latitude, longitude, accuracy, timestamp } = value.reading;
+      return { type: value.type, missionId: value.missionId, reading: { latitude, longitude, accuracy, timestamp } };
+    }
     case "switch-actor":
       return typeof value.actorId === "string" ? { type: value.type, actorId: value.actorId } : null;
     case "assign-role":

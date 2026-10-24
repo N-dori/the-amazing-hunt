@@ -1,3 +1,4 @@
+import type { ArrivalAction } from "./mission-arrival.ts";
 import type { WaterPerformanceAction } from "./water-performance.ts";
 import { roleForParticipant, setGroupRole, type AssignableGroupRole, type GroupRoleAssignments, type ParticipantRole } from "./roles.ts";
 import { applyWaterMove, EMPTY_WATER_CUPS, evaluateWaterSubmission, type WaterCups, type WaterMove } from "./water-measurement.ts";
@@ -21,6 +22,7 @@ export type DevWaterSession = Readonly<{
 }>;
 
 export type DevWaterAction =
+  | ArrivalAction
   | WaterPerformanceAction
   | Readonly<{ type: "switch-actor"; actorId: string }>
   | Readonly<{ type: "assign-role"; role: AssignableGroupRole; participantId: string | null }>

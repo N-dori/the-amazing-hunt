@@ -35,11 +35,11 @@
   }
 
   :global(.leaflet-control-zoom a) {
-    width: 2.75rem;
-    height: 2.75rem;
+    width: var(--map-control-size, 2.75rem);
+    height: var(--map-control-size, 2.75rem);
     color: var(--ink);
     background: var(--chalk);
-    line-height: 2.75rem;
+    line-height: var(--map-control-size, 2.75rem);
   }
 
   :global(.leaflet-control-attribution) {

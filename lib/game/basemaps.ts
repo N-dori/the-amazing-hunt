@@ -154,10 +154,8 @@ export function unplacedMarkers(baseMapId: BaseMapId, records: readonly MarkerRe
   return records.filter((r) => !r.enabled || !r.placements[baseMapId]);
 }
 
-// Leaflet CRS.Simple: one image pixel is one map unit, with y counted up from the bottom.
-export function imageToLatLng(baseMap: Pick<BaseMap, "height">, x: number, y: number): [number, number] {
-  return [baseMap.height - y, x];
-}
+// Shared image geometry; deliberately unrelated to geographic positioning.
+export { imageToLatLng } from "../map/image-map.ts";
 
 // External walking navigation, always from real-world coordinates, never from image pixels.
 export function externalNavLinks(geo: GeoPoint | null): { osm: string; google: string } | null {

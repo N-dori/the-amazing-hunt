@@ -5,6 +5,9 @@ import { BASE_PATH } from "@/lib/base-path";
 import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterAction, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
 import ListParticipantIdentity from "@/components/amazing-shuk/ListParticipantIdentity";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
+import ListArrivalMission from "./ListArrivalMission";
+import { GAN_HATUT_MISSION, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
+import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amazing-shuk/request-arrival-location";
 import ListWaterTask from "./ListWaterTask";
 import PreviewWellStory from "./PreviewWellStory";
 import { WATER_TASK } from "@/lib/amazing-shuk/water-task";
@@ -15,12 +18,18 @@ import styles from "./IndexWaterTask.module.scss";
 
 const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
 
-type ServerView = { puzzleRevision: number; session: DevWaterSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+type ServerView = { mission: MissionView; puzzleRevision: number; session: DevWaterSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 export default function IndexWaterTask() {
   const [view, setView] = useState<ServerView | null>(null);
   const [message, setMessage] = useState("Connecting to the local development session…");
   const flushing = useRef(false);
+  const checkingArrival = useRef(false);
+  const arrivalGeneration = useRef(0);
+  const currentActor = useRef<string | undefined>(undefined);
+  const [arrivalBusy, setArrivalBusy] = useState(false);
+  const [arrivalFeedback, setArrivalFeedback] = useState("");
+  const [missionSelected, setMissionSelected] = useState(false);
   const [busy, setBusy] = useState(false);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
@@ -66,6 +75,33 @@ export default function IndexWaterTask() {
   const activeRole = useMemo(() => view ? getDevWaterActorRole(view.session) : null, [view]);
 
   const actorId = view?.session.activeActorId;
+  useEffect(() => {
+    currentActor.current = actorId;
+    arrivalGeneration.current += 1;
+    return () => { currentActor.current = undefined; arrivalGeneration.current += 1; };
+  }, [actorId]);
+  const checkArrival = async () => {
+    if (!actorId || checkingArrival.current || busy) return;
+    if (!view?.mission.gpsEnabled) { setArrivalFeedback(LOCATION_UNAVAILABLE_MESSAGE); return; }
+    checkingArrival.current = true;
+    const generation = arrivalGeneration.current;
+    setArrivalBusy(true); setArrivalFeedback("Checking your location...");
+    try {
+      const reading = await requestArrivalLocation(navigator.geolocation, window.isSecureContext);
+      if (currentActor.current !== actorId || generation !== arrivalGeneration.current) return;
+      // GPS evidence is sent once, never put in the persistent offline action queue.
+      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arrival", missionId: GAN_HATUT_MISSION.id,
+          reading, actionId: crypto.randomUUID(), expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION }),
+      });
+      const data = await response.json() as ServerView;
+      if (currentActor.current !== actorId || generation !== arrivalGeneration.current) return;
+      if (!response.ok) throw new Error(data.error ?? "Arrival could not be checked. Please retry or ask the guide.");
+      setView(data); setArrivalFeedback(data.message ?? "You're very close! You're in the right area. Look around for Gan HaTut.");
+    } catch (error) {
+      if (currentActor.current === actorId && generation === arrivalGeneration.current) setArrivalFeedback(error instanceof Error ? error.message : "Please retry or ask the guide.");
+    } finally { checkingArrival.current = false; setArrivalBusy(false); }
+  };
   const flush = useCallback(async () => {
     if (!actorId || flushing.current) return;
     const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
@@ -93,6 +129,7 @@ export default function IndexWaterTask() {
     return () => window.clearInterval(timer);
   }, [flush]);
   const act = async (action: DevWaterAction) => {
+    if (action.type === "arrival") return; // Never persist GPS readings.
     if (!actorId) return;
     const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
     const pending = JSON.parse(localStorage.getItem(key) ?? "[]");
@@ -128,8 +165,18 @@ export default function IndexWaterTask() {
     <main className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>The Amazing Shuk</p>
-        <h1>{WATER_TASK.title}</h1>
+        <h1>{missionSelected ? GAN_HATUT_MISSION.name : "Explore the market"}</h1>
       </header>
+      <section className={styles.balance} aria-label="Shared group rewards">
+        <div><span>Group points</span><strong>{view.sharedBalance.points}</strong></div>
+        <div><span>Food tokens</span><strong>{view.sharedBalance.foodTokens}</strong></div>
+      </section>
+      <ListArrivalMission mission={view.mission} selected={missionSelected} guide={activeRole === "guide"} busy={busy || arrivalBusy}
+        feedback={arrivalFeedback} onArrival={() => void checkArrival()}
+        onSelect={() => { setMissionSelected(true); window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "start" })); }}
+        onDismiss={() => setMissionSelected(false)} onConfirm={() => void act({ type: "confirm-arrival", missionId: GAN_HATUT_MISSION.id })} />
+      {missionSelected ? <>
+      <h2>{WATER_TASK.title}</h2>
       <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
         setStoryOpen(!storyOpen);
         try { localStorage.setItem("shuk:well-story-collapsed", storyOpen ? "1" : "0"); } catch { /* Preference storage is optional. */ }
@@ -141,6 +188,7 @@ export default function IndexWaterTask() {
           setInteraction(INITIAL_WATER_INTERACTION);
           void act({ type: "reset" }).then(focusPuzzle);
         }} />
+      </> : null}
       <section className={styles.simulation} aria-label="Group participants and roles">
         <div>
           <ListParticipantIdentity participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} currentRole={activeRole ?? "follower"} />

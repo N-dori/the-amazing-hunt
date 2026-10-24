@@ -7,6 +7,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { handleParticipantRequest } from "./participant-http.ts";
 import { issueInvitation, redeemInvitation, sessionView, sessionAction, logout, transact } from "./participant-store.ts";
+import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 const env = { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" } as const;
 async function fixture(run: (path: string) => Promise<void>) {
   await mkdir(".local", { recursive: true });
@@ -40,7 +41,7 @@ test("two isolated cookie jars retain identities and share persistent progress (
   const call = (cookie = "", body?: object, overrides: Record<string, string> = {}) => {
     const init = {
       method: body ? "POST" : "GET", headers: { origin, "content-type": "application/json", cookie, ...overrides },
-      body: body ? JSON.stringify({ puzzleRevision: 3, expectedParticipantId: "player-1", ...body }) : undefined,
+      body: body ? JSON.stringify({ puzzleRevision: WATER_PUZZLE_REVISION, expectedParticipantId: "player-1", ...body }) : undefined,
     };
     return sockets ? fetch(origin + "/api", init) : handleParticipantRequest(new Request(origin + "/api", { ...init, headers: { host: new URL(origin).host, ...init.headers } }), path, env);
   };
@@ -166,7 +167,7 @@ test("legacy cup state migrates without losing login or roles; stale queued acti
   old.group.completed = true;
   await writeFile(path, JSON.stringify(old));
   const view = await sessionView(path, token);
-  assert.equal(view.puzzleRevision, 3);
+  assert.equal(view.puzzleRevision, WATER_PUZZLE_REVISION);
   assert.equal(view.session.activeActorId, "player-2");
   assert.deepEqual(view.session.roles, old.group.roles);
   assert.deepEqual(view.session.cups, { small: 0, large: 0, jar: 0 });

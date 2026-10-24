@@ -4,14 +4,14 @@
 
 ## Now
 
-1. Finish acceptance of the existing playable well/participant identity slice. Manual invitation sessions, JSON/shared progress, contextual three-container puzzle, quiet timing/shared hints/idempotent rewards and deterministic avatars are implemented. 49 Shuk and 61 Memory Protocol tests pass; exact verification limits are in the handoff.
+1. Finish acceptance of the existing playable well/participant identity slice. Manual invitation sessions, JSON/shared progress, contextual three-container puzzle, quiet timing/shared hints/idempotent rewards and deterministic avatars are implemented. 64 Shuk and 61 Memory Protocol tests pass; exact verification limits are in the handoff.
 2. Owner checks two browser profiles: stable independent identity/avatar, common puzzle/hints/roles, one authorized submission, identical shared achievements after refresh/relogin. Check mobile layout, keyboard/fallback and reconnect. Preserve existing completed records; no fabricated retroactive rewards.
 3. Resume gameplay rather than expanding authentication. Use the existing [content index](inputs/content/README.md), Claude research and source verification to select one next task; no new broad planning/research batch.
 
 ## Next small deliveries
 
 - One additional sourced, deterministic playable market challenge, with approved copy/answer/reward settings and a tested full solution. Target six independently verified playable tasks; ten ideal.
-- Task-to-map integration only after map approval and location validation. Existing Leaflet image-map prototype has reusable markers/details but no Shuk adapter/GPS and an inaccurate geographic fit. Recommended first navigation iteration: registration feasibility at verified independent landmarks; then optional device-local Find My Location if accurate enough. See [existing audit](../docs/map/nahlaot-map-audit.md). No navigation implementation approved by discovery.
+- Current map-to-mission slice is implemented: Gan HaTut selection opens the same well story/puzzle without GPS. Optional **We're Here?** may award20 group points once; guide confirmation works without GPS. Next: owner confirms the garden photograph, approximate illustrated pin and actual arrival coordinate, then checks mobile/HTTPS behavior. No location dot, georeferencing, routing or GPS gate. See [well/map record](../docs/project/water-task.md).
 - Add shared multi-task progress and guide-controlled food redemption only with approved offers/token costs, preserving existing atomic completion receipts and backend roles.
 - Four-screen onboarding using approved concise copy and the one-group model.
 
@@ -20,7 +20,7 @@
 - Email magic links/SMTP, external providers/Auth.js, expanded enrollment/authentication; retain implemented manual invitations. Gameplay has priority.
 - Protected Shuk production app boundary, VPS permissions/backups/durability, deployment and public phone access. Deployment requires explicit approval; retain the opt-in loopback development gates.
 - Food/vendor availability, costs, allergens, current offers, content access and image rights require verification; provisional well rewards are not final market-economy settings.
-- Proposed 3-5 available tasks/reveal rules are not approved unlock policy. No GPS-based completion/unlocking, participant tracking infrastructure or turn-by-turn routing planned.
+- Proposed 3-5 available tasks/reveal rules are not approved unlock policy. GPS never gates story/challenge access; optional proximity assistance/bonus supersedes the earlier no-GPS policy. No participant tracking infrastructure or turn-by-turn routing planned.
 
 ## Superseded
 

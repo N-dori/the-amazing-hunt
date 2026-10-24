@@ -1,10 +1,10 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type * as Leaflet from "leaflet";
 import { BASE_PATH } from "@/lib/base-path";
-import { imageToLatLng, type BaseMap } from "@/lib/game/basemaps";
+import { imageToLatLng, type ImageBaseMap } from "@/lib/map/image-map";
 import styles from "./LeafletBaseMap.module.scss";
 
 export type MapMarkerState = "active" | "locked" | "conditional" | "completed";
@@ -21,6 +21,8 @@ export type MapMarkerView = {
   offMap: boolean;
   // Accessible name, e.g. "1. National Library of Israel: Next".
   ariaLabel?: string;
+  symbol?: string;
+  size?: 44 | 48;
 };
 
 export type MemoryLayerView = { id: string; x: number; y: number; radius: number; label: string; alignStart?: boolean };
@@ -29,7 +31,8 @@ export type MemoryLayerView = { id: string; x: number; y: number; radius: number
 export type MapView = { center: [number, number]; zoom: number };
 
 type LeafletBaseMapProps = {
-  baseMap: BaseMap;
+  baseMap: ImageBaseMap;
+  touchSize?: 48;
   alt: string;
   markers: MapMarkerView[];
   selectedId: string | null;
@@ -123,9 +126,9 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       const classes = [styles.pin, styles[m.state] ?? "", m.provisional ? styles.provisional : "", m.id === selectedId ? styles.selected : ""].join(" ");
       const icon = h.L.divIcon({
         className: `${styles.markerIcon} ${m.offMap ? styles.markerIconOffMap : ""}`,
-        html: `<span class="${classes}">${m.order}</span><span class="${styles.label}">${escapeHtml(m.label)}</span>`,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22],
+        html: `<span class="${classes}" style="width:${m.size ?? 44}px;height:${m.size ?? 44}px">${escapeHtml(m.symbol ?? String(m.order))}</span><span class="${styles.label}">${escapeHtml(m.label)}</span>`,
+        iconSize: [m.size ?? 44, m.size ?? 44],
+        iconAnchor: [(m.size ?? 44) / 2, (m.size ?? 44) / 2],
       });
       const marker = h.L.marker(imageToLatLng(baseMap, m.x, m.y), { icon, keyboard: true, title: m.label, riseOnHover: true });
       // Marker clicks don't bubble to the map's click, which closes the card.
@@ -156,7 +159,7 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   }, [ready, memoryLayers, baseMap]);
 
   return (
-    <div className={styles.frame}>
+    <div className={styles.frame} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
       <div ref={containerRef} className={styles.map} role="region" aria-label={alt} />
       {notice ? <p className={styles.notice}>{notice}</p> : null}
     </div>

@@ -1,3 +1,4 @@
+import { GAN_HATUT_MISSION, checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival } from "./mission-arrival.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
@@ -10,7 +11,7 @@ export const SESSION_COOKIE = "shuk_session";
 const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
 type GroupState = Omit<DevWaterSession, "activeActorId">;
-type Database = { version: 3; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: GroupState; applied: Record<string, string[]> };
+type Database = { version: 4; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: GroupState; applied: Record<string, string[]> };
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
@@ -19,7 +20,7 @@ const hash = (token: string) => createHash("sha256").update(token).digest("hex")
 const secret = () => randomBytes(32).toString("base64url");
 function initial(): Database {
   const { roles, cups, completed } = createDevWaterSession();
-  return { version: 3, performance: createWaterPerformance(), invitations: {}, sessions: {}, group: { roles, cups, completed }, applied: {} };
+  return { version: 4, arrival: null, performance: createWaterPerformance(), invitations: {}, sessions: {}, group: { roles, cups, completed }, applied: {} };
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
@@ -41,10 +42,11 @@ export async function transact<T>(path: string, operation: (db: Database) => T):
     if ((db as { version: number }).version === 1) {
       // The old measuring-cup task is a different puzzle. Keep credentials and roles,
       // start this revised task empty, and retain old receipts to reject stale replays.
-      db = { ...db, version: 3, performance: createWaterPerformance(), group: { ...db.group, cups: EMPTY_WATER_CUPS, completed: false } };
+      db = { ...db, version: 4, arrival: null, performance: createWaterPerformance(), group: { ...db.group, cups: EMPTY_WATER_CUPS, completed: false } };
     }
-    if ((db as { version: number }).version === 2) db = { ...db, version: 3, performance: createWaterPerformance() };
-    if (db.version !== 3 || !isValidCups(db.group.cups)) throw new Error("Unsupported Shuk storage state");
+    if ((db as { version: number }).version === 2) db = { ...db, version: 4, arrival: null, performance: createWaterPerformance() };
+    if ((db as { version: number }).version === 3) db = { ...db, version: 4, arrival: null };
+    if (db.version !== 4 || !(db.arrival === null || (db.arrival && Number.isSafeInteger(db.arrival.points) && db.arrival.points >= 0)) || !isValidCups(db.group.cups)) throw new Error("Unsupported Shuk storage state");
     const result = operation(db);
     const file = await open(temporary, "wx", 0o600);
     try { await file.writeFile(JSON.stringify(db)); await file.sync(); } finally { await file.close(); }
@@ -88,20 +90,25 @@ export async function sessionView(path: string, token: string, now = Date.now())
     const role = roleForParticipant(participantId, db.group.roles);
     const award = db.performance.award;
     return {
-      puzzleRevision: WATER_PUZZLE_REVISION, session: { ...db.group, activeActorId: participantId },
+      puzzleRevision: WATER_PUZZLE_REVISION,
+      mission: { id: GAN_HATUT_MISSION.id, state: missionState(db.arrival, db.group.completed),
+        arrivalPoints: db.arrival?.points ?? 0, arrivalMethod: db.arrival?.method ?? null,
+        gpsEnabled: Boolean(GAN_HATUT_MISSION.arrival.destination?.verified) },
+      session: { ...db.group, activeActorId: participantId },
       performance: { started: db.performance.startedAt !== null, hintsUsed: db.performance.hintsUsed,
         canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
-      sharedBalance: { points: award?.points ?? 0, foodTokens: award?.foodTokens ?? 0, status: "Provisional local-development rewards" },
+      sharedBalance: { points: (award?.points ?? 0) + (db.arrival?.points ?? 0), foodTokens: award?.foodTokens ?? 0, status: "Provisional local-development rewards" },
       ...(guide ? { guideTiming: { startedAt: db.performance.startedAt, solvedAt: db.performance.solvedAt,
         stoppedElapsedMs: db.performance.solvedAt === null ? null : measuredWaterTime(db.performance, now), paused: db.performance.pausedAt !== null, excluded: db.performance.excluded } } : {}),
     };
   });
 }
-export async function sessionAction(path: string, token: string, action: DevWaterAction, actionId: string, now = Date.now(), expectedParticipantId?: string) {
+export async function sessionAction(path: string, token: string, action: DevWaterAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy: ArrivalPolicy = GAN_HATUT_MISSION.arrival) {
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
     if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, db.group.roles))) throw new AccessError("Only the answer-submitter may submit");
+    if (action.type === "confirm-arrival" && participantId !== DEV_GUIDE_ID) throw new AccessError("Only the guide may confirm group arrival");
     if (action.type === "switch-actor") throw new AccessError("Identity comes from the authenticated session");
     if (!/^[A-Za-z0-9-]{16,80}$/.test(actionId)) throw new AccessError("Invalid action ID", 400);
     const applied = db.applied[participantId] ?? [];
@@ -110,35 +117,49 @@ export async function sessionAction(path: string, token: string, action: DevWate
     const role = roleForParticipant(participantId, db.group.roles);
     let message = "";
     try {
-      if (action.type === "start") {
-        if (!guide && role === "follower") throw new Error("Only the navigator, answer-submitter or guide may start");
-        if (db.group.completed) throw new Error("This challenge is already complete");
-        if (db.performance.startedAt === null) {
-          // Existing in-progress puzzles are retained, but their earlier time is unknown.
-          db.performance = { ...db.performance, startedAt: now, clockStartedAt: now,
-            excluded: db.group.cups.small + db.group.cups.large + db.group.cups.jar > 0,
-            solvedAt: isWaterPuzzleSolved(db.group.cups) ? now : null };
+      if (action.type === "arrival" || action.type === "confirm-arrival") {
+        if (action.missionId !== GAN_HATUT_MISSION.id) throw new Error("Unknown mission");
+        // Rechecking proximity still validates this reading even after the group has its bonus.
+        if (action.type === "arrival") {
+          const error = checkMissionArrival(action.reading, arrivalPolicy, now);
+          if (error) throw new Error(error);
         }
-      } else if (action.type === "timing") {
-        if (!guide) throw new Error("Only the guide may adjust timing");
-        if (db.group.completed) throw new Error("This challenge is already complete");
-        db.performance = adjustWaterTiming(db.performance, action.operation, now, participantId);
-      } else if (action.type === "hint") {
-        if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > 3) throw new Error("Invalid hint");
-        if (action.hint > db.performance.hintsUsed) {
-          if (db.performance.startedAt === null || db.performance.solvedAt !== null || db.group.completed) throw new Error("Hints are available during the challenge");
-          if (action.hint !== db.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
-          db.performance = { ...db.performance, hintsUsed: action.hint };
+        if (!db.arrival) {
+          if (!Number.isSafeInteger(arrivalPolicy.rewardPoints) || arrivalPolicy.rewardPoints < 0) throw new Error("Arrival reward configuration is unavailable");
+          db.arrival = { method: action.type === "arrival" ? "gps" : "guide", acceptedAt: now, points: arrivalPolicy.rewardPoints };
         }
+        message = action.type === "arrival" ? "You're very close! You're in the right area. Look around for Gan HaTut." : "Group arrival confirmed. Arrival bonus recorded.";
       } else {
-        if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !db.group.completed)) && db.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
-        const result = applyDevWaterAction({ ...db.group, activeActorId: participantId }, action);
-        if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && db.performance.solvedAt === null) db.performance = { ...db.performance, solvedAt: now };
-        if (action.type === "reset") db.performance = { ...db.performance, solvedAt: null };
-        if (result.session.completed && !db.group.completed) db.performance = awardWaterPerformance(db.performance, now);
-        const { roles, cups, completed } = result.session;
-        db.group = { roles, cups, completed };
-        message = result.message;
+        if (action.type === "start") {
+          if (!guide && role === "follower") throw new Error("Only the navigator, answer-submitter or guide may start");
+          if (db.group.completed) throw new Error("This challenge is already complete");
+          if (db.performance.startedAt === null) {
+            // Existing in-progress puzzles are retained, but their earlier time is unknown.
+            db.performance = { ...db.performance, startedAt: now, clockStartedAt: now,
+              excluded: db.group.cups.small + db.group.cups.large + db.group.cups.jar > 0,
+              solvedAt: isWaterPuzzleSolved(db.group.cups) ? now : null };
+          }
+        } else if (action.type === "timing") {
+          if (!guide) throw new Error("Only the guide may adjust timing");
+          if (db.group.completed) throw new Error("This challenge is already complete");
+          db.performance = adjustWaterTiming(db.performance, action.operation, now, participantId);
+        } else if (action.type === "hint") {
+          if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > 3) throw new Error("Invalid hint");
+          if (action.hint > db.performance.hintsUsed) {
+            if (db.performance.startedAt === null || db.performance.solvedAt !== null || db.group.completed) throw new Error("Hints are available during the challenge");
+            if (action.hint !== db.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
+            db.performance = { ...db.performance, hintsUsed: action.hint };
+          }
+        } else {
+          if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !db.group.completed)) && db.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
+          const result = applyDevWaterAction({ ...db.group, activeActorId: participantId }, action);
+          if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && db.performance.solvedAt === null) db.performance = { ...db.performance, solvedAt: now };
+          if (action.type === "reset") db.performance = { ...db.performance, solvedAt: null };
+          if (result.session.completed && !db.group.completed) db.performance = awardWaterPerformance(db.performance, now);
+          const { roles, cups, completed } = result.session;
+          db.group = { roles, cups, completed };
+          message = result.message;
+        }
       }
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
     db.applied[participantId] = [...applied, actionId];

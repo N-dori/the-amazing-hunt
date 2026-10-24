@@ -1,5 +1,43 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Latest handoff - optional GPS map slice, 24 Oct 2026
+
+**Current owner rule supersedes earlier GPS-unlock and no-GPS plans:** location assistance encourages exploration and never gates participation. Button is **We're Here?** (question mark intentional). Story/puzzle are available immediately after mission selection; all normal challenge rewards work without location or bonus. Read [decisions](product-decisions.md), [current state](current-state.md), [well/map record](water-task.md) and [roadmap](../../design/amazing-shuk-roadmap.md); older checkpoint below is historical.
+
+### Implemented
+
+- Reused illustrated Leaflet renderer at the existing opt-in loopback-only water page. One Gan HaTut mission uses existing water task ID and story/puzzle, no duplicate challenge. Marker/list selection, destination/clue preview, shared Available/Arrival confirmed/Completed labels and1/diamond/check symbols;48px Shuk targets. Missing photograph explicitly reported, no unrelated substitute.
+- One-shot optional getCurrentPosition request, fresh reading, friendly feedback, no watcher/dot/georeferencing/routing. Server validates authenticated session, mission ID, finite coordinates/accuracy/timestamp, freshness and Haversine center distance. Configurable100m radius/50m max accuracy/60s age/5s future tolerance, all provisional. GPS reading never persisted or offline-queued.
+- Separate configurable20-point group bonus under existing JSON lock, once across participants/retries/concurrent guide confirmation. Guide-only Confirm Group Arrival; no food tokens on arrival. Normal challenge reward remains separate and can happen first. Shared score is arrival plus challenge points; challenge food tokens unchanged.
+- Schema/action revision4 adds optional `{method,acceptedAt,points}`; prior sessions/cups/performance/rewards preserved with no fabricated arrival reward. Refresh browsers to drop stale protocol actions; old local queue keys remain isolated. No auth rewrite, new dependency, production gate change or deployment.
+
+### Important limitations / next smallest acceptance
+
+**Real GPS approval remains disabled:** published candidate31.7834802,35.2128322 is not field-confirmed. Source, investigation and explicit `verified:false` are in the well/map record. Button currently gives friendly fallback without GPS prompt. Owner must confirm actual destination coordinate/usable50m accuracy before enabling bonuses from real readings. Guide confirmation already works and gameplay is unaffected.
+
+No documented illustrated Gan HaTut placement was found: manual point(600,650) is provisional and marked approximate. No identified current garden photograph exists in available index/local photo assets; supply/approve the correct photo and review the pin. Existing illustration's wrong labels/provenance remain documented. Do not substitute a different courtyard or treat map pixels as GPS.
+
+Next: owner checks selecting marker/text preview, immediate story/puzzle without location, guide-only confirmation, shared20-point bonus, authorized solve and combined rewards across two browser profiles. Confirm missing photo/pin/real coordinate, then test optional location on a real phone over HTTPS behind an approved boundary. Preserve loopback-only development gates; no VPS deployment. Afterwards select one next researched task; no additional task implemented during this focused slice.
+
+### Verification actually run
+
+- `npm.cmd run test:shuk`: **64 passed,0 failed** (15 new arrival/map tests).
+- `npm.cmd test`: **61 passed,0 failed**, including existing map geometry/state helpers.
+- `npx.cmd tsc --noEmit`, targeted ESLint for changed code/tests, and compilation of both changed Sass files: **pass**. `git diff --check`: pass;94 relative documentation file links resolve. Existing unrelated full-lint prototype errors are not addressed; full lint not rerun for this slice.
+- New tests cover100m boundary/outside/invalid/stale/future/inaccurate readings, mocked permission denial/unavailable/timeout, no-GPS challenge completion, guide authorization, duplicate and concurrent reward requests, shared balances, separate bonus/challenge awards, fresh-process persistence without stored coordinates, schema3 migration, actual static story/puzzle rendering independent of GPS state, and question-mark button copy.
+- These are unit/mocked browser/handler/static rendering checks, **not actual phone GPS, two live browsers or visual/accessibility acceptance**. No build over active development output, screenshots, commit/push or deployment.
+
+### Exact changed files and preservation
+
+- UI: `components/amazing-shuk/dev/IndexWaterTask.tsx`, new `ListArrivalMission.tsx`, `PreviewArrivalMission.tsx`, `PreviewArrivalMission.module.scss`.
+- Shared renderer: `components/map/LeafletBaseMap.tsx`, `LeafletBaseMap.module.scss`; neutral image geometry new `lib/map/image-map.ts`; `lib/game/basemaps.ts` re-exports identical geometry so Memory Protocol API/default styling stays compatible.
+- Domain/store: new `lib/amazing-shuk/mission-arrival.ts`, `request-arrival-location.ts`; changed `participant-store.ts`, `parse-water-action.ts`, `dev-water-session.ts`, `water-measurement.ts`.
+- Tests: new `mission-arrival.test.ts`, `mission-arrival-integration.test.ts`, `mission-arrival-ui.test.ts`; existing `participant-store.test.ts` now uses current revision constant. Existing gameplay tests still run with no arrival prerequisite. `water-performance-integration.test.ts` may show a line-ending-only modification; its behavior is unchanged.
+- Docs: this handoff, decisions, current-state, roadmap, existing Codex designer guidance, water-task record and existing content index. Claude UX designer file untouched. No package/lockfile or map asset changes.
+- Owner committed previous checkpoint as `5d6d595`. Working tree was clean at start of this slice; current changes are uncommitted. Latest request is handoff plus a commit message only; no stage/commit/push performed.
+
+
+
 ## Resume here ? verified checkpoint, 24 Oct 2026
 
 Read [decisions](product-decisions.md), [current state](current-state.md), [roadmap](../../design/amazing-shuk-roadmap.md), then relevant [content/topic index](../../design/inputs/content/README.md). Claude discovery/index: [00_discovery](../../design/output/00_discovery.md), [01_assumptions](../../design/output/01_assumptions.md). Do not reread broad research unnecessarily. Older entries below are history; this checkpoint supersedes stale environment/count/priority notes.

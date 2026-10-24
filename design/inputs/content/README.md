@@ -91,3 +91,6 @@ The water task now demonstrates the reusable process in the [existing Codex desi
 
 
 Latest well iteration: the [same designer guidance](../../../docs/design/codex-amazing-shuk-partner.md) now includes Hebrew-first adaptation and invisible timing/rewards. Read full HE_trans.txt 54-66 before adapting: current brief preserves the oral story's honor/punishment contrast in 40 English words; production omits Hebrew body. [Task record](../../../docs/project/water-task.md) documents hidden server timing, shared scored hints, provisional local rewards and schema3 migration. No new research/source file or instruction framework was created.
+
+
+Current Gan HaTut map slice: the [existing well/map record](../../../docs/project/water-task.md#current-gan-hatut-map--optional-gps-slice-24-oct-2026) documents the same playable task, optional **We're Here?**, a separate one-time arrival bonus, provisional illustrated pin and unresolved garden photograph/coordinate confirmation. GPS never gates story/puzzle access. Use this record and [shared decisions](../../../docs/project/product-decisions.md) rather than earlier GPS-unlock/no-GPS proposals. No additional task or photo source is approved by this integration.

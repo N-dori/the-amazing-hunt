@@ -53,6 +53,10 @@ Keep citations in collapsed source details, using the established story card, to
 - Points measure performance; food tokens reward successful completion regardless of time/hints. Keep per-task settings configurable and award atomically once under existing backend authorization/persistence. Show **Challenge completed!**, points earned, tokens earned and hints used only after authorized completion; no participant comparisons. Shared scored hints must be recorded once per hint by the server.
 - Well prototype only: maximum 100/minimum 40 points; 2 food tokens; under 2 min = 100, 2-4 min inclusive = 90, over 4 min = 80. Hint penalties are cumulative 10/15/20; floor the final result at 40. These are provisional local-development settings, not market prices or defaults for other tasks. See [approved decisions](../project/product-decisions.md) and [well record](../project/water-task.md) for implementation and interruption policies.
 
+## Optional location assistance
+
+**Location assistance should encourage exploration, never gate participation. Use GPS to reassure players they're nearby, not to decide whether they're allowed to play.** Request one reading only on an intentional tap of **We're Here?**; use separately verified destination coordinates, friendly uncertainty feedback and an authenticated guide fallback. Never hide a story/challenge or withhold normal completion rewards because GPS fails. Any small arrival bonus is configurable, separate and awarded once by the existing backend. No continuous tracking, saved raw coordinates, location dot on an illustration or new navigation system. See [approved decisions](../project/product-decisions.md).
+
 ## Repository boundaries
 
 The runnable Next.js app currently belongs to The Memory Protocol and uses the /memory-protocol base path. Keep Amazing Shuk prototypes isolated until its route and access gate are settled. Never modify Claude's UX designer files without explicit owner approval; check concurrent changes before touching other agents' files. Keep secrets, photos and personal data out of Git.
