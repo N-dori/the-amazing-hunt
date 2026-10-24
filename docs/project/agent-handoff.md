@@ -29,6 +29,21 @@ Owner chose the mural, "Is It Real or Is It Painted?", as mission 2 (the twelve-
 - **New source, not yet in the research files:** [Rafi Kfir, "ציור הקיר ברחוב אגריפס"](https://www.nahlaot.co.il/%D7%A6%D7%99%D7%95%D7%A8-%D7%94%D7%A7%D7%99%D7%A8-%D7%91%D7%A8%D7%97%D7%95%D7%91-%D7%90%D7%92%D7%A8%D7%99%D7%A4%D7%A1.html), read 24 Oct 2026. It adds: painted on canvas glued to the wall; a Lyon group active since 1978 with 11 members (run 07 says 12 artists, founded 1983); initiated by the municipality and the Ministry of Tourism. CitéCréation's project page adds nothing on real vs painted.
 - `IndexWaterTask` now hosts both missions; renaming it (e.g. to `IndexShukGame`) is a later clean-up.
 
+## Earlier handoff - Dori UX designer updated, 24 Oct 2026
+
+With the owner's explicit approval, Claude updated `.claude/agents/dori-ux-designer.md` in place (same name, frontmatter and tools; still writes only to `design/output/`).
+
+- **Kept:** role, the eight design principles, brand table and don'ts, the Memory Protocol separation, working rules, deliverables 0-12 and output rules. Each was extended rather than replaced.
+- **Added:** a "Sources of truth" section that defers to `product-decisions.md`; the one-group game model and roles; the challenge design loop (Discover → Understand → Tell → Play → Validate → Reward → Refine); Hebrew-first storytelling; "Measure quietly, motivate gently, celebrate visibly"; map, preview and **We're Here?** rules; avatar and role display; observation-challenge rules (field-verify answers, no answer in the preview, rights before showing artwork); a "real or painted?" and a manipulation-puzzle component type.
+- **Changed to match decisions:** "scores stay hidden until the end" now means no live score, timer or comparison during play, with one calm completion display; the "team setup" flow is now group roles; map stops are selectable instead of unlocking one by one.
+- **Split with Codex:** Dori owns story, interaction clarity, mobile usability and accessibility; `docs/design/codex-amazing-shuk-partner.md` owns mechanics, feasibility, implementation and tests. Both defer to `product-decisions.md`.
+- **Open conflicts for the owner** (not resolved here):
+  - The Codex partner doc still says "keep scores hidden until the end", and the well screen shows a running "Group points / Food tokens" bar during play.
+  - There are no nicknames yet: the roster is fixed ("Player 1-7", "Guide"), so avatars show display names.
+  - Resolved: the mural challenge shows no image of the mural; its brief shows the owner's photo of the bare wall from before the mural.
+  - Resolved by the owner's field check: the "103" tile is painted (Israel Post was right, the ideas file was wrong).
+  - `docs/design/dori-brand-to-ui.md` points to two paths that don't exist in this repo (`docs/design/Dori_Brand/`, `docs/GPT_DORI_UI_Designer_Brand_to_Screen_Prompt(1).md`); the brand book is at `design/inputs/brand/DORI_Final_Brand_Book.pdf`.
+
 ## Earlier handoff - Claude review of Codex work, 24 Oct 2026
 
 Claude (Claude Code, on the VPS checkout `/root/projects/The-Amazing-Hunt`) reviewed everything from `969ae8d` (Claude's last commit) to `ca9cf1e`, read-only, then fast-forwarded the VPS checkout to `ca9cf1e` at the owner's request. No code, decision, roadmap or designer file was changed; this section is the only edit. The owner's uncommitted Memory Protocol edits on the VPS (`docs/HANDOFF.md`, `docs/RUN_PREVIEW.md`) are unrelated to Shuk; leave them.
