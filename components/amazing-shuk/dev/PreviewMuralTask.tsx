@@ -1,13 +1,16 @@
+import Image from "next/image";
 import ActionButton from "@/components/ui/ActionButton";
+import { BASE_PATH } from "@/lib/base-path";
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
 import type { ChoiceTaskView } from "@/lib/amazing-shuk/mural-task-view";
 import styles from "./PreviewMuralTask.module.scss";
 type Props = {
   view: ChoiceTaskView; question: string; performance: WaterPerformanceView;
+  reveal: { src: string; width: number; height: number; alt: string; caption: string };
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
-export default function PreviewMuralTask({ view, question, performance, hints, hasMoreHints, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewMuralTask({ view, question, performance, reveal, hints, hasMoreHints, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
   return <section className={styles.task} aria-labelledby="mural-task-title">
     <div className={styles.taskIntro}>
       <h2 id="mural-task-title">{question}</h2>
@@ -31,6 +34,10 @@ export default function PreviewMuralTask({ view, question, performance, hints, h
         <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
         <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
       </dl> : null}
+      <figure className={styles.figure}>
+        <Image src={BASE_PATH + reveal.src} width={reveal.width} height={reveal.height} alt={reveal.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
+        <figcaption className={styles.caption}>{reveal.caption}</figcaption>
+      </figure>
     </section> : view.status ? <p className={styles.prompt} role="status" aria-live="polite">{view.status}</p> : null}
     {!view.completed && !view.answerKeyVerified ? <p className={styles.keyNotice}>Draft: the answer key still needs a field check, so answers can&apos;t be scored yet.</p> : null}
     <div className={styles.actions}>

@@ -1,8 +1,14 @@
-.preview { margin-block: 1rem; padding-block: 1rem; border-block: 1px solid var(--neutral-line); color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
-.preview h2 { font-weight: 500; line-height: 1.2; }
+.preview { margin-block: 1rem; padding-block: 1rem; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.preview h2 { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 500; line-height: 1.2; margin-block: .5rem .25rem; }
+.preview h3 { font-size: 1.0625rem; font-weight: 500; margin-block: 1.25rem .25rem; }
 .preview p { line-height: 1.5; max-width: 42rem; }
-.status { font-weight: 500; }
-.photo { width: 100%; height: auto; object-fit: contain; }
-.photoGap { padding: 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
+.status { font-weight: 500; margin-block-start: 1rem; }
+.hebrew { font-size: 1.125rem; }
+.area { margin-block-end: 1rem; }
+.photo { width: 100%; max-width: 42rem; height: auto; object-fit: contain; margin-block: .5rem 1rem; }
+.photoGap { padding: 1rem; margin-block: .5rem 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
+.landmarks { padding-inline-start: 1.25rem; max-width: 42rem; line-height: 1.5; }
+.landmarks li { margin-block: .25rem; }
+.arrival { margin-block: 1.5rem; padding-block: 1rem; border-block: 1px solid var(--neutral-line); }
 .success { padding: 1rem; background: var(--chalk); border-inline-start: .25rem solid var(--zaatar); }
 .preview button { margin-block: .5rem; max-width: 100%; }

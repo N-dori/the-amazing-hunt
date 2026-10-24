@@ -10,6 +10,6 @@ type Props = {
 export default function ListMuralTask({ selected, completed, activeRole, busy, performance, ...callbacks }: Props) {
   const hints = MURAL_TASK.hints.slice(0, Math.max(0, Math.min(MURAL_TASK.hints.length, performance.hintsUsed)));
   return <PreviewMuralTask view={buildChoiceTaskView(MURAL_CHALLENGE, selected, completed, activeRole, busy, performance.started)}
-    question={MURAL_TASK.question} performance={performance} hints={hints}
+    question={MURAL_TASK.question} performance={performance} reveal={MURAL_TASK.reveal.image} hints={hints}
     hasMoreHints={performance.started && !completed && hints.length < MURAL_TASK.hints.length} {...callbacks} />;
 }

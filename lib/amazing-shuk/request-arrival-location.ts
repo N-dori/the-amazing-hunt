@@ -1,6 +1,6 @@
-import type { ArrivalReading } from "./mission-arrival.ts";
+import { ARRIVAL_UNAVAILABLE, type ArrivalReading } from "./mission-arrival.ts";
 export const ARRIVAL_LOCATION_OPTIONS: PositionOptions = Object.freeze({ enableHighAccuracy: true, maximumAge: 0, timeout: 15_000 });
-export const LOCATION_UNAVAILABLE_MESSAGE = "We couldn't check your location. No problem\u2014use the picture and clues to find the place.";
+export const LOCATION_UNAVAILABLE_MESSAGE = ARRIVAL_UNAVAILABLE;
 export function arrivalLocationError(): string {
   return LOCATION_UNAVAILABLE_MESSAGE;
 }

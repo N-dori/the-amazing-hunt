@@ -1,6 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - mural challenge, first slice, 24 Oct 2026
+## Latest handoff - standard mission journey, 24 Oct 2026
+
+Owner asked for one journey for every mission: Map → Preview → Location details → optional We're Here? → Open Challenge → rewards → Map. Implemented for both missions; each challenge's own interaction is unchanged.
+
+- **Data:** `MissionDefinition` (`lib/amazing-shuk/mission-arrival.ts`) adds `title` (the challenge title) and `location` (`hebrewName`, `summary`, `landmarks`). Gan HaTut: Hebrew tour stop 5, plus landmarks from research run 06, row 5 (marked verified): between Hermon, Carmel and Gilboa lanes, and the Yossi Banai "Picture in Stone" plaque at 3 Gilboa St. Mural: Hebrew tour stop 8, plus landmarks from the English tour stop 8, the owner-confirmed corner and run 06, row 12 (view from the pavement). The summary lines are drafts for owner review.
+- **UI:** `IndexWaterTask` keeps `stage` (`map | preview | location | challenge`) and the map's last view (`initialView`/`onViewChange`), so Back to map returns to the same position. New `PreviewMissionCard` is the compact first-tap bottom sheet (sticky, closeable), with no story, question or answers. `PreviewArrivalMission` is now the location view: photo or gap notice, English and Hebrew names, area, summary, "Look for" (the existing clue), landmarks, We're Here?, guide confirmation, **Open Challenge** and **Back to map**. The challenge view adds Back to location and Back to map.
+- **Arrival copy** is the owner's wording: "You're very close! Look around for the destination." / "Not quite there yet. Use the picture and landmarks to find your way." / "We couldn't check your location. No problem—you can continue." (constants in `mission-arrival.ts`).
+- **Mural before photo** moved from the brief to the completion reveal, so it can't hint before the answer. Its photographer and rights are still not recorded.
+- **Gaps:** neither mission has an approved location photograph; both show "Reference photograph not yet available." The mural needs one that doesn't show the painted details. Gan HaTut's GPS point is still unverified, so its We're Here? shows the friendly fallback. No locked missions exist, so no locked state was added. New UI labels ("Look for", "Landmarks", "Back to map", "Back to location", "Close preview") are drafts.
+- **Dori:** `.claude/agents/dori-ux-designer.md` "Maps and location" now starts with the owner's journey principle and the stage rules.
+- **Verified** in a clean container: `test:shuk` 82/82 (new tests: the compact card for both missions without story or answers; the mural location view names the corner without answers; the reveal appears only after completion), `npm test` 61/61, `tsc` pass, all changed Sass modules compile, lint unchanged. The running dev server (`127.0.0.1:3300`) reloaded and serves the page (HTTP 200). **Not checked in a browser or on a phone:** layout of the bottom sheet over the map, scrolling, the map's returned position, and back navigation are for the owner to check.
+
+## Earlier handoff - mural challenge, first slice, 24 Oct 2026
 
 Owner chose the mural, "Is It Real or Is It Painted?", as mission 2 (the twelve-tribes door is postponed). Claude built a first slice on the per-mission state (`7fa1eea`, committed locally, not pushed). This slice is committed locally too (not pushed).
 

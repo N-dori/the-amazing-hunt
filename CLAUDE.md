@@ -35,12 +35,14 @@ Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit
 
 For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.
 
-### Claude's next Shuk changes (24 Oct 2026)
+### Where Claude's Shuk work stands (24 Oct 2026)
 
-Claude's review of the Codex work (`969ae8d..ca9cf1e`) and its findings are in `docs/project/agent-handoff.md`, under "Latest handoff - Claude review of Codex work". Planned, in this order:
+Start from the top entries of `docs/project/agent-handoff.md`. Done and pushed: lock-free session reads, progress stored per mission (schema 5, protocol revision 5), the mural challenge with the owner's field-checked answer key and confirmed GPS point, and the standard mission journey (map → preview → location → challenge). Both missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
 
-1. Done, pushed as `61996f8`: `sessionView` in `lib/amazing-shuk/participant-store.ts` reads `state.json` without the lock or a write, so polling browsers don't contend with moves; tested with concurrent pollers.
-2. Done, committed locally (not pushed): cups, performance, arrival and award are keyed by mission ID (schema 5, protocol revision 5), with a migration that keeps the well's data, credentials, roles and receipts; the catalogue in `lib/amazing-shuk/missions.ts` feeds the map.
-3. Mission 2 is the mural challenge, "Is It Real or Is It Painted?" (owner decision, 24 Oct 2026), not the twelve-tribes door. Build it on the per-mission state with its own progress shape, only with a verified answer and approved copy.
+To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404.
 
-Waiting on the owner: whether to keep the well puzzle's two-move solution, and whether to revise the well story's wording (cistern vs. well, the question answered too soon, the title).
+Waiting on the owner:
+- the well: keep the two-move solution? Revise the story wording (cistern vs. well, the question answered too soon, the title)?
+- location photos for both missions (the mural's must not show the painted details); Gan HaTut's GPS point; the before photo's source and rights;
+- mural rewards (a provisional copy of the well's) and the draft copy listed in the handoff;
+- the app split (option 2 in `design/amazing-shuk-roadmap.md`), planned for before real-phone testing.

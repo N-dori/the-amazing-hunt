@@ -13,8 +13,8 @@ test("proximity uses center distance, including exactly100m, without expanding b
   const atBoundary = { ...reading, latitude: 100 / 6_371_000 * 180 / Math.PI };
   assert.ok(Math.abs(distanceMeters(reading, atBoundary) - 100) < 1e-7);
   assert.equal(checkMissionArrival(atBoundary, policy, now), null);
-  assert.match(checkMissionArrival({ ...atBoundary, latitude: atBoundary.latitude * 1.001 }, policy, now)!, /not quite there/);
-  assert.match(checkMissionArrival({ ...reading, latitude: .002 }, policy, now)!, /not quite there/);
+  assert.match(checkMissionArrival({ ...atBoundary, latitude: atBoundary.latitude * 1.001 }, policy, now)!, /Not quite there yet/);
+  assert.match(checkMissionArrival({ ...reading, latitude: .002 }, policy, now)!, /Not quite there yet/);
 });
 
 test("invalid, stale, future and inaccurate evidence is rejected; limits are inclusive", () => {

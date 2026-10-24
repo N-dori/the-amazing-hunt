@@ -7,6 +7,10 @@ import { createElement, type ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 import { buildMissionPresentation, GAN_HATUT_MISSION, type MissionState } from "./mission-arrival.ts";
+import { SHUK_MISSIONS } from "./missions.ts";
+import { MURAL_MISSION } from "./mural-task.ts";
+// React escapes ' and " in text; compare against the escaped form.
+const escapeText = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#x27;").replace(/"/g, "&quot;");
 import { createDevWaterSession } from "./dev-water-session.ts";
 import { LOCATION_UNAVAILABLE_MESSAGE } from "./request-arrival-location.ts";
 const nativeRequire = createRequire(import.meta.url);
@@ -29,7 +33,7 @@ function load(path: string, reactOverride?: object): ComponentType<Record<string
   new Function("require", "exports", output)(localRequire, exports);
   assert.ok(exports.default); return exports.default;
 }
-const callbacks = { onSelect() {}, onArrival() {}, onConfirm() {} };
+const callbacks = { onArrival() {}, onConfirm() {}, onOpenChallenge() {}, onBack() {} };
 
 test("mission preview uses We're Here? and ordinary GPS uncertainty has no failure screen", () => {
   const Preview = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
@@ -39,7 +43,28 @@ test("mission preview uses We're Here? and ordinary GPS uncertainty has no failu
     assert.match(html, /Here\?/); assert.doesNotMatch(html, /Here!|role="alert"|latitude|longitude|timer|countdown/);
     assert.match(html, /play without checking/); assert.match(html, /Reference photograph not yet available/);
     assert.doesNotMatch(html, /Confirm Group Arrival/);
+    assert.match(html, /Open Challenge/); assert.match(html, /Back to map/);
+    assert.match(html, /Landmarks/); assert.match(html, /lang="he"/);
   }
+});
+
+test("first tap shows a compact preview: title, place, summary, status and View Location, but no story or answers", () => {
+  const Card = load("components/amazing-shuk/dev/PreviewMissionCard.tsx");
+  for (const [index, definition] of SHUK_MISSIONS.entries()) {
+    const view = buildMissionPresentation(definition, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, index + 1);
+    const html = renderToStaticMarkup(createElement(Card, { view, onViewLocation() {}, onClose() {} }));
+    assert.ok(html.includes(escapeText(definition.title)) && html.includes(escapeText(definition.name)) && html.includes(escapeText(definition.location.summary)));
+    assert.match(html, /View Location/); assert.match(html, /Available/); assert.match(html, /aria-label="Close preview"/);
+    assert.doesNotMatch(html, /STORY|Start challenge|Find 2 things|air vents|plaque|treble|Here\?/i);
+  }
+});
+
+test("location details orient without spoilers: the mural view names the confirmed corner but no answers", () => {
+  const Location = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
+  const view = buildMissionPresentation(MURAL_MISSION, { id: MURAL_MISSION.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: true }, 2);
+  const html = renderToStaticMarkup(createElement(Location, { view, guide: false, busy: false, feedback: "", ...callbacks }));
+  assert.match(html, /HaRav Shmuel Baruch/); assert.match(html, /Agripas Street/);
+  assert.doesNotMatch(html, /air vents|plaque|treble|cardboard|bicycle|laundry|antenna|mural-before/i);
 });
 
 test("guide action is shown only for guide; completed state has an explicit label and symbol", () => {
@@ -60,6 +85,9 @@ test("actual selected mission renders existing story and playable challenge for 
     // Simulate authenticated, selected UI. Busy booleans also true: even an in-flight GPS check cannot hide content.
     const react = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === null ? server : initial === false ? true : initial, () => {}],
       useEffect() {}, useRef: (value: unknown) => ({ current: value }), useMemo: (factory: () => unknown) => factory(), useCallback: (fn: unknown) => fn };
+    // Open the challenge stage directly: the journey's first stage is "map".
+    const stateFor = react.useState;
+    react.useState = (initial: unknown) => initial === "map" ? ["challenge", () => {}] : stateFor(initial);
     const Index = load("components/amazing-shuk/dev/IndexWaterTask.tsx", react);
     const html = renderToStaticMarkup(createElement(Index));
     assert.match(html, /THE STORY OF THE WELL/); assert.match(html, /Start challenge/);

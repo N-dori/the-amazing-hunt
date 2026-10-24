@@ -35,10 +35,6 @@ export const MURAL_TASK = Object.freeze({
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
   story: {
     title: "THE PAINTED MARKET",
-    // The owner's photo of the bare wall before the mural; it shows the wall, not the answers.
-    image: { src: "/shuk/mural-before.jpg", width: 1023, height: 1537,
-      alt: "Black-and-white photo of the same corner before the mural: a tall, bare, blank building wall above low sheds, a lamp post and a telegraph pole.",
-      caption: "The wall before the mural. Photographer and date not yet recorded." },
     paragraphs: [
       { label: "Historical fact", text: "This wall was once bare. In 2001, artists from CitéCréation in Lyon painted Jerusalem's market onto it." },
       { label: "Attributed tradition", text: "The story goes that after the unveiling, people complained about cardboard boxes left near the painting. They were painted." },
@@ -46,6 +42,12 @@ export const MURAL_TASK = Object.freeze({
     source: `${TOUR}; ${POST} ("a bare concrete wall"); before photo supplied by the owner, 24 Oct 2026.`,
   },
   question: "Find 2 things on this wall that are real, not painted.",
+  // Shown only after the group's answer is accepted, so it can't hint at what was already there.
+  reveal: {
+    image: { src: "/shuk/mural-before.jpg", width: 1023, height: 1537,
+      alt: "Black-and-white photo of the same corner before the mural: a tall, bare, blank building wall above low sheds, a lamp post and a telegraph pole.",
+      caption: "The wall before the mural. Photographer and date not yet recorded." },
+  },
   // The tour's own questions for this stop, in order.
   hints: [
     { title: "Hint 1 — Gentle", text: "Which lines belong to actual architecture?" },
@@ -55,7 +57,17 @@ export const MURAL_TASK = Object.freeze({
 });
 
 export const MURAL_MISSION = Object.freeze({
-  id: MURAL_MISSION_ID, name: "The Mahane Yehuda Market Mural", shortName: "Market Mural",
+  id: MURAL_MISSION_ID, title: MURAL_TASK.title, name: "The Mahane Yehuda Market Mural", shortName: "Market Mural",
+  // Hebrew tour, stop 8; landmarks from the English tour (stop 8), the owner's confirmed corner and research run 06 (row 12).
+  location: Object.freeze({
+    hebrewName: "ציור הקיר של שוק מחנה יהודה",
+    summary: "A large outward-facing wall painting at the edge of the market.",
+    landmarks: Object.freeze([
+      "Agripas Street, near the market's southwestern edge.",
+      "The corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St.",
+      "View it from the pavement; choose a safe place to stand without blocking traffic.",
+    ]),
+  }),
   // Location confirmed by the owner, 24 Oct 2026: the corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St.
   neighborhood: "HaRav Shmuel Baruch St, corner of Sha'arei Tzedek St, Mahane Yehuda, Jerusalem",
   clue: "Corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St, by Agripas St. Look for a market that isn't there.",

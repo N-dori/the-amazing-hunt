@@ -1,4 +1,4 @@
-import { checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
+import { ARRIVAL_NEARBY, checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
@@ -190,7 +190,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
             if (!Number.isSafeInteger(policy.rewardPoints) || policy.rewardPoints < 0) throw new Error("Arrival reward configuration is unavailable");
             mission.arrival = { method: action.type === "arrival" ? "gps" : "guide", acceptedAt: now, points: policy.rewardPoints };
           }
-          message = action.type === "arrival" ? `You're very close! You're in the right area. Look around for ${definition.shortName}.` : "Group arrival confirmed. Arrival bonus recorded.";
+          message = action.type === "arrival" ? ARRIVAL_NEARBY : "Group arrival confirmed. Arrival bonus recorded.";
         } else if (action.type === "start") {
           if (!guide && role === "follower") throw new Error("Only the navigator, answer-submitter or guide may start");
           if (mission.completed) throw new Error("This challenge is already complete");

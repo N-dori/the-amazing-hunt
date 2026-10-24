@@ -19,3 +19,4 @@
 .refresh { margin-block-start: .75rem; min-height: 3rem; background: var(--chalk); color: var(--ink); border: 1px solid var(--ink); padding: .75rem; cursor: pointer; }
 .page button:focus-visible, .page select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .page button { min-height: 3rem; }
+.journey { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }

@@ -45,7 +45,8 @@ test("story is short, labels each statement and has no Hebrew; mission has no ph
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
   assert.ok(!/[֐-׿]/.test(JSON.stringify(MURAL_TASK)));
   assert.equal(MURAL_TASK.hints.length, 3);
-  assert.ok(MURAL_TASK.story.image.alt && MURAL_TASK.story.image.caption);
+  assert.ok(MURAL_TASK.reveal.image.alt && MURAL_TASK.reveal.image.caption);
+  assert.ok(!("image" in MURAL_TASK.story));
   assert.equal(MURAL_MISSION.photo, null);
   assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);

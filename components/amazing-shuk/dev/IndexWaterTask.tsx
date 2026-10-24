@@ -6,7 +6,9 @@ import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterSess
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import ListParticipantIdentity from "@/components/amazing-shuk/ListParticipantIdentity";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
-import ListArrivalMission from "./ListArrivalMission";
+import ListArrivalMission, { type MissionStage } from "./ListArrivalMission";
+import ActionButton from "@/components/ui/ActionButton";
+import type { MapView } from "@/components/map/LeafletBaseMap";
 import { GAN_HATUT_MISSION, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amazing-shuk/request-arrival-location";
 import ListWaterTask from "./ListWaterTask";
@@ -37,9 +39,12 @@ export default function IndexWaterTask() {
   const currentActor = useRef<string | undefined>(undefined);
   const [arrivalBusy, setArrivalBusy] = useState(false);
   const [arrivalFeedback, setArrivalFeedback] = useState("");
-  const [missionSelected, setMissionSelected] = useState(false);
-  // The mission shown in the preview card; its challenge opens when `missionSelected` is true.
+  // Every mission follows map → preview → location → challenge; `missionId` is the mission on screen.
+  const [stage, setStage] = useState<MissionStage | "challenge">("map");
   const [missionId, setMissionId] = useState<string>(WELL_MISSION_ID);
+  // The map's last position, so returning to the map lands where the group left it.
+  const [mapView, setMapView] = useState<MapView | null>(null);
+  const goTo = (next: MissionStage | "challenge") => { setStage(next); window.requestAnimationFrame(() => window.scrollTo({ top: 0 })); };
   const [busy, setBusy] = useState(false);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
@@ -175,24 +180,34 @@ export default function IndexWaterTask() {
     <main className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>The Amazing Shuk</p>
-        <h1>{missionSelected ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
+        <h1>{stage === "location" || stage === "challenge" ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
       </header>
       <section className={styles.balance} aria-label="Shared group rewards">
         <div><span>Group points</span><strong>{view.sharedBalance.points}</strong></div>
         <div><span>Food tokens</span><strong>{view.sharedBalance.foodTokens}</strong></div>
       </section>
-      <ListArrivalMission missions={view.missions} mission={view.mission} selected={missionSelected} guide={activeRole === "guide"} busy={busy || arrivalBusy}
-        feedback={arrivalFeedback} onArrival={() => void checkArrival()}
-        onSelect={(id) => { if (!findMission(id)) return; setMissionId(id); setMissionSelected(true); window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "start" })); }}
-        onDismiss={() => setMissionSelected(false)} onConfirm={() => void act({ type: "confirm-arrival", missionId })} />
-      {missionSelected && view.mission.id === missionId && view.session.kind === "choice" ? <>
+      {stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
+        feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
+        onSelect={(id) => {
+          if (!findMission(id)) return;
+          if (id !== missionId) setArrivalFeedback("");
+          setMissionId(id); setStage("preview");
+          window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "nearest" }));
+        }}
+        onDismiss={() => goTo("map")} onViewLocation={() => goTo("location")} onOpenChallenge={() => goTo("challenge")}
+        onConfirm={() => void act({ type: "confirm-arrival", missionId })} /> : null}
+      {stage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
+        <ActionButton variant="quiet" onClick={() => goTo("location")}>Back to location</ActionButton>
+        <ActionButton variant="quiet" onClick={() => goTo("map")}>Back to map</ActionButton>
+      </nav> : null}
+      {stage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" ? <>
       <h2>{MURAL_TASK.title}</h2>
       <PreviewMuralStory {...MURAL_TASK.story} instruction={MURAL_TASK.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
       <ListMuralTask selected={view.session.selected ?? []} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
         performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
         onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })}
         onReset={() => void act({ type: "reset", missionId })} />
-      </> : missionSelected && view.mission.id === missionId ? <>
+      </> : stage === "challenge" && view.mission.id === missionId ? <>
       <h2>{WATER_TASK.title}</h2>
       <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
         setStoryOpen(!storyOpen);

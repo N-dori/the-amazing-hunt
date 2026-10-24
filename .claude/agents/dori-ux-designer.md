@@ -85,8 +85,11 @@ Design every challenge in this order. Keep each challenge's mechanics its own; r
 - This owner-approved adaptation is the one exception to "don't invent copy". All other visitor copy needs approved wording or a `[TO VERIFY]` / `TODO(copy)` gap.
 
 ### Maps and location
+**Every mission begins with discovery, continues through physical orientation, and reveals its challenge through progressive disclosure. Players should always understand where to go, what to look for, and how to continue.**
+- Every mission follows one journey: Map → Preview → Location details → optional We're Here? → Open Challenge → rewards → back to the map. Each mission supplies its own content (title, place name and Hebrew name, summary, landmarks, clue, photo, marker, optional GPS point) in its own definition, listed in `lib/amazing-shuk/missions.ts`; keep its challenge's own interaction.
 - The primary game map is the existing illustrated Leaflet map. Missions are selectable markers; important landmarks may get distinct icons from the repo icon set (no generic Israel pictograms).
-- Tapping a mission opens a short preview, preferably a bottom sheet rather than a crowded pop-up: destination name, a recognisable approved photo, and the landmark clue. The preview must never give away the challenge's answer.
+- First tap: a compact bottom-sheet preview (mission title, place name, photo, one-line summary, status, **View Location**). No story, question or answers.
+- **View Location:** the larger photo, English and Hebrew names, verified area, what the place looks like, verified landmarks, and a way back to the map. Landmarks, not turn-by-turn directions; invent no turns, numbers or distances. **Open Challenge** is always available from here. No photo may give away an answer: keep revealing images for after completion.
 - Keep the main orientation streets readable and baked-in text minimal. Don't invent street-by-street directions. No second navigation map or routing engine.
 - **Location assistance encourages exploration; it never gates participation.** The optional **We're Here?** button (the question mark is intentional) makes one GPS check on tap, against a configurable radius of about 100 m. Denial, weak signal and poor accuracy get a friendly message and the guide fallback, never a failure screen. No GPS dot on the illustration, no tracking and no stored movements.
 

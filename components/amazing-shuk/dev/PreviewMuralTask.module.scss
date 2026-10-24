@@ -10,3 +10,7 @@
 .mark { flex: none; display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border: 2px solid var(--ink); border-radius: .25rem; color: var(--sumac); }
 .keyNotice { font-size: .875rem; line-height: 1.5; color: var(--ink); border-inline-start: .25rem solid var(--neutral-line); padding-inline-start: .75rem; max-width: 42rem; }
 @media (forced-colors: active) { .optionSelected { border-color: Highlight; } }
+// The "before" photo in the completion reveal: full width on phones, capped at 24rem on wider screens.
+.figure { margin: 1rem 0 0; max-width: 24rem; }
+.image { display: block; width: 100%; height: auto; }
+.caption { font-size: .875rem; line-height: 1.5; color: var(--ink); font-weight: 400; margin-block-start: .5rem; }

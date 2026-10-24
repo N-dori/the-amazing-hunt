@@ -2,6 +2,7 @@ import { WATER_TASK_ID } from "./water-measurement.ts";
 import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
 import { WATER_HINTS } from "./water-hints.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
+import { WATER_TASK } from "./water-task.ts";
 
 export type ArrivalReading = Readonly<{ latitude: number; longitude: number; accuracy: number; timestamp: number }>;
 export type ArrivalPolicy = Readonly<{
@@ -13,7 +14,10 @@ export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; readi
 export type MissionState = "available" | "arrived" | "completed";
 /** A map destination. Its stable ID keys the group's shared progress for that mission. */
 export type MissionDefinition = Readonly<{
-  id: string; name: string; shortName: string; neighborhood: string; clue: string;
+  // `title` names the challenge; `name` names the place.
+  id: string; title: string; name: string; shortName: string; neighborhood: string; clue: string;
+  // What players need to recognise the place: shown in the preview (summary) and location details.
+  location: Readonly<{ hebrewName: string | null; summary: string; landmarks: readonly string[] }>;
   photo: Readonly<{ src: string; alt: string }> | null;
   placement: Readonly<{ x: number; y: number; verified: boolean }>;
   arrival: ArrivalPolicy;
@@ -22,7 +26,16 @@ export type MissionDefinition = Readonly<{
   rewards: WaterRewardConfig; hintCount: number;
 }>;
 export const GAN_HATUT_MISSION = Object.freeze({
-  id: WATER_TASK_ID, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
+  id: WATER_TASK_ID, title: WATER_TASK.title, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
+  // Hebrew tour, stop 5; landmarks from site research run 06, row 5 (marked verified).
+  location: Object.freeze({
+    hebrewName: "גן התות",
+    summary: "A public garden in the Ohel Moshe neighborhood.",
+    landmarks: Object.freeze([
+      "Inside Ohel Moshe, between Hermon, Carmel and Gilboa lanes.",
+      "The Yossi Banai \"Picture in Stone\" plaque at 3 Gilboa Street.",
+    ]),
+  }),
   clue: "Find Gan HaTut, the historic courtyard in the Ohel Moshe neighborhood. Look for the garden and its recognizable surroundings.",
   // No identified current garden photograph exists in the checked-in index/local assets.
   photo: null as Readonly<{ src: string; alt: string }> | null,
@@ -37,6 +50,10 @@ export const GAN_HATUT_MISSION = Object.freeze({
   challenge: Object.freeze({ kind: "water" as const }),
   rewards: WELL_REWARDS, hintCount: WATER_HINTS.length,
 }) satisfies MissionDefinition;
+// Owner-approved "We're Here?" feedback, 24 Oct 2026.
+export const ARRIVAL_NEARBY = "You're very close! Look around for the destination.";
+export const ARRIVAL_NOT_NEARBY = "Not quite there yet. Use the picture and landmarks to find your way.";
+export const ARRIVAL_UNAVAILABLE = "We couldn't check your location. No problem\u2014you can continue.";
 const radians = (degrees: number) => degrees * Math.PI / 180;
 export function distanceMeters(a: Pick<ArrivalReading, "latitude" | "longitude">, b: Pick<ArrivalReading, "latitude" | "longitude">): number {
   const dLat = radians(b.latitude - a.latitude), dLon = radians(b.longitude - a.longitude);
@@ -53,15 +70,15 @@ export function validArrivalReading(value: unknown): value is ArrivalReading {
 /** Client-provided evidence, not proof of physical presence. Never persist the reading. */
 export function checkMissionArrival(reading: unknown, policy: ArrivalPolicy, now: number): string | null {
   const dest = policy.destination;
-  if (!dest?.verified) return "We couldn't check your location. No problem\u2014use the picture and clues to find the place.";
+  if (!dest?.verified) return ARRIVAL_UNAVAILABLE;
   if (!validArrivalReading({ ...dest, accuracy: 0, timestamp: 0 }) || !Number.isFinite(now)
     || ![policy.radiusMeters, policy.maxAccuracyMeters, policy.maxAgeMs, policy.futureToleranceMs, policy.rewardPoints].every(n => Number.isFinite(n) && n >= 0)) return "Arrival configuration is unavailable. Ask the guide.";
-  if (!validArrivalReading(reading)) return "We couldn't check your location. No problem\u2014use the picture and clues to find the place.";
+  if (!validArrivalReading(reading)) return ARRIVAL_UNAVAILABLE;
   const age = now - reading.timestamp;
   if (age > policy.maxAgeMs || age < -policy.futureToleranceMs) return "That location reading is out of date. Try again if you'd like.";
   if (reading.accuracy > policy.maxAccuracyMeters) return "Your location isn't precise enough to confirm the area. Try again if you'd like.";
   // Center within the configured radius; accuracy never expands that radius.
-  if (distanceMeters(reading, dest) > policy.radiusMeters + 1e-7) return "Looks like you're not quite there yet. Follow the map and look for the courtyard.";
+  if (distanceMeters(reading, dest) > policy.radiusMeters + 1e-7) return ARRIVAL_NOT_NEARBY;
   return null;
 }
 export function missionState(arrival: MissionArrival | null, completed: boolean): MissionState {
