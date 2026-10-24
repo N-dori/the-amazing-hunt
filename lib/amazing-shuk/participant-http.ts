@@ -12,7 +12,7 @@ export async function handleParticipantRequest(request: Request, path = defaultS
   if (!isDevSimulationEnabled(environment) || !isLocalDevelopmentHost(host) || !isLocalDevelopmentHost(url.host)) return new Response(null, { status: 404, headers });
   const token = request.headers.get("cookie")?.split(";").map(p => p.trim()).find(p => p.startsWith(SESSION_COOKIE + "="))?.slice(SESSION_COOKIE.length + 1) ?? "";
   try {
-    if (request.method === "GET") return json(await sessionView(path, token));
+    if (request.method === "GET") return json(await sessionView(path, token, Date.now(), url.searchParams.get("mission") ?? undefined));
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
     // Next may construct request.url from its listening hostname rather than the
     // browser's Host (localhost versus 127.0.0.1). Compare against the actual
@@ -41,7 +41,7 @@ export async function handleParticipantRequest(request: Request, path = defaultS
     if (body.puzzleRevision !== WATER_PUZZLE_REVISION) throw new AccessError("Puzzle updated; reload before continuing", 422);
     if (typeof body.expectedParticipantId !== "string") return json({ error: "Expected participant required" }, 400);
     const message = await sessionAction(path, token, action, body.actionId, Date.now(), body.expectedParticipantId);
-    return json({ ...await sessionView(path, token), message });
+    return json({ ...await sessionView(path, token, Date.now(), "missionId" in action ? action.missionId : undefined), message });
   } catch (error) {
     if (error instanceof AccessError) return json({ error: error.message }, error.status);
     return json({ error: "Local storage unavailable" }, 503);

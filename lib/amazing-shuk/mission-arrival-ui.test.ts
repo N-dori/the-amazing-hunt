@@ -34,7 +34,7 @@ const callbacks = { onSelect() {}, onArrival() {}, onConfirm() {} };
 test("mission preview uses We're Here? and ordinary GPS uncertainty has no failure screen", () => {
   const Preview = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
   for (const state of ["available", "arrived", "completed"] as const) {
-    const view = buildMissionPresentation({ id: GAN_HATUT_MISSION.id, state, arrivalPoints: state === "available" ? 0 : 20, arrivalMethod: null, gpsEnabled: true });
+    const view = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state, arrivalPoints: state === "available" ? 0 : 20, arrivalMethod: null, gpsEnabled: true }, 1);
     const html = renderToStaticMarkup(createElement(Preview, { view, selected: true, guide: false, busy: false, feedback: LOCATION_UNAVAILABLE_MESSAGE, ...callbacks }));
     assert.match(html, /Here\?/); assert.doesNotMatch(html, /Here!|role="alert"|latitude|longitude|timer|countdown/);
     assert.match(html, /play without checking/); assert.match(html, /Reference photograph not yet available/);
@@ -44,17 +44,18 @@ test("mission preview uses We're Here? and ordinary GPS uncertainty has no failu
 
 test("guide action is shown only for guide; completed state has an explicit label and symbol", () => {
   const Preview = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
-  const available = buildMissionPresentation({ id: GAN_HATUT_MISSION.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false });
+  const available = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
   const html = renderToStaticMarkup(createElement(Preview, { view: available, selected: true, guide: true, busy: false, feedback: "", ...callbacks }));
   assert.match(html, /Confirm Group Arrival/); assert.doesNotMatch(html, /disabled/);
-  const completed = buildMissionPresentation({ id: GAN_HATUT_MISSION.id, state: "completed", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false });
+  const completed = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state: "completed", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
   assert.equal(completed.marker.symbol, "\u2713"); assert.match(completed.marker.ariaLabel, /Completed/);
   assert.equal(completed.marker.size, 48);
 });
 
 test("actual selected mission renders existing story and playable challenge for every GPS status", () => {
   for (const state of ["available", "arrived", "completed"] as MissionState[]) {
-    const server = { session: createDevWaterSession(), mission: { id: GAN_HATUT_MISSION.id, state, arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false },
+    const mission = { id: GAN_HATUT_MISSION.id, state, arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false };
+    const server = { session: createDevWaterSession(), missions: [mission], mission,
       performance: { started: false, hintsUsed: 0, canStart: true, reward: null }, sharedBalance: { points: 0, foodTokens: 0 } };
     // Simulate authenticated, selected UI. Busy booleans also true: even an in-flight GPS check cannot hide content.
     const react = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === null ? server : initial === false ? true : initial, () => {}],

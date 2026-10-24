@@ -8,8 +8,15 @@ export type ArrivalPolicy = Readonly<{
 export type MissionArrival = Readonly<{ method: "gps" | "guide"; acceptedAt: number; points: number }>;
 export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>;
 export type MissionState = "available" | "arrived" | "completed";
+/** A map destination. Its stable ID keys the group's shared progress for that mission. */
+export type MissionDefinition = Readonly<{
+  id: string; name: string; shortName: string; neighborhood: string; clue: string;
+  photo: Readonly<{ src: string; alt: string }> | null;
+  placement: Readonly<{ x: number; y: number; verified: boolean }>;
+  arrival: ArrivalPolicy;
+}>;
 export const GAN_HATUT_MISSION = Object.freeze({
-  id: WATER_TASK_ID, name: "Gan HaTut (Mulberry Garden)", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
+  id: WATER_TASK_ID, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
   clue: "Find Gan HaTut, the historic courtyard in the Ohel Moshe neighborhood. Look for the garden and its recognizable surroundings.",
   // No identified current garden photograph exists in the checked-in index/local assets.
   photo: null as Readonly<{ src: string; alt: string }> | null,
@@ -21,7 +28,7 @@ export const GAN_HATUT_MISSION = Object.freeze({
     destination: Object.freeze({ latitude: 31.7834802, longitude: 35.2128322, verified: false }),
     radiusMeters: 100, maxAccuracyMeters: 50, maxAgeMs: 60_000, futureToleranceMs: 5_000, rewardPoints: 20,
   }) satisfies ArrivalPolicy,
-});
+}) satisfies MissionDefinition;
 const radians = (degrees: number) => degrees * Math.PI / 180;
 export function distanceMeters(a: Pick<ArrivalReading, "latitude" | "longitude">, b: Pick<ArrivalReading, "latitude" | "longitude">): number {
   const dLat = radians(b.latitude - a.latitude), dLon = radians(b.longitude - a.longitude);
@@ -54,16 +61,17 @@ export function missionState(arrival: MissionArrival | null, completed: boolean)
 }
 
 export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean }>;
-export function buildMissionPresentation(mission: MissionView) {
+/** `order` is the marker's number on the map (catalogue position), not a required route order. */
+export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number) {
   const status = mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
-  return { ...GAN_HATUT_MISSION, status, arrivedPoints: mission.arrivalPoints,
+  return { ...definition, status, arrivedPoints: mission.arrivalPoints,
     state: mission.state, gpsEnabled: mission.gpsEnabled, marker: {
-      id: mission.id, label: `Gan HaTut - ${status}`, order: 1,
-      x: GAN_HATUT_MISSION.placement.x, y: GAN_HATUT_MISSION.placement.y,
+      id: mission.id, label: `${definition.shortName} - ${status}`, order,
+      x: definition.placement.x, y: definition.placement.y,
       state: mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
-      symbol: mission.state === "completed" ? "\u2713" : mission.state === "arrived" ? "\u25c7" : "1",
-      provisional: !GAN_HATUT_MISSION.placement.verified, offMap: false, size: 48 as const,
-      ariaLabel: `Gan HaTut: ${status}. Approximate marker placement.`,
+      symbol: mission.state === "completed" ? "\u2713" : mission.state === "arrived" ? "\u25c7" : String(order),
+      provisional: !definition.placement.verified, offMap: false, size: 48 as const,
+      ariaLabel: `${definition.shortName}: ${status}.${definition.placement.verified ? "" : " Approximate marker placement."}`,
     } };
 }
 export type MissionPresentation = ReturnType<typeof buildMissionPresentation>;

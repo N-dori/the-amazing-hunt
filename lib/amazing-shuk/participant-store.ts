@@ -1,42 +1,60 @@
-import { GAN_HATUT_MISSION, checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival } from "./mission-arrival.ts";
+import { checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
+import { findMission, SHUK_MISSIONS } from "./missions.ts";
+import type { GroupAction } from "./group-action.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
-import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, isValidCups, isWaterPuzzleSolved } from "./water-measurement.ts";
-import { roleForParticipant } from "./roles.ts";
+import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
+import { roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { dirname, resolve } from "node:path";
-import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterAction, type DevWaterSession } from "./dev-water-session.ts";
+import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
 export const SESSION_COOKIE = "shuk_session";
 const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
-type GroupState = Omit<DevWaterSession, "activeActorId">;
-type Database = { version: 4; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: GroupState; applied: Record<string, string[]> };
+/** One mission's shared progress. Its award and arrival bonus are immutable once recorded. */
+type MissionRecord = { cups: WaterCups; completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance };
+/** Schema 4 and earlier held a single mission: the well. */
+type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
+type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
 }
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 const secret = () => randomBytes(32).toString("base64url");
+const emptyMission = (): MissionRecord => ({ cups: EMPTY_WATER_CUPS, completed: false, arrival: null, performance: createWaterPerformance() });
 function initial(): Database {
-  const { roles, cups, completed } = createDevWaterSession();
-  return { version: 4, arrival: null, performance: createWaterPerformance(), invitations: {}, sessions: {}, group: { roles, cups, completed }, applied: {} };
+  return { version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} };
+}
+function isValidMission(record: MissionRecord): boolean {
+  return Boolean(record) && (record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0)) && isValidCups(record.cups);
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
 /** Reads the latest published snapshot and migrates it in memory; writers persist the migration. */
 async function load(path: string): Promise<Database> {
-  let db: Database;
-  try { db = JSON.parse(await readFile(path, "utf8")) as Database; }
-  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; db = initial(); }
-  if ((db as { version: number }).version === 1) {
-    // The old measuring-cup task is a different puzzle. Keep credentials and roles,
-    // start this revised task empty, and retain old receipts to reject stale replays.
-    db = { ...db, version: 4, arrival: null, performance: createWaterPerformance(), group: { ...db.group, cups: EMPTY_WATER_CUPS, completed: false } };
+  let stored: LegacyDatabase | Database;
+  try { stored = JSON.parse(await readFile(path, "utf8")) as LegacyDatabase | Database; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; stored = initial(); }
+  if (stored.version !== 5) {
+    let legacy = stored as LegacyDatabase;
+    if (legacy.version === 1) {
+      // The old measuring-cup task is a different puzzle. Keep credentials and roles,
+      // start this revised task empty, and retain old receipts to reject stale replays.
+      legacy = { ...legacy, version: 4, arrival: null, performance: createWaterPerformance(), group: { ...legacy.group, cups: EMPTY_WATER_CUPS, completed: false } };
+    }
+    if (legacy.version === 2) legacy = { ...legacy, version: 4, arrival: null, performance: createWaterPerformance() };
+    if (legacy.version === 3) legacy = { ...legacy, version: 4, arrival: null };
+    if (legacy.version !== 4 || !legacy.group) throw new Error("Unsupported Shuk storage state");
+    // Keep the well's progress, timing and rewards under its stable mission ID.
+    const { group, arrival, performance, ...rest } = legacy;
+    stored = { ...rest, version: 5, roles: group.roles, missions: { [WATER_TASK_ID]: { cups: group.cups, completed: group.completed, arrival, performance } } };
   }
-  if ((db as { version: number }).version === 2) db = { ...db, version: 4, arrival: null, performance: createWaterPerformance() };
-  if ((db as { version: number }).version === 3) db = { ...db, version: 4, arrival: null };
-  if (db.version !== 4 || !(db.arrival === null || (db.arrival && Number.isSafeInteger(db.arrival.points) && db.arrival.points >= 0)) || !isValidCups(db.group.cups)) throw new Error("Unsupported Shuk storage state");
+  const db = stored as Database;
+  if (!db.roles || !db.missions || !Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
+  // A mission added to the catalogue starts empty. Records of missions no longer listed are kept, with their rewards.
+  for (const mission of SHUK_MISSIONS) if (!db.missions[mission.id]) db.missions = { ...db.missions, [mission.id]: emptyMission() };
   return db;
 }
 
@@ -89,83 +107,104 @@ function identity(db: Database, token: string, now: number) {
   if (!credential || credential.expiresAt <= now) throw new AccessError("Invitation login required", 401);
   return credential.participantId;
 }
-/** Polling reads take no lock and never write, so they cannot block or delay group actions. */
-export async function sessionView(path: string, token: string, now = Date.now()) {
+function missionView(definition: MissionDefinition, record: MissionRecord): MissionView {
+  return { id: definition.id, state: missionState(record.arrival, record.completed),
+    arrivalPoints: record.arrival?.points ?? 0, arrivalMethod: record.arrival?.method ?? null,
+    gpsEnabled: Boolean(definition.arrival.destination?.verified) };
+}
+/** Polling reads take no lock and never write, so they cannot block or delay group actions.
+ * `missionId` selects the mission whose challenge detail is returned; every mission appears in `missions`.
+ */
+export async function sessionView(path: string, token: string, now = Date.now(), missionId = SHUK_MISSIONS[0].id) {
   const db = await load(path);
   const participantId = identity(db, token, now);
+  const definition = findMission(missionId);
+  if (!definition) throw new AccessError("Unknown mission", 400);
+  const record = db.missions[missionId];
   const guide = participantId === DEV_GUIDE_ID;
-  const role = roleForParticipant(participantId, db.group.roles);
-  const award = db.performance.award;
+  const role = roleForParticipant(participantId, db.roles);
+  const award = record.performance.award;
+  const records = Object.values(db.missions);
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
-    mission: { id: GAN_HATUT_MISSION.id, state: missionState(db.arrival, db.group.completed),
-      arrivalPoints: db.arrival?.points ?? 0, arrivalMethod: db.arrival?.method ?? null,
-      gpsEnabled: Boolean(GAN_HATUT_MISSION.arrival.destination?.verified) },
-    session: { ...db.group, activeActorId: participantId },
-    performance: { started: db.performance.startedAt !== null, hintsUsed: db.performance.hintsUsed,
+    missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
+    mission: missionView(definition, record),
+    session: { roles: db.roles, cups: record.cups, completed: record.completed, activeActorId: participantId },
+    performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
-    sharedBalance: { points: (award?.points ?? 0) + (db.arrival?.points ?? 0), foodTokens: award?.foodTokens ?? 0, status: "Provisional local-development rewards" },
-    ...(guide ? { guideTiming: { startedAt: db.performance.startedAt, solvedAt: db.performance.solvedAt,
-      stoppedElapsedMs: db.performance.solvedAt === null ? null : measuredWaterTime(db.performance, now), paused: db.performance.pausedAt !== null, excluded: db.performance.excluded } } : {}),
+    // The group's balance covers every mission's recorded rewards.
+    sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0), 0),
+      foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0), status: "Provisional local-development rewards" },
+    ...(guide ? { guideTiming: { startedAt: record.performance.startedAt, solvedAt: record.performance.solvedAt,
+      stoppedElapsedMs: record.performance.solvedAt === null ? null : measuredWaterTime(record.performance, now), paused: record.performance.pausedAt !== null, excluded: record.performance.excluded } } : {}),
   };
 }
-export async function sessionAction(path: string, token: string, action: DevWaterAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy: ArrivalPolicy = GAN_HATUT_MISSION.arrival) {
+/** `arrivalPolicy` overrides the mission's own policy; tests use it to supply a verified destination. */
+export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy) {
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
-    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, db.group.roles))) throw new AccessError("Only the answer-submitter may submit");
+    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, db.roles))) throw new AccessError("Only the answer-submitter may submit");
     if (action.type === "confirm-arrival" && participantId !== DEV_GUIDE_ID) throw new AccessError("Only the guide may confirm group arrival");
     if (action.type === "switch-actor") throw new AccessError("Identity comes from the authenticated session");
     if (!/^[A-Za-z0-9-]{16,80}$/.test(actionId)) throw new AccessError("Invalid action ID", 400);
     const applied = db.applied[participantId] ?? [];
     if (applied.includes(actionId)) return "Action already synced.";
     const guide = participantId === DEV_GUIDE_ID;
-    const role = roleForParticipant(participantId, db.group.roles);
+    const role = roleForParticipant(participantId, db.roles);
     let message = "";
     try {
-      if (action.type === "arrival" || action.type === "confirm-arrival") {
-        if (action.missionId !== GAN_HATUT_MISSION.id) throw new Error("Unknown mission");
-        // Rechecking proximity still validates this reading even after the group has its bonus.
-        if (action.type === "arrival") {
-          const error = checkMissionArrival(action.reading, arrivalPolicy, now);
-          if (error) throw new Error(error);
-        }
-        if (!db.arrival) {
-          if (!Number.isSafeInteger(arrivalPolicy.rewardPoints) || arrivalPolicy.rewardPoints < 0) throw new Error("Arrival reward configuration is unavailable");
-          db.arrival = { method: action.type === "arrival" ? "gps" : "guide", acceptedAt: now, points: arrivalPolicy.rewardPoints };
-        }
-        message = action.type === "arrival" ? "You're very close! You're in the right area. Look around for Gan HaTut." : "Group arrival confirmed. Arrival bonus recorded.";
+      if (action.type === "assign-role") {
+        if (!guide) throw new Error("Only the guide may assign roles.");
+        db.roles = setGroupRole(DEV_PARTICIPANTS.map(participant => participant.id), db.roles, action.role, action.participantId);
+        message = "Group role updated.";
       } else {
-        if (action.type === "start") {
+        const definition = findMission(action.missionId);
+        if (!definition) throw new Error("Unknown mission");
+        const mission = { ...db.missions[action.missionId] };
+        if (action.type === "arrival" || action.type === "confirm-arrival") {
+          const policy = arrivalPolicy ?? definition.arrival;
+          // Rechecking proximity still validates this reading even after the group has its bonus.
+          if (action.type === "arrival") {
+            const error = checkMissionArrival(action.reading, policy, now);
+            if (error) throw new Error(error);
+          }
+          if (!mission.arrival) {
+            if (!Number.isSafeInteger(policy.rewardPoints) || policy.rewardPoints < 0) throw new Error("Arrival reward configuration is unavailable");
+            mission.arrival = { method: action.type === "arrival" ? "gps" : "guide", acceptedAt: now, points: policy.rewardPoints };
+          }
+          message = action.type === "arrival" ? `You're very close! You're in the right area. Look around for ${definition.shortName}.` : "Group arrival confirmed. Arrival bonus recorded.";
+        } else if (action.type === "start") {
           if (!guide && role === "follower") throw new Error("Only the navigator, answer-submitter or guide may start");
-          if (db.group.completed) throw new Error("This challenge is already complete");
-          if (db.performance.startedAt === null) {
+          if (mission.completed) throw new Error("This challenge is already complete");
+          if (mission.performance.startedAt === null) {
             // Existing in-progress puzzles are retained, but their earlier time is unknown.
-            db.performance = { ...db.performance, startedAt: now, clockStartedAt: now,
-              excluded: db.group.cups.small + db.group.cups.large + db.group.cups.jar > 0,
-              solvedAt: isWaterPuzzleSolved(db.group.cups) ? now : null };
+            mission.performance = { ...mission.performance, startedAt: now, clockStartedAt: now,
+              excluded: mission.cups.small + mission.cups.large + mission.cups.jar > 0,
+              solvedAt: isWaterPuzzleSolved(mission.cups) ? now : null };
           }
         } else if (action.type === "timing") {
           if (!guide) throw new Error("Only the guide may adjust timing");
-          if (db.group.completed) throw new Error("This challenge is already complete");
-          db.performance = adjustWaterTiming(db.performance, action.operation, now, participantId);
+          if (mission.completed) throw new Error("This challenge is already complete");
+          mission.performance = adjustWaterTiming(mission.performance, action.operation, now, participantId);
         } else if (action.type === "hint") {
           if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > 3) throw new Error("Invalid hint");
-          if (action.hint > db.performance.hintsUsed) {
-            if (db.performance.startedAt === null || db.performance.solvedAt !== null || db.group.completed) throw new Error("Hints are available during the challenge");
-            if (action.hint !== db.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
-            db.performance = { ...db.performance, hintsUsed: action.hint };
+          if (action.hint > mission.performance.hintsUsed) {
+            if (mission.performance.startedAt === null || mission.performance.solvedAt !== null || mission.completed) throw new Error("Hints are available during the challenge");
+            if (action.hint !== mission.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
+            mission.performance = { ...mission.performance, hintsUsed: action.hint };
           }
         } else {
-          if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !db.group.completed)) && db.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
-          const result = applyDevWaterAction({ ...db.group, activeActorId: participantId }, action);
-          if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && db.performance.solvedAt === null) db.performance = { ...db.performance, solvedAt: now };
-          if (action.type === "reset") db.performance = { ...db.performance, solvedAt: null };
-          if (result.session.completed && !db.group.completed) db.performance = awardWaterPerformance(db.performance, now);
-          const { roles, cups, completed } = result.session;
-          db.group = { roles, cups, completed };
+          if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
+          const result = applyDevWaterAction({ roles: db.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
+          if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && mission.performance.solvedAt === null) mission.performance = { ...mission.performance, solvedAt: now };
+          if (action.type === "reset") mission.performance = { ...mission.performance, solvedAt: null };
+          if (result.session.completed && !mission.completed) mission.performance = awardWaterPerformance(mission.performance, now);
+          mission.cups = result.session.cups;
+          mission.completed = result.session.completed;
           message = result.message;
         }
+        db.missions = { ...db.missions, [action.missionId]: mission };
       }
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
     db.applied[participantId] = [...applied, actionId];

@@ -1,13 +1,14 @@
 "use client";
-import { DEV_PARTICIPANTS, type DevWaterAction } from "@/lib/amazing-shuk/dev-water-session";
+import { DEV_PARTICIPANTS } from "@/lib/amazing-shuk/dev-water-session";
+import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import ActionButton from "@/components/ui/ActionButton";
 import type { GuideTimingView } from "@/lib/amazing-shuk/water-performance";
 import type { GroupRoleAssignments } from "@/lib/amazing-shuk/roles";
 import styles from "./IndexGuideWaterTask.module.scss";
 
-type Props = { roles: GroupRoleAssignments; timing?: GuideTimingView; completed: boolean; busy: boolean; onAction: (action: DevWaterAction) => void };
+type Props = { missionId: string; roles: GroupRoleAssignments; timing?: GuideTimingView; completed: boolean; busy: boolean; onAction: (action: GroupAction) => void };
 /** Guide feature boundary. The server independently authorizes every callback. */
-export default function IndexGuideWaterTask({ roles, timing, completed, busy, onAction }: Props) {
+export default function IndexGuideWaterTask({ missionId, roles, timing, completed, busy, onAction }: Props) {
   return <section className={styles.simulation} aria-label="Guide controls">
     <div className={styles.guideControls}>
       <label className={styles.label} htmlFor="navigator">Assign navigator</label>
@@ -31,10 +32,10 @@ export default function IndexGuideWaterTask({ roles, timing, completed, busy, on
       <p>{timing.excluded ? "Timing excluded from scoring." : timing.paused ? "Timing paused." : "Timing enabled."}</p>
       {!completed ? <div className={styles.guideControls}>
         {timing.solvedAt === null ? <>
-          <ActionButton variant="quiet" disabled={busy} onClick={() => onAction({ type: "timing", operation: timing.paused ? "resume" : "pause" })}>{timing.paused ? "Resume timing" : "Pause timing"}</ActionButton>
-          <ActionButton variant="quiet" disabled={busy} onClick={() => onAction({ type: "timing", operation: "reset" })}>Reset timing only</ActionButton>
+          <ActionButton variant="quiet" disabled={busy} onClick={() => onAction({ type: "timing", operation: timing.paused ? "resume" : "pause", missionId })}>{timing.paused ? "Resume timing" : "Pause timing"}</ActionButton>
+          <ActionButton variant="quiet" disabled={busy} onClick={() => onAction({ type: "timing", operation: "reset", missionId })}>Reset timing only</ActionButton>
         </> : null}
-        <ActionButton variant="quiet" disabled={busy || timing.excluded} onClick={() => onAction({ type: "timing", operation: "exclude" })}>Exclude timing</ActionButton>
+        <ActionButton variant="quiet" disabled={busy || timing.excluded} onClick={() => onAction({ type: "timing", operation: "exclude", missionId })}>Exclude timing</ActionButton>
       </div> : null}
     </details> : null}
   </section>;
