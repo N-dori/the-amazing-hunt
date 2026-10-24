@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "shuk:invite": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-invite.ts",
+    "test:shuk": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/amazing-shuk/*.test.ts",
     "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/game/*.test.ts"
   },
   "dependencies": {
+    "@dicebear/core": "10.7.0",
+    "@dicebear/styles": "10.6.0",
     "leaflet": "1.9.4",
     "next": "16.3.8",
     "react": "19.2.8",

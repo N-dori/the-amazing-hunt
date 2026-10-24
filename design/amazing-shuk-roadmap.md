@@ -1,34 +1,27 @@
-# The Amazing Shuk — Development Roadmap
+# The Amazing Shuk ? Development Roadmap
 
-**Scope:** The Amazing Shuk only. The current Next.js app also serves The Memory Protocol at /memory-protocol.
-**Updated:** 24 Oct 2026
+**Checkpoint: 24 Oct 2026.** Shuk only; keep the existing Memory Protocol app separate. Follow [approved decisions](../docs/project/product-decisions.md), [current state](../docs/project/current-state.md) and [shared handoff](../docs/project/agent-handoff.md).
 
 ## Now
 
-**Rank 1 — Complete the first task loop: idea #24, water measurement.**
-- **Objective:** let a simulated single group solve an existing research-bank task in the app.
-- **Implemented slice:** virtual 300 ml/500 ml cup mechanics, exact 400 ml deterministic validation, one shared development session, answer-submitter enforcement, guide approval and fictional role switching.
-- **Remaining acceptance:** verify the page/API in a running local Next server; confirm production returns 404; add approved reward values before task completion awards points or tokens.
-- **Access:** set SHUK_DEV_SIMULATION=1 and bind Next to 127.0.0.1. Both page and API require development mode and a loopback Host; production always returns 404.
+1. Finish acceptance of the existing playable well/participant identity slice. Manual invitation sessions, JSON/shared progress, contextual three-container puzzle, quiet timing/shared hints/idempotent rewards and deterministic avatars are implemented. 49 Shuk and 61 Memory Protocol tests pass; exact verification limits are in the handoff.
+2. Owner checks two browser profiles: stable independent identity/avatar, common puzzle/hints/roles, one authorized submission, identical shared achievements after refresh/relogin. Check mobile layout, keyboard/fallback and reconnect. Preserve existing completed records; no fabricated retroactive rewards.
+3. Resume gameplay rather than expanding authentication. Use the existing [content index](inputs/content/README.md), Claude research and source verification to select one next task; no new broad planning/research batch.
 
-## Next
+## Next small deliveries
 
-1. **Task-to-map flow:** add a usable market map with markers only for locations verified for navigation; open task details from a marker and report missing photo assets instead of substituting unrelated images.
-2. **Shared progress and rewards:** add backend-owned task completion, idempotent shared points/tokens and guide-controlled redemption after reward values are approved. Persist safely and test duplicate/concurrent requests and restart.
-3. **Four-screen onboarding:** explain the one-group route, task interactions, shared progress/rewards, and roles using approved copy.
-4. **Operational task set:** reach six independently verified playable tasks first; ten is ideal if validated content and route time allow; use the task/source inventory in design/inputs/content/README.md.
+- One additional sourced, deterministic playable market challenge, with approved copy/answer/reward settings and a tested full solution. Target six independently verified playable tasks; ten ideal.
+- Task-to-map integration only after map approval and location validation. Existing Leaflet image-map prototype has reusable markers/details but no Shuk adapter/GPS and an inaccurate geographic fit. Recommended first navigation iteration: registration feasibility at verified independent landmarks; then optional device-local Find My Location if accurate enough. See [existing audit](../docs/map/nahlaot-map-audit.md). No navigation implementation approved by discovery.
+- Add shared multi-task progress and guide-controlled food redemption only with approved offers/token costs, preserving existing atomic completion receipts and backend roles.
+- Four-screen onboarding using approved concise copy and the one-group model.
 
-## Later
+## Deferred / approval needed
 
-- Self-hosted magic-link authentication and concurrency-safe local JSON storage on the VPS are approved but deferred until before real participants are invited.
-- Offline queue/sync and consent-based photo verification follow a reliable shared task loop.
+- Email magic links/SMTP, external providers/Auth.js, expanded enrollment/authentication; retain implemented manual invitations. Gameplay has priority.
+- Protected Shuk production app boundary, VPS permissions/backups/durability, deployment and public phone access. Deployment requires explicit approval; retain the opt-in loopback development gates.
+- Food/vendor availability, costs, allergens, current offers, content access and image rights require verification; provisional well rewards are not final market-economy settings.
+- Proposed 3-5 available tasks/reveal rules are not approved unlock policy. No GPS-based completion/unlocking, participant tracking infrastructure or turn-by-turn routing planned.
 
-## Open Questions
+## Superseded
 
-- Approve point/token awards and food redemption costs; source research does not define token prices.
-- Confirm vendors, current offers, prices, hours, allergens and group arrangements.
-- Confirm deployment isolation before real access. Do not alter Caddy/VPS or deploy without explicit approval.
-
-## Superseded experiment
-
-design/prototypes/amazing-shuk-team-format/ remains isolated. Its team-count selection and competitive scoring are superseded by the one-group MVP.
+Team-count/competition prototype, 300/500 ml water task, zero-reward and local-only scored-hint notes, and missing-dependency blockers are historical. `design/prototypes/amazing-shuk-team-format/` remains isolated. Never modify Claude UX designer files without explicit owner approval.

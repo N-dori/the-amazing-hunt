@@ -1,21 +1,59 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BASE_PATH } from "@/lib/base-path";
 import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterAction, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
-import PreviewWaterTask from "./PreviewWaterTask";
+import ListParticipantIdentity from "@/components/amazing-shuk/ListParticipantIdentity";
+import IndexGuideWaterTask from "./IndexGuideWaterTask";
+import ListWaterTask from "./ListWaterTask";
+import PreviewWellStory from "./PreviewWellStory";
+import { WATER_TASK } from "@/lib/amazing-shuk/water-task";
+import { INITIAL_WATER_INTERACTION, type WaterInteraction, type WaterContainerId, type WaterActionView } from "@/lib/amazing-shuk/water-task-view";
+import type { WaterPerformanceView, GuideTimingView } from "@/lib/amazing-shuk/water-performance";
+import { WATER_PUZZLE_REVISION, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
 import styles from "./IndexWaterTask.module.scss";
 
-type ServerView = { session: DevWaterSession; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
+
+type ServerView = { puzzleRevision: number; session: DevWaterSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 export default function IndexWaterTask() {
   const [view, setView] = useState<ServerView | null>(null);
   const [message, setMessage] = useState("Connecting to the local development session…");
+  const flushing = useRef(false);
   const [busy, setBusy] = useState(false);
+  const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
+  const [storyOpen, setStoryOpen] = useState(true);
+  const [invitation, setInvitation] = useState("");
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try { setStoryOpen(localStorage.getItem("shuk:well-story-collapsed") !== "1"); } catch { /* Reading remains available without local preferences. */ }
+      const token = new URLSearchParams(window.location.hash.slice(1)).get("invite");
+      if (token) {
+        window.history.replaceState(null, "", window.location.pathname);
+        setInvitation(token);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const login = async () => {
+    setBusy(true);
+    try {
+      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "login", token: invitation }),
+      });
+      const data = await response.json();
+      if (!response.ok) { setMessage(data.error); return; }
+      setInvitation("");
+      await refresh();
+    } catch { setMessage("Could not sign in. Retry with this invitation."); }
+    finally { setBusy(false); }
+  };
   const refresh = useCallback(async () => {
     try {
       const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", { cache: "no-store" });
-      if (!response.ok) throw new Error("The local simulation is unavailable.");
+      if (response.status === 401) setView(null);
+      if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : "The local simulation is unavailable.");
       setView(await response.json() as ServerView);
       setMessage("");
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not load the local simulation."); }
@@ -27,70 +65,100 @@ export default function IndexWaterTask() {
   }, [refresh]);
   const activeRole = useMemo(() => view ? getDevWaterActorRole(view.session) : null, [view]);
 
-  const act = useCallback(async (action: DevWaterAction) => {
+  const actorId = view?.session.activeActorId;
+  const flush = useCallback(async () => {
+    if (!actorId || flushing.current) return;
+    const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
+    const pending = JSON.parse(localStorage.getItem(key) ?? "[]") as (DevWaterAction & { actionId: string })[];
+    if (!pending.length) return;
+    flushing.current = true;
     setBusy(true);
     try {
-      const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(action),
-      });
-      const data = await response.json() as ServerView;
-      if (!response.ok) throw new Error(data.error ?? "The action was rejected.");
-      setView(data);
-      setMessage(data.message ?? "");
-    } catch (error) { setMessage(error instanceof Error ? error.message : "The action failed."); }
-    finally { setBusy(false); }
-  }, []);
+      for (const action of pending) {
+        const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...action, expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION }),
+        });
+        const data = await response.json() as ServerView;
+        if (response.status >= 500 || response.status === 401 || response.status === 409) throw new Error(data.error ?? "Action saved; waiting to reconnect.");
+        const remaining = JSON.parse(localStorage.getItem(key) ?? "[]") as { actionId: string }[];
+        localStorage.setItem(key, JSON.stringify(remaining.filter(item => item.actionId !== action.actionId)));
+        if (response.ok) { setView(data); setMessage(action.type === "move" ? "" : data.message ?? ""); }
+        else setMessage(data.error ?? "Action rejected.");
+      }
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Action saved; waiting to reconnect."); }
+    finally { flushing.current = false; setBusy(false); }
+  }, [actorId]);
+  useEffect(() => {
+    const timer = window.setInterval(() => { void flush(); }, 2000);
+    return () => window.clearInterval(timer);
+  }, [flush]);
+  const act = async (action: DevWaterAction) => {
+    if (!actorId) return;
+    const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
+    const pending = JSON.parse(localStorage.getItem(key) ?? "[]");
+    localStorage.setItem(key, JSON.stringify([...pending, { ...action, actionId: crypto.randomUUID() }]));
+    await flush();
+  };
 
+  const focusPuzzle = () => window.requestAnimationFrame(() => {
+    const target = document.getElementById("water-puzzle-status") ?? document.getElementById("water-controls-heading");
+    target?.focus();
+  });
+  const moveWater = async (move: WaterMove) => {
+    setInteraction(current => ({ ...current, pouring: false }));
+    await act({ type: "move", move });
+    focusPuzzle();
+  };
+  const selectContainer = (id: WaterContainerId, destinationMove: WaterMove | null) => {
+    if (destinationMove) { void moveWater(destinationMove); return; }
+    setInteraction({ selected: id, pouring: false });
+  };
+  const contextualAction = (id: WaterActionView["id"]) => {
+    if (id !== "pour") { void moveWater(id); return; }
+    setInteraction(current => ({ ...current, pouring: true }));
+    window.requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('[data-pour-destination="true"]')?.focus());
+  };
+  const revealHint = () => {
+    if (view && view.performance.hintsUsed < 3) void act({ type: "hint", hint: view.performance.hintsUsed + 1 });
+  };
+
+  if (invitation) return <main className={styles.page}><p>Local development invitation</p><button type="button" disabled={busy} onClick={() => void login()}>Sign in with this invitation</button><p role="status">{message}</p></main>;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>The Amazing Shuk · local prototype</p>
-        <h1>How many families share the water?</h1>
-        <p className={styles.draft}>Task idea #24 · draft content, not approved for participants</p>
+        <p className={styles.eyebrow}>The Amazing Shuk</p>
+        <h1>{WATER_TASK.title}</h1>
       </header>
-      <section className={styles.simulation} aria-label="Development participant simulation">
+      <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
+        setStoryOpen(!storyOpen);
+        try { localStorage.setItem("shuk:well-story-collapsed", storyOpen ? "1" : "0"); } catch { /* Preference storage is optional. */ }
+      }} />
+      <ListWaterTask cups={view.session.cups} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
+        interaction={interaction} performance={view.performance} onSelect={selectContainer} onAction={contextualAction}
+        onCancelPour={() => { setInteraction(current => ({ ...current, pouring: false })); window.requestAnimationFrame(() => document.getElementById(`water-container-${interaction.selected}`)?.focus()); }}
+        onStart={() => void act({ type: "start" })} onHint={revealHint} onSubmit={() => void act({ type: "submit" })} onReset={() => {
+          setInteraction(INITIAL_WATER_INTERACTION);
+          void act({ type: "reset" }).then(focusPuzzle);
+        }} />
+      <section className={styles.simulation} aria-label="Group participants and roles">
         <div>
-          <label className={styles.label} htmlFor="active-actor">Simulate as</label>
-          <select id="active-actor" value={view.session.activeActorId} disabled={busy}
-            onChange={(event) => void act({ type: "switch-actor", actorId: event.target.value })}>
-            {DEV_PARTICIPANTS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            <option value={DEV_GUIDE_ID}>Guide</option>
-          </select>
+          <ListParticipantIdentity participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} currentRole={activeRole ?? "follower"} />
+          <button type="button" disabled={busy} onClick={async () => {
+            setBusy(true);
+            try {
+              const response = await fetch(BASE_PATH + "/api/amazing-shuk/dev", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "logout" }) });
+              if (!response.ok) throw new Error("Could not sign out; retry.");
+              setView(null); await refresh();
+            } catch { setMessage("Could not sign out; retry."); }
+            finally { setBusy(false); }
+          }}>Sign out</button>
         </div>
-        <div className={styles.roleSummary}>
-          <span>Navigator: {DEV_PARTICIPANTS.find((p) => p.id === view.session.roles.navigator)?.name ?? "Unassigned"}</span>
-          <span>Answer-submitter: {DEV_PARTICIPANTS.find((p) => p.id === view.session.roles.answerSubmitter)?.name ?? "Unassigned"}</span>
-          <span>Acting role: {activeRole}</span>
-        </div>
-        {activeRole === "guide" ? (
-          <div className={styles.guideControls}>
-            <label className={styles.label} htmlFor="navigator">Assign navigator</label>
-            <select id="navigator" value={view.session.roles.navigator ?? ""} disabled={busy}
-              onChange={(event) => void act({ type: "assign-role", role: "navigator", participantId: event.target.value || null })}>
-              <option value="">Unassigned</option>
-              {DEV_PARTICIPANTS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-            <label className={styles.label} htmlFor="submitter">Assign answer-submitter</label>
-            <select id="submitter" value={view.session.roles.answerSubmitter ?? ""} disabled={busy}
-              onChange={(event) => void act({ type: "assign-role", role: "answerSubmitter", participantId: event.target.value || null })}>
-              <option value="">Unassigned</option>
-              {DEV_PARTICIPANTS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          </div>
-        ) : null}
+
       </section>
-      <section className={styles.balance} aria-label="Shared group balance">
-        <div><span>Shared points</span><strong>{view.sharedBalance.points}</strong></div>
-        <div><span>Food tokens</span><strong>{view.sharedBalance.foodTokens}</strong></div>
-        <p>{view.sharedBalance.status}; this task has no approved reward amount yet.</p>
-      </section>
-      <PreviewWaterTask cups={view.session.cups} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
-        onMove={(move) => void act({ type: "move", move })} onSubmit={() => void act({ type: "submit" })}
-        onGuideApprove={() => void act({ type: "guide-approve" })} onReset={() => void act({ type: "reset" })} />
+      {activeRole === "guide" ? <IndexGuideWaterTask roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
       {message ? <p className={styles.message} role="status">{message}</p> : null}
-      <aside className={styles.safety}>Local development only. Fictional participants and in-memory state reset with the server. Do not expose this development server to the network.</aside>
-      <p className={styles.reference}>Reference image unavailable in this checkout. The task idea cites photo #66; check the photo index before using imagery.</p>
+      <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>
       <button className={styles.refresh} type="button" onClick={() => void refresh()} disabled={busy}>Refresh shared state</button>
     </main>
   );

@@ -1,0 +1,46 @@
+.task { margin-block: 1.5rem; color: var(--ink); font-size: 1.0625rem; }
+.taskIntro { max-width: 44rem; line-height: 1.7; }
+.taskIntro p { margin-block-end: 1rem; }
+.taskIntro h2 { font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.2; margin-block: .75rem 1rem; font-weight: 500; }
+.evidenceLabel { color: var(--sumac); font-size: .875rem; }
+.containers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-block: 1.5rem; align-items: start; }
+.container, .goal { min-width: 0; margin: 0; text-align: center; padding: .75rem .25rem; }
+.goal { grid-column: 1 / -1; border-block: 2px solid var(--sumac); }
+.illustration { height: clamp(8.5rem, 30vw, 12rem); display: flex; align-items: end; justify-content: center; padding-block: .75rem; }
+.vessel { position: relative; height: clamp(4.75rem, 19vw, 7rem); width: min(4.25rem, 85%); background: var(--chalk); border: 2px solid var(--ink); border-block-start: 0; border-radius: 0 0 .25rem .25rem; overflow: hidden; }
+.largeVessel { height: clamp(6.75rem, 27vw, 10rem); width: min(5.25rem, 90%); }
+// Sumac is the approved earthen accent; shape, rather than a new pigment, identifies ceramic.
+.jarShape { position: relative; height: clamp(6.75rem, 27vw, 10rem); width: 8rem; max-width: 95%; display: flex; align-items: end; }
+.jarNeck { position: absolute; top: 0; inset-inline: 32%; height: 30%; background: var(--sumac); border-block-start: .3rem solid var(--ink); border-radius: .2rem .2rem 0 0; }
+.familyJar { position: relative; height: 82.5%; width: 100%; border: .35rem solid var(--sumac); border-radius: 44% 44% 38% 38% / 38% 38% 48% 48%; background: var(--sumac); overflow: hidden; }
+.water { position: absolute; inset-inline: 0; bottom: 0; height: var(--water-level); background: var(--zaatar); border-block-start: 2px solid var(--ink); }
+.familyJar .water { inset-inline: 0; border-block-start: 2px solid var(--chalk); }
+.caption { display: grid; gap: .5rem; font-size: 1.0625rem; line-height: 1.4; margin-block-start: .75rem; overflow-wrap: anywhere; }
+.container strong, .goal strong { font-weight: 500; }
+.goalLabel { color: var(--sumac); font-size: .875rem; font-weight: 600; }
+.status, .success { font-size: 1.125rem; line-height: 1.6; margin-block: 1rem; }
+.success { border-inline-start: .25rem solid var(--sumac); padding-inline-start: .75rem; color: var(--sumac); font-weight: 500; }
+.containerButton { display: block; width: 100%; border: 0; background: var(--chalk); color: var(--ink); font: inherit; padding: .5rem; text-align: center; cursor: pointer; border-radius: .25rem; }
+.containerButton:disabled { cursor: default; }
+.containerButton:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.selected .containerButton { outline: 2px solid var(--sumac); outline-offset: 3px; }
+.selected .containerButton:focus-visible { outline-color: var(--ink); }
+.destination .containerButton { outline: 2px dashed var(--ink); outline-offset: 3px; }
+.destination .containerButton:focus-visible { outline-style: solid; }
+.contextControls { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-block: 1rem; }
+.prompt { flex-basis: 100%; font-size: 1.0625rem; line-height: 1.5; }
+.prompt:focus, .success:focus { outline: 2px solid var(--ink); outline-offset: 3px; }
+.moveButton { min-height: 3rem; border: 1px solid var(--ink); padding: .75rem 1rem; text-decoration: none; overflow-wrap: anywhere; }
+.hints { margin-block: 1.5rem; }
+.hintList { list-style: none; padding: 0; max-width: 42rem; }
+.hintList li { margin-block: 1rem; padding-inline-start: .75rem; border-inline-start: 2px solid var(--zaatar); line-height: 1.6; }
+.hintList strong { font-weight: 500; }
+.actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-block: 1.5rem; }
+.reset { min-height: 3rem; }
+@media (min-width: 24rem) { .containers { grid-template-columns: repeat(3, minmax(0, 1fr)); } .goal { grid-column: auto; } }
+@media (forced-colors: active) { .vessel, .familyJar { border: 2px solid CanvasText; background: Canvas; } .water { background: Highlight; forced-color-adjust: none; } }
+
+.reward { display: flex; flex-wrap: wrap; gap: 1rem 2rem; margin-block: .75rem; }
+.reward div { display: grid; gap: .25rem; }
+.reward dt { font-weight: 400; }
+.reward dd { font-size: 1.5rem; margin: 0; }

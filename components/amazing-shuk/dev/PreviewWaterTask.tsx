@@ -1,47 +1,72 @@
-﻿import { applyWaterMove, WATER_TARGET_ML, type WaterCups, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
-import styles from "./IndexWaterTask.module.scss";
-
+import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
+import type { CSSProperties } from "react";
+import ActionButton from "@/components/ui/ActionButton";
+import type { WaterTaskView, WaterActionView, WaterContainerId } from "@/lib/amazing-shuk/water-task-view";
+import type { WaterMove } from "@/lib/amazing-shuk/water-measurement";
+import styles from "./PreviewWaterTask.module.scss";
 type Props = {
-  cups: WaterCups; completed: boolean; activeRole: string; busy: boolean;
-  onMove: (move: WaterMove) => void; onSubmit: () => void; onGuideApprove: () => void; onReset: () => void;
+  view: WaterTaskView; performance: WaterPerformanceView; narrative: readonly string[];
+  hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
+  onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
+  onAction: (id: WaterActionView["id"]) => void; onCancelPour: () => void;
+  onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
-const moves: readonly { id: WaterMove; label: string }[] = [
-  { id: "fill-small", label: "Fill 300 ml" }, { id: "fill-large", label: "Fill 500 ml" },
-  { id: "empty-small", label: "Empty 300 ml" }, { id: "empty-large", label: "Empty 500 ml" },
-  { id: "pour-small-into-large", label: "Pour 300 ml into 500 ml" }, { id: "pour-large-into-small", label: "Pour 500 ml into 300 ml" },
-];
-
-export default function PreviewWaterTask({ cups, completed, activeRole, busy, onMove, onSubmit, onGuideApprove, onReset }: Props) {
-  return (
-    <section className={styles.task} aria-labelledby="water-task-title">
-      <div className={styles.taskIntro}>
-        <p className={styles.sourceCopy}>Your family may take exactly 4 litres. You have a 3-litre jug and a 5-litre jug, nothing else.</p>
-        <p>Digital simulation: use 300 ml and 500 ml cups to measure exactly 400 ml.</p>
-      </div>
-      <h2 id="water-task-title">Shared cups</h2>
-      <div className={styles.cups}><Cup label="300 ml cup" amount={cups.small} capacity={300} /><Cup label="500 ml cup" amount={cups.large} capacity={500} /></div>
-      <p className={styles.target}>Target: {WATER_TARGET_ML} ml in either cup</p>
-      <div className={styles.moves}>
-        {moves.map((move) => {
-          const next = applyWaterMove(cups, move.id);
-          const unchanged = next !== null && next.small === cups.small && next.large === cups.large;
-          return <button key={move.id} type="button" disabled={busy || completed || activeRole === "guide" || unchanged} onClick={() => onMove(move.id)}>{move.label}</button>;
-        })}
-      </div>
-      <div className={styles.actions}>
-        {activeRole === "answerSubmitter" || activeRole === "navigatorAndAnswerSubmitter" ? <button type="button" disabled={busy || completed} onClick={onSubmit}>Submit group answer</button> : null}
-        {activeRole === "guide" ? <button type="button" disabled={busy || completed} onClick={onGuideApprove}>Guide approves completion</button> : null}
-        <button type="button" disabled={busy} onClick={onReset}>Reset local simulation</button>
-      </div>
-      <p className={completed ? styles.complete : styles.incomplete} role="status">{completed ? "Shared task complete" : "Not complete yet"}</p>
-    </section>
-  );
-}
-function Cup({ label, amount, capacity }: { label: string; amount: number; capacity: number }) {
-  return (
-    <div className={styles.cup} role="img" aria-label={label + ": " + amount + " ml"}>
-      <div className={styles.cupTrack}><div className={styles.water} style={{ height: ((amount / capacity) * 100) + "%" }} /></div>
-      <strong>{amount} ml</strong><span>{label}</span>
+export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
+  return <section className={styles.task} aria-labelledby="water-task-title">
+    <div className={styles.taskIntro}>
+      <p className={styles.evidenceLabel}>Fiction · Puzzle scenario</p>
+      <h2 id="water-task-title">Fill your family&apos;s jar</h2>
+      {narrative.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
     </div>
-  );
+    {!performance.started && !view.completed ? <div className={styles.actions}>
+      {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+    </div> : null}
+    <div className={styles.containers}>
+      {view.containers.map(container => <figure key={container.id} className={[container.id === "jar" ? styles.goal : styles.container, container.selected ? styles.selected : "", container.destinationMove ? styles.destination : ""].filter(Boolean).join(" ")}>
+        <button type="button" id={`water-container-${container.id}`} className={styles.containerButton}
+          disabled={container.disabled} aria-pressed={container.selected} aria-label={container.accessibleLabel}
+          data-pour-destination={container.destinationMove ? "true" : undefined}
+          onClick={() => onSelect(container.id, container.destinationMove)}>
+        <span className={styles.illustration} aria-hidden="true">
+          {container.id === "jar" ? <span className={styles.jarShape}>
+            <span className={styles.jarNeck} />
+            <span className={styles.familyJar}><span className={styles.water} style={{ "--water-level": `${container.percentage}%` } as CSSProperties} /></span>
+          </span> : <span className={[styles.vessel, container.id === "large" ? styles.largeVessel : ""].filter(Boolean).join(" ")}>
+            <span className={styles.water} style={{ "--water-level": `${container.percentage}%` } as CSSProperties} />
+          </span>}
+        </span>
+        <span className={styles.caption}>
+          {container.id === "jar" ? <span className={styles.goalLabel}>{view.solved ? "Goal reached" : "Your goal"}</span> : null}
+          <strong>{container.label}</strong>
+          <span>{container.amount} L / {container.capacity} L</span>
+        </span>
+        </button>
+        <meter className="srOnly" min={0} max={container.capacity} value={container.amount} aria-label={container.label} aria-valuetext={`${container.amount} of ${container.capacity} liters`}>{container.amount} of {container.capacity} liters</meter>
+      </figure>)}
+    </div>
+    {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
+      <h3>Challenge completed!</h3>
+      {performance.reward ? <dl className={styles.reward}>
+        <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
+        <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
+        <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
+      </dl> : null}
+    </section> : null}
+    {view.status && !view.completed ? <p id="water-puzzle-status" tabIndex={-1} className={styles.success} role="status" aria-live="polite">{view.status}</p> : null}
+    <div className={styles.contextControls}>
+      {view.prompt ? <p id="water-controls-heading" tabIndex={-1} className={styles.prompt} aria-live="polite">{view.prompt}</p> : null}
+      {view.actions.map(action => <ActionButton key={action.id} variant="quiet" className={styles.moveButton} onClick={() => onAction(action.id)}>{action.label}</ActionButton>)}
+      {view.pouring ? <ActionButton variant="quiet" className={styles.reset} onClick={onCancelPour}>Cancel pour</ActionButton> : null}
+    </div>
+    <div className={styles.actions}>
+      {view.canSubmit && view.solved && !view.completed ? <ActionButton disabled={view.submitDisabled} onClick={onSubmit}>Submit Group Answer</ActionButton> : view.solved && !view.completed ? <p>Your answer-submitter or guide can submit.</p> : null}
+      <ActionButton variant="quiet" className={styles.reset} disabled={!view.canReset} onClick={onReset}>Reset puzzle</ActionButton>
+    </div>
+    <aside className={styles.hints} aria-label="Optional puzzle hints">
+      {hasMoreHints ? <ActionButton variant="quiet" className={styles.reset} disabled={view.busy} onClick={onHint}>{hints.length ? "Another hint?" : "Need a hint?"}</ActionButton> : null}
+      <ol aria-live="polite" aria-relevant="additions" className={styles.hintList}>
+        {hints.map(hint => <li key={hint.title}><strong>{hint.title}</strong><p>{hint.text}</p></li>)}
+      </ol>
+    </aside>
+  </section>;
 }

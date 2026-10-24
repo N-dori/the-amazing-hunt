@@ -1,36 +1,21 @@
-﻿.page { width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 2rem 0 4rem; }
+.page { width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 2rem 0 4rem; }
 .header { margin-bottom: 1.5rem; }
-.eyebrow, .draft, .label, .target { color: var(--zaatar); font-size: .8rem; }
+.eyebrow, .draft, .label, .target { color: var(--ink); font-size: .8rem; }
 .eyebrow { text-transform: uppercase; letter-spacing: .08em; }
 .header h1 { margin: .4rem 0; font-size: clamp(1.7rem, 6vw, 2.5rem); font-weight: 500; line-height: 1.1; }
 .draft { color: var(--sumac); }
-.simulation, .balance, .task { border: 1px solid var(--neutral-line); border-radius: 1rem; background: var(--chalk-highlight); padding: 1rem; margin-block: 1rem; }
+.simulation, .balance { border: 1px solid var(--neutral-line); border-radius: 1rem; background: var(--chalk); padding: 1rem; margin-block: 1rem; }
 .simulation { display: grid; gap: 1rem; }
 .label { display: block; margin-bottom: .35rem; }
-.simulation select { min-height: 2.75rem; width: 100%; padding: .5rem; border: 1px solid var(--neutral-line); border-radius: .5rem; background: var(--chalk); color: var(--ink); }
+.simulation select { min-height: 3rem; width: 100%; padding: .5rem; border: 1px solid var(--neutral-line); border-radius: .5rem; background: var(--chalk); color: var(--ink); }
 .roleSummary { display: grid; gap: .3rem; font-size: .9rem; }
 .guideControls { display: grid; grid-template-columns: 1fr; gap: .5rem; }
 .balance { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
 .balance div { display: grid; gap: .2rem; }
 .balance strong { font-size: 1.5rem; }
-.balance p { grid-column: 1 / -1; color: var(--zaatar); font-size: .8rem; }
-.taskIntro { padding-bottom: 1rem; }
-.sourceCopy { border-left: .2rem solid var(--amber); padding-left: .75rem; margin-bottom: .75rem; }
-.task h2 { margin-bottom: .7rem; font-size: 1.2rem; }
-.cups { display: flex; justify-content: center; gap: 2rem; padding: 1rem; }
-.cup { display: grid; justify-items: center; gap: .35rem; }
-.cupTrack { width: 5rem; height: 9rem; display: flex; align-items: end; overflow: hidden; border: 3px solid var(--zaatar); border-top: 0; border-radius: 0 0 .8rem .8rem; background: var(--chalk); }
-.water { width: 100%; background: #7aa6a1; transition: height .2s ease; }
-.cup span { font-size: .8rem; color: var(--zaatar); }
-.target { margin-bottom: 1rem; }
-.moves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
-.moves button, .actions button, .refresh { min-height: 2.75rem; padding: .55rem .75rem; border: 1px solid var(--neutral-line); border-radius: .6rem; background: var(--chalk); color: var(--ink); text-align: left; cursor: pointer; }
-.moves button:disabled, .actions button:disabled, .refresh:disabled { opacity: .5; cursor: not-allowed; }
-.actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
-.actions button:first-child { background: var(--zaatar); color: white; }
-.complete { color: #315c3b; font-weight: 600; margin-top: 1rem; }
-.incomplete { color: var(--sumac); margin-top: 1rem; }
+.balance p { grid-column: 1 / -1; color: var(--ink); font-size: .8rem; }
 .message { min-height: 1.5rem; margin-block: .75rem; }
-.safety, .reference { color: var(--zaatar); font-size: .8rem; margin-top: 1rem; }
-.refresh { margin-top: .75rem; }
-@media (max-width: 28rem) { .moves { grid-template-columns: 1fr; } .cups { gap: 1.2rem; } }
+.safety { color: var(--ink); font-size: .875rem; margin-block-start: 1rem; }
+.refresh { margin-block-start: .75rem; min-height: 3rem; background: var(--chalk); color: var(--ink); border: 1px solid var(--ink); padding: .75rem; cursor: pointer; }
+.page button:focus-visible, .page select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.page button { min-height: 3rem; }

@@ -1,3 +1,4 @@
+import type { WaterPerformanceAction } from "./water-performance.ts";
 import { roleForParticipant, setGroupRole, type AssignableGroupRole, type GroupRoleAssignments, type ParticipantRole } from "./roles.ts";
 import { applyWaterMove, EMPTY_WATER_CUPS, evaluateWaterSubmission, type WaterCups, type WaterMove } from "./water-measurement.ts";
 
@@ -20,6 +21,7 @@ export type DevWaterSession = Readonly<{
 }>;
 
 export type DevWaterAction =
+  | WaterPerformanceAction
   | Readonly<{ type: "switch-actor"; actorId: string }>
   | Readonly<{ type: "assign-role"; role: AssignableGroupRole; participantId: string | null }>
   | Readonly<{ type: "move"; move: WaterMove }>
@@ -65,7 +67,7 @@ function withMessage(session: DevWaterSession, message: string): DevWaterActionR
 }
 
 export function applyDevWaterAction(session: DevWaterSession, action: DevWaterAction): DevWaterActionResult {
-  const participantIds = DEV_PARTICIPANTS.map((participant) => participant.id);
+  const participantIds: readonly string[] = DEV_PARTICIPANTS.map((participant) => participant.id);
   switch (action.type) {
     case "switch-actor":
       if (action.actorId !== DEV_GUIDE_ID && !participantIds.includes(action.actorId)) throw new Error("unknown development actor");
@@ -77,26 +79,27 @@ export function applyDevWaterAction(session: DevWaterSession, action: DevWaterAc
     }
     case "move": {
       if (session.completed) throw new Error("This task is already complete.");
-      if (getDevWaterActorRole(session) === "guide") throw new Error("Switch to a participant to operate the cups.");
       const cups = applyWaterMove(session.cups, action.move);
       if (!cups) throw new Error("Invalid cup state or move.");
-      return withMessage(Object.freeze({ ...session, cups }), "Cup state updated for the shared group.");
+      return withMessage(Object.freeze({ ...session, cups }), "Water updated for the shared group.");
     }
     case "submit": {
       if (session.completed) return withMessage(session, "This task is already complete.");
       const result = evaluateWaterSubmission(getDevWaterActorRole(session), session.cups);
-      if (result === "unauthorized") throw new Error("Only the answer-submitter can submit the group's answer.");
-      if (result !== "accepted") return withMessage(session, "Not yet: measure exactly 400 ml first.");
+      if (result === "unauthorized") throw new Error("Only the answer-submitter or guide can submit the group's answer.");
+      if (result !== "accepted") return withMessage(session, "Fill your family's jar with exactly 4 liters before submitting.");
       return withMessage(Object.freeze({ ...session, completed: true }), "The group's answer is correct. Task complete.");
     }
     case "guide-approve": {
       if (getDevWaterActorRole(session) !== "guide") throw new Error("Only the simulated guide may approve a task.");
       if (session.completed) return withMessage(session, "This task is already complete.");
-      const result = evaluateWaterSubmission("guide", session.cups, true);
-      return withMessage(Object.freeze({ ...session, completed: result === "accepted" }), "Guide approved the task.");
+      const result = evaluateWaterSubmission("guide", session.cups);
+      if (result !== "accepted") return withMessage(session, "Fill your family's jar with exactly 4 liters before submitting.");
+      return withMessage(Object.freeze({ ...session, completed: true }), "The group's answer is correct. Task complete.");
     }
     case "reset":
-      return withMessage(createDevWaterSession(), "Development simulation reset.");
+      if (session.completed) throw new Error("The completed group answer cannot be reset.");
+      return withMessage(Object.freeze({ ...session, cups: EMPTY_WATER_CUPS }), "Puzzle reset. All three containers are empty.");
     default:
       throw new Error("Unknown development action.");
   }

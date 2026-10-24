@@ -30,3 +30,6 @@ docs/**/*.gif
 docs/**/*.webp
 docs/**/*.heic
 docs/**/*.zip
+
+# Local Shuk credentials and shared progress
+.local/

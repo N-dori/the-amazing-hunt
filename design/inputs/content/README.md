@@ -80,4 +80,14 @@ The two UX transcripts have no recorded speaker or source; treat them as general
 
 ### Current playable-task slice
 
-The local development screen for idea #24 is implemented at [the task route](../../../app/dev/amazing-shuk/water/page.tsx), with [server-owned rules](../../../lib/amazing-shuk/water-measurement.ts) and the [fictional shared session](../../../lib/amazing-shuk/dev-water-session.ts). It is a draft simulation, not a field-verified challenge. The indexed photo #66 is not present as an asset; points/token awards are unset. See [the shared current state](../../../docs/project/current-state.md), [handoff](../../../docs/project/agent-handoff.md) and [roadmap](../../amazing-shuk-roadmap.md).
+The [local water task](../../../app/dev/amazing-shuk/water/page.tsx) now uses a [story-backed task definition](../../../lib/amazing-shuk/water-task.ts), [three-container rules](../../../lib/amazing-shuk/water-measurement.ts) and authenticated shared JSON progress. Owner-approved iteration: 3 L / 5 L well vessels fill a separate 4 L family jar, all digitally. The physical cup variant above is historical brainstorming, superseded for this task.
+
+Story discovery: [original Hebrew transcript](../../../docs/scavenger_hunt/HE_trans.txt), lines 54-66, and [English tour](../../../docs/scavenger_hunt/Machane_Yehuda_Tour_EN.md), Stop 5. The story is **Attributed tradition**; the transcript names Yossi Banai as the attributed recollection but does not explicitly state once a year. English is now adapted from the full Hebrew cistern section; original Hebrew is available only in development source details and is not rendered in production. The invented family-ration puzzle is labeled separately.
+
+See the [task/source/brand verification record](../../../docs/project/water-task.md), [current state](../../../docs/project/current-state.md) and [shared handoff](../../../docs/project/agent-handoff.md). Source photo #66 is not used; no physical well interaction or player-facing timer was added. Provisional local rewards are now configured in the task record. Brand reference: [DORI Final Brand Book](../brand/DORI_Final_Brand_Book.pdf).
+
+
+The water task now demonstrates the reusable process in the [existing Codex designer guidance](../../../docs/design/codex-amazing-shuk-partner.md): short owner-approved story, contextual vessel controls, return-to-well actions and three optional local hints. The [task record](../../../docs/project/water-task.md) contains the intended two-round solution and latest verification; preserve its existing provenance and boundary notes.
+
+
+Latest well iteration: the [same designer guidance](../../../docs/design/codex-amazing-shuk-partner.md) now includes Hebrew-first adaptation and invisible timing/rewards. Read full HE_trans.txt 54-66 before adapting: current brief preserves the oral story's honor/punishment contrast in 40 English words; production omits Hebrew body. [Task record](../../../docs/project/water-task.md) documents hidden server timing, shared scored hints, provisional local rewards and schema3 migration. No new research/source file or instruction framework was created.

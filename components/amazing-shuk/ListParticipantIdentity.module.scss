@@ -1,0 +1,4 @@
+.group { display: grid; gap: 1rem; min-width: 0; color: var(--ink); }
+.assignments { display: grid; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+.assignments li { min-width: 0; }
+@media (min-width: 48rem) { .assignments { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

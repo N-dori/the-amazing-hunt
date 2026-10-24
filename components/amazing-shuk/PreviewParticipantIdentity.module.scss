@@ -1,0 +1,4 @@
+.identity { display: flex; align-items: center; gap: .75rem; min-width: 0; color: var(--ink); font-family: var(--font-body); }
+.caption { display: grid; gap: .25rem; min-width: 0; overflow-wrap: anywhere; line-height: 1.5; }
+.caption strong { font-weight: 500; }
+.label { font-size: .875rem; }
