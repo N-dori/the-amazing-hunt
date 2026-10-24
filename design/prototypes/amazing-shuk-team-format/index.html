@@ -1,0 +1,61 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3efe6">
+    <title>The Amazing Shuk - local game prototype</title>
+    <link rel="stylesheet" href="./prototype.css">
+    <script src="./prototype.js" defer></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="topline">
+        <span class="wordmark">The Amazing Shuk</span>
+        <span class="draft-label">Local prototype · draft copy</span>
+      </header>
+
+      <section class="content" aria-labelledby="screen-title">
+        <p class="step-label" id="step-label">START · STEP 1</p>
+        <h1 id="screen-title">Choose a play format</h1>
+        <p class="intro" id="intro">Select how the group will play.</p>
+
+        <form id="format-form">
+          <fieldset>
+            <legend>Play format</legend>
+            <label class="format-option"><input type="radio" name="format" value="group"><span>One group</span></label>
+            <label class="format-option"><input type="radio" name="format" value="two-teams"><span>Two teams</span></label>
+            <label class="format-option"><input type="radio" name="format" value="three-teams"><span>Three teams</span></label>
+          </fieldset>
+          <button class="primary-button" id="continue-button" type="submit" disabled>Continue</button>
+        </form>
+
+        <section id="challenge" hidden aria-labelledby="challenge-title">
+          <h2 id="challenge-title">Measuring challenge · draft</h2>
+          <p class="local-note">TODO(copy): replace this draft with approved task wording. The source idea uses 300 ml and 500 ml cups to measure 400 ml.</p>
+          <p class="format-summary" id="format-summary"></p>
+          <div class="vessels" aria-label="Cup contents">
+            <div class="vessel"><strong>300 ml cup</strong><output id="cup-300" aria-live="polite">0 ml</output></div>
+            <div class="vessel"><strong>500 ml cup</strong><output id="cup-500" aria-live="polite">0 ml</output></div>
+          </div>
+          <div class="controls" aria-label="Cup actions">
+            <button class="secondary-button" type="button" data-move="fill-300">Fill 300 ml</button>
+            <button class="secondary-button" type="button" data-move="fill-500">Fill 500 ml</button>
+            <button class="secondary-button" type="button" data-move="empty-300">Empty 300 ml</button>
+            <button class="secondary-button" type="button" data-move="empty-500">Empty 500 ml</button>
+            <button class="secondary-button" type="button" data-move="pour-300-500">Pour 300 → 500</button>
+            <button class="secondary-button" type="button" data-move="pour-500-300">Pour 500 → 300</button>
+          </div>
+          <p id="challenge-status" class="status" aria-live="polite">Measure 400 ml in either cup.</p>
+          <section id="success-panel" class="success-panel" hidden>
+            <h3>Challenge complete</h3>
+            <p>Ask the guide to confirm. This prototype awards no points or food tokens.</p>
+          </section>
+          <button class="secondary-button" id="reset-button" type="button">Restart challenge</button>
+        </section>
+      </section>
+
+      <footer class="footer">Prototype only. Selection and challenge state are local; nothing is saved or synced.</footer>
+    </main>
+  </body>
+</html>

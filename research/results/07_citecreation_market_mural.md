@@ -86,3 +86,11 @@
 - **S4:** Arutz Sheva (inn.co.il), article on the CitéCréation mural "ילדי ירושלים", 16 Jan 2007. https://www.inn.co.il/news/158524
 - **S5:** "CitéCréation : un campus des murs peints", *Le Journal des Entreprises*, 2012. https://www.lejournaldesentreprises.com/article/citecreation-un-campus-des-murs-peints-82013
 - CitéCréation website, home page and contact details: https://citecreation.fr (read 23 Oct 2026)
+
+## Update (24 Oct 2026): CitéCréation's official project page
+
+The earlier statement above that CitéCréation's site had no Jerusalem project page is outdated. CitéCréation has an official [Painted mural circuit JERUSALEM](https://citecreation.fr/en/realisation/painted-mural-circuit-jerusalem/) page (S6). It says East Jerusalem Development, the Ministry of Tourism and the City of Jerusalem asked CitéCréation to produce the mural circuit, and labels East Jerusalem Development Ltd the contracting owner.
+
+This establishes the organizations' project roles, but the page does not identify the copyright owner or grant permission to reproduce, crop or digitally alter the Agrippas mural. Treat the earlier identification of CitéCréation as the rights holder as an unverified contact lead, not a confirmed rights determination. Ask CitéCréation and East Jerusalem Development Ltd who controls the relevant rights and whether permission covers the proposed crops, the altered "what's missing?" image and the intended use; also confirm the requested credit line. The group's internal access plan does not itself resolve image rights.
+
+- **S6:** CitéCréation, ["Painted mural circuit JERUSALEM"](https://citecreation.fr/en/realisation/painted-mural-circuit-jerusalem/) (official project page; accessed 24 Oct 2026).

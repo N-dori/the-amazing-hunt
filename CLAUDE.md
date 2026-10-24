@@ -23,3 +23,7 @@ Commands (`.claude/skills/`):
 | `/game-deploy` | Deploys `dori-game` with `deploy/deploy.sh` (pull, build, health, smoke, rollback) |
 
 Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit when the user asks, `/game-deploy`.
+
+## Shared Amazing Shuk project memory
+
+For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.

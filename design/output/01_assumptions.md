@@ -272,3 +272,16 @@ Not blocking, but needed before deliverable 7: the new photo of the menu board w
 - **Challenges:** drop email recovery (CH-01); keep the session code under the QR as a typed fallback (CH-02); "pending confirmation" so the guide doesn't become a bottleneck (CH-03); a spoken-only family question (CH-04).
 - **Assumptions to check soonest:** players' mobile data (A-P04), whether the guide can keep up with confirmations (A-G02), and the 90-minute timing (A-L02).
 - **Waiting for answers to section 7**; deliverable 2 has not been started.
+
+## 1.7 Updated user answers (24 Oct 2026)
+
+This addendum supersedes earlier A2-A7 and related C-07, C-24 and R-01 statements where they conflict. The original discovery report remains a record of what was asked; these are the later answers.
+
+| Topic | Updated direction | Status and consequence |
+|---|---|---|
+| Access and hosting | Internal tool for the owner and seven friends, on the existing VPS behind Caddy; no separate domain. | Treat group-only access as a requirement. The earlier answer placing the route outside basic auth is superseded. Verify the actual Caddy/app gate before calling the tool private; route and access configuration are not confirmed here. |
+| Authentication | No external identity provider. Use NextAuth/Auth.js with a JSON file as interim storage. | Direction accepted, implementation pending. The current app has no NextAuth dependency. Its container has a read-only root and a persistent /data volume; file-backed data must use an explicit persistent writable location and stay out of Git. |
+| Mural rights | The user is unsure; check the mural website. | Reviewed [CitéCréation's Jerusalem mural page](https://citecreation.fr/en/realisation/painted-mural-circuit-jerusalem/): it identifies East Jerusalem Development Ltd as contracting owner, but does not grant permission to reproduce or alter the mural. Cropping and the altered "what's missing?" image remain unresolved; private use by seven friends is not recorded as rights clearance. |
+| Player-photo handling | No app/VPS photo storage; the user proposes one-off GPT API processing. | Do not claim zero retention. OpenAI documents default abuse-monitoring logs retained up to 30 days; approved Zero Data Retention controls are required to exclude eligible content, and endpoint limits apply. Prefer foreground image input with storage disabled, avoid the Files API, confirm the API project's controls, and get participant consent before sending an image. See [OpenAI API data controls](https://developers.openai.com/api/docs/guides/your-data). |
+| Picture-in-Stone face match | Keep the task. | Supersedes A6's earlier proposal to drop face match. The particular image and its reproduction rights remain unresolved; do not treat this answer as image permission. |
+| Rachmo images | No need to display the photos in the app; the group can see them at the site from outside. | Keep the app text-only for this stop; do not include the existing images of identifiable people or customers. |
