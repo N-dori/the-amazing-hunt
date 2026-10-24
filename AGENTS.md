@@ -55,3 +55,5 @@ Every content item must have one visible label: **Historical fact** (cited sourc
 ## Shared Project Memory
 
 Before meaningful Amazing Shuk work, read `docs/project/product-decisions.md`, `docs/project/current-state.md`, `docs/project/agent-handoff.md`, and `design/amazing-shuk-roadmap.md`. Follow the decision priority recorded in the product decisions. After meaningful work, update current state and handoff with verified facts only. Keep Shuk production features isolated from the Memory Protocol until a separate protected app boundary is established; the opt-in loopback-only development simulation is the exception. Check Git status and preserve other agents' changes.
+
+@CLAUDE.md
