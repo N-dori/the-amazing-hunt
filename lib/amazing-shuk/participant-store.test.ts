@@ -238,3 +238,23 @@ test("concurrent queued actions retry lock contention without overwriting shared
   await sessionAction(path, first, actions[0].action, actions[0].id);
   assert.deepEqual((await sessionView(path, second)).session.cups, { small: 0, large: 5, jar: 0 });
 }));
+
+test("polling reads take no lock, never rewrite storage and cannot block group actions", () => fixture(async path => {
+  const player = await redeemInvitation(path, await issueInvitation(path, "player-1"));
+  await sessionAction(path, player, { type: "start" }, "poll-start-challenge-001");
+  const legacy = JSON.parse(await readFile(path, "utf8"));
+  legacy.version = 3; delete legacy.arrival;
+  await writeFile(path, JSON.stringify(legacy));
+  const bytes = await readFile(path, "utf8");
+  // A held writer lock does not block reads, and a read does not persist its in-memory migration.
+  await mkdir(path + ".lock");
+  assert.equal((await sessionView(path, player)).mission.arrivalPoints, 0);
+  await rm(path + ".lock", { recursive: true });
+  assert.equal(await readFile(path, "utf8"), bytes);
+  const polls = Array.from({ length: 24 }, () => sessionView(path, player));
+  const move = sessionAction(path, player, { type: "move", move: "fill-large" }, "poll-fill-large-001");
+  const results = await Promise.allSettled([...polls, move]);
+  assert.deepEqual(results.filter(result => result.status === "rejected"), []);
+  assert.deepEqual((await sessionView(path, player)).session.cups, { small: 0, large: 5, jar: 0 });
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 4);
+}));

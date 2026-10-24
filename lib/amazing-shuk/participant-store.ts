@@ -24,6 +24,22 @@ function initial(): Database {
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
+/** Reads the latest published snapshot and migrates it in memory; writers persist the migration. */
+async function load(path: string): Promise<Database> {
+  let db: Database;
+  try { db = JSON.parse(await readFile(path, "utf8")) as Database; }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; db = initial(); }
+  if ((db as { version: number }).version === 1) {
+    // The old measuring-cup task is a different puzzle. Keep credentials and roles,
+    // start this revised task empty, and retain old receipts to reject stale replays.
+    db = { ...db, version: 4, arrival: null, performance: createWaterPerformance(), group: { ...db.group, cups: EMPTY_WATER_CUPS, completed: false } };
+  }
+  if ((db as { version: number }).version === 2) db = { ...db, version: 4, arrival: null, performance: createWaterPerformance() };
+  if ((db as { version: number }).version === 3) db = { ...db, version: 4, arrival: null };
+  if (db.version !== 4 || !(db.arrival === null || (db.arrival && Number.isSafeInteger(db.arrival.points) && db.arrival.points >= 0)) || !isValidCups(db.group.cups)) throw new Error("Unsupported Shuk storage state");
+  return db;
+}
+
 /** A filesystem lock serializes CLI and HTTP writers. Atomic rename publishes whole snapshots.
  * A crashed writer leaves a lock: recover manually with the server stopped, never steal a live lock.
  */
@@ -36,17 +52,7 @@ export async function transact<T>(path: string, operation: (db: Database) => T):
   }
   const temporary = path + "." + secret() + ".tmp";
   try {
-    let db: Database;
-    try { db = JSON.parse(await readFile(path, "utf8")) as Database; }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; db = initial(); }
-    if ((db as { version: number }).version === 1) {
-      // The old measuring-cup task is a different puzzle. Keep credentials and roles,
-      // start this revised task empty, and retain old receipts to reject stale replays.
-      db = { ...db, version: 4, arrival: null, performance: createWaterPerformance(), group: { ...db.group, cups: EMPTY_WATER_CUPS, completed: false } };
-    }
-    if ((db as { version: number }).version === 2) db = { ...db, version: 4, arrival: null, performance: createWaterPerformance() };
-    if ((db as { version: number }).version === 3) db = { ...db, version: 4, arrival: null };
-    if (db.version !== 4 || !(db.arrival === null || (db.arrival && Number.isSafeInteger(db.arrival.points) && db.arrival.points >= 0)) || !isValidCups(db.group.cups)) throw new Error("Unsupported Shuk storage state");
+    const db = await load(path);
     const result = operation(db);
     const file = await open(temporary, "wx", 0o600);
     try { await file.writeFile(JSON.stringify(db)); await file.sync(); } finally { await file.close(); }
@@ -83,25 +89,25 @@ function identity(db: Database, token: string, now: number) {
   if (!credential || credential.expiresAt <= now) throw new AccessError("Invitation login required", 401);
   return credential.participantId;
 }
+/** Polling reads take no lock and never write, so they cannot block or delay group actions. */
 export async function sessionView(path: string, token: string, now = Date.now()) {
-  return transact(path, db => {
-    const participantId = identity(db, token, now);
-    const guide = participantId === DEV_GUIDE_ID;
-    const role = roleForParticipant(participantId, db.group.roles);
-    const award = db.performance.award;
-    return {
-      puzzleRevision: WATER_PUZZLE_REVISION,
-      mission: { id: GAN_HATUT_MISSION.id, state: missionState(db.arrival, db.group.completed),
-        arrivalPoints: db.arrival?.points ?? 0, arrivalMethod: db.arrival?.method ?? null,
-        gpsEnabled: Boolean(GAN_HATUT_MISSION.arrival.destination?.verified) },
-      session: { ...db.group, activeActorId: participantId },
-      performance: { started: db.performance.startedAt !== null, hintsUsed: db.performance.hintsUsed,
-        canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
-      sharedBalance: { points: (award?.points ?? 0) + (db.arrival?.points ?? 0), foodTokens: award?.foodTokens ?? 0, status: "Provisional local-development rewards" },
-      ...(guide ? { guideTiming: { startedAt: db.performance.startedAt, solvedAt: db.performance.solvedAt,
-        stoppedElapsedMs: db.performance.solvedAt === null ? null : measuredWaterTime(db.performance, now), paused: db.performance.pausedAt !== null, excluded: db.performance.excluded } } : {}),
-    };
-  });
+  const db = await load(path);
+  const participantId = identity(db, token, now);
+  const guide = participantId === DEV_GUIDE_ID;
+  const role = roleForParticipant(participantId, db.group.roles);
+  const award = db.performance.award;
+  return {
+    puzzleRevision: WATER_PUZZLE_REVISION,
+    mission: { id: GAN_HATUT_MISSION.id, state: missionState(db.arrival, db.group.completed),
+      arrivalPoints: db.arrival?.points ?? 0, arrivalMethod: db.arrival?.method ?? null,
+      gpsEnabled: Boolean(GAN_HATUT_MISSION.arrival.destination?.verified) },
+    session: { ...db.group, activeActorId: participantId },
+    performance: { started: db.performance.startedAt !== null, hintsUsed: db.performance.hintsUsed,
+      canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
+    sharedBalance: { points: (award?.points ?? 0) + (db.arrival?.points ?? 0), foodTokens: award?.foodTokens ?? 0, status: "Provisional local-development rewards" },
+    ...(guide ? { guideTiming: { startedAt: db.performance.startedAt, solvedAt: db.performance.solvedAt,
+      stoppedElapsedMs: db.performance.solvedAt === null ? null : measuredWaterTime(db.performance, now), paused: db.performance.pausedAt !== null, excluded: db.performance.excluded } } : {}),
+  };
 }
 export async function sessionAction(path: string, token: string, action: DevWaterAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy: ArrivalPolicy = GAN_HATUT_MISSION.arrival) {
   return transact(path, db => {
