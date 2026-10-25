@@ -36,6 +36,14 @@ tmux new -s game-deploy /root/projects/The-Amazing-Hunt/deploy/deploy.sh
 
 It refuses to run outside tmux, with under 800 MB of free memory, with disk use over 85%, off `main`, or with uncommitted changes to tracked files. When an `origin` remote is configured it fast-forwards to `origin/main` first, so deploy only what has been pushed; without a remote it builds the local `HEAD`.
 
+## The Amazing Shuk app
+
+The same repo also builds the Amazing Shuk as its own app: `docker build --build-arg DORI_APP=shuk`, base path `/shuk`, container `dori-shuk` (`deploy/shuk-compose.yml`).
+
+- **Deploy:** `tmux new -s shuk-deploy '/root/projects/The-Amazing-Hunt/deploy/deploy.sh shuk'`.
+- **Address:** `https://doriisrael.com/shuk`, through the `@shuk` handle in the `doriisrael.com` block of `/root/projects/Tour-Tech/caddy/dori.caddy`.
+- **Access:** single-use invitations from `tools/scripts/shuk-invite.ts` inside the container.
+
 ## Routing (Caddy)
 
 The container is only reachable once revivo's Caddy routes the path to it. The change goes in `/root/projects/Tour-Tech/caddy/dori.caddy`, inside the shared `(dori_platform)` snippet and before the catch-all `handle`. It then applies to both `trip.` and `app.`, behind their existing passwords:

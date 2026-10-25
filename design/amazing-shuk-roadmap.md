@@ -19,6 +19,7 @@
 
 - Email magic links/SMTP, external providers/Auth.js, expanded enrollment/authentication; retain implemented manual invitations. Gameplay has priority.
 - Protected Shuk production app boundary, VPS permissions/backups/durability, deployment and public phone access. Deployment requires explicit approval; retain the opt-in loopback development gates.
+  - **Done 25 Oct 2026:** the Shuk is its own app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Still open: backups, display names, real-phone testing.
   - **Own app and address (owner decision, 24 Oct 2026: split the Shuk into its own app; not now).** The Shuk still runs inside the Memory Protocol app, so its dev page is `/memory-protocol/dev/amazing-shuk/water` (prefix from `lib/base-path.ts`; the page name dates from the well-only prototype). The owner chose a separate app with its own prefix, image and access gate, not a change to the shared prefix (which would also move the Memory Protocol's image, `deploy/deploy.sh` health checks and Caddy route). Plan it first; do it before real-phone testing.
 - Food/vendor availability, costs, allergens, current offers, content access and image rights require verification; provisional well rewards are not final market-economy settings.
 - Proposed 3-5 available tasks/reveal rules are not approved unlock policy. GPS never gates story/challenge access; optional proximity assistance/bonus supersedes the earlier no-GPS policy. No participant tracking infrastructure or turn-by-turn routing planned.

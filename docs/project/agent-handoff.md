@@ -1,6 +1,48 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - mission 6, Marzipan Bakery, "The Sweet Secret of Marzipan", 25 Oct 2026
+## Latest handoff - the protected Shuk app is live at doriisrael.com/shuk, 25 Oct 2026
+
+The owner approved the plan (`/root/.claude/plans/tingly-snacking-tower.md`), then the commit and push (`fbd9fad`, Marzipan included), the deploy, the Caddy route and the invitations.
+
+- **How it works:**
+  - One codebase builds two images. `NEXT_PUBLIC_DORI_APP=shuk` (`--build-arg DORI_APP=shuk`) sets the base path to `/shuk` (`lib/base-path.ts`, `basePathFor`, `IS_SHUK_APP`).
+  - `proxy.ts` and `lib/amazing-shuk/shuk-routes.ts` 404 everything but the game, its API, health, the manifest, `_next`, `shuk/` and `map/`.
+  - `app/page.tsx` also redirects to the game in the Shuk build. The first test build served the Memory Protocol at `/shuk`, because the proxy matcher missed the bare root; it is now fixed in both places and smoke-tested.
+- **Gate:**
+  - `lib/amazing-shuk/shuk-access.ts`: "app" needs the Shuk build, production, `SHUK_APP=1` and Host equal to `SHUK_PUBLIC_ORIGIN`'s host.
+  - In app mode, `participant-http.ts` checks Origin against the configured origin and sets the cookie `Secure; HttpOnly; SameSite=Strict; Path=/shuk/`.
+  - New page `app/amazing-shuk/page.tsx`. `IndexWaterTask` takes `mode`; app mode hides the development panel and uses draft player wording (`TODO(copy)`).
+  - `scripts/shuk-invite.ts` has an app mode: https public origin only.
+- **Image and deploy:**
+  - The Dockerfile takes `DORI_APP`, adds `/data` owned by `node`, and copies the invite script and the store sources to `/app/tools` (Shuk build only).
+  - New `deploy/shuk-compose.yml`, with the same hardening as the game.
+  - `deploy.sh shuk` smoke-checks with Host headers, including a loopback 404 and "the root isn't the Memory Protocol".
+  - `/game-verify` accepts `shuk`.
+- **Caddy:**
+  - The `doriisrael.com` block now has `@shuk path /shuk /shuk/*` → `dori-shuk:3000`, with noindex; everything else still goes to `dori-site`.
+  - Backup: `/root/projects/Tour-Tech/caddy/dori.caddy.bak-20261025`. It was validated in a throwaway container and in `revivo-caddy-1`, then applied with `caddy reload`.
+  - `Tour-Tech/caddy/` is untracked in its own repo.
+  - **Rollback:** copy the backup over `dori.caddy` and reload.
+- **Verified live:**
+  - `/` returns 200 (placeholder unchanged); `/shuk` and `/shuk/amazing-shuk` return 200 (title "The Amazing Shuk", `x-robots-tag` noindex).
+  - The API without a session returns 401; `/shuk/dev/map` and `/shuk/api/sessions` return 404.
+  - `trip.` and `app.` still return 401.
+  - `dori-game` is untouched; its image was rebuilt as `dori-game:test` and smoke-tested (the Shuk returns 404 there).
+- **Tests:** `test:shuk` 138/138 (new `shuk-app.test.ts`: prefixes, the gate, the route allowlist, app-mode HTTP and cookies, the invite script). `npm test` 61/61. tsc and ESLint are clean.
+- **Invitations:** guide plus Michael (player-4), Ellen (player-5) and Staci (player-6), in `.local/amazing-shuk/public-invite-links.md` (chmod 600, git-ignored). The owner sends them through Workspace.
+- **Housekeeping:**
+  - Disk reached 85% during a build. With the owner's OK I removed the pre-fix `dori-shuk:test`, the oldest `dori-game` release image and all build cache. Disk was 79–80% afterwards.
+  - The owner's `docs/RUN_PREVIEW.md` edit was stashed for the deploy and restored.
+- **Open:**
+  - The roles in the new store are the defaults (player-1 and player-2, not invited): the guide must reassign them.
+  - No backups.
+  - No display names.
+  - Nothing tested on a real phone.
+  - `/security-review` is still recommended.
+  - The API route is still named `/api/amazing-shuk/dev`.
+  - These doc updates are not yet committed.
+
+## Earlier handoff - mission 6, Marzipan Bakery, "The Sweet Secret of Marzipan", 25 Oct 2026
 
 **Not committed** (owner asked for no commit, push or deploy). The owner's brief: a 3–5 minute bakery stop at 44 Agripas Street on rugelach, the syrup, the name, the New York shipping and babka.
 

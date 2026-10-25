@@ -32,6 +32,13 @@
 
 - Mural reuse and alteration rights remain unresolved; do not build a mural image task until cleared.
 
+- **Protected Shuk app (approved 25 Oct 2026):**
+  - Address: `https://doriisrael.com/shuk`, with no DNS change.
+  - Gate: the app's own single-use invitation links only, with no Caddy password.
+  - Its own image (`dori-shuk`), container, data volume and prefix, built from this repo.
+  - The owner approved the commit, push, deploy, Caddy route and invitations for three friends (players 4–6).
+  - This is the "separate protected app boundary" the earlier rules waited for.
+
 - **Stitch visual direction (approved 25 Oct 2026):**
   - The owner's Stitch mockups (`docs/design/stitch-reference/`) set the look of the Shuk screens. They are a layout reference only: their copy and features are not approved.
   - Where they conflict with the decisions in this file, these decisions win.

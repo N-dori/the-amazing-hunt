@@ -43,7 +43,7 @@ Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/
 - Committed and pushed on 25 Oct:
   - Mission 4, the Montefiore gate (three languages; optional bonus, the year תרמ"ב hidden in בתמר).
   - Mission 5, Rabbi Aryeh Levin and Olei HaGardom (untimed, no hints; bonus at the Kramer-Rechtman plaque).
-- Not committed (25 Oct): mission 6, Marzipan Bakery: a name guess, two scored questions in a row (the new `followUps`), the New York bonus, a babka conversation and an Explore Food Rewards button. Sources, drafts and open decisions are in the top handoff entry.
+- Committed and pushed on 25 Oct (`fbd9fad`), and live in the Shuk app: mission 6, Marzipan Bakery: a name guess, two scored questions in a row (the new `followUps`), the New York bonus, a babka conversation and an Explore Food Rewards button. Sources, drafts and open decisions are in the top handoff entry.
 - Committed and pushed on 25 Oct, the Stitch design's first slice: the owner's Stitch mockups are in `docs/design/stitch-reference/` (untracked, the owner's), as a layout reference only. Built so far:
   - Plex Serif headings and Stitch surface tokens;
   - Thumbs avatars in a round frame;
@@ -51,6 +51,7 @@ Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/
   - the map as a rounded card;
   - the mission preview overlapping the map, with View Location always in view;
   - the location view as cards, with food tokens (no points) under Open Challenge.
+- **Live since 25 Oct (`fbd9fad`):** the protected Shuk app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Deploy with `deploy/deploy.sh shuk`. Production invitations come from `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <id> https://doriisrael.com`; write them to `.local/`, never print them. Michael, Ellen and Staci are players 4–6.
 - All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
 
 To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404. The dev server writes the repo's `.next/`: don't delete it while `shuk-dev` runs. Invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`.

@@ -42,4 +42,13 @@
 
 ## Boundary and how to run
 
-The Shuk page and API are development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. `lib/base-path.ts` remains the only source of the `/memory-protocol` prefix.
+**Live, protected app (25 Oct 2026):**
+- `https://doriisrael.com/shuk` runs in container `dori-shuk` (image `dori-shuk:current`, compose `deploy/shuk-compose.yml`, data on volume `dori-shuk_shuk_data` at `/data/state.json`). It is built from this repo with `DORI_APP=shuk`.
+- It answers only on Host `doriisrael.com`; `proxy.ts` 404s every Memory Protocol page and API.
+- Access is by single-use invitation only: no password, no indexing (`X-Robots-Tag`).
+- Deploy: `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`.
+- Invitations: `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <guide|player-N> https://doriisrael.com`. Redirect them into `.local/` and never print them.
+- Its state started empty, so the roles are the defaults (player-1 and player-2) until the guide reassigns them.
+- No backups yet. Copy the state with `docker exec dori-shuk cat /data/state.json > <backup>`.
+
+**Local simulation:** the dev page and API stay development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. `lib/base-path.ts` is the only source of both prefixes (`/memory-protocol`, and `/shuk` in the Shuk build).
