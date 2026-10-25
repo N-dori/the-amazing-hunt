@@ -4,7 +4,7 @@ import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
+import { mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { groupParticipants, isValidNames, setDisplayName, type ParticipantNames } from "./participant-names.ts";
 import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
@@ -89,16 +89,36 @@ async function load(path: string): Promise<Database> {
   return db;
 }
 
-/** A filesystem lock serializes CLI and HTTP writers. Atomic rename publishes whole snapshots.
- * A crashed writer leaves a lock: recover manually with the server stopped, never steal a live lock.
+/** A real write holds the lock for milliseconds; a lock older than this was left by a writer that was killed mid-write. */
+export const STALE_LOCK_MS = 10_000;
+const busy = () => new AccessError("Storage busy; retry the same action.", 503);
+
+/**
+ * Takes the write lock (a directory, created atomically). A crashed writer (out of memory, docker kill, reboot) leaves its lock
+ * on the data volume, where a restart doesn't clear it; such a lock is moved aside once and the write goes ahead. A lock younger
+ * than STALE_LOCK_MS is a live writer: the caller gets "busy" and its queued action retries. Security review, 25 Oct 2026.
  */
+async function acquireLock(lock: string, now: number): Promise<void> {
+  try { await mkdir(lock); return; } catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
+  let age: number;
+  try { age = now - (await stat(lock)).mtimeMs; } catch (error) {
+    // Released between the two calls: one more try.
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    try { await mkdir(lock); return; } catch { throw busy(); }
+  }
+  if (age < STALE_LOCK_MS) throw busy();
+  // Rename is atomic: if two writers find the same stale lock, only one moves it; the other reports busy.
+  const aside = lock + ".stale-" + secret();
+  try { await rename(lock, aside); } catch { throw busy(); }
+  await rm(aside, { recursive: true, force: true });
+  try { await mkdir(lock); } catch { throw busy(); }
+}
+
+/** A filesystem lock serializes CLI and HTTP writers. Atomic rename publishes whole snapshots. */
 export async function transact<T>(path: string, operation: (db: Database) => T): Promise<T> {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   const lock = path + ".lock";
-  try { await mkdir(lock); } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new AccessError("Storage busy; retry the same action.", 503);
-    throw error;
-  }
+  await acquireLock(lock, Date.now());
   const temporary = path + "." + secret() + ".tmp";
   try {
     const db = await load(path);

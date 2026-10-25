@@ -1,6 +1,24 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - real display names, kept out of git, 25 Oct 2026
+## Latest handoff - security review fixes: stale lock recovery and security headers, 25 Oct 2026
+
+A manual security review of the live Shuk app (the `/security-review` skill failed: no `origin/HEAD`) found no way in for outsiders. Two findings were fixed at the owner's request.
+
+1. **A stale write lock froze the game.**
+   - Reproduced on an isolated copy with a real volume: after a lock was left behind and the container restarted, every sign-in and action returned 503.
+   - Fix: `participant-store.ts` `acquireLock`. A lock older than `STALE_LOCK_MS` (10 s; real writes take milliseconds) is renamed aside atomically and the write proceeds. A younger lock still reports busy.
+   - Test in `participant-store.test.ts`.
+2. **Missing security headers.**
+   - `next.config.ts` sets `poweredByHeader: false`.
+   - The Caddy `@shuk` handle adds HSTS (1 year, no subdomains), `frame-ancestors 'none'` plus `X-Frame-Options DENY`, `nosniff`, and a default `Referrer-Policy` (`?`, so the API's `no-referrer` is kept). It also strips `X-Powered-By`.
+   - Caddy backup: `dori.caddy.bak-20261025-headers`.
+
+Not fixed, recorded as low:
+- The Shuk shares the `doriisrael.com` origin with the static placeholder.
+- The state file only grows (action receipts, expired sessions).
+- No dependency audit or rate limiting was checked.
+
+## Earlier handoff - real display names, kept out of git, 25 Oct 2026
 
 The owner asked for players' real names in place of "Player 4/5/6".
 

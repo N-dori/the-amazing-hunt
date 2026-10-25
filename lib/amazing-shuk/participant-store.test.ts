@@ -319,3 +319,19 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.deepEqual(view.sharedBalance, { points: 55, foodTokens: 1, status: "Provisional local-development rewards" });
   assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions["retired-mission"], retired);
 }));
+
+test("a lock left by a crashed writer is cleared after STALE_LOCK_MS; a live writer's lock still reports busy", () => fixture(async path => {
+  const { STALE_LOCK_MS } = await import("./participant-store.ts");
+  const { utimes } = await import("node:fs/promises");
+  const lock = path + ".lock";
+  await issueInvitation(path, "player-1");
+  // A fresh lock is a writer in progress: the action is refused and will be retried.
+  await mkdir(lock);
+  await assert.rejects(issueInvitation(path, "player-2"), (error: Error & { status?: number }) => error.status === 503);
+  // The same lock, as old as one left behind by a killed process: the next write clears it and succeeds.
+  const old = new Date(Date.now() - STALE_LOCK_MS - 1_000);
+  await utimes(lock, old, old);
+  const token = await issueInvitation(path, "player-2");
+  assert.ok(await redeemInvitation(path, token));
+  await assert.rejects(readFile(lock), { code: "ENOENT" }, "the lock is released after the write");
+}));
