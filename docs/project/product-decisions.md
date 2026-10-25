@@ -1,5 +1,34 @@
 # The Amazing Shuk — Product Decisions
 
+## Food catalogue iteration 1 (owner instruction, 25 Oct 2026)
+
+Implement only the Food catalogue and tasting details: Tahini, Rugelach, Bourekas, Etrog Man drink. Show the actual group's shared balance once under Taste the Market; preserve catalogue scroll/focus, mission progress and bottom navigation. Every entry is provisional until vendor participation, exact serving, approved token cost, ingredients/dietary information, meeting point and availability are confirmed. No purchase controls, token spending, ledger, transactions or individual balances in this slice. Prefer cleared actual-serving photos, then vendor-approved photos, then licensed illustrative dish photos; text-only fallback is allowed. Record third-party authors, sources, licences and attribution. Existing Rachmo-photo prohibition remains. See [implementation and image-source record](food-catalogue.md).
+
+## Mission completion experience (owner instruction, 25 Oct 2026)
+
+After server-accepted completion, replace the active main question/answers with one shared victory presentation: celebrate, show persisted points/food tokens/hints, reveal the discovery, then offer Explore Next Mission. Return to the illustrated map without selecting a destination; retain map view and shared results. Preserve history, image credits and optional synagogue extras. Guide timing belongs inside guide-only controls, diagnostics inside Development. No new reward system, scoring/answer/role/authentication/GPS changes, retroactive awards or resets. Respect reduced motion. See [completion record](mission-completion.md).
+
+## Story and navigation refinement (owner instruction, 25 Oct 2026)
+
+Player-facing challenge stories and reveals omit administrative evidence labels, including Historical fact and repeated attribution labels. This supersedes earlier requirements to display a label on every story statement; preserve classifications/citations in metadata and documentation, natural uncertainty in prose and legally required image credits. Do not restore Source disclosures. Keep one contextual left-arrow Back to location action within challenges; Map remains in the persistent navigation. Synagogue introduction is one continuous 4–5-line story without revealing the tavern answer. Preserve answer validation, blue-sign reveal, Luna bonus and optional Eshet Chayil activity.
+
+Use the owner-supplied generated family illustration as fictional atmosphere only, with the exact visible caption “Illustrative reconstruction — not an archival photograph.” No fictional subject is identified as an actual Armoza family member. New faces do not clear an archival photograph's reuse rights. Preserve original source/rights records; see [synagogue UX and artwork record](synagogue-story-ux.md).
+
+## Separate Gan HaTut and Montefiore gateway (owner instruction, 25 Oct 2026)
+
+Keep Gan HaTut's existing well ID, cistern destination and all progress/rewards; do not use the Montefiore gate photo there. The gateway is a separate mission at the historic Agripas entrance with its own photograph, short story, arrival and staged language/year challenge. Require Hebrew/English/Arabic first, then decipher the date for expected Gregorian year 1883; one mission-completion award after both. Preserve existing records and roles. No invented precise map/GPS positions: flag absent placement for owner review and never copy garden GPS. Primary online reference photo confirms תרמ״ג/לפ״ק; avoid claiming a Hebrew year maps to only one Gregorian year. Existing photo credits/source metadata remain; no Source disclosure, research deletion or production deployment.
+
+
+## Location arrival and player story sources (owner instruction, 25 Oct 2026)
+
+One recognition passage per location; GPS remains optional and Open Challenge always available. Once shared arrival is confirmed, replace GPS/confirmation actions with the compact result and actual recorded arrival points. Guide-only confirmation stays in existing authenticated guide controls. Preserve thresholds, coordinates, rewards and journey. Hide historical story Source disclosures on player screens, preserving short stories, evidence classifications, original Hebrew and references in metadata/documentation. Photograph attribution is separate and must remain visible/accessibly credited wherever its license requires; unresolved image rights remain unresolved.
+
+
+## Role selection priority and MVP (owner instruction, 25 Oct 2026)
+
+Role selection precedes additional missions. Keep exactly one group and existing identities/role assignments. Participants volunteer as themselves for navigator and/or answer-submitter; volunteering never replaces a confirmed holder or grants privileges. Authenticated guide confirms or assigns directly, and can change assignments at any time. The same participant may hold both roles. Participants may withdraw candidacy or explicitly step down from their own responsibility; logout leaves group assignment intact. Guide remains a separate authenticated authority. With no answer-submitter, only guide may finalize official answers. No role change resets progress, points, tokens or identities. Use compact Group controls and current avatars/nicknames, existing JSON locking/persistence and server authorization; no voting, timers or new authentication system. New wording remains draft for owner acceptance. See latest shared handoff for verified behavior and browser acceptance limits.
+
+
 **Purpose:** Owner-approved decisions that govern implementation. Updated 24 Oct 2026.
 
 ## Approved: one shared group

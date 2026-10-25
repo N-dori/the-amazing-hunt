@@ -1,0 +1,10 @@
+.roles { display: grid; gap: .75rem; color: var(--ink); }
+.roles h3, .role h4 { margin: 0; font-weight: 500; }
+.roles summary { min-height: 3rem; padding-block: .75rem; cursor: pointer; color: var(--sumac); }
+.roles summary:focus-visible { outline: 2px solid var(--sumac); outline-offset: 3px; }
+.draft { margin: 0; font-size: .875rem; }
+.role { display: grid; gap: .75rem; padding-block: 1rem; border-block-start: 1px solid var(--neutral-line); }
+.role p { margin: 0; }
+.candidates { display: grid; gap: .75rem; list-style: none; margin: 0; padding: 0; }
+.candidates li { display: grid; gap: .5rem; min-width: 0; }
+.select { min-height: 3rem; width: 100%; padding: .5rem; font: inherit; color: var(--ink); background: var(--chalk); border: 1px solid var(--neutral-line); }

@@ -1,0 +1,7 @@
+.task { display: grid; gap: 1rem; color: var(--ink); margin-block: 1rem; overflow-wrap: anywhere; }
+.task h3, .task h4, .task p { margin: 0; line-height: 1.5; }
+.task form { display: grid; gap: .75rem; }
+.task input { min-height: 3rem; max-width: 100%; width: 10rem; padding: .5rem; font: inherit; border: 1px solid var(--ink); background: var(--chalk); color: var(--ink); }
+.task input:focus-visible { outline: 2px solid var(--sumac); outline-offset: 3px; }
+.task dl { display: flex; flex-wrap: wrap; gap: 1rem; }
+.task dd { margin: 0; font-weight: 500; }

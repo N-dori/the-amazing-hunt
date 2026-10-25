@@ -24,8 +24,14 @@
 .page button:focus-visible, .page select:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .page button { min-height: 3rem; }
 .journey { display: flex; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
+.back { flex-direction: row-reverse; }
+// Keyboard focus and scrollIntoView leave controls clear of the measured bottom navigation.
+.page :is(button, input, summary, [tabindex]) { scroll-margin-block: 1rem calc(var(--shuk-nav-offset) + 1rem); }
 .dev { margin-block-start: 1.5rem; color: var(--ink); }
 .dev summary { min-height: 3rem; padding-block: .75rem; font-size: .875rem; cursor: pointer; }
+.optional { margin-block: 1rem; border-block-start: 1px solid var(--neutral-line); }
+.optional summary { min-height: 3rem; padding-block: .75rem; cursor: pointer; font-size: 1.0625rem; }
+.optional summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .empty { display: grid; gap: 1rem; justify-items: start; margin-block: 1.5rem; color: var(--ink); }
 .empty h2 { font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 500; line-height: 1.2; }
 .empty p { font-size: 1.0625rem; line-height: 1.5; }

@@ -1,15 +1,22 @@
-.preview { margin-block: 1rem; padding-block: 1rem; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
-.preview h2 { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 500; line-height: 1.2; margin-block: .5rem .25rem; }
-.preview h3 { font-size: 1.0625rem; font-weight: 500; margin-block: 1.25rem .25rem; }
-.preview p { line-height: 1.5; max-width: 42rem; }
-.status { font-weight: 500; margin-block-start: 1rem; }
+.preview { display: grid; gap: .75rem; margin-block: .75rem; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+.preview h2 { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 500; line-height: 1.2; margin: 0; }
+.preview h3 { font-size: 1.0625rem; font-weight: 500; margin: .25rem 0 0; }
+.preview p { line-height: 1.5; max-width: 42rem; margin: 0; }
+.status { font-weight: 500; }
 .hebrew { font-size: 1.125rem; }
-.area { margin-block-end: 1rem; }
-// The whole photo, never cropped: tall phone shots are capped by height so the text below stays in reach.
-.photo { display: block; width: auto; max-width: min(100%, 42rem); height: auto; max-height: 60svh; object-fit: contain; margin-block: .5rem 1rem; border-radius: .25rem; }
-.photoGap { padding: 1rem; margin-block: .5rem 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
-.landmarks { padding-inline-start: 1.25rem; max-width: 42rem; line-height: 1.5; }
-.landmarks li { margin-block: .25rem; }
-.arrival { margin-block: 1.5rem; padding-block: 1rem; border-block: 1px solid var(--neutral-line); }
-.success { padding: 1rem; background: var(--chalk); border-inline-start: .25rem solid var(--zaatar); }
-.preview button { margin-block: .5rem; max-width: 100%; }
+.area { font-size: 1.0625rem; }
+// Preserve the full photograph while keeping orientation and the next action within reach.
+.photo, .cluePhoto { display: block; width: auto; max-width: min(100%, 42rem); height: auto; object-fit: contain; border-radius: .25rem; }
+.photo { max-height: 34svh; }
+.cluePhoto { max-height: 22svh; }
+.photoGap { font-size: 1.0625rem; }
+.arrival { display: grid; justify-items: start; gap: .5rem; font-size: 1.0625rem; }
+.preview .checkArrival { border: 1px solid var(--neutral-line); padding-inline: 1rem; text-decoration: none; }
+.success { display: flex; align-items: start; gap: .5rem; font-size: 1.0625rem; }
+.confirmationIcon { flex: 0 0 auto; width: 1.25rem; height: 1.25rem; margin-block-start: .2rem; color: var(--zaatar); }
+// Normal-flow space stays reserved; the action sits above the measured navigation and safe area.
+.actions { position: sticky; bottom: calc(var(--shuk-nav-offset, 4rem) + .5rem); padding-block: .5rem; background: var(--chalk); }
+.preview button { min-height: 3rem; max-width: 100%; white-space: normal; }
+.preview > button { justify-self: start; }
+// Very short/zoomed screens use ordinary scrolling so sticky controls cannot consume the viewport.
+@media (max-height: 30rem) { .actions { position: static; } }

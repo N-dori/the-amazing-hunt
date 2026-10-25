@@ -1,12 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { createElement, type ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
 import { buildWaterTaskView, INITIAL_WATER_INTERACTION } from "./water-task-view.ts";
+import { MISSION_VICTORY, WELL_DISCOVERY } from "./mission-completion.ts";
 import { WATER_TASK } from "./water-task.ts";
 import { EMPTY_WATER_CUPS } from "./water-measurement.ts";
 
@@ -21,6 +22,8 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
     if (id.endsWith(".scss")) return { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) };
     if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx") };
     if (id === "@/components/icons") return { Icon: () => null };
+    if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
+    if (id.startsWith("./")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx")) };
     return nativeRequire(id);
   };
   new Function("require", "exports", output)(localRequire, exports);
@@ -28,7 +31,7 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
   return exports.default;
 }
 const Preview = loadComponent("components/amazing-shuk/dev/PreviewWaterTask.tsx");
-const callbacks = { onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
+const callbacks = { victory: MISSION_VICTORY, discovery: WELL_DISCOVERY, onExplore() {}, onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
 
 test("participant rendering has explicit start but no timer/countdown or live score", () => {
   for (const started of [false, true]) {
@@ -45,6 +48,8 @@ test("participant sees earned achievements only after official completion", () =
   const reward = { points: 75, foodTokens: 2, hintsUsed: 2 };
   const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: buildWaterTaskView(cups, true, "answerSubmitter", false), performance: { started: true, hintsUsed: 2, canStart: true, reward }, narrative: [], hints: [], hasMoreHints: false }));
   assert.match(html, /Challenge completed!/);
+  assert.match(html, /Explore Next Mission/);
+  assert.doesNotMatch(html, /Fill your family|Reset puzzle|Submit Group Answer|Need a hint|<meter|aria-pressed/);
   assert.match(html, /<dt>Points earned<\/dt><dd>75<\/dd>/);
   assert.match(html, /<dt>Food tokens earned<\/dt><dd>2<\/dd>/);
   assert.match(html, /<dt>Hints used<\/dt><dd>2<\/dd>/);
@@ -52,18 +57,20 @@ test("participant sees earned achievements only after official completion", () =
 });
 
 
-test("Hebrew-first brief stays concise; production renders English and citations without Hebrew", () => {
+test("Hebrew-first brief retains natural attribution and evidence metadata without player labels", () => {
   const Story = loadComponent("components/amazing-shuk/dev/PreviewWellStory.tsx");
   assert.equal(WATER_TASK.story.paragraphs.length, 4);
+  assert.ok(WATER_TASK.story.originalHebrew.length > 0);
   assert.ok(WATER_TASK.story.paragraphs.join(" ").split(/\s+/).length <= 40);
   for (const showOriginalHebrew of [false, true]) {
     const html = renderToStaticMarkup(createElement(Story, { ...WATER_TASK.story, instruction: WATER_TASK.instruction, open: true, onToggle() {}, showOriginalHebrew }));
     assert.match(html, /punishment or honor/);
     assert.match(html, /children longed for the cleaning job/);
-    assert.match(html, /Attributed tradition/);
-    assert.match(html, /HE_trans.txt/);
-    assert.equal(html.includes('lang="he"'), showOriginalHebrew);
-    assert.equal(html.includes("Source and original Hebrew"), showOriginalHebrew);
-    assert.equal(/[\u0590-\u05ff]/.test(html), showOriginalHebrew);
+    assert.doesNotMatch(html, /Attributed tradition/); assert.match(html, /According to the local account/);
+    assert.match(WATER_TASK.story.source, /HE_trans.txt/);
+    assert.doesNotMatch(html, /HE_trans.txt|<cite|Source/);
+    assert.equal(html.includes('lang="he"'), false);
+    assert.equal(html.includes("Source and original Hebrew"), false);
+    assert.equal(/[\u0590-\u05ff]/.test(html), false);
   }
 });

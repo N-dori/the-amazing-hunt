@@ -1,3 +1,4 @@
+import { applyGatewayAction, emptyGatewayProgress, validGatewayProgress, type GatewayProgress } from "./gateway-progress.ts";
 import { ARRIVAL_NEARBY, checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
@@ -6,7 +7,7 @@ import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measu
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
-import { roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { EMPTY_ROLE_CANDIDATES, roleForParticipant, setGroupRole, type GroupRoleAssignments, type GroupRoleCandidates } from "./roles.ts";
 import { dirname, resolve } from "node:path";
 import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
@@ -17,13 +18,13 @@ type Credential = { participantId: string; expiresAt: number };
  * `kind` follows the mission's challenge: the well keeps cups, a "choose N" challenge keeps the group's picks.
  */
 type MissionRecord = { completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance; bonus?: BonusRecord }
-  & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[] });
+  & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[] } | { kind: "gateway"; gateway: GatewayProgress });
 /** An optional bonus question's shared picks and its one-time points, recorded once and never changed. */
 type BonusRecord = { selected: string[]; award: { points: number; awardedAt: number } | null };
 const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 /** Schema 4 and earlier held a single mission: the well. */
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
-type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
+type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; roleCandidates?: GroupRoleCandidates; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
@@ -32,9 +33,10 @@ const hash = (token: string) => createHash("sha256").update(token).digest("hex")
 const secret = () => randomBytes(32).toString("base64url");
 function emptyMission(definition: MissionDefinition): MissionRecord {
   const base = { completed: false, arrival: null, performance: createWaterPerformance(), ...(definition.bonus ? { bonus: EMPTY_BONUS } : {}) };
+  if (definition.challenge.kind === "gateway") return { ...base, kind: "gateway", gateway: emptyGatewayProgress() };
   return definition.challenge.kind === "water" ? { ...base, kind: "water", cups: EMPTY_WATER_CUPS } : { ...base, kind: "choice", selected: [] };
 }
-const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
+const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.kind === "gateway" ? record.gateway.stage === "languages" && record.gateway.selected.length === 0 : record.selected.length === 0;
 function initial(): Database {
   return { version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} };
 }
@@ -42,7 +44,7 @@ function isValidMission(record: MissionRecord): boolean {
   if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
   if (record.bonus !== undefined && !(record.bonus && Array.isArray(record.bonus.selected) && record.bonus.selected.every(id => typeof id === "string")
     && (record.bonus.award === null || (Boolean(record.bonus.award) && Number.isSafeInteger(record.bonus.award.points) && record.bonus.award.points >= 0)))) return false;
-  return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string");
+  return record.kind === "water" ? isValidCups(record.cups) : record.kind === "gateway" ? validGatewayProgress(record.gateway) && record.completed === (record.gateway.stage === "completed") : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string");
 }
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
@@ -67,6 +69,11 @@ async function load(path: string): Promise<Database> {
   }
   const db = stored as Database;
   if (!db.roles || !db.missions) throw new Error("Unsupported Shuk storage state");
+  db.roleCandidates ??= EMPTY_ROLE_CANDIDATES;
+  for (const role of ["navigator", "answerSubmitter"] as const) {
+    const candidates = db.roleCandidates[role];
+    if (!Array.isArray(candidates) || new Set(candidates).size !== candidates.length || candidates.some(id => !DEV_PARTICIPANTS.some(p => p.id === id))) throw new Error("Unsupported role candidates");
+  }
   // The first schema-5 records had no kind; they were all the well.
   for (const [id, record] of Object.entries(db.missions)) if (record && !("kind" in record)) db.missions = { ...db.missions, [id]: { ...(record as object), kind: "water" } as MissionRecord };
   if (!Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
@@ -151,10 +158,11 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const records = Object.values(db.missions);
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
+    roleCandidates: db.roleCandidates ?? EMPTY_ROLE_CANDIDATES,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
     mission: missionView(definition, record),
     session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
-      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected }),
+      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : record.kind === "gateway" ? { kind: record.kind, gateway: record.gateway } : { kind: record.kind, selected: record.selected }),
       ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
@@ -180,9 +188,22 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     const role = roleForParticipant(participantId, db.roles);
     let message = "";
     try {
-      if (action.type === "assign-role") {
+      if (action.type === "volunteer-role" || action.type === "withdraw-role" || action.type === "step-down-role") {
+        if (guide || !DEV_PARTICIPANTS.some(p => p.id === participantId)) throw new Error("Only participants may volunteer.");
+        if (action.role !== "navigator" && action.role !== "answerSubmitter") throw new Error("Unknown role");
+        const candidates = db.roleCandidates ?? EMPTY_ROLE_CANDIDATES;
+        if (action.type === "step-down-role" && db.roles[action.role] === participantId) {
+          db.roles = setGroupRole(DEV_PARTICIPANTS.map(p => p.id), db.roles, action.role, null);
+        }
+        db.roleCandidates = { ...candidates, [action.role]: action.type === "volunteer-role"
+          ? [...new Set([...candidates[action.role], participantId])]
+          : candidates[action.role].filter(id => id !== participantId) };
+        message = action.type === "volunteer-role" ? "Volunteer recorded." : action.type === "withdraw-role" ? "Volunteer withdrawn." : "Role change recorded.";
+      } else if (action.type === "assign-role") {
         if (!guide) throw new Error("Only the guide may assign roles.");
         db.roles = setGroupRole(DEV_PARTICIPANTS.map(participant => participant.id), db.roles, action.role, action.participantId);
+        const candidates = db.roleCandidates ?? EMPTY_ROLE_CANDIDATES;
+        db.roleCandidates = { ...candidates, [action.role]: candidates[action.role].filter(id => id !== action.participantId) };
         message = "Group role updated.";
       } else {
         const definition = findMission(action.missionId);
@@ -214,6 +235,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (mission.completed) throw new Error("This challenge is already complete");
           mission.performance = adjustWaterTiming(mission.performance, action.operation, now, participantId);
         } else if (action.type === "hint") {
+          if (mission.kind === "gateway" && (mission.gateway.stage !== "year" || action.stage !== "year")) throw new Error("Year hints open after the languages are confirmed");
           if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > definition.hintCount) throw new Error("Invalid hint");
           if (action.hint > mission.performance.hintsUsed) {
             if (mission.performance.startedAt === null || mission.performance.solvedAt !== null || mission.completed) throw new Error("Hints are available during the challenge");
@@ -244,8 +266,19 @@ export async function sessionAction(path: string, token: string, action: GroupAc
               : "Not quite. Talk it over and try again.";
           } else throw new Error("This action doesn't fit the bonus");
           mission.bonus = bonus;
+        } else if (mission.kind === "gateway") {
+          if (mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
+          if (action.type === "move") throw new Error("This action doesn't fit this mission");
+          if (action.type === "guide-approve" && !guide) throw new Error("Only the guide may approve a task.");
+          const result = applyGatewayAction(mission.gateway, action, action.stage);
+          mission.gateway = result.progress;
+          if (result.progress.stage === "completed" && !mission.completed) {
+            mission.performance = awardWaterPerformance({ ...mission.performance, solvedAt: now }, now, definition.rewards);
+            mission.completed = true;
+          }
+          message = result.message;
         } else if (mission.kind === "water") {
-          if (action.type === "toggle-choice") throw new Error("This action doesn't fit this mission");
+          if (action.type === "toggle-choice" || action.type === "set-gateway-year") throw new Error("This action doesn't fit this mission");
           if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
           const result = applyDevWaterAction({ roles: db.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
           if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && mission.performance.solvedAt === null) mission.performance = { ...mission.performance, solvedAt: now };
@@ -256,7 +289,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           message = result.message;
         } else {
           const challenge = choiceChallenge ?? definition.challenge as ChoiceChallenge;
-          if (action.type === "move") throw new Error("This action doesn't fit this mission");
+          if (action.type === "move" || action.type === "set-gateway-year") throw new Error("This action doesn't fit this mission");
           if (action.type === "guide-approve" && !guide) throw new Error("Only the guide may approve a task.");
           if (mission.completed) {
             if (action.type === "toggle-choice" || action.type === "reset") throw new Error("This challenge is already complete");

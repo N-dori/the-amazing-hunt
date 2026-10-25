@@ -64,6 +64,9 @@ export const MURAL_MISSION = Object.freeze({
   location: Object.freeze({
     hebrewName: "ציור הקיר של שוק מחנה יהודה",
     summary: "A large outward-facing wall painting at the edge of the market.",
+    // Owner-provided consolidated location wording, 25 Oct 2026.
+    whatToLookFor: "Find the large painted market scene near Agripas Street, at the corner of HaRav Shmuel Baruch and Sha'arei Tzedek Streets. View it safely from the pavement.",
+    detailsArea: "Mahane Yehuda, Jerusalem",
     landmarks: Object.freeze([
       "Agripas Street, near the market's southwestern edge.",
       "The corner of HaRav Shmuel Baruch St and Sha'arei Tzedek St.",

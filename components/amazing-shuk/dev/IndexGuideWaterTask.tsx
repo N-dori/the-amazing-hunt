@@ -1,29 +1,17 @@
 "use client";
-import { DEV_PARTICIPANTS } from "@/lib/amazing-shuk/dev-water-session";
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import ActionButton from "@/components/ui/ActionButton";
 import type { GuideTimingView } from "@/lib/amazing-shuk/water-performance";
-import type { GroupRoleAssignments } from "@/lib/amazing-shuk/roles";
 import styles from "./IndexGuideWaterTask.module.scss";
 
-type Props = { missionId: string; roles: GroupRoleAssignments; timing?: GuideTimingView; completed: boolean; busy: boolean; onAction: (action: GroupAction) => void };
+type Props = { missionId: string; timing?: GuideTimingView; completed: boolean; canConfirmArrival?: boolean; busy: boolean; onAction: (action: GroupAction) => void };
 /** Guide feature boundary. The server independently authorizes every callback. */
-export default function IndexGuideWaterTask({ missionId, roles, timing, completed, busy, onAction }: Props) {
+export default function IndexGuideWaterTask({ missionId, timing, completed, canConfirmArrival = false, busy, onAction }: Props) {
+  if (!canConfirmArrival && (!timing || timing.startedAt === null)) return null;
   return <section className={styles.simulation} aria-label="Guide controls">
-    <div className={styles.guideControls}>
-      <label className={styles.label} htmlFor="navigator">Assign navigator</label>
-      <select id="navigator" value={roles.navigator ?? ""} disabled={busy}
-        onChange={event => onAction({ type: "assign-role", role: "navigator", participantId: event.target.value || null })}>
-        <option value="">Unassigned</option>
-        {DEV_PARTICIPANTS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-      <label className={styles.label} htmlFor="submitter">Assign answer-submitter</label>
-      <select id="submitter" value={roles.answerSubmitter ?? ""} disabled={busy}
-        onChange={event => onAction({ type: "assign-role", role: "answerSubmitter", participantId: event.target.value || null })}>
-        <option value="">Unassigned</option>
-        {DEV_PARTICIPANTS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-      </select>
-    </div>
+    <details className={styles.timingReview}>
+      <summary>Guide controls</summary>
+      {canConfirmArrival ? <ActionButton variant="quiet" disabled={busy} onClick={() => onAction({ type: "confirm-arrival", missionId })}>Confirm Group Arrival</ActionButton> : null}
     {timing && timing.startedAt !== null ? <details className={styles.timingReview}>
       <summary>Timing review (guide)</summary>
       <p>Started: {new Date(timing.startedAt).toISOString()}</p>
@@ -38,5 +26,6 @@ export default function IndexGuideWaterTask({ missionId, roles, timing, complete
         <ActionButton variant="quiet" disabled={busy || timing.excluded} onClick={() => onAction({ type: "timing", operation: "exclude", missionId })}>Exclude timing</ActionButton>
       </div> : null}
     </details> : null}
+    </details>
   </section>;
 }

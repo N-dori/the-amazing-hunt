@@ -38,9 +38,11 @@ export const SYNAGOGUE_TASK = Object.freeze({
   story: {
     title: "THE SYNAGOGUE WITH A SECRET",
     paragraphs: [
-      { label: "Historical fact", text: "In 1925, Sephardi families from Jerusalem's Old City founded a society called Chesed VeRachamim, \"Kindness and Mercy\"." },
-      { label: "Historical fact", text: "This building became the synagogue of the Ladino-speaking Sephardi community. Around it they ran a kindergarten, soup kitchens and Mazor, a free clinic with volunteer doctors." },
-      { label: "Historical fact", text: "But before the prayers began, this building had a very different life." },
+      { label: "Historical fact", text: "In 1925, Sephardi families from the Old City founded Chesed VeRachamim: Kindness and Mercy." },
+      { label: "Historical fact", text: "This became their Ladino-speaking community's synagogue." },
+      { label: "Historical fact", text: "Their care reached beyond its walls: a kindergarten and soup kitchens," },
+      { label: "Historical fact", text: "and Mazor, a free clinic staffed by volunteer doctors." },
+      { label: "Historical fact", text: "But before the prayers, this building had another life." },
     ],
     source: `${TILE}; ${ARCHIVE}; ${SIGN}; ${TOUR}.`,
   },
@@ -56,7 +58,13 @@ export const SYNAGOGUE_TASK = Object.freeze({
       { text: "Now look for the blue heritage sign nearby. It tells the remarkable story of how this building became a synagogue." },
       { label: "Historical fact", text: "The sign says the house was built as a home and later became a pub, against the neighbourhood's rules. Yitzhak Armoza, the Sephardi community's mukhtar (local leader), had it turned into their synagogue." },
     ],
-    image: null,
+    // Owner-supplied generated atmosphere; fictional subjects, never an Armoza portrait.
+    // Provenance and unresolved archival rights remain in docs/project/synagogue-story-ux.md.
+    image: {
+      src: "/shuk/amazing_shuk_Armoza_period_family_illustration.png", width: 1312, height: 1200,
+      alt: "Period-inspired illustration of a fictional family gathered in a stone courtyard.",
+      caption: "Illustrative reconstruction — not an archival photograph.",
+    },
   },
 });
 
@@ -117,6 +125,8 @@ export const SYNAGOGUE_MISSION = Object.freeze({
   location: Object.freeze({
     hebrewName: "בית הכנסת חסד ורחמים",
     summary: "A small Sephardi synagogue at the entrance to Mazkeret Moshe, close to Agripas Street.",
+    // Existing sign/photo-based clue and existing street-view safety instruction; no new address claim.
+    whatToLookFor: "Look for a tiled panel with Hebrew lettering over the entrance, and a colourful door decorated with the symbols of the twelve tribes. Look from the street. Go inside only if you're invited, and don't disturb anyone praying.",
     landmarks: Object.freeze([
       "18 HaCarmel Street, Mazkeret Moshe.",
       "At the entrance to Mazkeret Moshe from Agripas Street.",

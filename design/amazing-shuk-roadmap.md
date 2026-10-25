@@ -1,6 +1,13 @@
 # The Amazing Shuk ? Development Roadmap
 
+**25 Oct 2026 gateway checkpoint:** The separate Montefiore gateway two-stage mission is implemented; Gan HaTut now uses the cistern image exclusively. Four missions total. Next is owner map placement/GPS and mobile/two-browser acceptance, not another mission. Gateway has a labelled entry beside the illustrated map until a pin is verified. See latest [handoff](../docs/project/agent-handoff.md) for sources, implementation and 123 Shuk / 61 Memory Protocol tests. Older counts below are historical checkpoints.
+
+
 **Checkpoint: 24 Oct 2026.** Shuk only; keep the existing Memory Protocol app separate. Follow [approved decisions](../docs/project/product-decisions.md), [current state](../docs/project/current-state.md) and [shared handoff](../docs/project/agent-handoff.md).
+
+**25 Oct 2026 completion checkpoint:** All four missions share the victory → historical discovery → Explore Next Mission presentation. A/B/C focused checks and final 129 Shuk / 61 Memory Protocol regressions pass. Scoring/progress/GPS/authentication unchanged. Browser/device acceptance remains next, alongside the existing gateway placement/field checks; no new mission. See [completion record](../docs/project/mission-completion.md).
+
+**25 Oct 2026 Food iteration 1:** Four provisional catalogue/detail entries and the real shared balance are implemented; no spending/redemption. 137 Shuk / 61 Memory Protocol tests pass. Photos remain text-only because reviewed downloads were rate-limited; see [Food record](../docs/project/food-catalogue.md). Next is owner UI/content review and confirming one tasting before a guide-redemption slice. This latest owner request takes priority over older “next task” notes below.
 
 ## Now
 

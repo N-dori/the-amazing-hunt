@@ -4,14 +4,16 @@ import { buildWaterTaskView, type WaterInteraction, type WaterActionView, type W
 import { visibleWaterHints, WATER_HINTS } from "@/lib/amazing-shuk/water-hints";
 import type { WaterCups, WaterMove, WaterSubmissionRole } from "@/lib/amazing-shuk/water-measurement";
 import PreviewWaterTask from "./PreviewWaterTask";
+import { MISSION_VICTORY, WELL_DISCOVERY } from "@/lib/amazing-shuk/mission-completion";
 type Props = {
   cups: WaterCups; completed: boolean; activeRole: WaterSubmissionRole; busy: boolean;
   interaction: WaterInteraction; performance: WaterPerformanceView;
+  onExplore: () => void;
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (action: WaterActionView["id"]) => void; onCancelPour: () => void;
   onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
 export default function ListWaterTask({ cups, completed, activeRole, busy, interaction, performance, ...callbacks }: Props) {
   return <PreviewWaterTask view={buildWaterTaskView(cups, completed, activeRole, busy, interaction, performance.started)} narrative={WATER_TASK.narrative}
-    performance={performance} hints={visibleWaterHints(performance.hintsUsed)} hasMoreHints={performance.started && !completed && cups.jar < 4 && performance.hintsUsed < WATER_HINTS.length} {...callbacks} />;
+    performance={performance} victory={MISSION_VICTORY} discovery={WELL_DISCOVERY} hints={visibleWaterHints(performance.hintsUsed)} hasMoreHints={performance.started && !completed && cups.jar < 4 && performance.hintsUsed < WATER_HINTS.length} {...callbacks} />;
 }

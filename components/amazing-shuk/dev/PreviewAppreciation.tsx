@@ -6,7 +6,6 @@ export default function PreviewAppreciation({ title, paragraphs, invitation, not
   return <section className={styles.moment} aria-labelledby="appreciation-title">
     <h3 id="appreciation-title" className={styles.title}>{title}</h3>
     {paragraphs.map(paragraph => <div key={paragraph.text}>
-      <p className={styles.label}>{paragraph.label}</p>
       <p>{paragraph.text}</p>
     </div>)}
     <p className={styles.invitation}>{invitation}</p>

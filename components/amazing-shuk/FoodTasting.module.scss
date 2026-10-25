@@ -1,0 +1,29 @@
+.list { display: grid; gap: 1.25rem; margin: 1.25rem 0; padding: 0; list-style: none; max-width: 42rem; }
+.entry { min-width: 0; padding-block-end: 1.25rem; border-block-end: 1px solid var(--neutral-line); }
+.card { display: grid; gap: 1rem; width: 100%; min-width: 0; min-height: 3rem; padding: 0; border: 0; text-align: start; background: none; color: var(--ink); font: inherit; font-size: 1.0625rem; line-height: 1.5; cursor: pointer; }
+.body { display: grid; gap: .5rem; min-width: 0; overflow-wrap: anywhere; }
+.name { font-size: clamp(1.375rem, 5vw, 1.625rem); font-weight: 500; line-height: 1.25; }
+.view { display: flex; align-items: center; gap: .5rem; color: var(--sumac); text-decoration: underline; text-underline-offset: .2em; }
+.icon { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; }
+.price { font-weight: 500; }
+.card:focus-visible, .detail h2:focus-visible { outline: 2px solid var(--ink); outline-offset: .25rem; }
+.image { display: block; max-width: 100%; width: 100%; height: auto; object-fit: contain; }
+.card .image { max-height: 14rem; }
+.credit { margin-block: .5rem 0; font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; color: var(--ink); }
+.credit a { text-decoration: underline; text-underline-offset: .15em; }
+.credit a:focus-visible { outline: 2px solid var(--ink); outline-offset: .2rem; }
+.detail { max-width: 42rem; min-width: 0; margin-block: 1rem; color: var(--ink); font-size: 1.0625rem; line-height: 1.6; overflow-wrap: anywhere; }
+.detail h2 { margin-block: 1rem .5rem; font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 500; line-height: 1.2; }
+.detail p { margin-block: .75rem; }
+.back { flex-direction: row-reverse; }
+.provisional { color: var(--sumac); }
+.figure { margin: 1rem 0; }
+.figure .image { max-height: 40svh; }
+.facts { display: grid; gap: .75rem; margin-block: 1rem; }
+.facts div { display: grid; gap: .15rem; border-block-start: 1px solid var(--neutral-line); padding-block-start: .75rem; }
+.facts dt { font-weight: 500; }
+.facts dd { margin: 0; }
+.pending { display: block; font-size: 1rem; }
+// Inherit the page's measured navigation/safe-area offset; no fixed sheet covers content.
+.list button, .detail button, .detail h2, .credit a { scroll-margin-block: 1rem calc(var(--shuk-nav-offset, 4rem) + 1rem); }
+@media (min-width: 48rem) { .card:has(.image) { grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); align-items: start; } }

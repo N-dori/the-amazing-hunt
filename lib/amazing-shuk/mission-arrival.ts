@@ -1,6 +1,7 @@
 import { WATER_TASK_ID } from "./water-measurement.ts";
 import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
 import { WATER_HINTS } from "./water-hints.ts";
+import type { GatewayChallenge } from "./montefiore-task.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
 import { WATER_TASK } from "./water-task.ts";
 
@@ -19,13 +20,13 @@ export type MissionDefinition = Readonly<{
   // `title` names the challenge; `name` names the place.
   id: string; title: string; name: string; shortName: string; neighborhood: string; clue: string;
   // What players need to recognise the place: shown in the preview (summary) and location details.
-  location: Readonly<{ hebrewName: string | null; summary: string; landmarks: readonly string[] }>;
-  // `photo` shows the place (preview and location details); `cluePhoto` shows the thing to look for, under "Look for".
+  location: Readonly<{ hebrewName: string | null; summary: string; whatToLookFor: string; detailsArea?: string; landmarks: readonly string[] }>;
+  // `photo` shows the place (preview and location details); `cluePhoto` shows the thing to look for, under "What to look for".
   photo: MissionPhoto | null; cluePhoto: MissionPhoto | null;
-  placement: Readonly<{ x: number; y: number; verified: boolean }>;
+  placement: Readonly<{ x: number; y: number; verified: boolean }> | null;
   arrival: ArrivalPolicy;
   // The challenge decides the shape of the mission's shared progress.
-  challenge: Readonly<{ kind: "water" }> | ChoiceChallenge;
+  challenge: Readonly<{ kind: "water" }> | ChoiceChallenge | GatewayChallenge;
   rewards: WaterRewardConfig; hintCount: number;
   // An optional second question, open only after the main answer is accepted; its points never include food tokens.
   bonus?: Readonly<{ challenge: ChoiceChallenge; points: number }>;
@@ -36,16 +37,18 @@ export const GAN_HATUT_MISSION = Object.freeze({
   location: Object.freeze({
     hebrewName: "גן התות",
     summary: "A public garden in the Ohel Moshe neighborhood.",
+    // Owner identifies the supplied cistern photograph as this courtyard destination (25 Oct 2026).
+    whatToLookFor: "Find the cistern within the courtyard at Gan HaTut. Look for the round opening under a glass cover.",
     landmarks: Object.freeze([
       "Inside Ohel Moshe, between Hermon, Carmel and Gilboa lanes.",
       "The Yossi Banai \"Picture in Stone\" plaque at 3 Gilboa Street.",
     ]),
   }),
-  clue: "Find Gan HaTut, the historic courtyard in the Ohel Moshe neighborhood. Look for the garden and its recognizable surroundings.",
-  // Owner's photographs, chosen 24 Oct 2026: the Montefiore Testimonial gate as the way in (cropped to leave out passers-by,
-  // originals in public/shuk/ and photo index #05) and the cistern as the thing to find. Web copies, metadata stripped.
-  photo: Object.freeze({ src: "/shuk/gan-hatut-gate.jpg", alt: "A stone archway in Ohel Moshe, under carved panels reading \"Sir Moses Montefiore Testimonial\"." }) as MissionPhoto | null,
-  cluePhoto: Object.freeze({ src: "/shuk/gan-hatut-cistern.jpg", alt: "A round cistern opening under a glass cover, set on a stone block." }) as MissionPhoto | null,
+  clue: "Find the cistern within the courtyard at Gan HaTut. Look for the round opening under a glass cover.",
+  // Owner's cistern photograph, identified as Gan HaTut by the owner on 25 Oct 2026.
+  // The gateway crop belongs exclusively to the separate Montefiore mission.
+  photo: Object.freeze({ src: "/shuk/gan-hatut-cistern.jpg", alt: "A round cistern opening under a glass cover, set on a stone block." }) as MissionPhoto | null,
+  cluePhoto: null as MissionPhoto | null,
   // Manual prototype point only. Not derived from geographic coordinates; owner review required.
   placement: Object.freeze({ x: 600, y: 650, verified: false }),
   arrival: Object.freeze({
@@ -96,14 +99,14 @@ export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoi
 /** `order` is the marker's number on the map (catalogue position), not a required route order. */
 export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number) {
   const status = mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
-  return { ...definition, status, arrivedPoints: mission.arrivalPoints,
+  return { ...definition, status, arrivedPoints: mission.arrivalPoints, arrivalConfirmed: mission.arrivalMethod !== null,
     state: mission.state, gpsEnabled: mission.gpsEnabled, marker: {
       id: mission.id, label: `${definition.shortName} - ${status}`, order,
-      x: definition.placement.x, y: definition.placement.y,
+      x: definition.placement?.x ?? 0, y: definition.placement?.y ?? 0,
       state: mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
       symbol: mission.state === "completed" ? "\u2713" : mission.state === "arrived" ? "\u25c7" : String(order),
-      provisional: !definition.placement.verified, offMap: false, size: 48 as const,
-      ariaLabel: `${definition.shortName}: ${status}.${definition.placement.verified ? "" : " Approximate marker placement."}`,
+      provisional: !definition.placement?.verified, offMap: definition.placement === null, size: 48 as const,
+      ariaLabel: `${definition.shortName}: ${status}.${definition.placement?.verified ? "" : " Approximate marker placement."}`,
     } };
 }
 export type MissionPresentation = ReturnType<typeof buildMissionPresentation>;

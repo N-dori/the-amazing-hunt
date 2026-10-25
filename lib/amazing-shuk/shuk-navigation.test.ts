@@ -1,8 +1,44 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission } from "./shuk-navigation.ts";
+import { activeTab, goToStage, goToTab, initialNavState, openFoodTasting, parseNavState, previewMission } from "./shuk-navigation.ts";
+import { FOOD_TASTING_IDS } from "./food-catalogue.ts";
+import { SHUK_MISSIONS } from "./missions.ts";
 
 const isMission = (id: string) => id === "well" || id === "mural";
+
+test("Food detail history roundtrips without changing the underlying mission; old/invalid food selections fall back to catalogue", () => {
+  const mission = goToStage(initialNavState("well"), "challenge");
+  const catalogue = goToTab(mission, "food");
+  for (const id of FOOD_TASTING_IDS) {
+    const detail = openFoodTasting(catalogue, id);
+    assert.equal(activeTab(detail), "food"); assert.equal(detail.foodId, id);
+    assert.deepEqual(detail.openMission, mission.openMission);
+    assert.deepEqual(parseNavState(JSON.parse(JSON.stringify(detail)), isMission), detail);
+    assert.deepEqual(goToTab(detail, "food"), catalogue);
+    assert.deepEqual(goToTab(detail, "mission"), mission);
+  }
+  assert.equal(openFoodTasting(catalogue, "fake"), catalogue);
+  assert.deepEqual(parseNavState({ ...catalogue, foodId: "fake" }, isMission), catalogue);
+  assert.deepEqual(parseNavState(catalogue, isMission), catalogue);
+});
+
+test("every mission returns from challenge to its location and through persistent tabs without mutating history", () => {
+  for (const mission of SHUK_MISSIONS) {
+    const challenge = goToStage(previewMission(initialNavState(mission.id), mission.id), "challenge");
+    const original = structuredClone(challenge);
+    const location = goToStage(challenge, "location");
+    assert.equal(location.missionId, mission.id);
+    assert.equal(location.stage, "location");
+    assert.equal(activeTab(location), "mission");
+    for (const tab of ["map", "food", "group"] as const) {
+      const returned = goToTab(goToTab(challenge, tab), "mission");
+      assert.deepEqual(returned, challenge);
+    }
+    assert.deepEqual(goToTab(goToTab(location, "map"), "mission"), location);
+    assert.deepEqual(challenge, original);
+    assert.deepEqual(parseNavState(JSON.parse(JSON.stringify(challenge)), id => id === mission.id), challenge);
+  }
+});
 
 test("Mission tab before any mission is opened shows the empty state; Map stays the active journey tab", () => {
   const start = initialNavState("well");

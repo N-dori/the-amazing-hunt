@@ -2,7 +2,8 @@
 // (set on the page), which sticky sheets and submit bars use so they sit just above it.
 .bar { position: fixed; inset-inline: 0; inset-block-end: 0; z-index: 1050; padding-block-end: env(safe-area-inset-bottom); border-block-start: 1px solid var(--ink); background: var(--chalk); }
 .list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 54rem; margin-inline: auto; padding: 0; list-style: none; }
-.tab { position: relative; display: grid; justify-items: center; align-content: center; gap: .125rem; width: 100%; height: 4rem; padding: .25rem; border: 0; background: none; color: var(--ink); font: inherit; font-size: .8125rem; font-weight: 500; letter-spacing: .02em; cursor: pointer; }
+.tab { position: relative; display: grid; justify-items: center; align-content: center; gap: .125rem; width: 100%; min-height: 4rem; height: 100%; padding: .25rem; border: 0; background: none; color: var(--ink); font: inherit; font-size: .8125rem; font-weight: 500; letter-spacing: .02em; cursor: pointer; }
+.tab span { overflow-wrap: anywhere; }
 .tab:hover { background: var(--chalk-tint); }
 .tab:focus-visible { outline: 2px solid var(--amber); outline-offset: -4px; }
 // Active: Sumac text and icon with a bar along the top edge, so it doesn't rest on colour alone.

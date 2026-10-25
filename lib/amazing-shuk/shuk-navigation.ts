@@ -1,3 +1,5 @@
+import { isFoodTastingId, type FoodTastingId } from "./food-catalogue.ts";
+
 /** The four bottom-bar destinations. Map and Mission reuse the mission journey's stages; Food and Group are their own views. */
 export type ShukTab = "map" | "mission" | "food" | "group";
 export type JourneyStage = "map" | "preview" | "location" | "challenge";
@@ -11,6 +13,7 @@ export type ShukNavState = Readonly<{
   area: "journey" | "noMission" | "food" | "group";
   stage: JourneyStage; missionId: string;
   openMission: Readonly<{ id: string; screen: MissionScreen }> | null;
+  foodId?: FoodTastingId;
 }>;
 
 export const initialNavState = (missionId: string): ShukNavState => ({ area: "journey", stage: "map", missionId, openMission: null });
@@ -28,14 +31,20 @@ export function previewMission(state: ShukNavState, missionId: string): ShukNavS
 
 /** A bottom-bar tap. It never changes shared progress; it only chooses what's on screen. */
 export function goToTab(state: ShukNavState, tab: ShukTab): ShukNavState {
+  const next = { ...state };
+  delete next.foodId;
   switch (tab) {
-    case "map": return { ...state, area: "journey", stage: "map" };
+    case "map": return { ...next, area: "journey", stage: "map" };
     case "mission": return state.openMission
-      ? { ...state, area: "journey", stage: state.openMission.screen, missionId: state.openMission.id }
-      : { ...state, area: "noMission" };
-    case "food": return { ...state, area: "food" };
-    case "group": return { ...state, area: "group" };
+      ? { ...next, area: "journey", stage: state.openMission.screen, missionId: state.openMission.id }
+      : { ...next, area: "noMission" };
+    case "food": return { ...next, area: "food" };
+    case "group": return { ...next, area: "group" };
   }
+}
+
+export function openFoodTasting(state: ShukNavState, id: string): ShukNavState {
+  return isFoodTastingId(id) ? { ...state, area: "food", foodId: id } : state;
 }
 
 export function activeTab(state: ShukNavState): ShukTab {
@@ -54,5 +63,6 @@ export function parseNavState(value: unknown, isMission: (id: string) => boolean
   const open = v.openMission as Record<string, unknown> | null | undefined;
   const openMission = open && typeof open.id === "string" && isMission(open.id) && (open.screen === "location" || open.screen === "challenge")
     ? { id: open.id, screen: open.screen as MissionScreen } : null;
-  return { area: v.area as ShukNavState["area"], stage: v.stage as JourneyStage, missionId: v.missionId, openMission };
+  return { area: v.area as ShukNavState["area"], stage: v.stage as JourneyStage, missionId: v.missionId, openMission,
+    ...(v.area === "food" && isFoodTastingId(v.foodId) ? { foodId: v.foodId } : {}) };
 }

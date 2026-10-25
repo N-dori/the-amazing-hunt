@@ -1,6 +1,8 @@
 ﻿export type AssignableGroupRole = "navigator" | "answerSubmitter";
 export type ParticipantRole = AssignableGroupRole | "navigatorAndAnswerSubmitter" | "follower";
 export type GroupRoleAssignments = Readonly<{ navigator: string | null; answerSubmitter: string | null }>;
+export type GroupRoleCandidates = Readonly<Record<AssignableGroupRole, readonly string[]>>;
+export const EMPTY_ROLE_CANDIDATES: GroupRoleCandidates = { navigator: [], answerSubmitter: [] };
 
 function assertValidRoster(participantIds: readonly string[], roles: GroupRoleAssignments): void {
   if (participantIds.some((id) => typeof id !== "string" || id.trim().length === 0)) throw new Error("participant IDs must be non-empty strings");

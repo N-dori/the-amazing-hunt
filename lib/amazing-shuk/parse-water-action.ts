@@ -9,6 +9,11 @@ const BONUS_ACTIONS: ReadonlySet<string> = new Set(["toggle-choice", "reset", "s
 
 /** Role changes are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
 export function parseAction(value: unknown): GroupAction | null {
+  if (isRecord(value) && "stage" in value) {
+    if ((value.stage !== "languages" && value.stage !== "year") || "part" in value || !["toggle-choice", "set-gateway-year", "submit", "guide-approve", "reset", "hint"].includes(value.type as string)) return null;
+    const action = parseMissionAction(value);
+    return action && "missionId" in action ? { ...action, stage: value.stage } as GroupAction : null;
+  }
   if (!isRecord(value) || !("part" in value)) return parseMissionAction(value);
   if (value.part !== "bonus" || !BONUS_ACTIONS.has(value.type as string)) return null;
   const action = parseMissionAction(value);
@@ -16,6 +21,13 @@ export function parseAction(value: unknown): GroupAction | null {
 }
 
 function parseMissionAction(value: unknown): GroupAction | null {
+  if (isRecord(value) && value.type === "set-gateway-year") {
+    return typeof value.missionId === "string" && typeof value.answer === "string" && /^[0-9]{0,4}$/.test(value.answer)
+      ? { type: value.type, missionId: value.missionId, answer: value.answer } : null;
+  }
+  if (isRecord(value) && (value.type === "volunteer-role" || value.type === "withdraw-role" || value.type === "step-down-role")) {
+    return value.role === "navigator" || value.role === "answerSubmitter" ? { type: value.type, role: value.role } : null;
+  }
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
   }

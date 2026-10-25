@@ -4,14 +4,19 @@ import ActionButton from "@/components/ui/ActionButton";
 import type { WaterTaskView, WaterActionView, WaterContainerId } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterMove } from "@/lib/amazing-shuk/water-measurement";
 import styles from "./PreviewWaterTask.module.scss";
+import type { MissionDiscovery, MissionVictoryCopy } from "@/lib/amazing-shuk/mission-completion";
+import PreviewMissionVictory from "./PreviewMissionVictory";
+import PreviewMissionDiscovery from "./PreviewMissionDiscovery";
 type Props = {
   view: WaterTaskView; performance: WaterPerformanceView; narrative: readonly string[];
+  victory: MissionVictoryCopy; discovery: MissionDiscovery; onExplore: () => void;
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (id: WaterActionView["id"]) => void; onCancelPour: () => void;
   onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
-export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewWaterTask({ view, performance, narrative, victory, discovery, onExplore, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
+  if (view.completed) return <PreviewMissionVictory {...victory} reward={performance.reward} onExplore={onExplore}><PreviewMissionDiscovery {...discovery} /></PreviewMissionVictory>;
   return <section className={styles.task} aria-labelledby="water-task-title">
     <div className={styles.taskIntro}>
       <p className={styles.evidenceLabel}>Fiction · Puzzle scenario</p>
@@ -44,14 +49,6 @@ export default function PreviewWaterTask({ view, performance, narrative, hints, 
         <meter className="srOnly" min={0} max={container.capacity} value={container.amount} aria-label={container.label} aria-valuetext={`${container.amount} of ${container.capacity} liters`}>{container.amount} of {container.capacity} liters</meter>
       </figure>)}
     </div>
-    {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
-      <h3>Challenge completed!</h3>
-      {performance.reward ? <dl className={styles.reward}>
-        <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
-        <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
-        <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
-      </dl> : null}
-    </section> : null}
     {view.status && !view.completed ? <p id="water-puzzle-status" tabIndex={-1} className={styles.success} role="status" aria-live="polite">{view.status}</p> : null}
     <div className={styles.contextControls}>
       {view.prompt ? <p id="water-controls-heading" tabIndex={-1} className={styles.prompt} aria-live="polite">{view.prompt}</p> : null}

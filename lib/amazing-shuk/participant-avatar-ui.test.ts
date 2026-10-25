@@ -128,9 +128,9 @@ test("Group tab lists everyone with roles and marks you; progress and balance co
   assert.doesNotMatch(html, /Sign out|<select/);
 });
 
-test("Food tab shows the shared token balance and a marked draft gap, never invented offers", () => {
+test("compact Food header shows only the supplied shared token balance", () => {
   const Food = loadComponent("components/amazing-shuk/PreviewFoodRewards.tsx");
   const html = text(createElement(Food, { foodTokens: 3 }));
-  assert.match(html, /<strong>3<\/strong>/); assert.match(html, /aren't confirmed yet|aren&#x27;t confirmed yet/); assert.match(html, /Draft/);
+  assert.match(html, /<strong>3<\/strong>/); assert.match(html, /Group food tokens/);
   assert.doesNotMatch(html, /₪|shekel|falafel|hummus|redeem now/i);
 });

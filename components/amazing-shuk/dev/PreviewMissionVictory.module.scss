@@ -1,0 +1,11 @@
+.victory { color: var(--ink); max-width: 42rem; margin-block: 1rem; padding-block-start: 1.25rem; border-block-start: .2rem solid var(--sumac); animation: arrive 240ms ease-out; }
+.title { color: var(--sumac); font-size: clamp(1.75rem, 7vw, 2.5rem); font-weight: 500; line-height: 1.15; margin: 0; scroll-margin-block-start: 1rem; }
+.title:focus-visible { outline: 2px solid var(--ink); outline-offset: .25rem; }
+.summary { font-size: 1.125rem; line-height: 1.6; margin-block: .75rem 0; }
+.rewards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding-block: 1rem; margin-block: 1rem; border-block: 1px solid var(--neutral-line); }
+.rewards div { display: flex; flex-direction: column; gap: .375rem; min-width: 0; }
+.rewards dt { font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+.rewards dd { font-size: clamp(1.5rem, 6vw, 2rem); font-weight: 500; line-height: 1.2; margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.victory .explore { width: 100%; min-width: 0; min-height: 3.5rem; margin-block: 1.25rem .5rem; white-space: normal; scroll-margin-block-end: calc(var(--shuk-nav-offset, 4rem) + 1rem); }
+@keyframes arrive { from { opacity: .4; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .victory { animation: none; } }
