@@ -7,3 +7,10 @@ research
 README.md
 .claude
 CLAUDE.md
+# Owner originals are left untracked in public/shuk/; only the app's web copies may enter the image.
+public/shuk/*
+!public/shuk/gan-hatut-cistern.jpg
+!public/shuk/gan-hatut-gate.jpg
+!public/shuk/mural-before.jpg
+!public/shuk/mural-street.jpg
+!public/shuk/synagogue-facade.jpg
