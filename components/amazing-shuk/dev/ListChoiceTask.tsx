@@ -13,6 +13,6 @@ type Props = {
 export default function ListChoiceTask({ task, challenge, selected, completed, activeRole, busy, performance, ...rest }: Props) {
   const hints = task.hints.slice(0, Math.max(0, Math.min(task.hints.length, performance.hintsUsed)));
   return <PreviewChoiceTask view={buildChoiceTaskView(challenge, selected, completed, activeRole, busy, performance.started)}
-    question={task.question} performance={performance} reveal={task.reveal} hints={hints}
+    question={task.question} performance={performance} reveal={task.reveal} completionTitle={task.completionTitle} hints={hints}
     hasMoreHints={performance.started && !completed && hints.length < task.hints.length} {...rest} />;
 }

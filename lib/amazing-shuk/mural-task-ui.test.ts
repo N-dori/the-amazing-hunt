@@ -9,6 +9,8 @@ import ts from "typescript";
 import { MURAL_CHALLENGE, MURAL_TASK } from "./mural-task.ts";
 import { buildChoiceTaskView } from "./mural-task-view.ts";
 import { SYNAGOGUE_APPRECIATION, SYNAGOGUE_BONUS, SYNAGOGUE_BONUS_CHALLENGE, SYNAGOGUE_CHALLENGE, SYNAGOGUE_TASK } from "./synagogue-task.ts";
+import { MONTEFIORE_BONUS, MONTEFIORE_BONUS_CHALLENGE } from "./montefiore-task.ts";
+import { LEVIN_CHALLENGE, LEVIN_TASK } from "./levin-task.ts";
 
 const nativeRequire = createRequire(import.meta.url);
 // Render the actual TSX and shared button without a browser or CSS loader.
@@ -117,4 +119,25 @@ test("synagogue bonus: cards and submit until it's right, then points and the la
   const moment = renderToStaticMarkup(createElement(Appreciation, SYNAGOGUE_APPRECIATION));
   assert.match(moment, /Think of someone who deserves appreciation today/); assert.match(moment, /Nothing is recorded or scored/);
   assert.doesNotMatch(moment, /<input|<textarea|<button|<form/);
+});
+
+test("Montefiore bonus: the letters and verse read right to left, and the Hebrew answer cards carry rtl and lang", () => {
+  const Bonus = loadComponent("components/amazing-shuk/dev/PreviewChoiceBonus.tsx");
+  const open = buildChoiceTaskView(MONTEFIORE_BONUS_CHALLENGE, [], false, "answerSubmitter", false, true);
+  const html = renderToStaticMarkup(createElement(Bonus, { content: MONTEFIORE_BONUS, view: open, points: 0, feedback: "", onToggle() {}, onSubmit() {}, onReset() {} }));
+  assert.match(html, /class="letters rtl" lang="he"><span class="letter">ת<\/span><span class="letter">ר<\/span><span class="letter">מ<\/span><span class="letter">ב<\/span><\/p>/);
+  assert.match(html, /class="verse rtl" lang="he">אָמַרְתִּי/);
+  assert.equal((html.match(/class="optionLabel rtl" lang="he"/g) ?? []).length, 3);
+  assert.doesNotMatch(html, /Yemenite/);
+  // An English bonus has neither tiles nor a verse, and its cards stay left to right.
+  const english = renderToStaticMarkup(createElement(Bonus, { content: SYNAGOGUE_BONUS, view: buildChoiceTaskView(SYNAGOGUE_BONUS_CHALLENGE, [], false, "answerSubmitter", false, true), points: 0, feedback: "", onToggle() {}, onSubmit() {}, onReset() {} }));
+  assert.doesNotMatch(english, /letters|verse|rtl|lang="he"/);
+});
+
+test("Levin: no hint button, and the accepted answer gets a quiet title instead of a celebration", () => {
+  const view = buildChoiceTaskView(LEVIN_CHALLENGE, ["spare-rabbi"], true, "answerSubmitter", false, true);
+  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, reveal: LEVIN_TASK.reveal, question: LEVIN_TASK.question, completionTitle: LEVIN_TASK.completionTitle,
+    performance: { started: true, hintsUsed: 0, canStart: true, reward: { points: 100, foodTokens: 2, hintsUsed: 0 } }, hints: [], hasMoreHints: false, feedback: "" }));
+  assert.match(html, /<h3>Answer received<\/h3>/); assert.doesNotMatch(html, /Challenge completed!|Need a hint\?/);
+  assert.match(html, /Attributed tradition/); assert.match(html, /Sources differ/);
 });

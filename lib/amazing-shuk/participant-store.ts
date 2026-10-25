@@ -204,9 +204,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (!guide && role === "follower") throw new Error("Only the navigator, answer-submitter or guide may start");
           if (mission.completed) throw new Error("This challenge is already complete");
           if (mission.performance.startedAt === null) {
-            // Existing in-progress puzzles are retained, but their earlier time is unknown.
+            // Existing in-progress puzzles are retained, but their earlier time is unknown. An untimed mission is never measured.
             mission.performance = { ...mission.performance, startedAt: now, clockStartedAt: now,
-              excluded: !isEmptyProgress(mission),
+              excluded: definition.timed === false || !isEmptyProgress(mission),
               solvedAt: mission.kind === "water" && isWaterPuzzleSolved(mission.cups) ? now : null };
           }
         } else if (action.type === "timing") {

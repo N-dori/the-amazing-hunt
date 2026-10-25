@@ -10,7 +10,7 @@ export default function PreviewChoiceOptions({ legend, options, onToggle }: Prop
     {options.map(option => <label key={option.id} className={[styles.option, option.selected ? styles.optionSelected : "", option.disabled ? styles.optionDisabled : ""].filter(Boolean).join(" ")}>
       <input type="checkbox" className={styles.input} checked={option.selected} disabled={option.disabled} onChange={() => onToggle(option.id)} />
       <span className={styles.mark} aria-hidden="true">{option.selected ? <Icon name="check" className={styles.markIcon} /> : null}</span>
-      <span className={styles.optionLabel}>{option.label}</span>
+      {option.lang ? <span className={`${styles.optionLabel} rtl`} lang={option.lang}>{option.label}</span> : <span className={styles.optionLabel}>{option.label}</span>}
     </label>)}
   </fieldset>;
 }

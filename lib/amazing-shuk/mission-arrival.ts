@@ -27,6 +27,8 @@ export type MissionDefinition = Readonly<{
   // The challenge decides the shape of the mission's shared progress.
   challenge: Readonly<{ kind: "water" }> | ChoiceChallenge;
   rewards: WaterRewardConfig; hintCount: number;
+  // `false` for a story that shouldn't run against a clock: the start records the timing as excluded, so the award is untimed.
+  timed?: false;
   // An optional second question, open only after the main answer is accepted; its points never include food tokens.
   bonus?: Readonly<{ challenge: ChoiceChallenge; points: number }>;
 }>;

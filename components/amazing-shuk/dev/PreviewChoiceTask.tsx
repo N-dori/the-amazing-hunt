@@ -8,13 +8,13 @@ import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
 import styles from "./PreviewChoiceTask.module.scss";
 type Props = {
   view: ChoiceTaskView; question: string; performance: WaterPerformanceView;
-  reveal: ChoiceTaskContent["reveal"];
+  reveal: ChoiceTaskContent["reveal"]; completionTitle?: string;
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
   // The latest reply to this device's action (e.g. a wrong answer), shown beside the submit button.
   feedback: string;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
-export default function PreviewChoiceTask({ view, question, performance, reveal, hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewChoiceTask({ view, question, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
   const playing = performance.started && !view.completed;
   return <section className={styles.task} aria-labelledby="mural-task-title">
     <h2 id="mural-task-title" className={styles.question}>{question}</h2>
@@ -23,7 +23,7 @@ export default function PreviewChoiceTask({ view, question, performance, reveal,
     </div> : null}
     <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} />
     {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
-      <h3>Challenge completed!</h3>
+      <h3>{completionTitle}</h3>
       {performance.reward ? <dl className={styles.reward}>
         <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
         <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>

@@ -1,7 +1,7 @@
 import type { ChoiceChallenge } from "./choice-task.ts";
 import type { WaterSubmissionRole } from "./water-measurement.ts";
 
-export type ChoiceOptionView = Readonly<{ id: string; label: string; selected: boolean; disabled: boolean }>;
+export type ChoiceOptionView = Readonly<{ id: string; label: string; lang?: "he"; selected: boolean; disabled: boolean }>;
 export type ChoiceTaskView = Readonly<{
   options: readonly ChoiceOptionView[]; chosen: number; required: number;
   completed: boolean; busy: boolean; canSubmit: boolean; submitDisabled: boolean; canReset: boolean;
@@ -14,7 +14,7 @@ export function buildChoiceTaskView(challenge: ChoiceChallenge, selected: readon
   return {
     options: challenge.options.map(option => {
       const isSelected = selected.includes(option.id);
-      return { id: option.id, label: option.label, selected: isSelected,
+      return { id: option.id, label: option.label, ...(option.lang ? { lang: option.lang } : {}), selected: isSelected,
         disabled: !started || busy || completed || (full && !isSelected) };
     }),
     chosen: selected.length, required: challenge.required, completed, busy,

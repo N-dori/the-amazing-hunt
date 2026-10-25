@@ -53,7 +53,7 @@ test("story is short, labels each statement and has no Hebrew; the street photo 
   assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);
   assert.equal(findMission(MURAL_MISSION.id), MURAL_MISSION);
-  assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice", "choice"]);
+  assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice", "choice", "choice", "choice"]);
 });
 
 test("view: followers discuss but can't submit; a full selection locks the other options", () => {

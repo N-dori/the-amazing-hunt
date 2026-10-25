@@ -1,6 +1,59 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Chesed VeRachamim bonus (literary Luna) and Eshet Chayil, 24 Oct 2026
+## Latest handoff - missions 4 (Montefiore gate) and 5 (Rabbi Aryeh Levin), 25 Oct 2026
+
+Committed and pushed on `main`. Owner approved (25 Oct 2026): Montefiore's three languages as the main challenge and the year as an optional bonus, made easier; a Rabbi Aryeh Levin mission at his home, with the Kramer-Rechtman plaque as its bonus; the Olei HaGardom story told respectfully.
+
+- **Mission 4, `lib/amazing-shuk/montefiore-task.ts`** (`montefiore-testimonial-gate`):
+  - Pick 3 of 5: Hebrew, English and Arabic are right; Ladino and Yiddish are invented distractors.
+  - Bonus: find תרמ"ב beside "1882" on the Photograph in Stone plaque (#02), then pick the word in "אָמַרְתִּי אֶעֱלֶה בְּתָמָר" with the same four letters (בתמר; אמרתי is the near miss). It is a letter shuffle, so no arithmetic is needed (Hamichlol explains the name as reordered letters). 10 points, no food tokens.
+- **Mission 5, `lib/amazing-shuk/levin-task.ts`** (`aryeh-levin-prisoners`):
+  - Story: Levin, Feinstein (Ashkenazi, Old City, his student) and Barazani (born in Baghdad, Kurdish family), and the grenades in oranges.
+  - Pick 1 of 4: "A rabbi would be with them, and they would not risk his life." Three invented distractors.
+  - Untimed, no hints; completion title "Answer received".
+  - Bonus: name Feinstein's fiancée from the Kramer-Rechtman plaque on HaCarmel St (#25): Rachel.
+- **Shared changes:**
+  - `ChoiceOption.lang: "he"` renders a card with `.rtl` and `lang="he"`.
+  - `BonusContent.verse` and `letters` render a verse and letter tiles of at least 3rem.
+  - `ChoiceTaskContent.completionTitle`.
+  - `MissionDefinition.timed: false`: the start records the timing as excluded, so the award is untimed by the approved rule.
+  - Both missions are in `SHUK_MISSIONS` (markers 4 and 5) and `CHOICE_TASKS`.
+- **Sources** (read 25 Oct 2026):
+  - Owner's photos #05 (gate panels, read at 4x zoom), #02 (plaque badge "אוהל משה תרמ"ב 1882", June 1882, the Montefiore fund, Yemenite families) and #25 (Kramer-Rechtman plaque).
+  - Hamichlol, "עליית אעלה בתמר".
+  - Hebrew Wikipedia, "מאיר פיינשטיין" and "משה ברזני"; English Wikipedia, "Meir Feinstein" (quotes Begin's 1981 speech).
+  - Site research run 06, rows 1 and 3.
+- **Conflicts recorded, not resolved:**
+  - Which rabbi they meant to spare. Levin declared he would attend; Hebrew Wikipedia ties the change of plan to Rabbi Yaakov Goldman; Begin says only "the Rabbi". The question doesn't name him; the reveal says sources differ.
+  - The embrace with the grenade between them is labelled Attributed tradition; English Wikipedia calls it romanticized.
+  - The number of Yemenite immigrants: Hamichlol about 150, NLI about 200. The copy gives no number.
+- **Draft copy for owner review:** every story, question, hint, reveal, bonus and location line in both files, except quotes from plaques. The Arabic panel's wording is a `TODO(copy)` in the code and is not shown.
+- **Field checks:**
+  - The Arabic panel's text. My reading: "أوهل موسى … موسى مونتفيوري رحمه الله". "رحمه الله" would be odd in 1882, while Montefiore was alive, so the panel may be later.
+  - The rosette on the gate ("במספר … לפ"ק" wording, possibly a year written as a phrase).
+  - The gate is the Ohel Moshe entrance at Agripas and Hermon streets.
+  - Levin's house marking.
+  - Whether the Kramer plaque is legible.
+  - Both markers are manual guesses. GPS is off for both: the gate reuses Gan HaTut's candidate point, and Levin's is a provisional point between the Nominatim centroids of the two streets.
+  - Missions 1 and 4 share the gate photo.
+- **Verified** in a clean `node:22-alpine` container (25 Oct 2026):
+  - `test:shuk` 115/115. New tests: both missions' keys, labels and spoiler checks; the anagram and the 642 sum; the untimed award after 20 minutes; Hebrew cards with `rtl` and `lang`; letter tiles; the quiet title.
+  - `npm test` 61/61. `next typegen` + `tsc` pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk` is clean. Changed Sass modules compile.
+  - `shuk-dev` serves the page (HTTP 200).
+  - `git diff --check` is clean for these changes. The only hit is a trailing space in the owner's own `docs/RUN_PREVIEW.md` edit.
+- **Not checked** in a browser or on a phone: tile size and RTL layout, the Levin story's tone on screen, and the new markers' positions on the map.
+- **Don't commit `docs/RUN_PREVIEW.md` as it stands.** The owner's uncommitted edit added live invitation links. `docs/design/stitch-reference/` is the owner's, untracked and not part of this work.
+- **Next:** owner review of the draft copy and the field checks above; then the slim header; then the earlier photo rights audit (entry below).
+
+## Latest handoff - historical photo rights audit (started), 24 Oct 2026
+
+Owner: Israel Revealed to the Eye (Yad Izhak Ben-Zvi) "Open Use" photos may be used commercially with attribution; Fair Use and protected images must not ship without permission. Uncommitted; no code or assets changed yet.
+
+- **How to read rights:** item pages (israelalbum.org.il/image-page/?type=objects&id=…) load data from the public GraphQL API `https://api.eshmor.org.il/graphql`, query `getItemByID(appID: "924c217a-d119-42d3-91af-72ade1e9b2e2", index: "objects", id: …)` with fields `permissions { nameHE nameEN }`, `photographer`, `proPhotographer`, `creator`, `collectionNameHE/EN`, `createdDate`, `notes`, `titleHE`, `imageOriginal`. Classifications seen in the site's code: Fair Use (שימוש הוגן), "Copyright Free - Public Usage", Protected Copyright (מוגן בזכויות יוצרים).
+- **ybz.0024.002** (Armoza family portrait with Luna, photo index #108): https://israelalbum.org.il/image-page/?type=objects&id=ybz.0024.002. Collection: "Armoza Family, via the "Lev Ha-Ir" Community Center, Jerusalem" (YBZ.0024). Date 1935–1940, studio photograph; photographer/creator not recorded. **Permission: Fair Use** — not cleared for the app. Not used anywhere; keep out of production.
+- **Still to do:** query the other archival candidates (#111–#116, Armoza collection YBZ.0024 and the Hesed VeRahamim founders/interior photos; IDs still TODO in the photo index); find the catalogue entry of `public/shuk/mural-before.jpg` (owner-supplied; source, photographer and rights unknown) and, if it isn't Open Use, exclude it from the production build until cleared (a decision on gameplay, since it is the mural's completion reveal); add a small credit line to the image component; record all of this in `design/inputs/photos/photo_index_ALL.csv` (`credit_rights`).
+
+## Earlier handoff - Chesed VeRachamim bonus (literary Luna) and Eshet Chayil, 24 Oct 2026
 
 Uncommitted. The owner revised iteration B: a Luna bonus tied to the novel, then the Eshet Chayil moment.
 
