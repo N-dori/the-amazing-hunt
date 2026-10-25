@@ -43,7 +43,7 @@ Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/
 - Committed and pushed on 25 Oct:
   - Mission 4, the Montefiore gate (three languages; optional bonus, the year תרמ"ב hidden in בתמר).
   - Mission 5, Rabbi Aryeh Levin and Olei HaGardom (untimed, no hints; bonus at the Kramer-Rechtman plaque).
-- Uncommitted (25 Oct), the Stitch design's first slice: the owner's Stitch mockups are in `docs/design/stitch-reference/` (untracked, the owner's), as a layout reference only. Built so far:
+- Committed and pushed on 25 Oct, the Stitch design's first slice: the owner's Stitch mockups are in `docs/design/stitch-reference/` (untracked, the owner's), as a layout reference only. Built so far:
   - Plex Serif headings and Stitch surface tokens;
   - Thumbs avatars in a round frame;
   - the sticky slim header with the points and tokens chips;

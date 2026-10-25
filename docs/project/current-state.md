@@ -29,7 +29,7 @@
 - **Nothing has been checked on a real phone.** The owner has reviewed some screens in a desktop browser by screenshot; layout, safe areas, back navigation and HTTPS GPS on a phone are unverified.
 - Marker placements are manual guesses for all five missions. GPS is on only for the mural (owner-confirmed point); the other four fall back to guide confirmation.
 - Photos: Gan HaTut gate and cistern, the mural street view and the synagogue facade are the owner's photographs, connected by the owner's choice. Mural reuse rights are still recorded as unresolved in [decisions](product-decisions.md); the before photo's photographer, date and rights are not recorded. The photo rights audit is deferred by the owner (25 Oct 2026).
-- The Stitch slice (header, map, preview, location, avatar) is uncommitted and not yet reviewed in a browser. The map stage's fit at 320×640, 375×667 and 390×844 is estimated by arithmetic only.
+- The Stitch slice (header, map, preview, location, avatar) is committed and pushed but not yet reviewed in a browser. The map stage's fit at 320×640, 375×667 and 390×844 is estimated by arithmetic only.
 - Much visitor-facing copy is draft (stories, hints, reveals, location text, UI labels); each slice lists its drafts in the handoff. Food offers are not approved; the Food tab shows the token balance and a marked gap.
 - Not yet built: onboarding, food redemption, the separate Shuk app boundary (planned before real-phone testing), production deployment.
 

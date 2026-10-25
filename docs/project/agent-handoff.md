@@ -2,7 +2,7 @@
 
 ## Latest handoff - mission preview overlaps the map; View Location never scrolls away, 25 Oct 2026
 
-Uncommitted. The owner approved the Stitch direction and asked for two connected preview refinements: the preview overlaps the map, and View Location is visible without scrolling.
+Committed and pushed on `main` (`9d9b9c5`). The owner approved the Stitch direction and asked for two connected preview refinements: the preview overlaps the map, and View Location is visible without scrolling.
 
 - **Map stage** (`ListArrivalMission` and its `.module.scss`):
   - One flex column holds the map and the sheet. It fills the screen between the sticky header and the bottom bar: `100dvh` (fallback `100svh`) minus `--shuk-header-height` minus `--shuk-nav-offset`.
@@ -36,7 +36,7 @@ Uncommitted. The owner approved the Stitch direction and asked for two connected
 
 ## Earlier handoff - Stitch design, first slice (header, map, preview, location) and the Thumbs avatar, 25 Oct 2026
 
-Uncommitted. The owner asked to implement the Stitch reference (`docs/design/stitch-reference/`, the owner's, untracked). Plan: `/root/.claude/plans/no-so-plan-new-majestic-blum.md`.
+Committed and pushed on `main` (`9d9b9c5`). The owner asked to implement the Stitch reference (`docs/design/stitch-reference/`, the owner's, untracked). Plan: `/root/.claude/plans/no-so-plan-new-majestic-blum.md`.
 
 **Owner choices:**
 - Plex Serif for headings.
