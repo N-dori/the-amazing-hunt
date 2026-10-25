@@ -11,10 +11,10 @@ RUN npm ci --no-audit --no-fund
 COPY . ./
 # Heap cap: this box has 4 GB and other services. Swap covers the rest.
 RUN NODE_OPTIONS=--max-old-space-size=1024 npm run build
-# The Shuk's invitation command runs in its container (docker exec): the script and the store's sources it imports,
+# The Shuk's invitation and naming commands run in its container (docker exec): the script and the store's sources it imports,
 # which use only Node built-ins. The Memory Protocol image gets an empty folder.
 RUN mkdir -p /tools && if [ "$DORI_APP" = "shuk" ]; then \
-      mkdir -p /tools/scripts /tools/lib/amazing-shuk && cp scripts/shuk-invite.ts /tools/scripts/ && cp lib/base-path.ts /tools/lib/ \
+      mkdir -p /tools/scripts /tools/lib/amazing-shuk && cp scripts/shuk-invite.ts scripts/shuk-name.ts /tools/scripts/ && cp lib/base-path.ts /tools/lib/ \
       && find lib/amazing-shuk -maxdepth 1 -name '*.ts' ! -name '*.test.ts' -exec cp {} /tools/lib/amazing-shuk/ \; ; fi
 
 FROM node:22-alpine

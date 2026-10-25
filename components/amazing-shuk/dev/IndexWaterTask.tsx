@@ -52,7 +52,8 @@ type Props = { mode: keyof typeof MODE_COPY };
 
 // The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
 type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number } };
-type ServerView = { missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+// `participants` carries the group's display names (from the server's state, never git); older servers omit it.
+type ServerView = { participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 /** The Shuk game: the local simulation ("dev") or the protected app ("app"), which differ only in wording and the dev panel. */
 export default function IndexWaterTask({ mode }: Props) {
@@ -252,20 +253,21 @@ export default function IndexWaterTask({ mode }: Props) {
 
   if (invitation) return <main className={styles.page}><p>{copy.invitation}</p><button type="button" disabled={busy} onClick={() => void login()}>Sign in with this invitation</button><p role="status">{message}</p></main>;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
+  const participants = view.participants ?? PARTICIPANT_IDENTITIES;
   return (
     <main className={styles.page} ref={pageRef}>
       <PreviewShukHeader ref={headerRef} title={nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}
         points={view.sharedBalance.points} foodTokens={view.sharedBalance.foodTokens}
-        menu={<IndexParticipantMenu participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
+        menu={<IndexParticipantMenu participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
           currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />}
-        badges={<ListParticipantBadges participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} />} />
+        badges={<ListParticipantBadges participants={participants} roles={view.session.roles} currentId={view.session.activeActorId} />} />
       {nav.area === "noMission" ? <section className={styles.empty} aria-labelledby="no-mission-title">
         <h2 id="no-mission-title">No mission open yet</h2>
         <p>Choose a mission on the map, then open its location.</p>
         <ActionButton icon="arrowForward" onClick={() => navigate(goToTab(nav, "map"))}>Go to the map</ActionButton>
       </section> : null}
       {nav.area === "food" ? <PreviewFoodRewards foodTokens={view.sharedBalance.foodTokens} /> : null}
-      {nav.area === "group" ? <ListGroupOverview participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
+      {nav.area === "group" ? <ListGroupOverview participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
         missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
         onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
       {nav.area === "journey" && stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
@@ -315,7 +317,7 @@ export default function IndexWaterTask({ mode }: Props) {
           void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />
       </> : null}
-      {activeRole === "guide" ? <IndexGuideWaterTask missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
+      {activeRole === "guide" ? <IndexGuideWaterTask participants={participants.filter(participant => participant.id !== DEV_GUIDE_ID)} missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
       {/* On the mural, replies to an action appear beside its submit button instead. */}
       {message && !(nav.area === "journey" && stage === "challenge" && view.session.kind === "choice") ? <p className={styles.message} role="status">{message}</p> : null}
       {mode === "dev" ? <details className={styles.dev}>

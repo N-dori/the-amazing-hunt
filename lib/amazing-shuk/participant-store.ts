@@ -6,6 +6,7 @@ import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measu
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
+import { groupParticipants, isValidNames, setDisplayName, type ParticipantNames } from "./participant-names.ts";
 import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { dirname, resolve } from "node:path";
 import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
@@ -25,7 +26,8 @@ type BonusRecord = { selected: string[]; award: { points: number; awardedAt: num
 const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 /** Schema 4 and earlier held a single mission: the well. */
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
-type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]> };
+// `names` (optional): display names by participant ID, set by an admin command; absent means "Player N".
+type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
@@ -70,7 +72,7 @@ async function load(path: string): Promise<Database> {
     stored = { ...rest, version: 5, roles: group.roles, missions: { [WATER_TASK_ID]: { kind: "water", cups: group.cups, completed: group.completed, arrival, performance } } };
   }
   const db = stored as Database;
-  if (!db.roles || !db.missions) throw new Error("Unsupported Shuk storage state");
+  if (!db.roles || !db.missions || (db.names !== undefined && !isValidNames(db.names))) throw new Error("Unsupported Shuk storage state");
   // The first schema-5 records had no kind; they were all the well.
   for (const [id, record] of Object.entries(db.missions)) if (record && !("kind" in record)) db.missions = { ...db.missions, [id]: { ...(record as object), kind: "water" } as MissionRecord };
   if (!Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
@@ -157,6 +159,8 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
+    // Names are shown only to signed-in members of the group (this view needs a session).
+    participants: groupParticipants(db.names ?? {}, db.roles),
     mission: missionView(definition, record),
     session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
       ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
@@ -320,6 +324,13 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
     db.applied[participantId] = [...applied, actionId];
     return message;
+  });
+}
+/** Admin only (scripts/shuk-name.ts, run on the server): sets or clears a participant's display name. */
+export async function setParticipantName(path: string, participantId: string, name: string | null) {
+  return transact(path, db => {
+    db.names = setDisplayName(db.names ?? {}, participantId, name);
+    return db.names[participantId] ?? null;
   });
 }
 export async function logout(path: string, token: string) {

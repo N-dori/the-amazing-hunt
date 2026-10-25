@@ -1,6 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - players choose their own roles; everyone else is an advisor, 25 Oct 2026
+## Latest handoff - real display names, kept out of git, 25 Oct 2026
+
+The owner asked for players' real names in place of "Player 4/5/6".
+
+- **Storage:** `lib/amazing-shuk/participant-names.ts` and an optional `names` map in the state file, validated on load (known IDs; trimmed, 1–40 characters, no control characters). Names never go in git.
+- **Setting names:** `scripts/shuk-name.ts <id> "<Name>"` (or `--clear`). It is copied into the Shuk image's `tools/`. Run it with `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-name.ts player-4 "Michael"`.
+- **Who sees them:** `sessionView` returns `participants`, so only signed-in members see names.
+  - With no names set, every slot shows as "Player N" (the local simulation is unchanged).
+  - Once names are set, only named players and role holders are listed, then the guide.
+- **UI:** the header badges, the profile, the Group tab and the guide's role dropdowns use the server's list. Avatars still come from the fixed IDs.
+- **Verified:** `test:shuk` 146/146 (new `participant-names.test.ts`). `npm test` 61/61; tsc and ESLint are clean.
+
+## Earlier handoff - players choose their own roles; everyone else is an advisor, 25 Oct 2026
 
 The owner asked: "let them choose and the rest are advisors". **Not committed or deployed yet**; the live app still has the old behaviour. Live roles were set by hand earlier: Michael (player-4) is navigator and Ellen (player-5) is answer-submitter.
 
