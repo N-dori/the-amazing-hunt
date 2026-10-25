@@ -51,7 +51,7 @@ Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/
   - the map as a rounded card;
   - the mission preview overlapping the map, with View Location always in view;
   - the location view as cards, with food tokens (no points) under Open Challenge.
-- **Live since 25 Oct (`fbd9fad`):** the protected Shuk app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Deploy with `deploy/deploy.sh shuk`. Production invitations come from `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <id> https://doriisrael.com`; write them to `.local/`, never print them. Michael, Ellen and Staci are players 4–6.
+- **Live since 25 Oct (`fbd9fad`):** the protected Shuk app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Deploy with `deploy/deploy.sh shuk`. Production invitations come from `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <id> https://doriisrael.com`; write them to `.local/`, never print them. The three invited friends are players 4–6; their names live only in the server state and in `.local/`, never in git.
 - All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
 
 To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404. The dev server writes the repo's `.next/`: don't delete it while `shuk-dev` runs. Invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`.

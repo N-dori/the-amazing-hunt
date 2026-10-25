@@ -1,6 +1,6 @@
 import { defaultStorePath, setParticipantName } from "../lib/amazing-shuk/participant-store.ts";
 import { isDevSimulationEnabled } from "../lib/amazing-shuk/dev-water-session.ts";
-// Sets a participant's display name on this server:  shuk-name.ts player-4 "Michael"   (or --clear to go back to "Player 4").
+// Sets a participant's display name on this server:  shuk-name.ts player-4 "Ari"   (or --clear to go back to "Player 4").
 // Names are personal data: they live only in the state file, never in git.
 const [participantId, name] = process.argv.slice(2);
 const app = process.env.NEXT_PUBLIC_DORI_APP === "shuk" && process.env.SHUK_APP === "1";

@@ -5,16 +5,17 @@
 The owner asked for players' real names in place of "Player 4/5/6".
 
 - **Storage:** `lib/amazing-shuk/participant-names.ts` and an optional `names` map in the state file, validated on load (known IDs; trimmed, 1–40 characters, no control characters). Names never go in git.
-- **Setting names:** `scripts/shuk-name.ts <id> "<Name>"` (or `--clear`). It is copied into the Shuk image's `tools/`. Run it with `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-name.ts player-4 "Michael"`.
+- **Setting names:** `scripts/shuk-name.ts <id> "<Name>"` (or `--clear`). It is copied into the Shuk image's `tools/`. Run it with `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-name.ts player-4 "<Name>"`.
 - **Who sees them:** `sessionView` returns `participants`, so only signed-in members see names.
   - With no names set, every slot shows as "Player N" (the local simulation is unchanged).
   - Once names are set, only named players and role holders are listed, then the guide.
 - **UI:** the header badges, the profile, the Group tab and the guide's role dropdowns use the server's list. Avatars still come from the fixed IDs.
+- **Privacy correction:** commit `103e3ec` (and earlier note commits) put the invited friends' first names, and one surname, in tests and notes. The GitHub repo is public. The owner chose to scrub going forward: tests use sample names (Ari, Bea, Cal, Dana) and notes refer to players 4–6. The older commits still contain the names. The owner's own research files (`DORI_Digital_Platform_Research.md` and its copy) predate this work and were left alone.
 - **Verified:** `test:shuk` 146/146 (new `participant-names.test.ts`). `npm test` 61/61; tsc and ESLint are clean.
 
 ## Earlier handoff - players choose their own roles; everyone else is an advisor, 25 Oct 2026
 
-The owner asked: "let them choose and the rest are advisors". **Not committed or deployed yet**; the live app still has the old behaviour. Live roles were set by hand earlier: Michael (player-4) is navigator and Ellen (player-5) is answer-submitter.
+The owner asked: "let them choose and the rest are advisors". **Not committed or deployed yet**; the live app still has the old behaviour. Live roles were set by hand earlier: player-4 is navigator and player-5 is answer-submitter.
 
 - **Roles:**
   - `roles.ts`: `claimGroupRole` (only a free role, or one you already hold) and `releaseGroupRole` (only the holder).
@@ -57,7 +58,7 @@ The owner approved the plan (`/root/.claude/plans/tingly-snacking-tower.md`), th
   - `trip.` and `app.` still return 401.
   - `dori-game` is untouched; its image was rebuilt as `dori-game:test` and smoke-tested (the Shuk returns 404 there).
 - **Tests:** `test:shuk` 138/138 (new `shuk-app.test.ts`: prefixes, the gate, the route allowlist, app-mode HTTP and cookies, the invite script). `npm test` 61/61. tsc and ESLint are clean.
-- **Invitations:** guide plus Michael (player-4), Ellen (player-5) and Staci (player-6), in `.local/amazing-shuk/public-invite-links.md` (chmod 600, git-ignored). The owner sends them through Workspace.
+- **Invitations:** the guide and the three invited friends (players 4–6), in `.local/amazing-shuk/public-invite-links.md` (chmod 600, git-ignored). The owner sends them through Workspace.
 - **Housekeeping:**
   - Disk reached 85% during a build. With the owner's OK I removed the pre-fix `dori-shuk:test`, the oldest `dori-game` release image and all build cache. Disk was 79–80% afterwards.
   - The owner's `docs/RUN_PREVIEW.md` edit was stashed for the deploy and restored.
