@@ -15,12 +15,21 @@
   --neutral-line: #b8b5aa;
   --sumac-deep: #74382c;
 
+  // Surfaces from the Stitch reference (docs/design/stitch-reference/); not yet confirmed against the brand book.
+  --surface-raised: #faf8f5;
+  --surface-recessed: #ede5d8;
+  --line-stone: #d9cfbe;
+  --ink-subdued: #54514d;
+  --shadow-float: 0 2px 4px rgb(31 31 30 / 8%);
+
   --background: var(--chalk);
   --foreground: var(--ink);
   // IBM Plex per the brand rules. Hebrew falls back to Plex Sans Hebrew inside the same stack, so
   // mixed English/Hebrew strings render as one system.
   --font-body: var(--font-plex-sans), var(--font-plex-hebrew), Arial, Helvetica, sans-serif;
   --font-mono: var(--font-plex-mono), "Courier New", monospace;
+  // Headings in The Amazing Shuk (owner decision, 25 Oct 2026). Hebrew falls back to Plex Sans Hebrew.
+  --font-display: var(--font-plex-serif), var(--font-plex-hebrew), Georgia, serif;
 
   // Shared motion for the game's transitions. Reduced-motion overrides set these to 0.
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);

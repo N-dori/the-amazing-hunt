@@ -5,8 +5,11 @@ import { buildMissionPresentation, type MissionView } from "@/lib/amazing-shuk/m
 import { findMission, SHUK_MISSIONS } from "@/lib/amazing-shuk/missions";
 import PreviewArrivalMission from "./PreviewArrivalMission";
 import PreviewMissionCard from "./PreviewMissionCard";
+import styles from "./ListArrivalMission.module.scss";
 
 const NO_MEMORY_LAYERS: [] = [];
+// The preview sheet overlaps the map's lower edge by 1.5rem (ListArrivalMission.module.scss); the map keeps the selected pin above it.
+const SHEET_OVERLAP = { bottomInset: 24 };
 /** The first three stages of every mission: the map, a compact preview, then the location details. */
 export type MissionStage = "map" | "preview" | "location";
 type Props = { missions: readonly MissionView[]; mission: MissionView; stage: MissionStage; guide: boolean; busy: boolean; feedback: string;
@@ -28,11 +31,13 @@ export default function ListArrivalMission({ missions, mission, stage, mapView, 
     return view ? <PreviewArrivalMission view={view} guide={props.guide} busy={props.busy} feedback={props.feedback}
       onArrival={props.onArrival} onConfirm={props.onConfirm} onOpenChallenge={props.onOpenChallenge} onBack={props.onDismiss} /> : null;
   }
-  return <>
+  // One stage between the header and the bottom bar: the map shrinks when the sheet opens, so neither needs the page to scroll.
+  return <div className={styles.stage}>
     <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with mission markers"
       markers={markers} selectedId={stage === "preview" ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
       notice="Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."
-      initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss} />
+      initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss}
+      frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} />
     {stage === "preview" && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onClosePreview} /> : null}
-  </>;
+  </div>;
 }

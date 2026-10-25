@@ -6,6 +6,7 @@ import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterSess
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import IndexParticipantMenu from "@/components/amazing-shuk/IndexParticipantMenu";
 import ListParticipantBadges from "@/components/amazing-shuk/ListParticipantBadges";
+import PreviewShukHeader from "@/components/amazing-shuk/PreviewShukHeader";
 import ListGroupOverview from "@/components/amazing-shuk/ListGroupOverview";
 import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
 import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
@@ -220,23 +221,28 @@ export default function IndexWaterTask() {
     if (view) void act({ type: "hint", hint: view.performance.hintsUsed + 1, missionId });
   };
 
+  // The header's height wraps with the role badges and the text size; the map stage uses it to fill the rest of the screen.
+  const pageRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const hasHeader = view !== null && !invitation;
+  useEffect(() => {
+    const page = pageRef.current;
+    const header = headerRef.current;
+    if (!page || !header || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => page.style.setProperty("--shuk-header-height", `${header.offsetHeight}px`));
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [hasHeader]);
+
   if (invitation) return <main className={styles.page}><p>Local development invitation</p><button type="button" disabled={busy} onClick={() => void login()}>Sign in with this invitation</button><p role="status">{message}</p></main>;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTitle}>
-          <p className={styles.eyebrow}>The Amazing Shuk</p>
-          <h1>{nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}</h1>
-        </div>
-        <IndexParticipantMenu participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
-          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />
-        <ListParticipantBadges participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} />
-      </header>
-      <section className={styles.balance} aria-label="Shared group rewards">
-        <div><span>Group points</span><strong>{view.sharedBalance.points}</strong></div>
-        <div><span>Food tokens</span><strong>{view.sharedBalance.foodTokens}</strong></div>
-      </section>
+    <main className={styles.page} ref={pageRef}>
+      <PreviewShukHeader ref={headerRef} title={nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}
+        points={view.sharedBalance.points} foodTokens={view.sharedBalance.foodTokens}
+        menu={<IndexParticipantMenu participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
+          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />}
+        badges={<ListParticipantBadges participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId} />} />
       {nav.area === "noMission" ? <section className={styles.empty} aria-labelledby="no-mission-title">
         <h2 id="no-mission-title">No mission open yet</h2>
         <p>Choose a mission on the map, then open its location.</p>
@@ -249,8 +255,8 @@ export default function IndexWaterTask() {
         feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
         onSelect={(id) => {
           if (!findMission(id)) return;
-          navigate(previewMission(nav, id), false);
-          window.requestAnimationFrame(() => document.getElementById("mission-preview")?.scrollIntoView({ block: "nearest" }));
+          // The map stage fits the screen from the top of the page, so the sheet and its action are in view there.
+          navigate(previewMission(nav, id));
         }}
         onDismiss={() => goTo("map")} onClosePreview={() => {
           // Closing with the button or Escape hands focus back to the map, where the group chooses again.

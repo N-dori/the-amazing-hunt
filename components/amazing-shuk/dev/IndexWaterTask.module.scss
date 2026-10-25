@@ -1,23 +1,13 @@
 // --shuk-nav-offset is the fixed bottom bar's height: the page leaves room for it, and sticky sheets and bars sit above it.
-.page { --shuk-nav-offset: calc(4rem + 1px + env(safe-area-inset-bottom)); width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 2rem 0 calc(var(--shuk-nav-offset) + 2rem); }
-// Title on the start side, the avatar on the end side, the role badges on one line beneath: no extra cards above the map.
-.header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: .5rem 1rem; margin-bottom: 1rem; }
-.headerTitle { min-width: 0; }
-.header > ul { grid-column: 1 / -1; }
-.eyebrow, .draft, .label, .target { color: var(--ink); font-size: .8rem; }
-.eyebrow { text-transform: uppercase; letter-spacing: .08em; }
-.header h1 { margin: .4rem 0; font-size: clamp(1.7rem, 6vw, 2.5rem); font-weight: 500; line-height: 1.1; }
+.page { --shuk-nav-offset: calc(4rem + 1.5px + env(safe-area-inset-bottom)); width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 0 0 calc(var(--shuk-nav-offset) + 2rem); }
+.draft, .label, .target { color: var(--ink); font-size: .8rem; }
 .draft { color: var(--sumac); }
-.simulation, .balance { border: 1px solid var(--neutral-line); border-radius: 1rem; background: var(--chalk); padding: 1rem; margin-block: 1rem; }
+.simulation { border: 1px solid var(--neutral-line); border-radius: 1rem; background: var(--chalk); padding: 1rem; margin-block: 1rem; }
 .simulation { display: grid; gap: 1rem; }
 .label { display: block; margin-bottom: .35rem; }
 .simulation select { min-height: 3rem; width: 100%; padding: .5rem; border: 1px solid var(--neutral-line); border-radius: .5rem; background: var(--chalk); color: var(--ink); }
 .roleSummary { display: grid; gap: .3rem; font-size: .9rem; }
 .guideControls { display: grid; grid-template-columns: 1fr; gap: .5rem; }
-.balance { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-.balance div { display: grid; gap: .2rem; }
-.balance strong { font-size: 1.5rem; }
-.balance p { grid-column: 1 / -1; color: var(--ink); font-size: .8rem; }
 .message { min-height: 1.5rem; margin-block: .75rem; }
 .safety { color: var(--ink); font-size: .875rem; margin-block-start: 1rem; }
 .refresh { margin-block-start: .75rem; min-height: 3rem; background: var(--chalk); color: var(--ink); border: 1px solid var(--ink); padding: .75rem; cursor: pointer; }

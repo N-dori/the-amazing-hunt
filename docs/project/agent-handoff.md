@@ -1,6 +1,109 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - missions 4 (Montefiore gate) and 5 (Rabbi Aryeh Levin), 25 Oct 2026
+## Latest handoff - mission preview overlaps the map; View Location never scrolls away, 25 Oct 2026
+
+Uncommitted. The owner approved the Stitch direction and asked for two connected preview refinements: the preview overlaps the map, and View Location is visible without scrolling.
+
+- **Map stage** (`ListArrivalMission` and its `.module.scss`):
+  - One flex column holds the map and the sheet. It fills the screen between the sticky header and the bottom bar: `100dvh` (fallback `100svh`) minus `--shuk-header-height` minus `--shuk-nav-offset`.
+  - `IndexWaterTask` measures the header with a ResizeObserver, because the badges wrap and text can be enlarged.
+  - The map card shrinks when the sheet opens, but never below 8rem.
+  - The sheet overlaps the map's lower edge by 1.5rem (24px), with rounded top corners and a soft upward shadow.
+  - Stacking is plain DOM order with `z-index: 1`; the old sticky sheet and its `z-index: 1000` are gone.
+- **`LeafletBaseMap`:**
+  - A ResizeObserver calls `invalidateSize`; Leaflet only re-measures on window resize. This applies to every caller and is a no-op when the size doesn't change.
+  - The new opt-in `keepSelectedVisible={{ bottomInset }}` pans just enough (`panInside`, not animated under reduced motion) to keep the selected pin and its label above the overlap. It runs when the selection or the frame size changes.
+  - Only the Shuk passes it; the Memory Protocol is unchanged.
+- **`PreviewMissionCard`:** three rows.
+  - The pill and the × button.
+  - A body with the title, place, a 4.5rem thumbnail and a summary teaser clamped to three lines. The full summary and the large photo are on the location view. The body scrolls on its own only when needed, with `overscroll-behavior: contain`.
+  - An action row with View Location that never scrolls.
+  - The sheet is capped at 75% of the stage.
+  - Focus on the title, Escape, × and tapping the map to close are unchanged.
+  - The no-photo fallback is now a camera tile with screen-reader text.
+- **Marker tap:** now scrolls to the top (the normal `navigate`), in place of `scrollIntoView`, so the whole stage is in view. The nav offset is 4rem + 1.5px, to match the bar's new top rule.
+- **Estimated by arithmetic, not measured** (preview open, no browser toolbar, Gan HaTut):
+  - **390×844:** about 325px of map, and the sheet fits.
+  - **375×667:** the header is about 150px; about 148px of map, and the sheet fits without scrolling.
+  - **320×640:** the role pills wrap to three lines, so the header is about 190px. The map is at its 8rem minimum, and the body scrolls about 45px.
+  - At every size, View Location is above the bottom bar.
+- **Verified:**
+  - In `shuk-dev`: `test:shuk` 119/119. The new test covers the three rows in order, View Location outside the scrolling body, the thumbnail, and the sheet inside the stage.
+  - On the host: `npm test` 61/61.
+  - In a one-shot container: ESLint, `next typegen`, `tsc` and every changed Sass module pass.
+- **Not checked in a browser or on a phone:** all eight of the owner's acceptance points, including the overlap's look, the marker staying visible, the toolbar resizing and the map position after returning.
+- **Possible next step:** on narrow phones the role pills take three lines of the header. Showing only avatars and role icons below 22rem would give the map about 60px more.
+
+## Earlier handoff - Stitch design, first slice (header, map, preview, location) and the Thumbs avatar, 25 Oct 2026
+
+Uncommitted. The owner asked to implement the Stitch reference (`docs/design/stitch-reference/`, the owner's, untracked). Plan: `/root/.claude/plans/no-so-plan-new-majestic-blum.md`.
+
+**Owner choices:**
+- Plex Serif for headings.
+- Scope: the shell plus screens B1–B3; challenges and Food later.
+- Stitch is a layout reference only.
+- Avatar: DiceBear Thumbs.
+- Before play, show only the food tokens.
+- The photo rights audit is deferred: the photos may be used as they are.
+
+These are recorded in `product-decisions.md`.
+
+- **Built:**
+  - **Tokens:** `--font-display` (IBM Plex Serif 600/700 in `app/layout.tsx`). Stitch surfaces as derived tokens, marked unconfirmed: `--surface-raised`, `--surface-recessed`, `--line-stone`, `--ink-subdued`, `--shadow-float`.
+  - **Avatar:**
+    - `participant-avatar.ts` uses Thumbs (CC0 1.0, per the package's LICENSE.md).
+    - Its shape colour is sumac, za'atar or amber by ID, and the face is ink or chalk for contrast.
+    - It sits in a round frame with a `--line-stone` ring; the avatar toggle is round too.
+    - The Dori agent's identity line now says Thumbs (owner request).
+  - **Header:** new `PreviewShukHeader`, sticky.
+    - The eyebrow, the Serif title and the avatar on one row; the role pills (with `compass` and `textAnswer` icons) and two chips below.
+    - The points chip: sumac fill, "N pts". The tokens chip: amber edge, ink text, "N tokens". Accessible names "Group points: N" and "Food tokens: N".
+    - The old balance card is gone.
+  - **Bottom bar:** raised surface with a stone top rule.
+  - **Map:** `LeafletBaseMap` gets an opt-in `frameClassName`. Its height and border now read `--map-height` and `--map-border`, defaulting to the old values, so the Memory Protocol is unchanged. The Shuk passes a rounded field card that fills the screen between the header and the nav.
+  - **Preview sheet:**
+    - A pill "Mission N · status" in the pin's state colour replaces the separate badge and status line.
+    - Serif title, rounded photo, summary in a box, round × button, raised sheet with rounded top corners.
+    - No Hebrew name, rewards or drag notch, per the Dori agent's preview list.
+  - **Location view:**
+    - A sumac "Back to map" link and a "Mission N · status" pill (no "of M": missions are played in any order).
+    - A framed photo, the Serif title, the Hebrew name in sumac at the end side, the area line with a pin.
+    - A recessed "Look for" card with a sumac start edge and the new `search` icon; it holds the clue, the clue photo and the landmarks.
+    - A recessed "We're Here?" card; the existing button now has a `compass` icon.
+    - Open Challenge in a card, with "+N food tokens" under it from `rewards.foodTokens`.
+- **Changes from the plan:**
+  - The token chip is not amber-filled: ink on amber is 4.2:1, below 4.5:1.
+  - The photo caption badge on the location view was dropped. It repeated the area line, and the only "verified" flag is the marker placement, not the place.
+- **Stitch conflicts left out by decision:**
+  - points promises before play;
+  - "Mission 2 of 4";
+  - the Hebrew name and rewards on the preview;
+  - Material icons;
+  - the filter chips, map scale, path line, audio button and "Built 1882";
+  - the scrim behind the sheet.
+- **Recorded for the challenge slice (C1):**
+  - Stitch's moves counter and "optimal", its permanent Fill/Pour/Empty grid and the "-15 pts" on hint buttons conflict with the approved patterns: contextual controls, invisible timing and progressive hints.
+  - Its C1-refined and E1 screenshots failed to download; re-export them.
+- **Draft labels:** "pts", "tokens", "Mission N · status", "+N food tokens".
+- **Open questions:**
+  - Restyle the map markers as Stitch does? That changes the map the Memory Protocol shares.
+  - Filter chips, map scale, path line?
+  - A read-aloud audio button?
+- **Verified:**
+  - In `shuk-dev`: `test:shuk` 118/118. The new tests cover the header chips, the preview's pill with no rewards, the location's pill, the Look-for card and food tokens with no points, and the Thumbs licence and token colours.
+  - On the host: `npm test` 61/61.
+  - In a one-shot container: ESLint (Shuk, map, layout), `next typegen` and `tsc` all pass. Every changed Sass module compiles, and none contains a hex value.
+- **Not checked in a browser or on a phone:**
+  - avatars at 24 and 40px;
+  - the sticky header height and wrapping at 360px;
+  - the chips in sunlight;
+  - the map card's height;
+  - the sheet over the map;
+  - the location cards;
+  - the Memory Protocol map.
+- **Don't commit `docs/RUN_PREVIEW.md`** (the owner's invitation links). `docs/design/stitch-reference/` stays the owner's.
+
+## Earlier handoff - missions 4 (Montefiore gate) and 5 (Rabbi Aryeh Levin), 25 Oct 2026
 
 Committed and pushed on `main`. Owner approved (25 Oct 2026): Montefiore's three languages as the main challenge and the year as an optional bonus, made easier; a Rabbi Aryeh Levin mission at his home, with the Kramer-Rechtman plaque as its bonus; the Olei HaGardom story told respectfully.
 

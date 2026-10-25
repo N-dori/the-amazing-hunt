@@ -56,9 +56,42 @@ test("first tap shows a compact preview: title, place, summary, status and View 
     const html = renderToStaticMarkup(createElement(Card, { view, onViewLocation() {}, onClose() {} }));
     assert.ok(html.includes(escapeText(definition.title)) && html.includes(escapeText(definition.name)) && html.includes(escapeText(definition.location.summary)));
     assert.match(html, /View Location/); assert.match(html, /Available/); assert.match(html, /aria-label="Close preview"/);
-    // The badge repeats the tapped pin's number, hidden from assistive tech (the status says it in words).
-    assert.match(html, new RegExp(`aria-hidden="true">${index + 1}</span>`));
+    // The pill repeats the tapped pin's number and its status in words.
+    assert.match(html, new RegExp(`class="pill pillActive">Mission ${index + 1} · Available</p>`));
     assert.doesNotMatch(html, /STORY|Start challenge|spot TWO things|air vents|plaque|treble|Here\?/i);
+    // Compact by decision: no Hebrew name, no rewards and no drag notch on the first tap.
+    assert.doesNotMatch(html, /lang="he"|food tokens|pts|points|notch/i);
+  }
+});
+
+test("the preview keeps View Location in its own action row outside the scrolling body, with a thumbnail, inside the map stage", () => {
+  const Card = load("components/amazing-shuk/dev/PreviewMissionCard.tsx");
+  const view = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
+  const html = renderToStaticMarkup(createElement(Card, { view, onViewLocation() {}, onClose() {} }));
+  // Three rows in order: the pill and close button, the body (title, place, teaser), then the action.
+  assert.match(html, /<div class="top">.*Close preview.*<\/div><div class="body"><h2 id="mission-preview-title".*<\/div><div class="action"><button[^>]*><span>View Location<\/span>/);
+  assert.doesNotMatch(html.slice(html.indexOf('class="body"'), html.indexOf('class="action"')), /View Location/);
+  assert.match(html, /class="thumb"/); assert.match(html, /sizes="4.5rem"/);
+  // The map and the sheet share one stage, so the sheet can overlap the map's lower edge.
+  const List = load("components/amazing-shuk/dev/ListArrivalMission.tsx");
+  const missions = SHUK_MISSIONS.map(definition => ({ id: definition.id, state: "available" as const, arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }));
+  const stage = renderToStaticMarkup(createElement(List, { missions, mission: missions[0], stage: "preview", guide: false, busy: false, feedback: "", mapView: null,
+    onMapViewChange() {}, onSelect() {}, onDismiss() {}, onClosePreview() {}, onViewLocation() {}, onArrival() {}, onConfirm() {}, onOpenChallenge() {} }));
+  assert.match(stage, /^<div class="stage"><section class="sheet " id="mission-preview"/);
+});
+
+test("location details: the pin's number without a route order, a look-for card, and food tokens but no points before play", () => {
+  const Location = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
+  for (const [index, definition] of SHUK_MISSIONS.entries()) {
+    const view = buildMissionPresentation(definition, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, index + 1);
+    const html = renderToStaticMarkup(createElement(Location, { view, guide: false, busy: false, feedback: "", ...callbacks }));
+    assert.match(html, new RegExp(`class="pill">Mission ${index + 1} · Available</p>`));
+    assert.doesNotMatch(html, new RegExp(`Mission ${index + 1} of`));
+    assert.match(html, /class="lookFor"[^>]*><h3 id="mission-look-for" class="cardTitle"><span>Look for<\/span><\/h3>/);
+    assert.ok(html.includes(escapeText(definition.clue)));
+    for (const landmark of definition.location.landmarks) assert.ok(html.includes(escapeText(landmark)));
+    assert.match(html, new RegExp(`Open Challenge.*\\+${definition.rewards.foodTokens} food tokens`));
+    assert.doesNotMatch(html, /pts|Up to|maximum/i);
   }
 });
 

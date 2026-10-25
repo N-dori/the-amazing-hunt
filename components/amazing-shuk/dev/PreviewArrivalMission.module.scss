@@ -1,15 +1,37 @@
-.preview { margin-block: 1rem; padding-block: 1rem; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
-.preview h2 { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: 500; line-height: 1.2; margin-block: .5rem .25rem; }
-.preview h3 { font-size: 1.0625rem; font-weight: 500; margin-block: 1.25rem .25rem; }
+// Location details as field-guide cards: the place, what to look for, the optional location check, then the challenge.
+.preview { display: grid; gap: 1rem; margin-block: 0 1rem; color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
 .preview p { line-height: 1.5; max-width: 42rem; }
-.status { font-weight: 500; margin-block-start: 1rem; }
-.hebrew { font-size: 1.125rem; }
-.area { margin-block-end: 1rem; }
+.icon { flex: none; width: 1.25rem; height: 1.25rem; }
+
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.back { display: inline-flex; align-items: center; gap: .5rem; min-height: 3rem; padding: 0; border: 0; background: none; color: var(--sumac); font-size: 1rem; font-weight: 600; text-decoration: underline; text-underline-offset: .25rem; cursor: pointer; }
+.back:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.pill { padding: .375rem .875rem; border-radius: 9999px; background: var(--surface-recessed); font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
 // The whole photo, never cropped: tall phone shots are capped by height so the text below stays in reach.
-.photo { display: block; width: auto; max-width: min(100%, 42rem); height: auto; max-height: 60svh; object-fit: contain; margin-block: .5rem 1rem; border-radius: .25rem; }
-.photoGap { padding: 1rem; margin-block: .5rem 1rem; background: var(--chalk); border: 1px dashed var(--ink); }
-.landmarks { padding-inline-start: 1.25rem; max-width: 42rem; line-height: 1.5; }
+.hero { justify-self: start; max-width: min(100%, 42rem); margin: 0; overflow: hidden; border: 1.5px solid var(--line-stone); border-radius: 1rem; background: var(--surface-recessed); }
+.photo { display: block; width: auto; max-width: 100%; height: auto; max-height: 60svh; object-fit: contain; }
+.photoGap { display: flex; align-items: center; gap: .5rem; padding: .75rem 1rem; border: 1px dashed var(--neutral-line); border-radius: .75rem; background: var(--surface-recessed); font-size: .9375rem; }
+
+.title { font-family: var(--font-display); font-size: clamp(1.5rem, 6vw, 2.125rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.hebrew { margin-block-start: -.75rem; color: var(--sumac); font-size: 1.25rem; font-weight: 500; text-align: end; }
+.area { display: flex; align-items: flex-start; gap: .5rem; color: var(--ink-subdued); font-size: 1rem; }
+.area .icon { color: var(--sumac); }
+.summary { font-size: 1.0625rem; }
+
+// The field clue: a recessed card with a sumac slab on the start edge.
+.lookFor { display: grid; gap: .5rem; padding: 1rem 1.25rem; border-inline-start: .25rem solid var(--sumac); border-radius: .75rem; background: var(--surface-recessed); font-size: 1.0625rem; }
+.cardTitle { display: flex; align-items: center; gap: .5rem; color: var(--sumac); font-size: .8125rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.subTitle { margin-block-start: .5rem; font-size: 1rem; font-weight: 600; }
+.cluePhoto { display: block; width: auto; max-width: 100%; height: auto; max-height: 50svh; object-fit: contain; border-radius: .5rem; }
+.landmarks { padding-inline-start: 1.25rem; line-height: 1.5; }
 .landmarks li { margin-block: .25rem; }
-.arrival { margin-block: 1.5rem; padding-block: 1rem; border-block: 1px solid var(--neutral-line); }
-.success { padding: 1rem; background: var(--chalk); border-inline-start: .25rem solid var(--zaatar); }
-.preview button { margin-block: .5rem; max-width: 100%; }
+
+.success { padding: 1rem; border-inline-start: .25rem solid var(--zaatar); border-radius: .5rem; background: var(--surface-raised); }
+.arrival { display: grid; gap: .5rem; justify-items: start; padding: 1rem; border: 1.5px solid var(--line-stone); border-radius: 1rem; background: var(--surface-recessed); }
+.note { display: flex; align-items: flex-start; gap: .5rem; color: var(--ink-subdued); font-size: .9375rem; }
+.note .icon { margin-block-start: .125rem; }
+.launch { display: grid; gap: .5rem; justify-items: center; padding: 1rem; border: 1.5px solid var(--line-stone); border-radius: 1rem; background: var(--surface-raised); }
+.reward { display: inline-flex; align-items: center; gap: .375rem; font-size: .9375rem; font-weight: 600; }
+.reward .icon { color: var(--sumac); }
+.preview button { max-width: 100%; }

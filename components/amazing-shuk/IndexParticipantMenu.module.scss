@@ -1,6 +1,6 @@
 // The panel drops from the avatar over the page; it sits above the map and the mission sheet (z-index 1000).
 .menu { position: relative; flex: none; }
-.toggle { display: grid; place-items: center; min-width: 3rem; min-height: 3rem; padding: .25rem; border: 0; border-radius: .5rem; background: none; cursor: pointer; }
+.toggle { display: grid; place-items: center; min-width: 3rem; min-height: 3rem; padding: .25rem; border: 0; border-radius: 50%; background: none; cursor: pointer; }
 .toggle[aria-expanded="true"] { background: var(--chalk-tint); }
 .toggle:focus-visible, .close:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .panel { position: absolute; inset-block-start: calc(100% + .5rem); inset-inline-end: 0; z-index: 1100; display: grid; gap: 1rem; width: min(22rem, calc(100vw - 2rem)); max-height: 75svh; overflow-y: auto; overscroll-behavior: contain; padding: .75rem 1rem 1rem; border: 1px solid var(--ink); border-block-start: 3px solid var(--sumac); background: var(--chalk); color: var(--ink); animation: panelIn var(--dur-fast) var(--ease-out) both; }

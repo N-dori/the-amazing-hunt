@@ -23,8 +23,8 @@
 // Leaflet renders its own DOM; its class names are global, so overrides are scoped under .map.
 .map {
   width: 100%;
-  height: clamp(24rem, 62svh, 42rem);
-  border-block: 1px solid var(--ink);
+  height: var(--map-height, clamp(24rem, 62svh, 42rem));
+  border-block: var(--map-border, 1px solid var(--ink));
   background: var(--chalk-tint);
   font-family: var(--font-body);
 

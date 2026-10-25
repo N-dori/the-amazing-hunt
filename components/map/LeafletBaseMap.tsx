@@ -47,6 +47,11 @@ type LeafletBaseMapProps = {
   onImageError?: () => void;
   onSelect: (id: string) => void;
   onBackground: () => void;
+  // Optional frame styling from the caller (The Amazing Shuk's field card); it may set --map-height and --map-border.
+  frameClassName?: string;
+  // Pan just enough to keep the selected marker in view when it changes or the frame resizes. `bottomInset` is the
+  // height (px) of anything overlapping the frame's lower edge, such as The Amazing Shuk's preview sheet.
+  keepSelectedVisible?: { bottomInset: number };
 };
 
 type MapHandle = { L: typeof Leaflet; map: Leaflet.Map; markers: Leaflet.LayerGroup; memory: Leaflet.LayerGroup };
@@ -67,6 +72,22 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   useEffect(() => {
     latest.current = props;
   });
+
+  // Pans only if the selected marker (with its label) would sit under the edges or the overlapping sheet.
+  function revealSelected() {
+    const h = handleRef.current;
+    const { keepSelectedVisible, selectedId: id, markers: current } = latest.current;
+    const selected = keepSelectedVisible && id ? current.find((m) => m.id === id) : undefined;
+    if (!h || !keepSelectedVisible || !selected) return;
+    const size = selected.size ?? 44;
+    const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    h.map.panInside(imageToLatLng(baseMap, selected.x, selected.y), {
+      paddingTopLeft: [size, size],
+      // The label sits under the pin, so leave room for it as well as the overlap.
+      paddingBottomRight: [size, keepSelectedVisible.bottomInset + size * 1.5],
+      animate: !reduceMotion,
+    });
+  }
 
   // Create the map once per base map. Leaflet touches `window`, so it loads in the browser only.
   useEffect(() => {
@@ -143,6 +164,23 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
     }
   }, [ready, markers, selectedId, baseMap]);
 
+  // Leaflet only re-measures on window resize; a caller's layout can also resize the frame (e.g. a sheet opening below it).
+  useEffect(() => {
+    const h = handleRef.current;
+    const el = containerRef.current;
+    if (!h || !el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      h.map.invalidateSize({ pan: false });
+      revealSelected();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+    // revealSelected reads the latest props through `latest`, so it needn't re-subscribe the observer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
+  useEffect(() => { revealSelected(); }, [ready, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Historical memory layer.
   useEffect(() => {
     const h = handleRef.current;
@@ -159,7 +197,7 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   }, [ready, memoryLayers, baseMap]);
 
   return (
-    <div className={styles.frame} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
+    <div className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
       <div ref={containerRef} className={styles.map} role="region" aria-label={alt} />
       {notice ? <p className={styles.notice}>{notice}</p> : null}
     </div>

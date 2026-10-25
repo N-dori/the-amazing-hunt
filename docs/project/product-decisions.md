@@ -32,6 +32,14 @@
 
 - Mural reuse and alteration rights remain unresolved; do not build a mural image task until cleared.
 
+- **Stitch visual direction (approved 25 Oct 2026):**
+  - The owner's Stitch mockups (`docs/design/stitch-reference/`) set the look of the Shuk screens. They are a layout reference only: their copy and features are not approved.
+  - Where they conflict with the decisions in this file, these decisions win.
+  - IBM Plex Serif is approved for Shuk headings (`--font-display`), beside the brand's Plex Sans, Sans Hebrew and Mono.
+  - The participant avatar is DiceBear Thumbs (CC0) in a round frame, coloured with the DORI tokens.
+  - Before play, screens show only the food tokens a mission gives, never a points promise.
+  - The photo rights audit is deferred: the owner's photos may be used as they are for now.
+
 ## Conflict priority
 
 Follow current owner instructions first, then these approved decisions, then verified implementation constraints, current roadmap/design specs, and finally historical brainstorming. Record conflicts and update outdated plans; do not silently reverse a decision. Propose alternatives, but get owner approval before changing fundamental product direction.

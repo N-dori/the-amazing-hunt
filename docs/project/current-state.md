@@ -1,6 +1,6 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 25 Oct 2026 (Claude), after missions 4 and 5.** Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 25 Oct 2026 (Claude), after the Stitch design slice (header, map, preview, location).** Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
@@ -14,20 +14,28 @@
   4. **The Montefiore gate, "Three Languages, One Gate"** — pick 3 of 5 (Hebrew, English, Arabic); an optional bonus hides the plaque's year תרמ"ב in the word בתמר (Yemenite aliyah of 1881–82), a letter shuffle with no arithmetic (10 points).
   5. **Rabbi Aryeh Levin, "The Father of the Prisoners"** — Feinstein and Barazani, the grenades in oranges, told respectfully; pick 1 of 4; untimed, no hints, completion title "Answer received"; bonus: the Kramer-Rechtman plaque on HaCarmel St (10 points).
 - Rewards: provisional well values for every mission (100 max / 40 min points, 2 food tokens), awarded once on an authorised submission; optional arrival bonus of 20 points once.
-- Player UI: illustrated Leaflet map; a bottom-sheet mission preview tied to its marker; a location view with photo, names, landmarks and clue; checkbox-card answers with a sticky submit bar; a profile panel from the header avatar and compact role badges; a fixed bottom bar (Map, Mission, Food, Group) with browser history and refresh kept in the tab.
-- DiceBear Line Face avatars from the participant's immutable ID (core 10.7.0 / styles 10.6.0), with initials fallback.
+- Player UI, restyled after the owner's Stitch reference (layout only; challenges and Food not yet restyled):
+  - a sticky slim header: game name, screen title in Plex Serif, avatar, role pills and the points and tokens chips;
+  - the illustrated Leaflet map in a rounded field card;
+  - a mission preview that overlaps the map's lower edge, with a "Mission N · status" pill tied to its marker, a thumbnail and a teaser, and View Location in a row that never scrolls; the map keeps the selected pin in view;
+  - a location view with a photo, names, a "Look for" card, a "We're Here?" card, and Open Challenge with the food tokens;
+  - checkbox-card answers with a sticky submit bar;
+  - a profile panel from the avatar;
+  - a fixed bottom bar (Map, Mission, Food, Group) with browser history and refresh kept in the tab.
+- DiceBear Thumbs avatars (CC0) in a round frame, from the participant's immutable ID (core 10.7.0 / styles 10.6.0), coloured with the DORI tokens, with an initials fallback.
 
 ## Partial, provisional or unverified
 
 - **Nothing has been checked on a real phone.** The owner has reviewed some screens in a desktop browser by screenshot; layout, safe areas, back navigation and HTTPS GPS on a phone are unverified.
 - Marker placements are manual guesses for all five missions. GPS is on only for the mural (owner-confirmed point); the other four fall back to guide confirmation.
-- Photos: Gan HaTut gate and cistern, the mural street view and the synagogue facade are the owner's photographs, connected by the owner's choice. Mural reuse rights are still recorded as unresolved in [decisions](product-decisions.md); the before photo's photographer, date and rights are not recorded.
+- Photos: Gan HaTut gate and cistern, the mural street view and the synagogue facade are the owner's photographs, connected by the owner's choice. Mural reuse rights are still recorded as unresolved in [decisions](product-decisions.md); the before photo's photographer, date and rights are not recorded. The photo rights audit is deferred by the owner (25 Oct 2026).
+- The Stitch slice (header, map, preview, location, avatar) is uncommitted and not yet reviewed in a browser. The map stage's fit at 320×640, 375×667 and 390×844 is estimated by arithmetic only.
 - Much visitor-facing copy is draft (stories, hints, reveals, location text, UI labels); each slice lists its drafts in the handoff. Food offers are not approved; the Food tab shows the token balance and a marked gap.
 - Not yet built: onboarding, food redemption, the separate Shuk app boundary (planned before real-phone testing), production deployment.
 
 ## Current verification (clean `node:22-alpine` container)
 
-- `npm run test:shuk`: **115 passed, 0 failed.**
+- `npm run test:shuk`: **119 passed, 0 failed.**
 - `npm test`: **61 passed, 0 failed.**
 - `npx next typegen && npx tsc --noEmit`: pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk`: clean; full lint still has the three pre-existing errors in the isolated prototype and eleven warnings in Memory Protocol files. Changed Sass modules compile. `git diff --check`: pass.
 

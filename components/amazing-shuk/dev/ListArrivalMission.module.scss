@@ -1,0 +1,14 @@
+// The map stage fills the screen between the slim header (its measured height) and the bottom bar, so the map and the
+// preview sheet share one fixed area: the sheet takes what it needs, the map keeps the rest, and the page doesn't scroll.
+// dvh follows the phone browser's toolbar as it shows and hides; svh is the fallback.
+.stage {
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - var(--shuk-header-height, 7.5rem) - var(--shuk-nav-offset, 0px) - 1rem);
+  height: calc(100dvh - var(--shuk-header-height, 7.5rem) - var(--shuk-nav-offset, 0px) - 1rem);
+  min-height: 20rem;
+}
+
+// The map as a rounded field card. It shrinks when the sheet opens but always keeps a usable strip.
+.mapCard { --map-height: 100%; --map-border: 0;
+  flex: 1 1 0; min-height: 8rem; overflow: hidden; border: 1.5px solid var(--line-stone); border-radius: 1rem; box-shadow: var(--shadow-float); }

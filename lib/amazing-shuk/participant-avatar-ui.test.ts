@@ -105,6 +105,16 @@ test("profile menu shows only the avatar until opened; the open panel holds iden
   assert.match(open, /Answer-submitter: Unassigned/);
 });
 
+test("slim header: title, profile slot, role slot and the group's balance as two labelled chips, with no balance card", () => {
+  const Header = loadComponent("components/amazing-shuk/PreviewShukHeader.tsx");
+  const html = renderToStaticMarkup(createElement(Header, { title: "Explore the market", points: 265, foodTokens: 6,
+    menu: createElement("button", null, "avatar"), badges: createElement("ul", null, "roles") }));
+  assert.match(html, /<header[^>]*>.*The Amazing Shuk.*<h1[^>]*>Explore the market<\/h1>.*avatar.*roles/);
+  assert.match(html, /aria-label="Group points: 265"[^>]*>.*265 pts/);
+  assert.match(html, /aria-label="Food tokens: 6"[^>]*>.*6 tokens/);
+  assert.doesNotMatch(html, /<strong>|<section/);
+});
+
 test("bottom bar: four labelled buttons, one marked as the current page, and no game actions", () => {
   const Nav = loadComponent("components/amazing-shuk/PreviewShukNav.tsx");
   const html = text(createElement(Nav, { active: "mission", onSelect() {} }));

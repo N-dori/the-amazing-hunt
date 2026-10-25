@@ -94,7 +94,7 @@ Design every challenge in this order. Keep each challenge's mechanics its own; r
 - **Location assistance encourages exploration; it never gates participation.** The optional **We're Here?** button (the question mark is intentional) makes one GPS check on tap, against a configurable radius of about 100 m. Denial, weak signal and poor accuracy get a friendly message and the guide fallback, never a failure screen. No GPS dot on the illustration, no tracking and no stored movements.
 
 ### Identity and roles
-- Each participant has a DiceBear avatar generated from their immutable ID (the current style is Line Face), shown with their display name. It stays the same across sessions and devices.
+- Each participant has a DiceBear avatar generated from their immutable ID (the current style is Thumbs, in a round frame), shown with their display name. It stays the same across sessions and devices.
 - Make the navigator and answer-submitter easy to spot, including one person holding both.
 - Provide accessible labels and an initials fallback. No avatar customisation or profile screens: recognising people and their responsibilities matters more than decoration.
 
