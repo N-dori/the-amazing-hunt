@@ -1,0 +1,50 @@
+# THE AMAZING SHUK: its own compose project, image and data, separate from the Memory Protocol (compose.yml).
+# Built from the same repo with DORI_APP=shuk (see Dockerfile). No host ports: only revivo's Caddy reaches it,
+# over dori_net, at https://doriisrael.com/shuk. Access is by single-use invitation only (scripts/shuk-invite.ts).
+name: dori-shuk
+
+services:
+  shuk:
+    image: dori-shuk:current
+    container_name: dori-shuk
+    restart: unless-stopped
+    user: node
+    read_only: true
+    tmpfs:
+      - /tmp
+    # The group's shared state (one JSON file). Never removed by a deploy or rollback.
+    volumes:
+      - shuk_data:/data
+    environment:
+      NEXT_PUBLIC_DORI_APP: shuk
+      SHUK_APP: "1"
+      # The only host the app answers on; also the origin its cookies and invitation links use.
+      SHUK_PUBLIC_ORIGIN: https://doriisrael.com
+      SHUK_DATA_FILE: /data/state.json
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 100
+    networks:
+      - dori_net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/shuk/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  dori_net:
+    external: true
+
+volumes:
+  shuk_data:

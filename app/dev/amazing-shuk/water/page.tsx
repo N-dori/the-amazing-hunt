@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import IndexWaterTask from "@/components/amazing-shuk/dev/IndexWaterTask";
-import { isDevSimulationEnabled, isLocalDevelopmentHost } from "@/lib/amazing-shuk/dev-water-session";
+import { shukAccess } from "@/lib/amazing-shuk/shuk-access";
 
 export const metadata: Metadata = { title: "Water measurement · Amazing Shuk development", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -11,6 +11,6 @@ export const dynamic = "force-dynamic";
 export default async function WaterTaskDevelopmentPage() {
   await connection();
   const requestHeaders = await headers();
-  if (!isDevSimulationEnabled(process.env) || !isLocalDevelopmentHost(requestHeaders.get("host"))) notFound();
-  return <IndexWaterTask />;
+  if (shukAccess(process.env, requestHeaders.get("host")) !== "dev") notFound();
+  return <IndexWaterTask mode="dev" />;
 }

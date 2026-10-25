@@ -1,4 +1,4 @@
-import { ARRIVAL_NEARBY, checkMissionArrival, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
+import { ARRIVAL_NEARBY, checkMissionArrival, choiceStep, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
@@ -15,9 +15,11 @@ const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
 /** One mission's shared progress. Its award and arrival bonus are immutable once recorded.
  * `kind` follows the mission's challenge: the well keeps cups, a "choose N" challenge keeps the group's picks.
+ * A mission with follow-up questions also keeps the question it is on (`step`, from 0) and how many of the shared hints had been
+ * used when that question opened (`stepHintsStart`). Both are absent, meaning 0, for single-question missions.
  */
 type MissionRecord = { completed: boolean; arrival: MissionArrival | null; performance: WaterPerformance; bonus?: BonusRecord }
-  & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[] });
+  & ({ kind: "water"; cups: WaterCups } | { kind: "choice"; selected: string[]; step?: number; stepHintsStart?: number });
 /** An optional bonus question's shared picks and its one-time points, recorded once and never changed. */
 type BonusRecord = { selected: string[]; award: { points: number; awardedAt: number } | null };
 const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
@@ -42,8 +44,10 @@ function isValidMission(record: MissionRecord): boolean {
   if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
   if (record.bonus !== undefined && !(record.bonus && Array.isArray(record.bonus.selected) && record.bonus.selected.every(id => typeof id === "string")
     && (record.bonus.award === null || (Boolean(record.bonus.award) && Number.isSafeInteger(record.bonus.award.points) && record.bonus.award.points >= 0)))) return false;
-  return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string");
+  return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string")
+    && [record.step, record.stepHintsStart].every(n => n === undefined || (Number.isSafeInteger(n) && n >= 0));
 }
+const stepOf = (record: MissionRecord) => record.kind === "choice" ? record.step ?? 0 : 0;
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
 /** Reads the latest published snapshot and migrates it in memory; writers persist the migration. */
@@ -74,7 +78,8 @@ async function load(path: string): Promise<Database> {
   for (const mission of SHUK_MISSIONS) {
     const record = db.missions[mission.id];
     if (!record) db.missions = { ...db.missions, [mission.id]: emptyMission(mission) };
-    else if (record.kind !== mission.challenge.kind || (record.kind === "choice" && !isValidChoiceSelection(mission.challenge as ChoiceChallenge, record.selected))) throw new Error("Unsupported Shuk storage state");
+    else if (record.kind !== mission.challenge.kind || (record.kind === "choice" && !isValidChoiceSelection(choiceStep(mission, stepOf(record))?.challenge ?? mission.challenge as ChoiceChallenge, record.selected))
+      || (record.kind === "choice" && !choiceStep(mission, stepOf(record)))) throw new Error("Unsupported Shuk storage state");
     // A bonus added to an existing mission starts empty; the main record is kept as it is.
     else if (mission.bonus && !record.bonus) db.missions = { ...db.missions, [mission.id]: { ...record, bonus: EMPTY_BONUS } };
     else if (mission.bonus && record.bonus && !isValidChoiceSelection(mission.bonus.challenge, record.bonus.selected)) throw new Error("Unsupported Shuk storage state");
@@ -154,9 +159,10 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
     mission: missionView(definition, record),
     session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
-      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected }),
+      ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
       ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
+      stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
     // The group's balance covers every mission's recorded rewards.
     sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
@@ -214,11 +220,16 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (mission.completed) throw new Error("This challenge is already complete");
           mission.performance = adjustWaterTiming(mission.performance, action.operation, now, participantId);
         } else if (action.type === "hint") {
-          if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > definition.hintCount) throw new Error("Invalid hint");
-          if (action.hint > mission.performance.hintsUsed) {
+          // Hints are numbered within the current question; every hint adds to the mission's one shared total.
+          const step = stepOf(mission);
+          const hintCount = mission.kind === "choice" ? choiceStep(definition, step)?.hintCount ?? 0 : definition.hintCount;
+          const used = mission.performance.hintsUsed - (mission.kind === "choice" ? mission.stepHintsStart ?? 0 : 0);
+          if (!Number.isInteger(action.hint) || action.hint < 1 || action.hint > hintCount) throw new Error("Invalid hint");
+          if (action.step !== undefined && action.step !== step) message = "The group has moved on to the next question.";
+          else if (action.hint > used) {
             if (mission.performance.startedAt === null || mission.performance.solvedAt !== null || mission.completed) throw new Error("Hints are available during the challenge");
-            if (action.hint !== mission.performance.hintsUsed + 1) throw new Error("Reveal hints in order");
-            mission.performance = { ...mission.performance, hintsUsed: action.hint };
+            if (action.hint !== used + 1) throw new Error("Reveal hints in order");
+            mission.performance = { ...mission.performance, hintsUsed: mission.performance.hintsUsed + 1 };
           }
         } else if ("part" in action && action.part === "bonus") {
           // The optional bonus: shared picks like the main challenge, retries allowed, points recorded once. No timing or hints.
@@ -255,7 +266,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           mission.completed = result.session.completed;
           message = result.message;
         } else {
-          const challenge = choiceChallenge ?? definition.challenge as ChoiceChallenge;
+          const step = stepOf(mission);
+          const challenge = (step === 0 ? choiceChallenge : undefined) ?? choiceStep(definition, step)?.challenge;
+          if (!challenge) throw new Error("This challenge is unavailable");
           if (action.type === "move") throw new Error("This action doesn't fit this mission");
           if (action.type === "guide-approve" && !guide) throw new Error("Only the guide may approve a task.");
           if (mission.completed) {
@@ -273,11 +286,16 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           } else {
             // Submit and guide approval both check the group's shared picks; neither can bypass the key.
             const result = evaluateChoice(challenge, mission.selected);
-            if (result === "accepted") {
+            const next = result === "accepted" ? choiceStep(definition, step + 1) : null;
+            if (next) {
+              // A follow-up question opens with no picks; the clock keeps running and only the last answer is the solution.
+              mission.step = step + 1; mission.stepHintsStart = mission.performance.hintsUsed; mission.selected = [];
+            } else if (result === "accepted") {
               mission.completed = true;
               mission.performance = awardWaterPerformance({ ...mission.performance, solvedAt: mission.performance.solvedAt ?? now }, now, definition.rewards);
             }
-            message = result === "accepted" ? "The group's answer is correct. Task complete."
+            message = next ? "That's right! On to the next question."
+              : result === "accepted" ? "The group's answer is correct. Task complete."
               : result === "incomplete" ? `Choose ${challenge.required} before submitting.`
               : result === "unverified" ? "This answer can't be checked yet: the answer key still needs a field check. Ask your guide."
               : "Not quite. Look again and talk it over.";

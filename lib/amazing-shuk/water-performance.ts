@@ -10,7 +10,7 @@ export const WELL_REWARDS: WaterRewardConfig = Object.freeze({
   hintPenalties: Object.freeze([10, 15, 20]),
 });
 export type TimingOperation = "pause" | "resume" | "reset" | "exclude";
-export type WaterPerformanceAction = Readonly<{ type: "start" }> | Readonly<{ type: "hint"; hint: number }> | Readonly<{ type: "timing"; operation: TimingOperation }>;
+export type WaterPerformanceAction = Readonly<{ type: "start" }> | Readonly<{ type: "hint"; hint: number; step?: number }> | Readonly<{ type: "timing"; operation: TimingOperation }>;
 export type WaterReward = Readonly<{ points: number; foodTokens: number; hintsUsed: number }>;
 export type WaterPerformance = Readonly<{
   startedAt: number | null; clockStartedAt: number | null; solvedAt: number | null;
@@ -18,7 +18,8 @@ export type WaterPerformance = Readonly<{
   award: (WaterReward & { awardedAt: number; elapsedMs: number | null }) | null;
   adjustments: readonly { operation: TimingOperation; at: number; actorId: string }[];
 }>;
-export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; canStart: boolean; reward: WaterReward | null }>;
+// `stepHintsUsed` counts the current question's hints in a mission with follow-up questions; it equals `hintsUsed` otherwise.
+export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; stepHintsUsed?: number; canStart: boolean; reward: WaterReward | null }>;
 export type GuideTimingView = Readonly<{ startedAt: number | null; solvedAt: number | null; stoppedElapsedMs: number | null; paused: boolean; excluded: boolean }>;
 export function createWaterPerformance(): WaterPerformance {
   return { startedAt: null, clockStartedAt: null, solvedAt: null, pausedAt: null, pausedMs: 0, excluded: false, hintsUsed: 0, award: null, adjustments: [] };

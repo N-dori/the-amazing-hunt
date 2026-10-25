@@ -14,6 +14,7 @@ import { MURAL_MISSION_ID } from "./mural-task.ts";
 import { SYNAGOGUE_MISSION_ID } from "./synagogue-task.ts";
 import { MONTEFIORE_MISSION_ID } from "./montefiore-task.ts";
 import { LEVIN_MISSION_ID } from "./levin-task.ts";
+import { MARZIPAN_MISSION_ID } from "./marzipan-task.ts";
 const WELL = GAN_HATUT_MISSION.id;
 // The well's detail; null if the view is for a "choose N" mission.
 const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
@@ -313,7 +314,7 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.equal((await post({ type: "move", move: "fill-large", missionId: WELL, actionId: "listed-mission-fill-001" })).status, 200);
   assert.equal((await post({ type: "reset", missionId: "retired-mission", actionId: "retired-mission-reset-001" })).status, 403);
   const view = await sessionView(path, player);
-  assert.deepEqual(view.missions.map(mission => mission.id), [WELL, MURAL_MISSION_ID, SYNAGOGUE_MISSION_ID, MONTEFIORE_MISSION_ID, LEVIN_MISSION_ID]);
+  assert.deepEqual(view.missions.map(mission => mission.id), [WELL, MURAL_MISSION_ID, SYNAGOGUE_MISSION_ID, MONTEFIORE_MISSION_ID, LEVIN_MISSION_ID, MARZIPAN_MISSION_ID]);
   assert.deepEqual(cupsOf(view), { small: 0, large: 5, jar: 0 });
   assert.deepEqual(view.sharedBalance, { points: 55, foodTokens: 1, status: "Provisional local-development rewards" });
   assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions["retired-mission"], retired);

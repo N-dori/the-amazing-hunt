@@ -38,5 +38,5 @@ The guide dashboard is its own feature (`IndexGuide…`) and never shares a comp
 - Domain types and non-trivial helpers live outside JSX files (`lib/`). Pure functions; never mutate inputs.
 - Stable IDs for missions, stops, sources and evidence. Reference by ID rather than duplicating objects.
 - Import from `@/` (the app root). Never import from the DORI platform repo; copy a shared piece deliberately and note where it came from.
-- `lib/base-path.ts` is the only place the `/memory-protocol` path is written. Use `next/link` (which adds it); `next/image` `src` and manifest URLs need it added by hand.
+- `lib/base-path.ts` is the only place the app prefixes are written: `/memory-protocol`, or `/shuk` in the Shuk build (`NEXT_PUBLIC_DORI_APP=shuk`). Use `next/link` (which adds it); `next/image` `src`, `fetch` URLs and manifest URLs need `BASE_PATH` added by hand.
 - Keep files reviewable; split a file when unrelated responsibilities start to collect in it.

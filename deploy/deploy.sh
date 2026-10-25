@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
-# Deploy THE MEMORY PROTOCOL: pull -> build image -> switch -> wait healthy -> smoke check ->
-# roll back automatically if either check fails. Touches only the dori-game container.
+# Deploy one of the two game apps: pull -> build image -> switch -> wait healthy -> smoke check ->
+# roll back automatically if either check fails. Touches only that app's container.
+#   (no argument) THE MEMORY PROTOCOL, container dori-game
+#   shuk          THE AMAZING SHUK, container dori-shuk (built with DORI_APP=shuk)
 #
 # Run inside tmux:   tmux new -s game-deploy /root/projects/The-Amazing-Hunt/deploy/deploy.sh
+#                    tmux new -s shuk-deploy '/root/projects/The-Amazing-Hunt/deploy/deploy.sh shuk'
 set -euo pipefail
 
 # The repo is the game app; it is found from this script's own location.
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-COMPOSE=$REPO/deploy/compose.yml
 BRANCH=main
-IMAGE=dori-game
-CONTAINER=dori-game
 KEEP=3
+TARGET=${1:-game}
+case "$TARGET" in
+  game) COMPOSE=$REPO/deploy/compose.yml IMAGE=dori-game CONTAINER=dori-game SERVICE=game BUILD_ARGS=() ;;
+  shuk) COMPOSE=$REPO/deploy/shuk-compose.yml IMAGE=dori-shuk CONTAINER=dori-shuk SERVICE=shuk BUILD_ARGS=(--build-arg DORI_APP=shuk) ;;
+  *) echo "game-deploy: unknown target '$TARGET' (use no argument, or shuk)" >&2; exit 1 ;;
+esac
 
 die() { echo "game-deploy: $*" >&2; exit 1; }
 step() { echo; echo "== $*"; }
@@ -35,12 +41,14 @@ rollback() {
   bad=$(docker image inspect -f '{{.Id}}' "$IMAGE:current")
   docker tag "$IMAGE:previous" "$IMAGE:current"
   docker tag "$bad" "$IMAGE:previous"
-  docker compose -f "$COMPOSE" up -d game
+  docker compose -f "$COMPOSE" up -d "$SERVICE"
   wait_healthy
 }
 
-# The pages a release must answer with 200, from inside the container.
+# What a release must answer, from inside the container. The Shuk is also checked to refuse every other host,
+# and to hide the Memory Protocol's pages, with the Host header Caddy would pass.
 smoke() {
+  [ "$TARGET" = shuk ] && { smoke_shuk; return; }
   docker exec "$CONTAINER" node -e '
     const paths = ["/memory-protocol", "/memory-protocol/api/health", "/memory-protocol/manifest.webmanifest"];
     Promise.all(paths.map(async (p) => {
@@ -48,6 +56,25 @@ smoke() {
       console.log(r.status, p);
       return r.status === 200;
     })).then((ok) => process.exit(ok.every(Boolean) ? 0 : 1), () => process.exit(1));'
+}
+smoke_shuk() {
+  docker exec "$CONTAINER" node -e '
+    const http = require("node:http");
+    const checks = [["/shuk/api/health", "doriisrael.com", 200], ["/shuk/manifest.webmanifest", "doriisrael.com", 200],
+      ["/shuk/amazing-shuk", "doriisrael.com", 200], ["/shuk/amazing-shuk", "127.0.0.1:3000", 404],
+      ["/shuk/dev/map", "doriisrael.com", 404], ["/shuk/api/sessions", "doriisrael.com", 404]];
+    const get = ([path, host]) => new Promise((done) => http.get({ host: "127.0.0.1", port: 3000, path, headers: { host } },
+      (r) => { r.resume(); done(r.statusCode); }).on("error", () => done(0)));
+    // The root must lead to the Shuk game, never render the Memory Protocol it shares a codebase with.
+    const root = () => new Promise((done) => http.get({ host: "127.0.0.1", port: 3000, path: "/shuk", headers: { host: "doriisrael.com" } }, (r) => {
+      let body = ""; r.on("data", (c) => body += c); r.on("end", () => done(!/Memory Protocol|HARMONY/.test(body) && (r.statusCode === 200 || /\/shuk\/amazing-shuk$/.test(r.headers.location ?? ""))));
+    }).on("error", () => done(false)));
+    Promise.all([...checks.map(async (check) => {
+      const status = await get(check);
+      console.log(status, check[0], "Host:", check[1], "expected", check[2]);
+      return status === check[2];
+    }), root().then((ok) => { console.log(ok ? "ok" : "FAIL", "/shuk leads to the Shuk game"); return ok; })])
+      .then((ok) => process.exit(ok.every(Boolean) ? 0 : 1), () => process.exit(1));'
 }
 
 # Everything runs inside main(), which bash reads in full before starting, so a pull that
@@ -76,14 +103,14 @@ commit=$(git -C "$REPO" rev-parse --short HEAD)
 
 step "Build image"
 tag="$(date +%Y%m%d-%H%M%S)-$commit"
-docker build -t "$IMAGE:$tag" "$REPO"
+docker build "${BUILD_ARGS[@]}" -t "$IMAGE:$tag" "$REPO"
 
 step "Switch to $IMAGE:$tag"
 if docker image inspect "$IMAGE:current" >/dev/null 2>&1; then
   docker tag "$IMAGE:current" "$IMAGE:previous"
 fi
 docker tag "$IMAGE:$tag" "$IMAGE:current"
-docker compose -f "$COMPOSE" up -d game
+docker compose -f "$COMPOSE" up -d "$SERVICE"
 
 step "Wait for healthy"
 wait_healthy || { rollback || true; die "new release never became healthy"; }

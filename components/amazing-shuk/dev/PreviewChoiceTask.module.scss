@@ -43,3 +43,5 @@
 .figure { margin: 1rem 0 0; max-width: 24rem; }
 .image { display: block; width: 100%; height: auto; }
 .caption { font-size: .875rem; line-height: 1.5; color: var(--ink); font-weight: 400; margin-block-start: .5rem; }
+// A follow-up question opens under the answer to the last one: a quiet Za'atar edge, so it reads as "well done", not a new task.
+.lead { max-width: 42rem; margin-block-start: .5rem; padding: .25rem 1rem 1rem; border-inline-start: .25rem solid var(--zaatar); background: var(--chalk-tint); }

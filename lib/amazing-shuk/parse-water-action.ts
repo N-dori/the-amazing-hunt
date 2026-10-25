@@ -49,7 +49,10 @@ function parseActionBody(value: unknown): DevWaterAction | null {
     case "start":
       return { type: "start" };
     case "hint":
-      return Number.isInteger(value.hint) && (value.hint as number) >= 1 && (value.hint as number) <= 3 ? { type: "hint", hint: value.hint as number } : null;
+      // `step` names the question a hint belongs to, so a hint queued before the group moved on can't open the next question's.
+      if (value.step !== undefined && !(Number.isInteger(value.step) && (value.step as number) >= 0 && (value.step as number) <= 9)) return null;
+      return Number.isInteger(value.hint) && (value.hint as number) >= 1 && (value.hint as number) <= 3
+        ? { type: "hint", hint: value.hint as number, ...(value.step === undefined ? {} : { step: value.step as number }) } : null;
     case "timing":
       return value.operation === "pause" || value.operation === "resume" || value.operation === "reset" || value.operation === "exclude" ? { type: "timing", operation: value.operation } : null;
     case "submit":

@@ -31,7 +31,15 @@ export type MissionDefinition = Readonly<{
   timed?: false;
   // An optional second question, open only after the main answer is accepted; its points never include food tokens.
   bonus?: Readonly<{ challenge: ChoiceChallenge; points: number }>;
+  // Further scored questions after a "choose N" challenge, in order, each with its own hints. The mission completes, and earns
+  // its one award, when the last is accepted. Hints count towards one shared total, so all steps' hints fit the penalty list.
+  followUps?: readonly Readonly<{ challenge: ChoiceChallenge; hintCount: number }>[];
 }>;
+/** The question a "choose N" mission is on: step 0 is its challenge, then its follow-ups. Null past the last step. */
+export function choiceStep(definition: MissionDefinition, step: number): Readonly<{ challenge: ChoiceChallenge; hintCount: number }> | null {
+  if (definition.challenge.kind !== "choice" || !Number.isInteger(step) || step < 0) return null;
+  return step === 0 ? { challenge: definition.challenge, hintCount: definition.hintCount } : definition.followUps?.[step - 1] ?? null;
+}
 export const GAN_HATUT_MISSION = Object.freeze({
   id: WATER_TASK_ID, title: WATER_TASK.title, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
   // Hebrew tour, stop 5; landmarks from site research run 06, row 5 (marked verified).

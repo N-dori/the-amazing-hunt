@@ -15,7 +15,7 @@ Run lint and relevant tests for code changes; build after route, asset or deploy
 
 ## Coding Style
 
-Use TypeScript, typed props and existing ESLint conventions. Import app modules through `@/`. Keep domain types and non-trivial pure helpers in `lib/`; do not mutate inputs. Use stable IDs instead of duplicate domain objects. Keep components focused and files reviewable. Only `lib/base-path.ts` may contain `/memory-protocol`; use `next/link` for links and prefix `next/image` sources and manifest URLs manually. Keep owner photos out of Git; version only the photo index CSV.
+Use TypeScript, typed props and existing ESLint conventions. Import app modules through `@/`. Keep domain types and non-trivial pure helpers in `lib/`; do not mutate inputs. Use stable IDs instead of duplicate domain objects. Keep components focused and files reviewable. Only `lib/base-path.ts` may contain `/memory-protocol` or `/shuk` (the Shuk build's prefix); use `next/link` for links and prefix `next/image` sources and manifest URLs manually. Keep owner photos out of Git; version only the photo index CSV.
 
 ## Game Architecture and Rules
 

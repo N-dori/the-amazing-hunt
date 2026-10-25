@@ -143,8 +143,12 @@ test("actual selected mission renders existing story and playable challenge for 
     const stateFor = react.useState;
     react.useState = (initial: unknown) => initial && typeof initial === "object" && "stage" in initial ? [{ ...initial, stage: "challenge" }, () => {}] : stateFor(initial);
     const Index = load("components/amazing-shuk/dev/IndexWaterTask.tsx", react);
-    const html = renderToStaticMarkup(createElement(Index));
+    const html = renderToStaticMarkup(createElement(Index, { mode: "dev" }));
     assert.match(html, /THE STORY OF THE WELL/); assert.match(html, /Start challenge/);
+    assert.match(html, /Local development only/);
+    // The protected app plays the same challenge without the development panel.
+    const app = renderToStaticMarkup(createElement(Index, { mode: "app" }));
+    assert.match(app, /THE STORY OF THE WELL/); assert.doesNotMatch(app, /Local development|local simulation/i);
     assert.match(html, /3 L/); assert.match(html, /5 L/); assert.match(html, /4 L/);
     assert.doesNotMatch(html, /Here!|role="timer"/);
   }

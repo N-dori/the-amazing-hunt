@@ -1,6 +1,69 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - mission preview overlaps the map; View Location never scrolls away, 25 Oct 2026
+## Latest handoff - mission 6, Marzipan Bakery, "The Sweet Secret of Marzipan", 25 Oct 2026
+
+**Not committed** (owner asked for no commit, push or deploy). The owner's brief: a 3–5 minute bakery stop at 44 Agripas Street on rugelach, the syrup, the name, the New York shipping and babka.
+
+- **Mission 6, `lib/amazing-shuk/marzipan-task.ts`** (`marzipan-rugelach`, marker 6):
+  - Story: three labelled lines (opened about 40 years ago by Yosef and Shoshana Ozerko; their sons run it; moist, sticky, soaked in syrup).
+  - **Name mystery, unscored:** "Why is a bakery famous for chocolate rugelach called Marzipan?" A closed `<details>` answer, labelled Attributed tradition: only the guide's recorded tour says it first sold marzipan sweets. No published bakery account was found, so nothing is scored and nothing is stored.
+  - **Question 1, scored:** when does the syrup go on? Before the oven / **while still warm** / after cooling. Two hints.
+  - **Question 2, scored:** what does rugelach refer to? **Little horns** / crowns / boats / bells (distractors invented). One hint. It opens under the answer to question 1 (the syrup and texture, plus the bucket-and-hose story as Attributed tradition).
+  - Final reveal: Polish róg; an Interpretation that "little horns" is the usual reading, not word for word; traditional crescents vs Marzipan's straight ones; "Look at the trays".
+  - **Bonus, the suitcase mystery** (10 points, no food tokens): flash-frozen and flown to New York, given as the bakery's own account. The reveal says it is not a list of what New York shops sell today.
+  - **Babka:** an unscored conversation (the existing appreciation panel). "Chocolate or cinnamon babka: which would you bring to a Shabbat dinner?" It makes no claim about Marzipan.
+  - **Explore Food Rewards** after completion: it only opens the Food tab. No redemption, prices, portions or offers.
+  - Rewards: the provisional well values (2 food tokens, 100/40 points, 3 hint penalties shared over both questions); timed invisibly.
+- **New shared mechanism: follow-up questions** (`MissionDefinition.followUps`, `choiceStep` in `mission-arrival.ts`):
+  - A "choose N" mission may have further scored questions. The store keeps `step` and `stepHintsStart` on the choice record; both are absent for the other missions, so their records are unchanged.
+  - An accepted answer opens the next question with no picks. Only the last answer completes the mission, stops the clock and issues the one award.
+  - Hints are numbered within a question but count towards one shared total. A hint action may carry `step`; a late hint from an earlier question is a no-op ("The group has moved on…").
+  - A stored step that doesn't exist is refused on load.
+  - UI: `ListChoiceTask` takes `step` and `followUps`; `PreviewChoiceTask` shows a `lead`. New `PreviewChoicePrediction` (3rem summary target). `IndexWaterTask` sends the step with hints and shows the Food button.
+- **Sources** (read 25 Oct 2026):
+  - Maariv, Pascal Perez-Rubin, 3 Jul 2020: brushed with syrup "as they come out of the oven, while still warm"; Marzipan's rugelach have "a straight shape" and are "moist, sticky, soaked in sugar syrup".
+  - Time Out Tel Aviv, 22 May 2023: about 40 years ago; Yosef Ozerko and his wife Shoshana; their sons run the business. (Mako names the sons Itzik and Gilad; Time Out, Itzik and Shlomi. The copy names neither.)
+  - marzipanbakery.com "Our Story" (undated, © 2026): the suitcases quote and "we flash freeze them and fly them directly to our New York facility". The Jerusalem Post (Niv Elis, 5 Jun 2016) headline: four Gourmet Glatt stores in New York and New Jersey (only the headline and caption were readable).
+  - English Wikipedia, "Rugelach" (Polish rogaliki, róg = horn; crescent, citing Joan Nathan) and "Babka (cake)" (citing Gil Marks: Polish Jewish communities; spare challah dough with jam or cinnamon; chocolate likely mid-20th-century American).
+  - Guide's recorded tour, `docs/scavenger_hunt/HE_trans.txt` ("מאפיית מרציפן והרוגלך"): the name story and the bucket and hose.
+  - Could not open (HTTP 403): the Yiddish Book Center, Tablet, Forward and Jamie Geller pages.
+- **Provisional or unverified:**
+  - **Every story, question, hint, reveal, bonus and location line is draft copy for owner review.** The question wording and the bonus answers are the owner's.
+  - The name's origin: oral only.
+  - Babka and Shabbat: Wikipedia ties babka to challah dough but says nothing about Shabbat tables. The copy keeps Shabbat to the conversation question.
+  - Whether the New York shipping still runs today.
+- **Location and map:**
+  - Hebrew name "מרציפן", per the brief; the sign is not checked.
+  - The clue mentions the queue (13tv/Yummies, 29 Aug 2023) and trays of rugelach. The entrance is not field-checked (`TODO(field)`).
+  - **No photo:** there is no owner, bakery or licensed image, so the location shows the camera fallback.
+  - The marker (628, 472) is where the base map's own "Marzipan Bakery" label sits. That label was traced from a Google Maps screenshot (map audit), so `verified: false`.
+  - GPS is off: `destination: null`; the guide can confirm arrival.
+  - Opening hours, kosher status, allergens and any tasting are not arranged. The address listing is the only business check (site research run 06, row 14), and the English tour notes a directory flagged possible closure: **check the shop is open before a pilot.**
+- **Verified** (25 Oct 2026):
+  - In `shuk-dev`: `test:shuk` 133/133. New tests:
+    - `marzipan-task.test.ts`: keys and sources, labels, no spoilers, the name as tradition, the bonus, babka, the catalogue, the hint step parse, the full server run, and persistence with a bad step refused. The server run covers a wrong answer, a follower refused, question 2, a late hint, the step's own hints, a stale pick, the early bonus refused, 75 points for two hints, no second award on repeat submit, guide approval and replay, and the bonus once.
+    - `marzipan-task-ui.test.ts`: each question's choices and hints, the lead, the completion reveal, and a prediction with no form.
+    - Three catalogue lists updated.
+  - On the host: `npm test` 61/61.
+  - In `shuk-dev`: `tsc --noEmit` passes (without a fresh `next typegen`); ESLint on `lib/amazing-shuk` and `components/amazing-shuk` is clean; both changed Sass modules compile, with no hex values. The dev page serves HTTP 200. `git diff --check`: only the owner's `docs/RUN_PREVIEW.md` trailing space.
+  - `/game-verify` (the image build) was **not** run.
+- **Not checked in a browser or on a phone:**
+  - question 2 replacing question 1 for every device at once;
+  - the lead panel;
+  - the prediction's open and closed states;
+  - the Food button;
+  - the marker over the base map's label;
+  - the no-photo location view.
+- **Open decisions for the owner:**
+  - Approve or rewrite the copy.
+  - Keep the name mystery as a tradition, or ask the bakery.
+  - A storefront photo (own, bakery-approved or licensed).
+  - A field point for GPS and the marker.
+  - Whether to remove the base map's baked-in Marzipan label (the audit said it must go; it now marks a real stop).
+  - Rewards and bonus values.
+  - Any tasting offer: guide-approved only.
+
+## Earlier handoff - mission preview overlaps the map; View Location never scrolls away, 25 Oct 2026
 
 Committed and pushed on `main` (`9d9b9c5`). The owner approved the Stitch direction and asked for two connected preview refinements: the preview overlaps the map, and View Location is visible without scrolling.
 

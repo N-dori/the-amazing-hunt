@@ -8,15 +8,21 @@ import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
 import styles from "./PreviewChoiceTask.module.scss";
 type Props = {
   view: ChoiceTaskView; question: string; performance: WaterPerformanceView;
+  // On a follow-up question: why the group's last answer was right, shown above the new question.
+  lead?: readonly { label: string; text: string }[];
   reveal: ChoiceTaskContent["reveal"]; completionTitle?: string;
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
   // The latest reply to this device's action (e.g. a wrong answer), shown beside the submit button.
   feedback: string;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
-export default function PreviewChoiceTask({ view, question, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
   const playing = performance.started && !view.completed;
   return <section className={styles.task} aria-labelledby="mural-task-title">
+    {lead && !view.completed ? <div className={styles.lead} role="status">{lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
+      <p className={styles.revealLabel}>{paragraph.label}</p>
+      <p>{paragraph.text}</p>
+    </div>)}</div> : null}
     <h2 id="mural-task-title" className={styles.question}>{question}</h2>
     {!performance.started && !view.completed ? <div className={styles.actions}>
       {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
