@@ -1,8 +1,12 @@
 import type { ArrivalAction } from "./mission-arrival.ts";
 import type { DevWaterAction } from "./dev-water-session.ts";
 
+import type { AssignableGroupRole } from "./roles.ts";
+
+/** A player takes a free role, or steps down from their own. Everyone without a role is an advisor. */
+export type RoleChoiceAction = Readonly<{ type: "claim-role"; role: AssignableGroupRole }> | Readonly<{ type: "release-role"; role: AssignableGroupRole }>;
 /** Shared-state actions sent by browsers. Role changes apply to the whole group; every other action names its mission. */
-type GroupWideAction = Extract<DevWaterAction, { type: "assign-role" | "switch-actor" }>;
+type GroupWideAction = Extract<DevWaterAction, { type: "assign-role" | "switch-actor" }> | RoleChoiceAction;
 /** Adds or removes one option in a "choose N" challenge's shared selection. */
 export type ChoiceAction = Readonly<{ type: "toggle-choice"; optionId: string }>;
 // `part: "bonus"` aims a toggle, reset or submit at the mission's optional bonus question instead of its main challenge.

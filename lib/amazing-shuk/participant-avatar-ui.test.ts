@@ -79,7 +79,7 @@ test("current and role identity rendering shows names and one row for a dual-rol
 // React separates adjacent text with empty comments; drop them so assertions read like the visible text.
 const text = (element: ReactElement) => renderToStaticMarkup(element).replace(/<!-- -->/g, "");
 
-test("role badges stay visible in one compact list: a dual-role participant once, an empty role as Unassigned", () => {
+test("role badges stay visible in one compact list: a dual-role participant once, an empty role as free", () => {
   const Badges = loadComponent("components/amazing-shuk/ListParticipantBadges.tsx");
   const participants = [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }];
   const both = text(createElement(Badges, { participants, currentId: "b", roles: { navigator: "a", answerSubmitter: "a" } }));
@@ -88,7 +88,7 @@ test("role badges stay visible in one compact list: a dual-role participant once
   assert.equal((both.match(/<li/g) ?? []).length, 1);
   assert.doesNotMatch(both, /<strong>Bea<|Sign out/);
   const empty = text(createElement(Badges, { participants, currentId: "b", roles: { navigator: null, answerSubmitter: "b" } }));
-  assert.match(empty, /Navigator: Unassigned/); assert.match(empty, /<strong>Bea<\/strong> Answer-submitter/);
+  assert.match(empty, /Navigator: free/); assert.match(empty, /<strong>Bea<\/strong> Answer-submitter/);
 });
 
 test("profile menu shows only the avatar until opened; the open panel holds identity, roles and Sign out", () => {
@@ -101,8 +101,8 @@ test("profile menu shows only the avatar until opened; the open panel holds iden
   const Open = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx", openReact);
   const open = text(createElement(Open, props));
   assert.match(open, /aria-expanded="true"/); assert.match(open, /aria-label="Close profile"/);
-  assert.match(open, /Signed in as/); assert.match(open, /Your role: follower/); assert.match(open, /Sign out/);
-  assert.match(open, /Answer-submitter: Unassigned/);
+  assert.match(open, /Signed in as/); assert.match(open, /Your role: Advisor/); assert.doesNotMatch(open, /follower/); assert.match(open, /Sign out/);
+  assert.match(open, /Answer-submitter: free \(anyone can take it in the Group tab\)/);
 });
 
 test("slim header: title, profile slot, role slot and the group's balance as two labelled chips, with no balance card", () => {
@@ -129,12 +129,15 @@ test("Group tab lists everyone with roles and marks you; progress and balance co
   const Group = loadComponent("components/amazing-shuk/ListGroupOverview.tsx");
   const html = text(createElement(Group, {
     participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }, { id: "c", name: "Cal" }], roles: { navigator: "a", answerSubmitter: "a" }, currentId: "b",
-    missions: [{ state: "completed" }, { state: "available" }], balance: { points: 120, foodTokens: 4 },
+    missions: [{ state: "completed" }, { state: "available" }], balance: { points: 120, foodTokens: 4 }, guide: false, busy: false, onClaim() {}, onRelease() {},
   }));
   assert.match(html, /<dd>1 of 2<\/dd>/); assert.match(html, /<dd>120<\/dd>/); assert.match(html, /<dd>4<\/dd>/);
   assert.match(html, /<strong>Ari<\/strong><span>Navigator \/ Answer-submitter<\/span>/);
   assert.match(html, /You<\/span><strong>Bea<\/strong>/);
-  assert.equal((html.match(/<li/g) ?? []).length, 3);
+  // Three people in the roster (after the two roles); players without a role are advisors.
+  const roster = html.slice(html.indexOf('aria-label="Participants"'));
+  assert.equal((roster.match(/<li/g) ?? []).length, 3);
+  assert.match(roster, /<strong>Cal<\/strong><span>Advisor<\/span>/);
   assert.doesNotMatch(html, /Sign out|<select/);
 });
 

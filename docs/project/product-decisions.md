@@ -11,6 +11,10 @@
 - The guide manages participant roles and approves task completions.
 
 - One participant is navigator and one is answer-submitter; the same person may hold both roles; everyone else is a follower.
+  - **Updated 25 Oct 2026 (owner):** "let them choose and the rest are advisors".
+  - Players take a free role themselves from the Group tab, and can step down to free it. A role someone else holds can't be taken.
+  - The guide can still assign or clear any role.
+  - Players see "Advisor" for everyone without a role; the code keeps the name `follower`.
 
 - The group chooses its route among available tasks.
 

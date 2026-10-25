@@ -15,6 +15,6 @@ export default function ListParticipantBadges({ participants, roles, currentId }
       {participant.responsibilities.map(role => role in ROLE_ICON ? <Icon key={role} name={ROLE_ICON[role as keyof typeof ROLE_ICON]} className={styles.icon} /> : null)}
       <span><strong>{participant.displayName}</strong> {participant.responsibilities.join(" / ")}</span>
     </li>)}
-    {view.unassigned.map(role => <li key={role} className={`${styles.badge} ${styles.unassigned}`}>{role}: Unassigned</li>)}
+    {view.unassigned.map(role => <li key={role} className={`${styles.badge} ${styles.unassigned}`}>{role}: free</li>)}
   </ul>;
 }

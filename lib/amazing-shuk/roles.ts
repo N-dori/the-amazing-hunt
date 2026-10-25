@@ -18,6 +18,19 @@ export function setGroupRole(participantIds: readonly string[], current: GroupRo
   return Object.freeze({ ...current, [role]: participantId });
 }
 
+/** A player takes a role only while it is free (or already theirs); a role someone else holds can't be taken. */
+export function claimGroupRole(participantIds: readonly string[], current: GroupRoleAssignments, role: AssignableGroupRole, participantId: string): GroupRoleAssignments {
+  const holder = current[role];
+  if (holder !== null && holder !== participantId) throw new Error("role is already taken");
+  return setGroupRole(participantIds, current, role, participantId);
+}
+
+/** Only the player holding a role can step down from it; the role becomes free for anyone to take. */
+export function releaseGroupRole(participantIds: readonly string[], current: GroupRoleAssignments, role: AssignableGroupRole, participantId: string): GroupRoleAssignments {
+  if (current[role] !== participantId) throw new Error("only the role holder can step down");
+  return setGroupRole(participantIds, current, role, null);
+}
+
 export function roleForParticipant(participantId: string, roles: GroupRoleAssignments): ParticipantRole {
   const isNavigator = roles.navigator === participantId;
   const isAnswerSubmitter = roles.answerSubmitter === participantId;

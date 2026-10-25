@@ -1,0 +1,8 @@
+.roles { display: grid; gap: .75rem; padding-block: 1rem; border-block-end: 1px solid var(--neutral-line); }
+.title { font-family: var(--font-mono); font-size: .875rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.intro, .note { line-height: 1.5; }
+.list { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+// Each role on its own row; the button wraps under the name on narrow phones. Buttons keep the 3rem outdoor target.
+.role { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; min-width: 0; padding: .5rem .75rem; border-radius: .5rem; background: var(--chalk-tint); }
+.role p { min-width: 0; overflow-wrap: anywhere; }
+.role button { min-height: 3rem; }

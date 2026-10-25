@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
 import type { ParticipantIdentity } from "@/lib/amazing-shuk/participant-identity";
-import type { GroupRoleAssignments } from "@/lib/amazing-shuk/roles";
+import type { GroupRoleAssignments, ParticipantRole } from "@/lib/amazing-shuk/roles";
 import ListParticipantIdentity from "./ListParticipantIdentity";
 import ParticipantAvatar from "./ParticipantAvatar";
 import styles from "./IndexParticipantMenu.module.scss";
 
-type Props = { participants: readonly ParticipantIdentity[]; roles: GroupRoleAssignments; currentId: string; currentRole: string; busy: boolean; onSignOut: () => void };
+type Props = { participants: readonly ParticipantIdentity[]; roles: GroupRoleAssignments; currentId: string; currentRole: ParticipantRole | "guide"; busy: boolean; onSignOut: () => void };
 /** The signed-in participant's avatar, opening a small profile panel with the account details and Sign out. */
 export default function IndexParticipantMenu({ participants, roles, currentId, currentRole, busy, onSignOut }: Props) {
   const [open, setOpen] = useState(false);

@@ -1,6 +1,22 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - the protected Shuk app is live at doriisrael.com/shuk, 25 Oct 2026
+## Latest handoff - players choose their own roles; everyone else is an advisor, 25 Oct 2026
+
+The owner asked: "let them choose and the rest are advisors". **Not committed or deployed yet**; the live app still has the old behaviour. Live roles were set by hand earlier: Michael (player-4) is navigator and Ellen (player-5) is answer-submitter.
+
+- **Roles:**
+  - `roles.ts`: `claimGroupRole` (only a free role, or one you already hold) and `releaseGroupRole` (only the holder).
+  - New player actions `claim-role` and `release-role` (`group-action.ts`, `parse-water-action.ts`), applied in `participant-store.ts`. The guide is refused there and keeps `assign-role` in the guide panel.
+  - Advisors still can't start or submit, as before.
+- **UI:**
+  - The Group tab has a new `PreviewRoleChoices`: each role shows its holder, "you" or "free", with Take this role or Step down (3rem buttons).
+  - `roleLabel` shows "Advisor" for `follower`. The roster lists advisors and the guide.
+  - The profile panel says "Your role: Advisor". Empty roles read "free".
+  - All new wording is a draft (`TODO(copy)`).
+- **Verified:** `test:shuk` 142/142. New `role-choice.test.ts` covers the pure rules, labels, the Group tab buttons, and a server run: an advisor refused at start, a claim, a steal refused, a foreign step-down refused, the guide refused as a claimer, step down and replay, and the guide reassigning. `npm test` 61/61; tsc, ESLint and Sass are clean.
+- **Not checked in a browser.**
+
+## Earlier handoff - the protected Shuk app is live at doriisrael.com/shuk, 25 Oct 2026
 
 The owner approved the plan (`/root/.claude/plans/tingly-snacking-tower.md`), then the commit and push (`fbd9fad`, Marzipan included), the deploy, the Caddy route and the invitations.
 

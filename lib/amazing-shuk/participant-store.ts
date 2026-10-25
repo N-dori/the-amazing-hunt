@@ -6,7 +6,7 @@ import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measu
 import { createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, open, rename, rm } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
-import { roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { dirname, resolve } from "node:path";
 import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
@@ -190,6 +190,20 @@ export async function sessionAction(path: string, token: string, action: GroupAc
         if (!guide) throw new Error("Only the guide may assign roles.");
         db.roles = setGroupRole(DEV_PARTICIPANTS.map(participant => participant.id), db.roles, action.role, action.participantId);
         message = "Group role updated.";
+      } else if (action.type === "claim-role" || action.type === "release-role") {
+        // Players choose their own roles: a free role can be taken, your own can be given up. The guide assigns any role.
+        if (guide) throw new Error("The guide assigns roles from the guide panel.");
+        const ids = DEV_PARTICIPANTS.map(participant => participant.id);
+        const label = action.role === "navigator" ? "navigator" : "answer-submitter";
+        if (action.type === "claim-role") {
+          if (db.roles[action.role] !== null && db.roles[action.role] !== participantId) throw new Error(`Someone else is already the ${label}. They can step down, or ask your guide.`);
+          db.roles = claimGroupRole(ids, db.roles, action.role, participantId);
+          message = `You're the ${label} now.`;
+        } else {
+          if (db.roles[action.role] !== participantId) throw new Error(`You aren't the ${label}.`);
+          db.roles = releaseGroupRole(ids, db.roles, action.role, participantId);
+          message = `You've stepped down. The ${label} role is free for someone else.`;
+        }
       } else {
         const definition = findMission(action.missionId);
         if (!definition) throw new Error("Unknown mission");

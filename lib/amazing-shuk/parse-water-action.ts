@@ -16,6 +16,9 @@ export function parseAction(value: unknown): GroupAction | null {
 }
 
 function parseMissionAction(value: unknown): GroupAction | null {
+  if (isRecord(value) && (value.type === "claim-role" || value.type === "release-role")) {
+    return value.role === "navigator" || value.role === "answerSubmitter" ? { type: value.type, role: value.role } : null;
+  }
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
   }

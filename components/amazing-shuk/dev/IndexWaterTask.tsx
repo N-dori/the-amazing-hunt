@@ -266,7 +266,8 @@ export default function IndexWaterTask({ mode }: Props) {
       </section> : null}
       {nav.area === "food" ? <PreviewFoodRewards foodTokens={view.sharedBalance.foodTokens} /> : null}
       {nav.area === "group" ? <ListGroupOverview participants={PARTICIPANT_IDENTITIES} roles={view.session.roles} currentId={view.session.activeActorId}
-        missions={view.missions} balance={view.sharedBalance} /> : null}
+        missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
+        onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
       {nav.area === "journey" && stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
         feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
         onSelect={(id) => {
