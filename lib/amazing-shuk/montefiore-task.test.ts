@@ -46,7 +46,7 @@ test("bonus: the plaque's year תרמ\"ב hides in בתמר, the same four lette
 });
 
 test("fourth mission: provisional marker, GPS off, a bonus worth a little and no food tokens", () => {
-  assert.equal(SHUK_MISSIONS[3], MONTEFIORE_MISSION); assert.equal(findMission(MONTEFIORE_MISSION_ID), MONTEFIORE_MISSION);
+  assert.equal(SHUK_MISSIONS[1], MONTEFIORE_MISSION); assert.equal(findMission(MONTEFIORE_MISSION_ID), MONTEFIORE_MISSION);
   assert.equal(findChoiceTask(MONTEFIORE_MISSION_ID)?.bonus?.challenge, MONTEFIORE_BONUS_CHALLENGE);
   assert.equal(MONTEFIORE_MISSION.placement.verified, false); assert.equal(MONTEFIORE_MISSION.arrival.destination.verified, false);
   assert.equal(MONTEFIORE_MISSION.hintCount, 2);

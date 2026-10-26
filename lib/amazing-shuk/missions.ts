@@ -6,7 +6,7 @@ import { LEVIN_MISSION } from "./levin-task.ts";
 import { MARZIPAN_MISSION } from "./marzipan-task.ts";
 
 /** Missions the group can choose on the map, in marker order. Each stable ID keys its shared progress. */
-export const SHUK_MISSIONS: readonly MissionDefinition[] = Object.freeze([GAN_HATUT_MISSION, MURAL_MISSION, SYNAGOGUE_MISSION, MONTEFIORE_MISSION, LEVIN_MISSION, MARZIPAN_MISSION]);
+export const SHUK_MISSIONS: readonly MissionDefinition[] = Object.freeze([MURAL_MISSION, MONTEFIORE_MISSION, GAN_HATUT_MISSION, SYNAGOGUE_MISSION, LEVIN_MISSION, MARZIPAN_MISSION]);
 
 export function findMission(id: string): MissionDefinition | undefined {
   return SHUK_MISSIONS.find(mission => mission.id === id);

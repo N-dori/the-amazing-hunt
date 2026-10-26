@@ -101,7 +101,7 @@ test("browsers send toggle-choice over HTTP with the mission ID; the GET returns
   const read = await handleParticipantRequest(new Request(`http://127.0.0.1:3000/api?mission=${MURAL}`, { headers }), path, env);
   const body = await read.json();
   assert.equal(body.mission.id, MURAL); assert.deepEqual(body.session.selected, ["plaque"]);
-  assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [WELL, MURAL, SYNAGOGUE_MISSION_ID, MONTEFIORE_MISSION_ID, LEVIN_MISSION_ID, MARZIPAN_MISSION_ID]);
+  assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [MURAL, MONTEFIORE_MISSION_ID, WELL, SYNAGOGUE_MISSION_ID, LEVIN_MISSION_ID, MARZIPAN_MISSION_ID]);
 }));
 
 test("We're Here? uses the mural's confirmed corner: near earns the bonus once, far never blocks play", () => fixture(async (path, tokens, now) => {

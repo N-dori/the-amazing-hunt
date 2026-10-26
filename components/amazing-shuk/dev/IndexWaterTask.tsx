@@ -10,12 +10,14 @@ import PreviewShukHeader from "@/components/amazing-shuk/PreviewShukHeader";
 import ListGroupOverview from "@/components/amazing-shuk/ListGroupOverview";
 import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
 import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
+import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
+import { WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
 import ListArrivalMission from "./ListArrivalMission";
 import ActionButton from "@/components/ui/ActionButton";
 import type { MapView } from "@/components/map/LeafletBaseMap";
-import { GAN_HATUT_MISSION, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
+import type { MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amazing-shuk/request-arrival-location";
 import ListWaterTask from "./ListWaterTask";
 import PreviewWellStory from "./PreviewWellStory";
@@ -23,7 +25,7 @@ import { WATER_TASK } from "@/lib/amazing-shuk/water-task";
 import { INITIAL_WATER_INTERACTION, type WaterInteraction, type WaterContainerId, type WaterActionView } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterPerformanceView, GuideTimingView } from "@/lib/amazing-shuk/water-performance";
 import { WATER_PUZZLE_REVISION, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
-import { findMission } from "@/lib/amazing-shuk/missions";
+import { findMission, SHUK_MISSIONS } from "@/lib/amazing-shuk/missions";
 import { findChoiceTask } from "@/lib/amazing-shuk/choice-missions";
 import ListChoiceTask from "./ListChoiceTask";
 import PreviewChoiceStory from "./PreviewChoiceStory";
@@ -33,8 +35,8 @@ import PreviewChoicePrediction from "./PreviewChoicePrediction";
 import styles from "./IndexWaterTask.module.scss";
 
 const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
-const WELL_MISSION_ID = GAN_HATUT_MISSION.id;
-const INITIAL_NAV = initialNavState(WELL_MISSION_ID);
+// The map opens on marker 1.
+const INITIAL_NAV = initialNavState(SHUK_MISSIONS[0].id);
 // Where the player is survives a refresh in this tab; shared progress always comes from the server.
 const NAV_STORAGE_KEY = "shuk:navigation";
 const isMission = (id: string) => Boolean(findMission(id));
@@ -44,9 +46,9 @@ const API = BASE_PATH + "/api/amazing-shuk/dev";
 // TODO(copy): the app's lines are drafts for owner review.
 const MODE_COPY = {
   dev: { connecting: "Connecting to the local development session…", unavailable: "The local simulation is unavailable.",
-    loadFailed: "Could not load the local simulation.", invitation: "Local development invitation" },
+    loadFailed: "Could not load the local simulation." },
   app: { connecting: "Connecting to the game…", unavailable: "The game isn't available right now. Try again in a moment, or ask your guide.",
-    loadFailed: "Could not load the game. Check your connection and try again.", invitation: "Welcome to The Amazing Shuk" },
+    loadFailed: "Could not load the game. Check your connection and try again." },
 } as const;
 type Props = { mode: keyof typeof MODE_COPY };
 
@@ -99,6 +101,8 @@ export default function IndexWaterTask({ mode }: Props) {
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
   const [invitation, setInvitation] = useState("");
+  // The server said there is no session: the welcome screen, without a sign-in button, replaces the bare status line.
+  const [signedOut, setSignedOut] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try { setStoryOpen(localStorage.getItem("shuk:well-story-collapsed") !== "1"); } catch { /* Reading remains available without local preferences. */ }
@@ -126,6 +130,7 @@ export default function IndexWaterTask({ mode }: Props) {
   const refresh = useCallback(async () => {
     try {
       const response = await fetch(API + "?mission=" + encodeURIComponent(missionId), { cache: "no-store" });
+      setSignedOut(response.status === 401);
       if (response.status === 401) setView(null);
       if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : copy.unavailable);
       setView(await response.json() as ServerView);
@@ -251,7 +256,8 @@ export default function IndexWaterTask({ mode }: Props) {
     return () => observer.disconnect();
   }, [hasHeader]);
 
-  if (invitation) return <main className={styles.page}><p>{copy.invitation}</p><button type="button" disabled={busy} onClick={() => void login()}>Sign in with this invitation</button><p role="status">{message}</p></main>;
+  if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
+  if (!view && signedOut) return <PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   const participants = view.participants ?? PARTICIPANT_IDENTITIES;
   return (

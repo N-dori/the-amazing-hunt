@@ -42,7 +42,7 @@ test("the story is short and labelled, and nothing before the answer names the p
 });
 
 test("third mission on the map: provisional marker, GPS off until the point is field-checked, content found by ID", () => {
-  assert.equal(SHUK_MISSIONS[2], SYNAGOGUE_MISSION); assert.equal(findMission(SYN), SYNAGOGUE_MISSION);
+  assert.equal(SHUK_MISSIONS[3], SYNAGOGUE_MISSION); assert.equal(findMission(SYN), SYNAGOGUE_MISSION);
   assert.equal(findChoiceTask(SYN)?.challenge, SYNAGOGUE_CHALLENGE); assert.equal(findChoiceTask("unknown"), null);
   assert.equal(SYNAGOGUE_MISSION.placement.verified, false); assert.equal(SYNAGOGUE_MISSION.arrival.destination.verified, false);
   assert.equal(SYNAGOGUE_MISSION.location.hebrewName, "בית הכנסת חסד ורחמים");

@@ -139,9 +139,9 @@ test("actual selected mission renders existing story and playable challenge for 
     // Simulate authenticated, selected UI. Busy booleans also true: even an in-flight GPS check cannot hide content.
     const react = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === null ? server : initial === false ? true : initial, () => {}],
       useEffect() {}, useRef: (value: unknown) => ({ current: value }), useMemo: (factory: () => unknown) => factory(), useCallback: (fn: unknown) => fn };
-    // Open the challenge stage directly: the journey's first stage is "map".
+    // Open the well's challenge stage directly: the journey starts on the map, at marker 1.
     const stateFor = react.useState;
-    react.useState = (initial: unknown) => initial && typeof initial === "object" && "stage" in initial ? [{ ...initial, stage: "challenge" }, () => {}] : stateFor(initial);
+    react.useState = (initial: unknown) => initial && typeof initial === "object" && "stage" in initial ? [{ ...initial, stage: "challenge", missionId: GAN_HATUT_MISSION.id }, () => {}] : stateFor(initial);
     const Index = load("components/amazing-shuk/dev/IndexWaterTask.tsx", react);
     const html = renderToStaticMarkup(createElement(Index, { mode: "dev" }));
     assert.match(html, /THE STORY OF THE WELL/); assert.match(html, /Start challenge/);

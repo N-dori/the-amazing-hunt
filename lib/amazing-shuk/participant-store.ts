@@ -1,4 +1,4 @@
-import { ARRIVAL_NEARBY, checkMissionArrival, choiceStep, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
+import { ARRIVAL_NEARBY, GAN_HATUT_MISSION, checkMissionArrival, choiceStep, missionState, type ArrivalPolicy, type MissionArrival, type MissionDefinition, type MissionView } from "./mission-arrival.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
@@ -165,8 +165,9 @@ function missionView(definition: MissionDefinition, record: MissionRecord): Miss
 }
 /** Polling reads take no lock and never write, so they cannot block or delay group actions.
  * `missionId` selects the mission whose challenge detail is returned; every mission appears in `missions`.
+ * With none named (older clients), it is the well, which was marker 1 before the map was reordered.
  */
-export async function sessionView(path: string, token: string, now = Date.now(), missionId = SHUK_MISSIONS[0].id) {
+export async function sessionView(path: string, token: string, now = Date.now(), missionId: string = GAN_HATUT_MISSION.id) {
   const db = await load(path);
   const participantId = identity(db, token, now);
   const definition = findMission(missionId);

@@ -171,7 +171,7 @@ test("server: progress survives a reload from disk, and a record on a missing st
   assert.equal(disk.missions[MARZIPAN].step, 1); assert.equal(disk.missions[MARZIPAN].stepHintsStart, 0);
   assert.equal(choiceSession(await sessionView(path, tokens["player-2"], now + 3, MARZIPAN)).step, 1);
   // Single-question missions keep their old shape: no step written.
-  assert.equal("step" in disk.missions[SHUK_MISSIONS[1].id], false);
+  assert.equal("step" in disk.missions[SHUK_MISSIONS[0].id], false);
   await writeFile(path, JSON.stringify({ ...disk, missions: { ...disk.missions, [MARZIPAN]: { ...disk.missions[MARZIPAN], step: 5 } } }));
   await assert.rejects(sessionView(path, tokens["player-2"], now + 4, MARZIPAN), /Unsupported Shuk storage state/);
 }));

@@ -74,7 +74,7 @@ test("server: no clock runs, so a slow answer still earns the full points, and h
 }));
 
 test("a timed mission still measures time: the mural's start is not excluded", () => fixture(async (path, tokens, now) => {
-  const mural = SHUK_MISSIONS[1].id;
+  const mural = SHUK_MISSIONS[0].id;
   await sessionAction(path, tokens["player-1"], { missionId: mural, type: "start" }, "mural-navigator-start-1", now);
   const disk = JSON.parse(await readFile(path, "utf8"));
   assert.equal(disk.missions[mural].performance.excluded, false);

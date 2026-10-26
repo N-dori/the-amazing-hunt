@@ -1,6 +1,14 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - security review fixes: stale lock recovery and security headers, 25 Oct 2026
+## Latest handoff - welcome screen and new marker order, 26 Oct 2026
+
+**Not committed or deployed.**
+
+- **Welcome screen** (owner's request): `PreviewShukWelcome` replaces the bare sign-in line. It shows the illustrated map in a card, the title, three highlights and a "Start the game" button, plus a note that the link is personal. A signed-out visitor sees the same screen with a "use your invitation link" card in place of the button. All wording is draft (`lib/amazing-shuk/welcome-copy.ts`, `TODO(copy)`).
+- **Marker order** (owner's request): 1 the mural, 2 the Montefiore gate, 3 the well, 4 Chesed VeRachamim, 5 Aryeh Levin, 6 Marzipan (`SHUK_MISSIONS`). Progress is keyed by mission ID, so live progress is unaffected. The map opens on marker 1. A request that names no mission still means the well (older clients). Mission numbers in older notes refer to the old order.
+- **Verified:** `test:shuk` 147/147, tsc and ESLint clean, the welcome Sass compiles. Not checked in a browser.
+
+## Earlier handoff - security review fixes: stale lock recovery and security headers, 25 Oct 2026
 
 A manual security review of the live Shuk app (the `/security-review` skill failed: no `origin/HEAD`) found no way in for outsiders. Two findings were fixed at the owner's request.
 
