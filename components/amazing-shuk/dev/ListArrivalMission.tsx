@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import LeafletBaseMap, { type MapView } from "@/components/map/LeafletBaseMap";
 import { ILLUSTRATED_MARKET_MAP } from "@/lib/map/image-map";
-import { buildMissionPresentation, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
+import { buildMissionPresentation, finaleLocked, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { findMission, SHUK_MISSIONS } from "@/lib/amazing-shuk/missions";
 import PreviewArrivalMission from "./PreviewArrivalMission";
 import PreviewMissionCard from "./PreviewMissionCard";
@@ -20,24 +20,27 @@ type Props = { missions: readonly MissionView[]; mission: MissionView; stage: Mi
 export default function ListArrivalMission({ missions, mission, stage, mapView, onMapViewChange, ...props }: Props) {
   const markers = useMemo(() => SHUK_MISSIONS.flatMap((definition, index) => {
     const state = missions.find(item => item.id === definition.id);
-    return state ? [buildMissionPresentation(definition, state, index + 1).marker] : [];
+    return state ? [buildMissionPresentation(definition, state, index + 1, finaleLocked(definition, missions)).marker] : [];
   }), [missions]);
   const { id, state, arrivalPoints, arrivalMethod, gpsEnabled } = mission;
   const view = useMemo(() => {
     const definition = findMission(id);
-    return definition ? buildMissionPresentation(definition, { id, state, arrivalPoints, arrivalMethod, gpsEnabled }, SHUK_MISSIONS.indexOf(definition) + 1) : null;
-  }, [id, state, arrivalPoints, arrivalMethod, gpsEnabled]);
-  if (stage === "location") {
+    return definition ? buildMissionPresentation(definition, { id, state, arrivalPoints, arrivalMethod, gpsEnabled }, SHUK_MISSIONS.indexOf(definition) + 1,
+      finaleLocked(definition, missions)) : null;
+  }, [id, state, arrivalPoints, arrivalMethod, gpsEnabled, missions]);
+  // A locked finale never opens its location: the map shows its preview, which says what opens it.
+  if (stage === "location" && !view?.locked) {
     return view ? <PreviewArrivalMission view={view} guide={props.guide} busy={props.busy} feedback={props.feedback}
       onArrival={props.onArrival} onConfirm={props.onConfirm} onOpenChallenge={props.onOpenChallenge} onBack={props.onDismiss} /> : null;
   }
   // One stage between the header and the bottom bar: the map shrinks when the sheet opens, so neither needs the page to scroll.
+  const sheet = stage === "preview" || (stage === "location" && view?.locked);
   return <div className={styles.stage}>
     <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with mission markers"
-      markers={markers} selectedId={stage === "preview" ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
+      markers={markers} selectedId={sheet ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
       notice="Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."
       initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss}
-      frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} />
-    {stage === "preview" && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onClosePreview} /> : null}
+      frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} showLabels={false} zoomOutBy={1} openOnMarkers />
+    {sheet && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onClosePreview} /> : null}
   </div>;
 }

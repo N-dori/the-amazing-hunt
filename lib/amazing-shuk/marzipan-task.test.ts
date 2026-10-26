@@ -86,7 +86,9 @@ test("sixth mission: two scored questions, three hints in all, provisional marke
   assert.equal(choiceStep(MARZIPAN_MISSION, 1)?.challenge, MARZIPAN_HORNS_CHALLENGE);
   assert.equal(choiceStep(MARZIPAN_MISSION, 2), null);
   assert.equal(MARZIPAN_MISSION.hintCount + MARZIPAN_MISSION.followUps[0].hintCount, MARZIPAN_MISSION.rewards.hintPenalties.length);
-  assert.equal(MARZIPAN_MISSION.photo, null); assert.equal(MARZIPAN_MISSION.placement.verified, false);
+  // An openly licensed photo carries its credit; it is not said to show Marzipan itself.
+  assert.match(MARZIPAN_MISSION.photo?.credit ?? "", /Benjamin Lipsman, CC BY 2.0/); assert.doesNotMatch(MARZIPAN_MISSION.photo?.alt ?? "", /Marzipan/);
+  assert.equal(MARZIPAN_MISSION.placement.verified, false);
   assert.equal(MARZIPAN_MISSION.arrival.destination, null);
   assert.equal(MARZIPAN_MISSION.rewards.foodTokens > 0, true);
   assert.equal(MARZIPAN_TASK.foodAction, "Explore Food Rewards");

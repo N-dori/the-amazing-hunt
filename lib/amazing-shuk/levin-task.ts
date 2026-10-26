@@ -1,5 +1,5 @@
 import type { ChoiceChallenge } from "./choice-task.ts";
-import type { MissionDefinition } from "./mission-arrival.ts";
+import type { MissionDefinition, MissionPhoto } from "./mission-arrival.ts";
 import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
 
 export const LEVIN_MISSION_ID = "aryeh-levin-prisoners";
@@ -46,6 +46,11 @@ export const LEVIN_TASK = Object.freeze({
       { label: "Historical fact", text: "Comrades from the underground smuggled two grenades into their cell, hidden inside hollowed-out oranges. They planned to use them against the hangmen." },
     ],
     source: `${HEWIKI}; ${ENWIKI}; ${TOUR}.`,
+    // Owner's photo #39 (design/inputs/photos/no-faces/), chosen for this challenge on 26 Oct 2026; web copy, metadata stripped.
+    // The owner identified the bearded man as Rabbi Aryeh Levin, 26 Oct 2026. TODO(copy): the artist and the wall's location.
+    image: { src: "/shuk/levin-mural.jpg", width: 1024, height: 1819,
+      alt: "A large mural of Rabbi Aryeh Levin on a Nachlaot wall: an old bearded man in a hat and glasses merging into a tree trunk, above a seated figure whose head rises as smoke in the shape of the letter Aleph, in front of a city skyline.",
+      caption: "A mural of Rabbi Aryeh Levin in Nachlaot, painted in 2015." },
   },
   question: "They had planned to use the grenades against the hangmen. Why did they change their plan?",
   hints: [],
@@ -102,8 +107,9 @@ export const LEVIN_MISSION = Object.freeze({
     ]),
   }),
   clue: "Find the corner of Rabbi Aryeh Levin Street and Rabbi Haim Abulafia Street, and look for a small house with a memorial marking.",
-  // No owner photograph of the house yet.
-  photo: null,
+  // The owner's mural of Rabbi Levin (photo #39), chosen for the preview and location details on 26 Oct 2026. It shows the
+  // mural, not the house; whether the mural is at or near the home isn't recorded yet.
+  photo: Object.freeze({ src: "/shuk/levin-mural.jpg", alt: "A large mural of Rabbi Aryeh Levin in a hat and glasses, merging into a tree trunk, on a Nachlaot wall." }) as MissionPhoto | null,
   cluePhoto: null,
   // Manual guess: south-east of the synagogue's marker, towards Mishkenot Yisrael. Owner review required.
   placement: Object.freeze({ x: 800, y: 690, verified: false }),

@@ -15,9 +15,10 @@ export default function PreviewArrivalMission({ view, guide, busy, feedback, onA
       {/* The pin's number only: missions can be played in any order. */}
       <p className={styles.pill}>Mission {view.marker.order} · {view.status}</p>
     </div>
-    {view.photo ? <div className={styles.hero}>
+    {view.photo ? <figure className={styles.hero}>
       <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} />
-    </div> : <p className={styles.photoGap}><Icon name="camera" className={styles.icon} /><span>Reference photograph not yet available. Use the landmark clue and your guide.</span></p>}
+      {view.photo.credit ? <figcaption className={styles.credit}>{view.photo.credit}</figcaption> : null}
+    </figure> : <p className={styles.photoGap}><Icon name="camera" className={styles.icon} /><span>Reference photograph not yet available. Use the landmark clue and your guide.</span></p>}
     <h2 id="mission-location-title" className={styles.title}>{view.name}</h2>
     {view.location.hebrewName ? <p className={`rtl ${styles.hebrew}`} lang="he">{view.location.hebrewName}</p> : null}
     <p className={styles.area}><Icon name="mapMarker" className={styles.icon} /><span>{view.neighborhood}</span></p>

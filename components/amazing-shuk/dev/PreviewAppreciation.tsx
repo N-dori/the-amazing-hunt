@@ -5,10 +5,7 @@ import styles from "./PreviewAppreciation.module.scss";
 export default function PreviewAppreciation({ title, paragraphs, invitation, note }: AppreciationContent) {
   return <section className={styles.moment} aria-labelledby="appreciation-title">
     <h3 id="appreciation-title" className={styles.title}>{title}</h3>
-    {paragraphs.map(paragraph => <div key={paragraph.text}>
-      <p className={styles.label}>{paragraph.label}</p>
-      <p>{paragraph.text}</p>
-    </div>)}
+    {paragraphs.map(paragraph => <p key={paragraph.text}>{paragraph.text}</p>)}
     <p className={styles.invitation}>{invitation}</p>
     <p className={styles.note}>{note}</p>
   </section>;

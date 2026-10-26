@@ -16,11 +16,13 @@ type Props = {
   feedback: string;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
+// One neutral heading over the text after an answer; evidence labels stay in the data (owner's decision, 26 Oct 2026).
+// TODO(copy): "Behind the answer" is a draft.
 export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
   const playing = performance.started && !view.completed;
   return <section className={styles.task} aria-labelledby="mural-task-title">
-    {lead && !view.completed ? <div className={styles.lead} role="status">{lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
-      <p className={styles.revealLabel}>{paragraph.label}</p>
+    {lead && !view.completed ? <div className={styles.lead} role="status"><h3 className={styles.revealLabel}>Behind the answer</h3>
+      {lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
       <p>{paragraph.text}</p>
     </div>)}</div> : null}
     <h2 id="mural-task-title" className={styles.question}>{question}</h2>
@@ -35,8 +37,8 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
         <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
         <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
       </dl> : null}
+      {reveal.paragraphs?.some(paragraph => paragraph.label) ? <h4 className={styles.revealLabel}>Behind the answer</h4> : null}
       {reveal.paragraphs?.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
-        {paragraph.label ? <p className={styles.revealLabel}>{paragraph.label}</p> : null}
         <p>{paragraph.text}</p>
       </div>)}
       {reveal.image ? <figure className={styles.figure}>

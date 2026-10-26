@@ -29,6 +29,8 @@ Every piece of content carries one label, and the app shows it:
 - **Attributed tradition**: a guide's or community's story that hasn't been corroborated.
 - **Fiction**: in the Memory Protocol, HARMONY, the Israelianes, the parallel Earth and the contemporary crisis scenarios. The Amazing Shuk has no fictional frame; use Fiction there only for an invented game device (e.g. an altered "what's missing" image).
 
+**The Amazing Shuk shows no labels** (owner's decision, 26 Oct 2026). The data still gives every statement its label, and the text itself carries the hedge a tradition or interpretation needs ("It's told that…", "Sources differ…"). The app shows the text only, with one neutral heading over the text after an answer ("Behind the answer", draft).
+
 Never mix them in one statement. A novel (e.g. *The Beauty Queen of Jerusalem*) is evidence of how its author portrays something, not of what happened.
 
 ## Specific boundaries from the handoff

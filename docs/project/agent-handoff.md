@@ -1,6 +1,29 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - welcome screen and new marker order, 26 Oct 2026
+## Latest handoff - map, story and completion changes from the owner's review, 26 Oct 2026
+
+**Not committed or deployed.** The owner's six requests:
+
+1. **No names under the map pins** in the Shuk (`LeafletBaseMap` `showLabels={false}`; the Memory Protocol keeps them).
+2. **Wider map:** the Shuk map opens fitted to all six markers (`openOnMarkers`, a pin's margin round them), and `zoomOutBy={1}` allows pinching one level below "contain". A first try opened one level out from "cover"; the gate's pin then hid the well's (the owner: "the water challenge is gone from the map"). Pins 2 and 3 are only 67 image px apart, so zooming far out still stacks them.
+3. **No Source on mission pages:** both story components no longer show the source. `source` stays in the data as the evidence trail. The well's original Hebrew still shows in development only, as "Original Hebrew".
+4. **The preview card's summary** is clamped at five lines (was three).
+5. **The mural's before photo** moved from the post-answer reveal into the story, under its two paragraphs.
+6. **Completion cheer and next stop:** `PreviewMissionCheer` appears under the accepted answer, above any bonus. It shows a different cheer per mission (`lib/amazing-shuk/mission-cheer.ts`, fixed by map order so every phone matches), "Next stop: mission N, <name>", a **Go to the next stop** button (opens that marker's preview on the map) and **Back to the map**. Rabbi Levin's stop gets a quiet line instead of a cheer. With every mission done, it says so and offers the map. All wording is draft (`TODO(copy)`).
+
+7. **Montefiore bonus removed** (owner, 26 Oct): the hidden year תרמ"ב in בתמר is the Yemenite aliyah's year and unrelated to the gate. `MONTEFIORE_BONUS` stays in `montefiore-task.ts`, attached to no mission, for a possible Yemenite stop. Bonus points a group already earned there still count.
+
+8. **No evidence labels on screen** (owner, 26 Oct; the owner chose one neutral heading, for every mission): stories, reveals, leads, bonuses, predictions, appreciation moments and the well's "Fiction · Puzzle scenario" line show no labels. Text after an answer sits under one heading, "Behind the answer" (draft). The data still labels every statement, and the wording keeps its hedges. Recorded in `.claude/rules/content.md`.
+
+9. **Levin mural photo** (owner, 26 Oct): photo #39 (web copy `public/shuk/levin-mural.jpg`, 1024 px wide, metadata stripped) sits under the Levin challenge's story. The owner confirmed it shows Rabbi Aryeh Levin; caption "A mural of Rabbi Aryeh Levin in Nachlaot, painted in 2015." (photo index updated). It is also the mission's photo (map preview and location details), though it shows the mural, not the house. Open: the artist, the wall's location and whether it is at the home. Asset to commit with the code.
+
+10. **Marzipan photo** (owner asked for one from the web, 26 Oct): Benjamin Lipsman's chocolate rugelach on trays (Jerusalem, 28 Aug 2013, CC BY 2.0, Wikimedia Commons `File:9674765093 August 2013 in Jerusalem.jpg`), web copy `public/shuk/marzipan-rugelach.jpg`. Nothing says which bakery it shows, so the alt doesn't claim Marzipan. CC BY needs credit: `MissionPhoto` has a new optional `credit`, shown under the photo on the location page (not on the small preview thumbnail). Open: a real storefront photo.
+
+11. **Marzipan is the finale** (owner, 26 Oct): `finale: true` on the mission and `finaleLocked` in `mission-arrival.ts`. While any other mission is unfinished, its marker shows as locked, and its preview says "To earn the best chocolate in the market, first complete all the other missions. This stop opens last." (draft) in place of View Location. A saved screen or the Mission tab falls back to that preview. The next-stop button skips it until it's the only one left. The very last cheer ends "That was the last one! Now go find what the market has to offer you…" (the owner's line). The lock is in the client only: the server would still accept Marzipan actions. The name-mystery answer no longer starts "A Jerusalem guide tells it this way:" (owner); the follow-up lead's "A guide tells that…" is unchanged.
+
+- **Verified:** `test:shuk` 149/149 (new `mission-cheer.test.ts`), tsc and ESLint clean (run inside `shuk-dev`). Not checked in a browser.
+
+## Earlier handoff - welcome screen and new marker order, 26 Oct 2026
 
 **Not committed or deployed.**
 

@@ -14,7 +14,6 @@ type Props = {
 export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
   return <section className={styles.task} aria-labelledby="water-task-title">
     <div className={styles.taskIntro}>
-      <p className={styles.evidenceLabel}>Fiction · Puzzle scenario</p>
       <h2 id="water-task-title">Fill your family&apos;s jar</h2>
       {narrative.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
     </div>

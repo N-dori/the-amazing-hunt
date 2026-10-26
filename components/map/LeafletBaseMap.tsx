@@ -52,6 +52,12 @@ type LeafletBaseMapProps = {
   // Pan just enough to keep the selected marker in view when it changes or the frame resizes. `bottomInset` is the
   // height (px) of anything overlapping the frame's lower edge, such as The Amazing Shuk's preview sheet.
   keepSelectedVisible?: { bottomInset: number };
+  // Names under the pins; on by default. The Amazing Shuk hides them: the pin's number and its preview name the place.
+  showLabels?: boolean;
+  // Zoom levels to allow below "contain", so the group can pinch out further.
+  zoomOutBy?: number;
+  // Open on all the markers, as close as fits them (with a pin's margin), instead of "cover" around `focusId`.
+  openOnMarkers?: boolean;
 };
 
 type MapHandle = { L: typeof Leaflet; map: Leaflet.Map; markers: Leaflet.LayerGroup; memory: Leaflet.LayerGroup };
@@ -107,12 +113,16 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       // Contain: the whole map fits. Cover: the map fills the frame (phones in portrait).
       const contain = m.getBoundsZoom(bounds, false);
       const cover = m.getBoundsZoom(bounds, true);
-      m.setMinZoom(contain);
+      const zoomOutBy = p.zoomOutBy ?? 0;
+      m.setMinZoom(contain - zoomOutBy);
       m.setMaxZoom(Math.max(cover, contain) + 1.5);
       m.setMaxBounds(bounds.pad(0.1));
       const focus = p.markers.find((mk) => mk.id === p.focusId);
       if (p.initialView) m.setView(p.initialView.center, p.initialView.zoom, { animate: false });
-      else m.setView(focus ? imageToLatLng(baseMap, focus.x, focus.y) : bounds.getCenter(), cover, { animate: false });
+      else if (p.openOnMarkers && p.markers.length > 1) {
+        const pin = Math.max(...p.markers.map((mk) => mk.size ?? 44));
+        m.fitBounds(L.latLngBounds(p.markers.map((mk) => imageToLatLng(baseMap, mk.x, mk.y))), { padding: [pin, pin], maxZoom: cover + 1, animate: false });
+      } else m.setView(focus ? imageToLatLng(baseMap, focus.x, focus.y) : bounds.getCenter(), cover, { animate: false });
       m.on("moveend zoomend", () => {
         const c = m.getCenter();
         latest.current.onViewChange?.({ center: [c.lat, c.lng], zoom: m.getZoom() });
@@ -147,7 +157,7 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       const classes = [styles.pin, styles[m.state] ?? "", m.provisional ? styles.provisional : "", m.id === selectedId ? styles.selected : ""].join(" ");
       const icon = h.L.divIcon({
         className: `${styles.markerIcon} ${m.offMap ? styles.markerIconOffMap : ""}`,
-        html: `<span class="${classes}" style="width:${m.size ?? 44}px;height:${m.size ?? 44}px">${escapeHtml(m.symbol ?? String(m.order))}</span><span class="${styles.label}">${escapeHtml(m.label)}</span>`,
+        html: `<span class="${classes}" style="width:${m.size ?? 44}px;height:${m.size ?? 44}px">${escapeHtml(m.symbol ?? String(m.order))}</span>${latest.current.showLabels === false ? "" : `<span class="${styles.label}">${escapeHtml(m.label)}</span>`}`,
         iconSize: [m.size ?? 44, m.size ?? 44],
         iconAnchor: [(m.size ?? 44) / 2, (m.size ?? 44) / 2],
       });

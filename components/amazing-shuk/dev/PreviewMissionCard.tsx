@@ -9,6 +9,8 @@ import styles from "./PreviewMissionCard.module.scss";
 type Props = { view: MissionPresentation; onViewLocation: () => void; onClose: () => void };
 // The pill repeats the tapped pin (its number and state colour), so the sheet reads as that marker's card.
 const PILL_STATE = { active: styles.pillActive, conditional: styles.pillArrived, completed: styles.pillDone, locked: "" };
+// TODO(copy): draft from the owner's idea, 26 Oct 2026 ("for earning the best chocolate in the market you have to answer…").
+const LOCKED_NOTE = "To earn the best chocolate in the market, first complete all the other missions. This stop opens last.";
 /** First tap on a marker: where is it, and do we want to go? No story, question or answer here. */
 export default function PreviewMissionCard({ view, onViewLocation, onClose }: Props) {
   const title = useRef<HTMLHeadingElement>(null);
@@ -32,7 +34,8 @@ export default function PreviewMissionCard({ view, onViewLocation, onClose }: Pr
       </div>
     </div>
     <div className={styles.action}>
-      <ActionButton block icon="arrowForward" onClick={onViewLocation}>View Location</ActionButton>
+      {view.locked ? <p className={styles.locked} role="status"><Icon name="info" className={styles.icon} /><span>{LOCKED_NOTE}</span></p>
+        : <ActionButton block icon="arrowForward" onClick={onViewLocation}>View Location</ActionButton>}
     </div>
   </section>;
 }

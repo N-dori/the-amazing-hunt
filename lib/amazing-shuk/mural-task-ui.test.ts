@@ -61,17 +61,15 @@ test("followers are invited to discuss; completion shows the shared result once"
   const after = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: done, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question,
     performance: { started: true, hintsUsed: 1, canStart: true, reward: { points: 90, foodTokens: 2, hintsUsed: 1 } }, hints: [], hasMoreHints: false, feedback: "" }));
   assert.match(after, /Challenge completed!/); assert.match(after, /<dt>Points earned<\/dt><dd>90<\/dd>/);
-  assert.match(after, /mural-before\.jpg/); assert.match(after, /The wall before the mural/);
-  assert.doesNotMatch(before, /mural-before/);
   assert.doesNotMatch(after, /Submit Our Answer|field check|1 of 2|2 of 2/);
 });
 
-test("the story renders each statement with its own label and a source, without Hebrew", () => {
+test("the story renders its text and the before photo, without labels, a source or Hebrew (owner, 26 Oct 2026)", () => {
   const Story = loadComponent("components/amazing-shuk/dev/PreviewChoiceStory.tsx");
   const html = renderToStaticMarkup(createElement(Story, { ...MURAL_TASK.story, instruction: MURAL_TASK.instruction, open: true, onToggle() {} }));
-  assert.match(html, /Historical fact/); assert.match(html, /Attributed tradition/);
-  assert.match(html, /Machane_Yehuda_Tour_EN\.md/);
-  assert.doesNotMatch(html, /mural-before|<img/);
+  assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/); assert.match(html, /This wall was once bare/);
+  assert.doesNotMatch(html, /Machane_Yehuda_Tour_EN\.md|Source/);
+  assert.match(html, /mural-before\.jpg/); assert.match(html, /The wall before the mural/);
   assert.ok(!/[֐-׿]/.test(html));
 });
 
@@ -90,7 +88,7 @@ test("a wrong answer shows its reply beside the submit button and keeps the pick
   assert.match(followerHtml, /type="checkbox"/); assert.doesNotMatch(followerHtml, /disabled=""/);
 });
 
-test("synagogue: the reveal (blue sign, Armoza) appears only after the accepted answer, each statement labelled, no image", () => {
+test("synagogue: the reveal (blue sign, Armoza) appears only after the accepted answer, one neutral heading, no labels, no image", () => {
   const props = { ...callbacks, reveal: SYNAGOGUE_TASK.reveal, question: SYNAGOGUE_TASK.question, hints: [], hasMoreHints: false, feedback: "" };
   const playing = buildChoiceTaskView(SYNAGOGUE_CHALLENGE, ["tavern"], false, "answerSubmitter", false, true);
   const before = renderToStaticMarkup(createElement(Preview, { ...props, view: playing, performance: performance(true) }));
@@ -101,10 +99,10 @@ test("synagogue: the reveal (blue sign, Armoza) appears only after the accepted 
   const after = renderToStaticMarkup(createElement(Preview, { ...props, view: done,
     performance: { started: true, hintsUsed: 0, canStart: true, reward: { points: 100, foodTokens: 2, hintsUsed: 0 } } }));
   assert.match(after, /Challenge completed!/); assert.match(after, /blue heritage sign nearby/); assert.match(after, /Yitzhak Armoza/);
-  assert.match(after, /Historical fact/); assert.doesNotMatch(after, /<img|<figure/);
+  assert.match(after, /Behind the answer/); assert.doesNotMatch(after, /Historical fact|Attributed tradition|Interpretation|Fiction ·/); assert.doesNotMatch(after, /<img|<figure/);
 });
 
-test("synagogue bonus: cards and submit until it's right, then points and the labelled fiction reveal; appreciation has nothing to submit", () => {
+test("synagogue bonus: cards and submit until it's right, then points and the fiction reveal under one heading; appreciation has nothing to submit", () => {
   const Bonus = loadComponent("components/amazing-shuk/dev/PreviewChoiceBonus.tsx");
   const open = buildChoiceTaskView(SYNAGOGUE_BONUS_CHALLENGE, ["rose-old-city"], false, "answerSubmitter", false, true);
   const before = renderToStaticMarkup(createElement(Bonus, { content: SYNAGOGUE_BONUS, view: open, points: 0, feedback: "Not quite. Talk it over and try again.", onToggle() {}, onSubmit() {}, onReset() {} }));
@@ -113,7 +111,7 @@ test("synagogue bonus: cards and submit until it's right, then points and the la
   assert.doesNotMatch(before, /historical fiction|Sarit Yishai-Levi|Bonus points earned/);
   const right = buildChoiceTaskView(SYNAGOGUE_BONUS_CHALLENGE, ["beauty-queen"], true, "follower", false, true);
   const after = renderToStaticMarkup(createElement(Bonus, { content: SYNAGOGUE_BONUS, view: right, points: 10, feedback: "", onToggle() {}, onSubmit() {}, onReset() {} }));
-  assert.match(after, /Bonus points earned: <strong>10<\/strong>/); assert.match(after, /historical fiction/); assert.match(after, /Historical fact/);
+  assert.match(after, /Bonus points earned: <strong>10<\/strong>/); assert.match(after, /historical fiction/); assert.match(after, /Behind the answer/); assert.doesNotMatch(after, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
   assert.doesNotMatch(after, /type="checkbox"|Submit Our Answer/);
   const Appreciation = loadComponent("components/amazing-shuk/dev/PreviewAppreciation.tsx");
   const moment = renderToStaticMarkup(createElement(Appreciation, SYNAGOGUE_APPRECIATION));
@@ -139,5 +137,5 @@ test("Levin: no hint button, and the accepted answer gets a quiet title instead 
   const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, reveal: LEVIN_TASK.reveal, question: LEVIN_TASK.question, completionTitle: LEVIN_TASK.completionTitle,
     performance: { started: true, hintsUsed: 0, canStart: true, reward: { points: 100, foodTokens: 2, hintsUsed: 0 } }, hints: [], hasMoreHints: false, feedback: "" }));
   assert.match(html, /<h3>Answer received<\/h3>/); assert.doesNotMatch(html, /Challenge completed!|Need a hint\?/);
-  assert.match(html, /Attributed tradition/); assert.match(html, /Sources differ/);
+  assert.match(html, /It&#x27;s told that they embraced/); assert.match(html, /Sources differ/); assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
 });

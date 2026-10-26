@@ -60,10 +60,11 @@ test("Hebrew-first brief stays concise; production renders English and citations
     const html = renderToStaticMarkup(createElement(Story, { ...WATER_TASK.story, instruction: WATER_TASK.instruction, open: true, onToggle() {}, showOriginalHebrew }));
     assert.match(html, /punishment or honor/);
     assert.match(html, /children longed for the cleaning job/);
-    assert.match(html, /Attributed tradition/);
-    assert.match(html, /HE_trans.txt/);
+    assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
+    // Sources stay in the data for review; players never see them (owner's request, 26 Oct 2026).
+    assert.doesNotMatch(html, /HE_trans.txt|Source/);
     assert.equal(html.includes('lang="he"'), showOriginalHebrew);
-    assert.equal(html.includes("Source and original Hebrew"), showOriginalHebrew);
+    assert.equal(html.includes("Original Hebrew"), showOriginalHebrew);
     assert.equal(/[\u0590-\u05ff]/.test(html), showOriginalHebrew);
   }
 });

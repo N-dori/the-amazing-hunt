@@ -45,10 +45,11 @@ test("story is short, labels each statement and has no Hebrew; the street photo 
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
   assert.ok(!/[֐-׿]/.test(JSON.stringify(MURAL_TASK)));
   assert.equal(MURAL_TASK.hints.length, 3);
-  assert.ok(MURAL_TASK.reveal.image.alt && MURAL_TASK.reveal.image.caption);
-  assert.ok(!("image" in MURAL_TASK.story));
+  // The before photo sits with the story (owner's request, 26 Oct 2026), not in the reveal.
+  assert.ok(MURAL_TASK.story.image.alt && MURAL_TASK.story.image.caption);
+  assert.equal(MURAL_TASK.reveal.image, null);
   // The owner chose a street view of the whole wall (24 Oct 2026); its name and alt text must not point at any option.
-  assert.ok(MURAL_MISSION.photo && MURAL_MISSION.photo.src !== MURAL_TASK.reveal.image.src);
+  assert.ok(MURAL_MISSION.photo && MURAL_MISSION.photo.src !== MURAL_TASK.story.image.src);
   assert.doesNotMatch(`${MURAL_MISSION.photo.src} ${MURAL_MISSION.photo.alt}`, /vent|plaque|treble|clef|103|box|carton|phone|antenna|bicycle|laundry/i);
   assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);

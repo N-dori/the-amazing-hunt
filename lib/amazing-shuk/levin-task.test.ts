@@ -41,10 +41,10 @@ test("bonus: the Kramer-Rechtman plaque names Rachel", () => {
   assert.ok(LEVIN_BONUS.reveal.every(paragraph => LABELS.has(paragraph.label)));
 });
 
-test("fifth mission: untimed, provisional marker, GPS off, no photo yet", () => {
+test("fifth mission: untimed, provisional marker, GPS off, the mural as its photo", () => {
   assert.equal(SHUK_MISSIONS[4], LEVIN_MISSION); assert.equal(findMission(LEVIN), LEVIN_MISSION);
   assert.equal(findChoiceTask(LEVIN)?.task, LEVIN_TASK);
-  assert.equal(LEVIN_MISSION.timed, false); assert.equal(LEVIN_MISSION.photo, null);
+  assert.equal(LEVIN_MISSION.timed, false); assert.equal(LEVIN_MISSION.photo?.src, "/shuk/levin-mural.jpg");
   assert.equal(LEVIN_MISSION.placement.verified, false); assert.equal(LEVIN_MISSION.arrival.destination.verified, false);
 });
 
@@ -79,3 +79,9 @@ test("a timed mission still measures time: the mural's start is not excluded", (
   const disk = JSON.parse(await readFile(path, "utf8"));
   assert.equal(disk.missions[mural].performance.excluded, false);
 }));
+
+test("the challenge story shows the owner's mural of Rabbi Levin (identified by the owner, 26 Oct 2026)", () => {
+  const image = LEVIN_TASK.story.image;
+  assert.equal(image.src, "/shuk/levin-mural.jpg"); assert.ok(image.alt && image.caption);
+  assert.match(image.alt, /Rabbi Aryeh Levin/); assert.match(image.caption, /Rabbi Aryeh Levin/);
+});

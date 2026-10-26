@@ -44,7 +44,7 @@ test("question 2 opens under the answer to question 1, with its own hints counte
   // Two hints were used on question 1; none yet on question 2.
   const html = renderToStaticMarkup(createElement(List, { ...base, step: 1, performance: { started: true, hintsUsed: 2, stepHintsUsed: 0, canStart: true, reward: null } }));
   assert.ok(html.indexOf("still warm, they&#x27;re brushed") < html.indexOf("What does the name rugelach refer to?"));
-  assert.match(html, /Attributed tradition/); assert.match(html, /Little horns/);
+  assert.match(html, /Behind the answer/); assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/); assert.match(html, /Little horns/);
   assert.doesNotMatch(html, /While the pastries are still warm\./);
   assert.doesNotMatch(html, /<li>/); assert.match(html, /Need a hint\?/);
   assert.doesNotMatch(html, /Look at the trays\. Is the syrup/);
@@ -56,9 +56,9 @@ test("completion shows the reward and the horns reveal, and no longer the lead",
   assert.doesNotMatch(html, /still warm, they&#x27;re brushed/);
 });
 
-test("the name mystery is a guess with a closed answer: no form, no submit, labelled tradition", () => {
+test("the name mystery is a guess with a closed answer: no form, no submit, the tradition told in its own words", () => {
   const html = renderToStaticMarkup(createElement(Prediction, MARZIPAN_TASK.prediction));
   assert.match(html, /<details/); assert.doesNotMatch(html, /<details[^>]* open/);
-  assert.match(html, /Show the answer/); assert.match(html, /Attributed tradition/);
+  assert.match(html, /Show the answer/); assert.match(html, /At first the shop sold marzipan sweets/); assert.doesNotMatch(html, /Jerusalem guide/); assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
   assert.doesNotMatch(html, /<input|<textarea|<form|<button/);
 });

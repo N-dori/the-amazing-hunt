@@ -12,8 +12,8 @@ export type ArrivalPolicy = Readonly<{
 export type MissionArrival = Readonly<{ method: "gps" | "guide"; acceptedAt: number; points: number }>;
 export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>;
 export type MissionState = "available" | "arrived" | "completed";
-/** `src` is a path under `public/`, without the base path. */
-export type MissionPhoto = Readonly<{ src: string; alt: string }>;
+/** `src` is a path under `public/`, without the base path. `credit` is the attribution an openly licensed photo requires. */
+export type MissionPhoto = Readonly<{ src: string; alt: string; credit?: string }>;
 /** A map destination. Its stable ID keys the group's shared progress for that mission. */
 export type MissionDefinition = Readonly<{
   // `title` names the challenge; `name` names the place.
@@ -34,6 +34,8 @@ export type MissionDefinition = Readonly<{
   // Further scored questions after a "choose N" challenge, in order, each with its own hints. The mission completes, and earns
   // its one award, when the last is accepted. Hints count towards one shared total, so all steps' hints fit the penalty list.
   followUps?: readonly Readonly<{ challenge: ChoiceChallenge; hintCount: number }>[];
+  // The last stop: locked until the group has completed every other mission (Marzipan, the owner's request, 26 Oct 2026).
+  finale?: true;
 }>;
 /** The question a "choose N" mission is on: step 0 is its challenge, then its follow-ups. Null past the last step. */
 export function choiceStep(definition: MissionDefinition, step: number): Readonly<{ challenge: ChoiceChallenge; hintCount: number }> | null {
@@ -103,14 +105,19 @@ export function missionState(arrival: MissionArrival | null, completed: boolean)
 }
 
 export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean }>;
+/** A finale stays locked while any other mission in the group's list is unfinished. `alsoDone` counts one as done early
+ * (a mission whose answer was just accepted, before the next refresh). */
+export function finaleLocked(definition: Pick<MissionDefinition, "id" | "finale">, missions: readonly Pick<MissionView, "id" | "state">[], alsoDone?: string): boolean {
+  return definition.finale === true && missions.some(mission => mission.id !== definition.id && mission.id !== alsoDone && mission.state !== "completed");
+}
 /** `order` is the marker's number on the map (catalogue position), not a required route order. */
-export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number) {
-  const status = mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
-  return { ...definition, status, arrivedPoints: mission.arrivalPoints,
+export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number, locked = false) {
+  const status = locked ? "Locked" : mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
+  return { ...definition, status, locked, arrivedPoints: mission.arrivalPoints,
     state: mission.state, gpsEnabled: mission.gpsEnabled, marker: {
       id: mission.id, label: `${definition.shortName} - ${status}`, order,
       x: definition.placement.x, y: definition.placement.y,
-      state: mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
+      state: locked ? "locked" as const : mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
       symbol: mission.state === "completed" ? "\u2713" : mission.state === "arrived" ? "\u25c7" : String(order),
       provisional: !definition.placement.verified, offMap: false, size: 48 as const,
       ariaLabel: `${definition.shortName}: ${status}.${definition.placement.verified ? "" : " Approximate marker placement."}`,

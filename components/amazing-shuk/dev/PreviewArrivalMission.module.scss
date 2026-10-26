@@ -10,6 +10,8 @@
 
 // The whole photo, never cropped: tall phone shots are capped by height so the text below stays in reach.
 .hero { justify-self: start; max-width: min(100%, 42rem); margin: 0; overflow: hidden; border: 1.5px solid var(--line-stone); border-radius: 1rem; background: var(--surface-recessed); }
+// The attribution an openly licensed photo needs: small, under the picture.
+.credit { padding: .375rem .75rem; font-size: .8125rem; line-height: 1.4; }
 .photo { display: block; width: auto; max-width: 100%; height: auto; max-height: 60svh; object-fit: contain; }
 .photoGap { display: flex; align-items: center; gap: .5rem; padding: .75rem 1rem; border: 1px dashed var(--neutral-line); border-radius: .75rem; background: var(--surface-recessed); font-size: .9375rem; }
 

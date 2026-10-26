@@ -1,5 +1,5 @@
 import type { ChoiceChallenge } from "./choice-task.ts";
-import type { MissionDefinition } from "./mission-arrival.ts";
+import type { MissionDefinition, MissionPhoto } from "./mission-arrival.ts";
 import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
 
 export const MARZIPAN_MISSION_ID = "marzipan-rugelach";
@@ -73,8 +73,9 @@ export const MARZIPAN_TASK = Object.freeze({
     title: "Before you start: a name mystery",
     question: "Why is a bakery famous for chocolate rugelach called Marzipan?",
     invitation: "Make a guess together, then open the answer. There's no score for this one.",
+    // The owner removed "A Jerusalem guide tells it this way:", 26 Oct 2026. Still a guide's account in the data (GUIDE).
     reveal: [
-      { label: "Attributed tradition", text: "A Jerusalem guide tells it this way: at first the shop sold marzipan sweets in many flavours, weighed out at a small window. The next generation turned it into a rugelach bakery. The bakery hasn't published its own account." },
+      { label: "Attributed tradition", text: "At first the shop sold marzipan sweets in many flavours, weighed out at a small window. The next generation turned it into a rugelach bakery. The bakery hasn't published its own account." },
     ],
   },
   question: "When do you think the sweet syrup goes onto Marzipan's rugelach?",
@@ -156,8 +157,12 @@ export const MARZIPAN_MISSION = Object.freeze({
   }),
   // TODO(field): the entrance is not field-checked. The queue is from 13tv/Yummies (29 Aug 2023), "the reason for the big line near the market".
   clue: "Find number 44 on Agripas Street, at the edge of the market. Look for a queue and trays of small chocolate rugelach.",
-  // No approved storefront photograph yet: no owner photo, bakery photo or licensed image.
-  photo: null,
+  // Chosen at the owner's request, 26 Oct 2026: Benjamin Lipsman (blipsman), Jerusalem, 28 Aug 2013, CC BY 2.0, via Wikimedia
+  // Commons (File:9674765093 August 2013 in Jerusalem.jpg; Flickr 9674765093). Resized to 1280 px, metadata stripped.
+  // The photo doesn't say which bakery it shows, so the alt doesn't claim it is Marzipan. Still no storefront photo.
+  photo: Object.freeze({ src: "/shuk/marzipan-rugelach.jpg",
+    alt: "Rows of small chocolate rugelach on metal trays in a bakery display, with more pastries behind.",
+    credit: "Photo: Benjamin Lipsman, CC BY 2.0, via Wikimedia Commons" }) as MissionPhoto | null,
   cluePhoto: null,
   // The base map's own "Marzipan Bakery" label sits here (copied from a Google Maps screenshot, per docs/map/nahlaot-map-audit.md).
   // That is the illustration's position for the shop, not a field check. Owner review required.
@@ -167,6 +172,8 @@ export const MARZIPAN_MISSION = Object.freeze({
     destination: null,
     radiusMeters: 100, maxAccuracyMeters: 50, maxAgeMs: 60_000, futureToleranceMs: 5_000, rewardPoints: 20,
   }),
+  // The last stop: it opens once the other five missions are done.
+  finale: true,
   challenge: MARZIPAN_CHALLENGE,
   rewards: MARZIPAN_REWARDS, hintCount: MARZIPAN_TASK.hints.length,
   followUps: Object.freeze([{ challenge: MARZIPAN_HORNS_CHALLENGE, hintCount: MARZIPAN_TASK.followUps[0].hints.length }]),

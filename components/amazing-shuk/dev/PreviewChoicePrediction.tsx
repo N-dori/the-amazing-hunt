@@ -9,10 +9,7 @@ export default function PreviewChoicePrediction({ title, question, invitation, r
     <p className={styles.note}>{invitation}</p>
     <details className={styles.answer}>
       <summary className={styles.summary}>Show the answer</summary>
-      {reveal.map(paragraph => <div key={paragraph.text}>
-        <p className={styles.label}>{paragraph.label}</p>
-        <p>{paragraph.text}</p>
-      </div>)}
+      {reveal.map(paragraph => <p key={paragraph.text}>{paragraph.text}</p>)}
     </details>
   </section>;
 }

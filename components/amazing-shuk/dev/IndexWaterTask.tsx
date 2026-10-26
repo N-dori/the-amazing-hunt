@@ -17,7 +17,7 @@ import IndexGuideWaterTask from "./IndexGuideWaterTask";
 import ListArrivalMission from "./ListArrivalMission";
 import ActionButton from "@/components/ui/ActionButton";
 import type { MapView } from "@/components/map/LeafletBaseMap";
-import type { MissionView } from "@/lib/amazing-shuk/mission-arrival";
+import { finaleLocked, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amazing-shuk/request-arrival-location";
 import ListWaterTask from "./ListWaterTask";
 import PreviewWellStory from "./PreviewWellStory";
@@ -32,6 +32,8 @@ import PreviewChoiceStory from "./PreviewChoiceStory";
 import ListChoiceBonus from "./ListChoiceBonus";
 import PreviewAppreciation from "./PreviewAppreciation";
 import PreviewChoicePrediction from "./PreviewChoicePrediction";
+import PreviewMissionCheer from "./PreviewMissionCheer";
+import { missionCheer, nextMission } from "@/lib/amazing-shuk/mission-cheer";
 import styles from "./IndexWaterTask.module.scss";
 
 const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
@@ -256,10 +258,22 @@ export default function IndexWaterTask({ mode }: Props) {
     return () => observer.disconnect();
   }, [hasHeader]);
 
+  // Once the answer is accepted: a cheer, and the way to the next stop. The bonus, if any, waits below it.
+  const cheer = (bonusBelow: boolean) => {
+    if (!view?.session.completed) return null;
+    const { text, celebrate } = missionCheer(missionId);
+    const next = nextMission(view.missions, missionId);
+    return <PreviewMissionCheer cheer={text} celebrate={celebrate} next={next} bonusBelow={bonusBelow}
+      onNext={() => { if (next) navigate(previewMission(nav, next.id)); }} onMap={() => goTo("map")} />;
+  };
+
   if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
   if (!view && signedOut) return <PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   const participants = view.participants ?? PARTICIPANT_IDENTITIES;
+  // A locked finale (Marzipan) can't be played yet, even from a saved screen or the Mission tab: its map preview says why.
+  const openDefinition = findMission(missionId);
+  const journeyStage = stage === "challenge" && openDefinition && finaleLocked(openDefinition, view.missions) ? "location" : stage;
   return (
     <main className={styles.page} ref={pageRef}>
       <PreviewShukHeader ref={headerRef} title={nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}
@@ -276,7 +290,7 @@ export default function IndexWaterTask({ mode }: Props) {
       {nav.area === "group" ? <ListGroupOverview participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
         missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
         onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
-      {nav.area === "journey" && stage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={stage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
+      {nav.area === "journey" && journeyStage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={journeyStage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
         feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
         onSelect={(id) => {
           if (!findMission(id)) return;
@@ -289,11 +303,11 @@ export default function IndexWaterTask({ mode }: Props) {
           window.requestAnimationFrame(() => document.querySelector<HTMLElement>(".leaflet-container")?.focus({ preventScroll: true }));
         }} onViewLocation={() => goTo("location")} onOpenChallenge={() => goTo("challenge")}
         onConfirm={() => void act({ type: "confirm-arrival", missionId })} /> : null}
-      {nav.area === "journey" && stage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
+      {nav.area === "journey" && journeyStage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
         <ActionButton variant="quiet" onClick={() => goTo("location")}>Back to location</ActionButton>
         <ActionButton variant="quiet" onClick={() => goTo("map")}>Back to map</ActionButton>
       </nav> : null}
-      {nav.area === "journey" && stage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
+      {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
       <h2>{choiceTask.task.title}</h2>
       <PreviewChoiceStory {...choiceTask.task.story} instruction={choiceTask.task.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
       {choiceTask.task.prediction && !view.session.completed ? <PreviewChoicePrediction {...choiceTask.task.prediction} /> : null}
@@ -301,6 +315,7 @@ export default function IndexWaterTask({ mode }: Props) {
         performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
         onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })}
         onReset={() => void act({ type: "reset", missionId })} />
+      {cheer(Boolean(choiceTask.bonus && view.session.bonus && !view.session.bonus.completed))}
       {/* Optional extras after the accepted answer: they never change the mission's completion or its food tokens. */}
       {view.session.completed && choiceTask.bonus && view.session.bonus ? <ListChoiceBonus content={choiceTask.bonus.content} challenge={choiceTask.bonus.challenge}
         state={view.session.bonus} activeRole={activeRole ?? "follower"} busy={busy} feedback={message}
@@ -309,7 +324,7 @@ export default function IndexWaterTask({ mode }: Props) {
       {view.session.completed && choiceTask.appreciation ? <PreviewAppreciation {...choiceTask.appreciation} /> : null}
       {/* Opens the Food tab only: redemption stays with the guide at the market. */}
       {view.session.completed && choiceTask.task.foodAction ? <ActionButton icon="arrowForward" onClick={() => navigate(goToTab(nav, "food"))}>{choiceTask.task.foodAction}</ActionButton> : null}
-      </> : nav.area === "journey" && stage === "challenge" && view.mission.id === missionId && view.session.kind !== "choice" ? <>
+      </> : nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind !== "choice" ? <>
       <h2>{WATER_TASK.title}</h2>
       <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={WATER_TASK.instruction} open={storyOpen} onToggle={() => {
         setStoryOpen(!storyOpen);
@@ -322,10 +337,11 @@ export default function IndexWaterTask({ mode }: Props) {
           setInteraction(INITIAL_WATER_INTERACTION);
           void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />
+      {cheer(false)}
       </> : null}
       {activeRole === "guide" ? <IndexGuideWaterTask participants={participants.filter(participant => participant.id !== DEV_GUIDE_ID)} missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
       {/* On the mural, replies to an action appear beside its submit button instead. */}
-      {message && !(nav.area === "journey" && stage === "challenge" && view.session.kind === "choice") ? <p className={styles.message} role="status">{message}</p> : null}
+      {message && !(nav.area === "journey" && journeyStage === "challenge" && view.session.kind === "choice") ? <p className={styles.message} role="status">{message}</p> : null}
       {mode === "dev" ? <details className={styles.dev}>
         <summary>Development</summary>
         <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>

@@ -40,16 +40,14 @@ export const MURAL_TASK = Object.freeze({
       { label: "Attributed tradition", text: "The story goes that after the unveiling, people complained about cardboard boxes left near the painting. They were painted." },
     ],
     source: `${TOUR}; ${POST} ("a bare concrete wall"); before photo supplied by the owner, 24 Oct 2026.`,
-  },
-  // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
-  question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
-  // Shown only after the group's answer is accepted, so it can't hint at what was already there.
-  reveal: {
-    paragraphs: [],
+    // Moved from the reveal into the story at the owner's request, 26 Oct 2026: it shows the bare wall the story describes.
     image: { src: "/shuk/mural-before.jpg", width: 1023, height: 1537,
       alt: "Black-and-white photo of the same corner before the mural: a tall, bare, blank building wall above low sheds, a lamp post and a telegraph pole.",
       caption: "The wall before the mural. Photographer and date not yet recorded." },
   },
+  // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
+  question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
+  reveal: { paragraphs: [], image: null },
   // The tour's own questions for this stop, in order.
   hints: [
     { title: "Hint 1 — Gentle", text: "Which lines belong to actual architecture?" },

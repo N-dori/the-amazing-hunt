@@ -20,8 +20,8 @@ export default function PreviewChoiceBonus({ content, view, points, feedback, on
     <p className={styles.bonusQuestion}>{content.question}</p>
     {view.completed ? <div role="status">
       <p className={styles.bonusPoints}>Bonus points earned: <strong>{points}</strong></p>
+      {content.reveal.length ? <h4 className={styles.revealLabel}>Behind the answer</h4> : null}
       {content.reveal.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
-        <p className={styles.revealLabel}>{paragraph.label}</p>
         <p>{paragraph.text}</p>
       </div>)}
     </div> : <>

@@ -62,7 +62,9 @@ export const MONTEFIORE_TASK = Object.freeze({
 const ALIYAH = "Hamichlol, עליית אעלה בתמר; Song of Songs 7:9";
 const VERSE_WORD = "Another word of the same verse";
 
-/** Optional bonus: the year on the plaque hides in a word of the verse. A letter shuffle, no arithmetic needed. */
+// Parked, not played: the owner took this bonus off the gate on 26 Oct 2026. The year תרמ"ב is the Yemenite aliyah's, which has
+// nothing to do with this gate. Kept for a future stop about the Yemenite community; it is not attached to any mission.
+/** Optional bonus: the year hides in a word of the verse. A letter shuffle, no arithmetic needed. */
 export const MONTEFIORE_BONUS_CHALLENGE: ChoiceChallenge = Object.freeze({
   kind: "choice", required: 1, answerKeyVerified: true,
   options: Object.freeze([
@@ -115,5 +117,4 @@ export const MONTEFIORE_MISSION = Object.freeze({
   }),
   challenge: MONTEFIORE_CHALLENGE,
   rewards: MONTEFIORE_REWARDS, hintCount: MONTEFIORE_TASK.hints.length,
-  bonus: Object.freeze({ challenge: MONTEFIORE_BONUS_CHALLENGE, points: MONTEFIORE_BONUS_POINTS }),
 }) satisfies MissionDefinition;

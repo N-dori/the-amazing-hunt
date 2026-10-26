@@ -29,7 +29,7 @@ test("the story is short and labelled, and nothing before the answer lists the l
   assert.doesNotMatch(JSON.stringify(MONTEFIORE_TASK.reveal), /TODO|Arabic panel (says|reads)/);
 });
 
-test("bonus: the plaque's year תרמ\"ב hides in בתמר, the same four letters, so no arithmetic is needed", () => {
+test("parked bonus: the plaque's year תרמ\"ב hides in בתמר, the same four letters, so no arithmetic is needed", () => {
   assert.equal(MONTEFIORE_BONUS_CHALLENGE.required, 1);
   assert.deepEqual(MONTEFIORE_BONUS_CHALLENGE.options.filter(option => option.correct).map(option => option.label), ["בתמר"]);
   assert.ok(MONTEFIORE_BONUS_CHALLENGE.options.every(option => option.lang === "he"));
@@ -45,10 +45,9 @@ test("bonus: the plaque's year תרמ\"ב hides in בתמר, the same four lette
   assert.doesNotMatch(JSON.stringify(MONTEFIORE_BONUS), /\b1[0-9]{2}\b|\b200\b/, "no disputed count of immigrants");
 });
 
-test("fourth mission: provisional marker, GPS off, a bonus worth a little and no food tokens", () => {
+test("the gate: provisional marker, GPS off, and no bonus (the Yemenite year isn't about this gate)", () => {
   assert.equal(SHUK_MISSIONS[1], MONTEFIORE_MISSION); assert.equal(findMission(MONTEFIORE_MISSION_ID), MONTEFIORE_MISSION);
-  assert.equal(findChoiceTask(MONTEFIORE_MISSION_ID)?.bonus?.challenge, MONTEFIORE_BONUS_CHALLENGE);
+  assert.ok(!("bonus" in MONTEFIORE_MISSION)); assert.equal(findChoiceTask(MONTEFIORE_MISSION_ID)?.bonus, undefined);
   assert.equal(MONTEFIORE_MISSION.placement.verified, false); assert.equal(MONTEFIORE_MISSION.arrival.destination.verified, false);
   assert.equal(MONTEFIORE_MISSION.hintCount, 2);
-  assert.ok(MONTEFIORE_MISSION.bonus.points > 0 && MONTEFIORE_MISSION.bonus.points <= 20);
 });

@@ -91,20 +91,22 @@
 .thumb { width: 4.5rem; height: 4.5rem; object-fit: cover; border-radius: 0.75rem; }
 .thumbGap { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border: 1px dashed var(--neutral-line); border-radius: 0.75rem; background: var(--surface-recessed); }
 
-// A teaser of up to three lines; the full summary is on the location details.
+// A teaser of up to five lines (owner's request, 26 Oct 2026); the full summary is on the location details.
 .summary {
   display: -webkit-box;
   overflow: hidden;
   font-size: 1.0625rem;
   line-height: 1.5;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
 }
 
 // The action row never scrolls away. The stage already ends above the bottom bar and its safe area.
 .action { flex: none; padding: 0.75rem 1rem 1rem; border-block-start: 1px solid var(--line-stone); background: var(--surface-raised); }
 .action button { max-width: 100%; }
+// In place of the action on a locked finale: the reason, at the same weight as the button it replaces.
+.locked { display: flex; align-items: flex-start; gap: 0.5rem; min-height: 3rem; font-size: 1.0625rem; font-weight: 500; line-height: 1.5; }
 
 @media (min-width: 48rem) {
   .top { padding-inline: 1.5rem 1rem; }
