@@ -1,8 +1,41 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - map, story and completion changes from the owner's review, 26 Oct 2026
+## Latest note - change of course, 29 Oct 2026
 
-**Not committed or deployed.** The owner's six requests:
+**Owner's decisions, recorded only; nothing built.**
+- **The market can also be part of the challenges** from now on (Mahane Yehuda itself, not only the closing reward). Wait for the owner before planning or building anything for it; open question for then: does Marzipan stay the locked finale?
+- **No server-side Marzipan lock.** The client-only lock stays as it is (answers the open question below).
+- **Never write "A guide tells that…"** in visitor-facing copy. Marzipan's syrup-bucket lead (`marzipan-task.ts:90`) still has it; reword only with the owner's copy. Answers the open question below.
+- **The synagogue's blue-sign line is a hint** to the place's story (`synagogue-task.ts:56`), not an instruction to position around "Behind the answer". Not changed yet. Answers the open question below.
+- **The mural's before photo:** the owner has had it for a long time, doesn't know its source, and thinks it may have been changed with GPT. Treat it as possibly AI-edited (content rule: confirm what an archival photo shows before building on it). Keep, label or replace: owner's call later.
+- **Map rule: markers get smaller whenever the map zooms out**, to keep close pins (gate 2 and well 3) from overlapping. This replaces moving a pin. Not built; wait for the owner. Note for then: `LeafletBaseMap` is shared with the Memory Protocol, so scope it to the Shuk unless the owner says otherwise.
+
+## Earlier handoff - owner's review fixes, deployed, live game reset, 26 Oct 2026
+
+**Committed, pushed and live.** `3958bd3` (the changes below) and `f54f6da` (the two new photos added to the `.dockerignore` allowlist; the first deploy served them as 404). Live image `dori-shuk:20261026-084821-f54f6da`, healthy; both photos return 200 at `https://doriisrael.com/shuk/shuk/<file>`. The welcome screen and marker order (`d1d507a`, next entry) went live with it.
+
+**Live game reset (owner, 26 Oct, 08:59 UTC):** every mission's progress was cleared (`missions: {}`; the store rebuilds empty records on load). Points, food tokens, arrivals, answers, hints and bonuses are at zero. Sign-ins, unused invitations, the seven display names and the navigator and answer-submitter roles were kept. Backups: `.local/amazing-shuk/backups/live-state-before-reset-20261026T085946Z.json` and `/data/state.before-reset-20261026T085946Z.json` in the container. Before the reset the mural and the gate were complete.
+
+**Other work this session:**
+- A fresh guide link went to `.local/amazing-shuk/public-invite-links.md`, and fresh local links (guide, players 1–3) to `.local/amazing-shuk/invite-links.md`.
+- At the owner's request, these were stopped:
+  - `dori-game-preview` (3200);
+  - `dori-caddytest` (18080/18081; it was `--rm`, so it is gone);
+  - the TourTech dev server (3002);
+  - `mentor.service` (7373; still enabled, so it returns on reboot).
+- New `docs/project/trip-doriisrael-paths.md`: every path on `trip.doriisrael.com` (the DORI platform), read from the Caddy file and the platform source, not checked live.
+- `docs/RUN_PREVIEW.md` has uncommitted local invite links pasted at the top. Keep it out of commits; stash it for a deploy, which needs a clean tree.
+
+**Next:**
+- The owner's phone review of the deployed changes.
+- Disk is at 85%; suggest `docker builder prune -f` before the next build.
+
+**Waiting on the owner:**
+- Copy: the cheers, "Behind the answer", the Marzipan lock note and the next-stop lines (all `TODO(copy)`).
+- Levin mural: the artist, the wall's location, and whether it is at the home.
+- A Marzipan storefront photo.
+
+The owner's requests, in order:
 
 1. **No names under the map pins** in the Shuk (`LeafletBaseMap` `showLabels={false}`; the Memory Protocol keeps them).
 2. **Wider map:** the Shuk map opens fitted to all six markers (`openOnMarkers`, a pin's margin round them), and `zoomOutBy={1}` allows pinching one level below "contain". A first try opened one level out from "cover"; the gate's pin then hid the well's (the owner: "the water challenge is gone from the map"). Pins 2 and 3 are only 67 image px apart, so zooming far out still stacks them.
@@ -21,11 +54,14 @@
 
 11. **Marzipan is the finale** (owner, 26 Oct): `finale: true` on the mission and `finaleLocked` in `mission-arrival.ts`. While any other mission is unfinished, its marker shows as locked, and its preview says "To earn the best chocolate in the market, first complete all the other missions. This stop opens last." (draft) in place of View Location. A saved screen or the Mission tab falls back to that preview. The next-stop button skips it until it's the only one left. The very last cheer ends "That was the last one! Now go find what the market has to offer you…" (the owner's line). The lock is in the client only: the server would still accept Marzipan actions. The name-mystery answer no longer starts "A Jerusalem guide tells it this way:" (owner); the follow-up lead's "A guide tells that…" is unchanged.
 
-- **Verified:** `test:shuk` 149/149 (new `mission-cheer.test.ts`), tsc and ESLint clean (run inside `shuk-dev`). Not checked in a browser.
+- **Verified:**
+  - `test:shuk` 151/151 (new `mission-cheer.test.ts`), with tsc and ESLint clean, run inside `shuk-dev`.
+  - Deploy health and smoke checks passed.
+  - Not checked in a browser or on a phone.
 
 ## Earlier handoff - welcome screen and new marker order, 26 Oct 2026
 
-**Not committed or deployed.**
+**Committed in `d1d507a`; live since the 26 Oct deploy above.**
 
 - **Welcome screen** (owner's request): `PreviewShukWelcome` replaces the bare sign-in line. It shows the illustrated map in a card, the title, three highlights and a "Start the game" button, plus a note that the link is personal. A signed-out visitor sees the same screen with a "use your invitation link" card in place of the button. All wording is draft (`lib/amazing-shuk/welcome-copy.ts`, `TODO(copy)`).
 - **Marker order** (owner's request): 1 the mural, 2 the Montefiore gate, 3 the well, 4 Chesed VeRachamim, 5 Aryeh Levin, 6 Marzipan (`SHUK_MISSIONS`). Progress is keyed by mission ID, so live progress is unaffected. The map opens on marker 1. A request that names no mission still means the well (older clients). Mission numbers in older notes refer to the old order.

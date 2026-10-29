@@ -35,13 +35,13 @@ Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit
 
 For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.
 
-### Where Claude's Shuk work stands (25 Oct 2026)
+### Where Claude's Shuk work stands (26 Oct 2026)
 
 Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/current-state.md`.
 
 - Committed and pushed, the first three missions: three playable missions (the well; the mural; Chesed VeRachamim with its optional novel bonus and Eshet Chayil moment), the redesigned mission preview, the profile panel and role badges, the bottom navigation bar (Map, Mission, Food, Group), the mural's checkbox-card UX and the owner's location photos.
 - Committed and pushed on 25 Oct:
-  - Mission 4, the Montefiore gate (three languages; optional bonus, the year תרמ"ב hidden in בתמר).
+  - Mission 4, the Montefiore gate (three languages; its hidden-year bonus was removed on 26 Oct and is parked).
   - Mission 5, Rabbi Aryeh Levin and Olei HaGardom (untimed, no hints; bonus at the Kramer-Rechtman plaque).
 - Committed and pushed on 25 Oct (`fbd9fad`), and live in the Shuk app: mission 6, Marzipan Bakery: a name guess, two scored questions in a row (the new `followUps`), the New York bonus, a babka conversation and an Explore Food Rewards button. Sources, drafts and open decisions are in the top handoff entry.
 - Committed and pushed on 25 Oct, the Stitch design's first slice: the owner's Stitch mockups are in `docs/design/stitch-reference/` (untracked, the owner's), as a layout reference only. Built so far:
@@ -52,19 +52,27 @@ Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/
   - the mission preview overlapping the map, with View Location always in view;
   - the location view as cards, with food tokens (no points) under Open Challenge.
 - **Live since 25 Oct (`fbd9fad`):** the protected Shuk app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Deploy with `deploy/deploy.sh shuk`. Production invitations come from `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <id> https://doriisrael.com`; write them to `.local/`, never print them. The three invited friends are players 4–6; their names live only in the server state and in `.local/`, never in git.
+- **Live since 26 Oct (`3958bd3`, `f54f6da`):** the owner's review fixes. Details are in the top handoff entry.
+  - The map has no pin labels and opens on all markers.
+  - No evidence labels or Source on screen; both stay in the data.
+  - A cheer and a next-stop button on completion.
+  - Marzipan is the finale, locked until the others are done.
+  - The mural's before photo is in its story.
+  - Levin's mural photo and a CC BY rugelach photo for Marzipan.
+- The owner reset the live game's progress on 26 Oct (backups in `.local/amazing-shuk/backups/`).
 - All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
 
 To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404. The dev server writes the repo's `.next/`: don't delete it while `shuk-dev` runs. Invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`.
 
 Next:
-- the owner's browser review of the Stitch slice (the eight preview checks in the handoff);
+- the owner's phone review of the 26 Oct changes, and of the Stitch slice (the eight preview checks in the handoff);
 - possibly compact role pills on phones narrower than 22rem;
 - then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 
 The photo rights audit is deferred by the owner.
 
 Waiting on the owner:
-- draft copy for all five missions, the UI labels and the alt texts (listed per slice in the handoff);
+- draft copy for all the missions, the UI labels, the alt texts, the cheers, "Behind the answer" and the Marzipan lock note (listed per slice in the handoff);
 - rewards: every mission's rewards and both bonuses are provisional;
 - mural image rights (product-decisions still says unresolved) and the before photo's source and rights;
 - field checks:

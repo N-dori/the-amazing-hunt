@@ -51,6 +51,23 @@
   - Before play, screens show only the food tokens a mission gives, never a points promise.
   - The photo rights audit is deferred: the owner's photos may be used as they are for now.
 
+- **Owner's review of the live game (26 Oct 2026):**
+  - **No evidence labels on screen**, in every mission. The data keeps every statement's label and source, and the wording keeps its hedges ("It's told that…", "Sources differ…"). Text after an answer sits under one neutral heading (draft "Behind the answer"). No Source section on mission pages. This overrides "the app shows it" for the Shuk (`.claude/rules/content.md`).
+  - **Marzipan is the finale:** it opens only once every other mission is done. The game's closing line is "…go find what the market has to offer you…".
+  - **The Montefiore bonus is off the gate:** the year תרמ"ב (בתמר) belongs to the Yemenite aliyah, not to the gate. The puzzle is parked for a possible Yemenite stop.
+  - A cheer on every completion (a quiet line for Rabbi Levin's stop), with a clear way to the next stop.
+  - The mural's before photo goes with the story, before the challenge.
+  - The owner identified the Nachlaot mural (photos #37 and #39) as Rabbi Aryeh Levin; it is his mission's photo.
+  - An openly licensed web photo may stand in for a missing one, with its credit shown (Marzipan: CC BY 2.0).
+
+- **Change of course (owner, 29 Oct 2026):**
+  - **The market can also be part of the challenges** (Mahane Yehuda itself, not only the closing food reward). Not yet built; wait for the owner's next instruction before planning or building market challenges.
+  - **No server-side Marzipan lock:** the finale lock stays in the client only; the server is not to refuse Marzipan actions.
+  - **Never write "A guide tells that…"** (or similar guide attributions) in visitor-facing copy. The hedge a tradition needs comes from other wording. First case: Marzipan's follow-up lead (`marzipan-task.ts`, the syrup bucket line); not changed yet.
+  - **The synagogue's blue-sign line is a hint** to the place's story ("Now look for the blue heritage sign nearby…", `synagogue-task.ts`), not an instruction placed above or below "Behind the answer". Not changed yet.
+  - **The mural's before photo:** the owner has had it a long time and isn't sure of its origin, and thinks it may have been altered with GPT. Its source and rights stay unknown; treat it as possibly edited, not as a documentary photo. No decision yet on keeping or replacing it.
+  - **Map rule: markers shrink when the map zooms out**, so nearby pins (e.g. the gate and the well, 2 and 3, 67 image px apart) don't overlap. No pin is moved for this. Not yet built; wait for the owner.
+
 ## Conflict priority
 
 Follow current owner instructions first, then these approved decisions, then verified implementation constraints, current roadmap/design specs, and finally historical brainstorming. Record conflicts and update outdated plans; do not silently reverse a decision. Propose alternatives, but get owner approval before changing fundamental product direction.
