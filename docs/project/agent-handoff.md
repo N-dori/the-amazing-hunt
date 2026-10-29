@@ -1,6 +1,28 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest note - change of course, 29 Oct 2026
+## Latest handoff - experience design skill, docs reorganised, 29 Oct 2026
+
+**Committed (`1616e74`, `42c8ae5`, `7635f56`, `32857ca`); the owner pushes from VS Code** (git asks for the login through VS Code's password prompt, so a push from Claude's shell hangs). No game behaviour changed and nothing was deployed: the live Shuk is still `f54f6da`.
+
+- **New skill `/experience-design`** (`.claude/skills/experience-design/`): the owner's ten-step thinking process from raw material to a recommended treatment, with quality criteria and anti-patterns, a treatment outline, an external research method, an inspiration library (six starting sources and eight precedents, read on 29 Oct through a subagent's page fetches; the Play Disney Parks page couldn't be read), the Shuk context, and a worked example on the Montefiore gate (the mission is unchanged). Claude can invoke it automatically, or the owner types `/experience-design`. The owner's brief is kept word for word in [experience-design-skill-brief.md](experience-design-skill-brief.md); the direction itself is only in [product decisions](product-decisions.md).
+- **Order of processes:** the owner's [guiding methods](../../design/inputs/content/guiding_methods.md) → the skill (up to an approved treatment) → the [Codex build loop](../design/codex-amazing-shuk-partner.md#reusable-task-design-process). Written in the skill's `references/project-context.md`.
+- **Pointers to the skill:** `CLAUDE.md`, `AGENTS.md` (for Codex; Claude doesn't load it while `CLAUDE.md` exists), `.claude/rules/content.md`, `.claude/agents/dori-ux-designer.md`, `docs/content/methodology.md`, `design/inputs/content/README.md`.
+- **Docs move (the owner's):** `docs/scavenger_hunt/` is gone; story and tour texts are in `docs/knowledge/`. Every live reference uses the new paths, including the source strings in `lib/amazing-shuk/*-task.ts` and `lib/game/content.ts` (tests 151/151 and 61/61). Left on purpose: `design/output/00_discovery.md` (the designer agent's file) and `research/prompts/00_EVAL.md` (historical).
+- **One copy per document:** the mechanics survey, the platform research and the place stories live in `design/inputs/content/`; their copies in `docs/content/`, `docs/project/` and `docs/knowledge/` are now pointers. The owner may prefer the mechanics survey's copy in `docs/content/`; swapping is small.
+- **`CLAUDE.md` is 48 lines:** the dated status section became a short "Shuk state" pointer; the next and waiting lists moved to [current state](current-state.md).
+- **Verified:** `claude plugin validate .claude/skills` passes; 0 broken links in the 30 touched markdown files; `git diff --check` clean. **Not verified:** automatic triggering and `/experience-design` in a fresh session.
+
+**Next:**
+- The owner pushes the four commits; check GitHub's `main` matches.
+- Test the skill in a fresh session: one prompt that should trigger it, one that shouldn't.
+- Then use it: a first candidate is Marzipan (two scored questions in a row; smell-first and watching the syrup go on are the concepts the audit found).
+- The owner's phone review and the Stitch C1/E1 screens are still open ([current state](current-state.md)).
+
+**Optional, from the audit:** lead the skill's description with its use case; add a "when not to use it" line; scope `scss.md` and `coding.md` with `paths:`; fix the "must have one visible label" wording in `AGENTS.md`; archive the skill brief once the skill settles.
+
+**Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (local invite links), `docs/project/trip-doriisrael-paths.md` (the owner hasn't decided), `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier note - change of course, 29 Oct 2026
 
 **Owner's decisions, recorded only; nothing built.**
 - **The market can also be part of the challenges** from now on (Mahane Yehuda itself, not only the closing reward). Wait for the owner before planning or building anything for it; open question for then: does Marzipan stay the locked finale?
