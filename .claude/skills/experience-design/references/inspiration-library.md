@@ -81,6 +81,38 @@ A living list of precedents for **how** to shape experiences. It is not a source
 - **Applications:** the market and Marzipan: one shared taste framed by one question, answered aloud.
 - **Limitations:** depends on vendors, cost and dietary needs; vendor stories need consent.
 
+### Spaceteam
+- **Link:** https://en.wikipedia.org/wiki/Spaceteam (checked 29 Oct 2026; a secondary source. The studio's page, https://sleepingbeastgames.com/projects/spaceteam, gives no gameplay detail)
+- **Discipline:** cooperative party game for phones.
+- **What people did (verified):** two to eight players, each with a different control panel on their own device; orders appear on one player's device, but the control that carries them out is on someone else's, so the order has to be said aloud. The designer says the shouting wasn't intended: "it's the only way to getting someone to hear your instruction."
+- **Principle:** put the instruction on one phone and the means on another; talking becomes the mechanic.
+- **Applications:** complementary puzzle parts, e.g. each vessel of the well on a different phone, so the group pours by talking.
+- **Limitations:** short timers and shouting in harder levels; drop both. A quiet residential street isn't a party room.
+
+### Captain Sonar
+- **Link:** https://en.wikipedia.org/wiki/Captain_Sonar (checked 29 Oct 2026; secondary source)
+- **Discipline:** team board game.
+- **What people did (verified):** two teams of up to four sit on either side of a divider, each filling four roles; the 2–4 player version merges the Captain and First Mate.
+- **Principle:** design roles so they merge cleanly when fewer people play.
+- **Applications:** mission parts that combine on one phone in a small team; the same mission works for two players or eight.
+- **Limitations:** real-time and competitive by design; the article doesn't describe how the roles depend on each other.
+
+### Hanabi
+- **Link:** https://en.wikipedia.org/wiki/Hanabi_(card_game) (checked 29 Oct 2026; secondary source)
+- **Discipline:** cooperative card game.
+- **What people did (verified):** players "can see each other's cards but they cannot see their own", and pass limited, exact clues paid for with tokens.
+- **Principle:** you can hold information meant for someone else; helping means telling them.
+- **Applications:** a clue card that names what your neighbour must find on the wall.
+- **Limitations:** quiet, slow deduction; on a busy street keep it to one exchange, not a chain.
+
+### Pandemic
+- **Link:** https://en.wikipedia.org/wiki/Pandemic_(board_game) (checked 29 Oct 2026; secondary source)
+- **Discipline:** cooperative board game.
+- **What people did (verified):** each player is dealt a random role; roles "allow them to alter the above rules" (the Medic treats every cube in a city with one action; the Scientist cures with four cards instead of five).
+- **Principle:** a role is an ability, not a title. If a role doesn't change what someone can see or do, it is decoration.
+- **Applications:** the test for any proposed game role; titles without a different view or action stay out.
+- **Limitations:** roles are dealt at random and fixed for the game; families need to choose, swap and skip roles.
+
 ## Cross-cutting principles (interpretation)
 
 1. The place opens the content.
@@ -90,7 +122,8 @@ A living list of precedents for **how** to shape experiences. It is not a source
 5. Match the verb to the tone; solemn stops get acts of care, not scores.
 6. Technology frames the moment, then goes quiet.
 7. Facilitators matter for family learning; surprise and social interaction help people learn.
+8. A role is an ability, not a title, and roles must merge cleanly when few people play.
 
 ## Not yet covered
 
-Interactive documentary and children's-museum projects; alternate reality games; cooperative board games beyond one example. Look there next time.
+Interactive documentary and children's-museum projects; alternate reality games. Look there next time.

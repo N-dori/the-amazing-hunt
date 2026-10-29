@@ -24,6 +24,26 @@
 
 **Supersedes:** Earlier 1/2/3-team brainstorming and the team-count selection behavior in `design/prototypes/amazing-shuk-team-format/`. Preserve that prototype as an isolated experiment; never integrate its selector into the Shuk app.
 
+**Superseded for the future design (owner, 29 Oct 2026):** see "Approved: adventure, teams, invitations and roles" below. Until those increments ship, the live app keeps this one-group behaviour. The prototype's selector still stays out of the app; the new format choice is designed fresh.
+
+## Approved: adventure, teams, invitations and roles (owner, 29 Oct 2026; future design)
+
+Approved as the target design, built in increments I0–I8, each implemented, verified and approved before the next. **None of it is built yet:** the live app is the one-group game above. The increments, their checks, which one is authorised and the open gates are in the [multiplayer plan](multiplayer-plan.md).
+
+- **Format:** 1–6 players play together automatically. At 7+ the host chooses **Play Together** (default) or **Two Teams**; no other format. An explicit **Start Adventure** begins play.
+- **Invitations:** the host opens the original invitation. Each team has a reusable join link (QR or ordinary link) that only lets a device *ask* to join; the team leader approves, and each player gets an individual authenticated session. Team B's leader gets a single-use invitation. Player names are optional.
+- **Roles:**
+  - Navigator and **Submitter** stay the two permanent gameplay roles; everyone else is an Advisor. "Submitter" is the approved new name for answer-submitter; the app still shows the old one.
+  - Team leaders may manage roles in their own team, but get **no guide-only permissions**.
+  - A vacant role must never block play: each gets a fallback.
+  - Optional mission parts can be swapped and combined; every mission must stay playable with roles unassigned. Part names other than Language Explorer (draft: Spotter, Reader) are not yet approved.
+  - Photographer is deferred: no photo capture or storage.
+- **Language:** English-first. "Language Explorer" is the optional player-facing part. Translation help never costs a hint penalty. Verified Hebrew only; Hebrew story bodies stay out of production; other languages need approved translations.
+- **Teams:** points per team, compared only at the end; food tokens may be earned per team but are pooled for the whole group. Both teams stay together with the guide and visit the same places; no independent routes.
+- **Sensitive places:** Rabbi Aryeh Levin and Chesed VeRachamim are never competitive.
+- **Pilot:** validate distributed parts on the well with real participants before expanding them.
+- **Still open:** the plan's gates O6, O15, O16 and O17 (operational and copy choices; no live data migration without separate authorisation), and O20: the 29 Oct line in the protected `.claude/agents/dori-ux-designer.md` still awaits explicit approval or revert, and that file must not be changed meanwhile.
+
 ## Other current owner directions
 
 - Intended access is the owner and seven friends on the existing VPS and host behind Caddy; do not treat the app as private until the actual app and proxy gates are verified.

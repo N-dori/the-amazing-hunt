@@ -10,7 +10,7 @@ What is built and what is next: [current state](../../../../docs/project/current
 
 ## The owner's direction
 
-Read the owner's decisions in [product decisions](../../../../docs/project/product-decisions.md) before Shuk design work, especially the 29 Oct 2026 "Change of course" entry: the experience design direction, the ideas kept for later (and the open question of what stop souvenirs would mean), the market as a place for challenges, and the map and copy rules. That file is the only record of these decisions; this skill doesn't restate them.
+Read the owner's decisions in [product decisions](../../../../docs/project/product-decisions.md) before Shuk design work, especially the 29 Oct 2026 "Change of course" entry: the experience design direction, the ideas kept for later (and the open question of what stop souvenirs would mean), the market as a place for challenges, and the map and copy rules. That file is the only record of these decisions. The "Principles to hold onto" in `SKILL.md` summarise the direction so the skill works on its own; where they differ, product decisions win.
 
 ## Rules this skill does not override
 

@@ -46,6 +46,7 @@
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
+- Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 (skill and docs stabilisation) is done; I1 (the Adventure and Team model, one team, same behaviour) is being prepared and waits for the owner's authorisation to implement.
 
 ## Waiting on the owner
 

@@ -1,6 +1,35 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - experience design skill, docs reorganised, 29 Oct 2026
+## Latest handoff - I0: skill and docs stabilised, multiplayer plan approved, 29 Oct 2026
+
+**Committed at the owner's request; not pushed.** No game code, deploy or production data touched.
+
+- **Owner approved the multiplayer plan** (adventure, one or two teams, join links with leader approval, roles and parts, Language Explorer). The plan, increments, checks and open gates are in [multiplayer-plan.md](multiplayer-plan.md); the approved decisions are summarised in [product decisions](product-decisions.md). I0 is accepted; **I1 may be prepared, not implemented**.
+- **Journey-wide variety** (owner, after the skill test): the skill has a new principle, "judge a mechanic across the journey, not only at its stop"; step 9 now weighs "this point in the journey"; and the criteria gain the anti-pattern "one mechanic everywhere".
+- **Fixed:**
+  - `AGENTS.md` no longer says "one visible label".
+  - The skill's `project-context.md` no longer claims SKILL.md doesn't restate the direction; it says SKILL.md summarises it and product decisions win.
+  - The skill brief's stale "URLs not opened" note is marked done.
+  - The inspiration library gains *Spaceteam*, *Captain Sonar*, *Hanabi* and *Pandemic* (read on Wikipedia on 29 Oct, as secondary sources) and principle 8: a role is an ability, not a title, and roles must merge for small groups.
+- **Verified:** 79 links in the touched and skill files resolve; `claude plugin validate .claude/skills` passes; `git diff --check` is clean on the changed files (`docs/RUN_PREVIEW.md`, untracked owner notes, has trailing whitespace; not touched).
+- **Automatic activation**, tested in fresh headless sessions (`claude -p`, stream-json, write tools disabled), one run per prompt unless noted:
+  - triggered for "design a new stop (Yemenite aliyah)" and for "the Marzipan stop feels like a quiz, how could it become more of an experience?";
+  - not triggered when the same Marzipan prompt adds "give me a short answer" (2 of 2 runs), which matches the skill's "small request" depth;
+  - not triggered for two unrelated questions (`roles.ts` exports, the test script).
+  - So the description stays as it is (O21: the tests don't support a change).
+- **Explicit `/experience-design`** on Marzipan, Chesed VeRachamim and the Montefiore gate (fresh sessions, medium depth, no web research): all three read the mission data and sources first, gave three different concepts, moved the answer into the place, and kept facts and unknowns apart. The gate run departed from the worked example with a reason.
+  - The drafts are not in the repo. Ideas worth bringing back to the owner: Marzipan "spot the change" at the tray; the synagogue's scored answer moved to the heritage sign; questioning the Beauty Queen bonus.
+  - Total test cost $2.69.
+- **Governance:** `.claude/agents/dori-ux-designer.md` is unchanged. The one line added on 29 Oct (`7635f56`) still waits for the owner's explicit approval or revert (O20).
+- **Known debt, not fixed:**
+  - Run 06 is stored twice (`design/inputs/content/` and `research/results/`).
+  - `AGENTS.md` repeats the coding and content rules.
+  - `scss.md` and `coding.md` have no `paths:`.
+  - `docs/content/methodology.md` has drifted from the platform copy.
+
+**Next:** the owner reviews and commits I0, then authorises I1 (the Adventure and Team model with one team and identical behaviour; migration rehearsed on a backup copy only).
+
+## Earlier handoff - experience design skill, docs reorganised, 29 Oct 2026
 
 **Committed (`1616e74`, `42c8ae5`, `7635f56`, `32857ca`); the owner pushes from VS Code** (git asks for the login through VS Code's password prompt, so a push from Claude's shell hangs). No game behaviour changed and nothing was deployed: the live Shuk is still `f54f6da`.
 

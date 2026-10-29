@@ -23,7 +23,7 @@ Move through these in order the first time; loop back whenever a later step expo
 6. **Connect to the physical world.** Use the real place wherever it makes the experience better: things to find, read, touch, measure, smell, stand in, walk through. Test: *would this work just as well in a hotel room?* If yes, it isn't using the place.
 7. **Evaluate the educational value.** After it, what can people understand, interpret, appreciate or remember that they couldn't before? Is the memorable moment the same as the meaningful one? Does the interaction carry the content, or sit beside it?
 8. **Critique the experience.** Run the [criteria and anti-patterns](references/quality-criteria.md) honestly. Challenge generic gamification, needless screen time, artificial puzzles, superficial engagement and forced excitement. Cut what doesn't earn its place.
-9. **Recommend a treatment.** Say why this approach fits *this* content, *this* place and *this* audience better than the alternatives, and what it costs. Offer the runner-up when it's close.
+9. **Recommend a treatment.** Say why this approach fits *this* content, *this* place, *this* audience and *this point in the journey* better than the alternatives, and what it costs. Offer the runner-up when it's close.
 10. **Translate into implementation only when asked.** When it's time for UX or code, carry the creative intent forward explicitly (what the moment must feel like, what must stay physical, what must stay withheld) so it survives into specs. Then the project's own build loop takes over.
 
 The [output structure](references/treatment-output.md) lists what a full treatment usually covers. Use it as a checklist for thinking, not as a document to produce every time.
@@ -43,6 +43,7 @@ When no web research was done, say so plainly. Never claim to have looked at a s
 - **The place is the centre.** Place first, the human guide second, the digital layer third. Technology serves the experience, never the reverse.
 - **Discovery before explanation.** A reveal without a prior question, prediction or effort is just a fact.
 - **Every stop has its own character**, and **one line runs through the whole experience**. Variety comes from the material, not from rotating mechanics for their own sake.
+- **Judge a mechanic across the journey, not only at its stop.** A mechanic that is excellent for one mission becomes repetitive when every mission uses it. Before recommending, look at the nearby stops and the patterns already built, and vary what people do, feel and how they move: observation, prediction, reconstruction, creative expression, conversation, sensory discovery, reflective storytelling, as well as split clues. Don't default to a mechanic because the project has praised it, and never trade historical meaning for variety.
 - **The model:** knowledge → story → an interaction that changes from stop to stop and brings the *whole group* in → discovery, a memorable moment, a surprise.
 - **Story first, mechanic last.** Find the experiential potential hidden inside the actual history before deciding on any mechanic.
 - **Truth is not negotiable.** External inspiration shapes *how* we present knowledge, never *what* the facts are. Inventions (a game device, a puzzle) are marked as such.

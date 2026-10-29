@@ -289,6 +289,6 @@ The owner's introduction: "here is a few ideas for insparation outside of projec
 ## Notes for whoever builds it
 
 - Check what already exists first: `.claude/skills/` (game-verify, game-deploy), `.claude/agents/dori-ux-designer`, `.claude/rules/content.md`, `docs/content/methodology.md`, and the research in `design/inputs/content/` (`Audience_Engagement_Mechanics.md`, `01_gap_discovery_creative_treatments.md`, `02_embedded_questions_deep_dive.md`, `guiding_methods.md`, `Freytag’s Pyramid.md`, `Cognitive_Load.md`, among others).
-- The six source URLs above have not been opened yet; open each one before writing it into the inspiration file, and record the date checked.
+- The six source URLs above have not been opened yet; open each one before writing it into the inspiration file, and record the date checked. (Done 29 Oct 2026: see the skill's `references/inspiration-library.md`; the Play Disney Parks page couldn't be read.)
 - Point to it from `CLAUDE.md` or `AGENTS.md` so future sessions find it.
 - The content rules still hold: no invented visitor copy, facts need sources, the evidence boundaries and consent rules apply, camera, microphone or GPS is never the only path, and there is no timed or competitive play at sensitive stops.
