@@ -4,7 +4,7 @@ import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes } from "node:crypto";
-import { mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
+import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { groupParticipants, isValidNames, setDisplayName, type ParticipantNames } from "./participant-names.ts";
 import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
@@ -71,11 +71,20 @@ function isValidMission(record: MissionRecord): boolean {
 const stepOf = (record: MissionRecord) => record.kind === "choice" ? record.step ?? 0 : 0;
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
+/** The stored file's exact bytes, or null before the first write. */
+async function readStored(path: string): Promise<Buffer | null> {
+  try { return await readFile(path); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; return null; }
+}
 /** Reads the latest published snapshot and migrates it in memory; writers persist the migration. */
 async function load(path: string): Promise<Database> {
-  let stored: LegacyDatabase | Schema5Database | Database;
-  try { stored = JSON.parse(await readFile(path, "utf8")) as LegacyDatabase | Schema5Database | Database; }
-  catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; stored = initial(); }
+  return migrate(await readStored(path)).db;
+}
+/** Parses stored bytes and migrates them in memory to schema 6. `preSchema6`: a file exists and was stored in an older schema. */
+function migrate(raw: Buffer | null): { db: Database; preSchema6: boolean } {
+  let stored = (raw === null ? initial() : JSON.parse(raw.toString("utf8"))) as LegacyDatabase | Schema5Database | Database;
+  // Only versions 1 to 6 get past the checks below, so any stored version other than 6 is older.
+  const preSchema6 = raw !== null && stored.version !== 6;
   if (stored.version !== 5 && stored.version !== 6) {
     let legacy = stored as LegacyDatabase;
     if (legacy.version === 1) {
@@ -106,7 +115,38 @@ async function load(path: string): Promise<Database> {
     teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
   }
   db.teams = teams;
-  return db;
+  return { db, preSchema6 };
+}
+
+/**
+ * Before the first schema-6 write, keeps the file's exact older bytes beside it: a rollback to the previous app restores this copy.
+ * The name carries the bytes' hash, so a later migration (after a restore) gets its own copy, and a copy is never overwritten:
+ * it is written whole to a temporary file and linked into place, which fails if the name exists, and its directory entry reaches
+ * the disk before the state file is replaced. It runs under the write lock, and any failure stops the write, leaving the older
+ * file as it was (fail closed: queued actions retry until an operator clears the cause the log names).
+ */
+async function keepPreSchema6Backup(path: string, raw: Buffer): Promise<void> {
+  const backup = `${path}.pre-schema6-${createHash("sha256").update(raw).digest("hex").slice(0, 12)}`;
+  const temporary = backup + "." + secret() + ".tmp";
+  try {
+    if (await holdsBytes(backup, raw)) return;
+    const file = await open(temporary, "wx", 0o600);
+    try { await file.writeFile(raw); await file.sync(); } finally { await file.close(); }
+    try { await link(temporary, backup); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
+    // A new copy, or a file already under its name: either way it must hold exactly these bytes.
+    if (!(await holdsBytes(backup, raw))) throw new Error("a different file holds the copy's name");
+    const directory = await open(dirname(path), "r");
+    try { await directory.sync(); } finally { await directory.close(); }
+  } catch (error) {
+    // No paths or contents: the code or reason says whether the disk is full, permissions are wrong or the name is taken.
+    console.error("Shuk storage: the pre-schema-6 backup could not be kept:", (error as NodeJS.ErrnoException).code ?? (error as Error).message);
+    throw new AccessError("Storage unavailable: the pre-migration backup could not be kept. Nothing was changed.", 503);
+  } finally { await rm(temporary, { force: true }); }
+}
+/** Whether `file` exists and holds exactly `bytes`. */
+async function holdsBytes(file: string, bytes: Buffer): Promise<boolean> {
+  try { return (await readFile(file)).equals(bytes); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return false; throw error; }
 }
 /** A team's missions, checked and brought up to the current catalogue. */
 function catalogueMissions(stored: Record<string, MissionRecord>): Record<string, MissionRecord> {
@@ -166,8 +206,11 @@ export async function transact<T>(path: string, operation: (db: Database) => T):
   await acquireLock(lock, Date.now());
   const temporary = path + "." + secret() + ".tmp";
   try {
-    const db = await load(path);
+    const raw = await readStored(path);
+    const { db, preSchema6 } = migrate(raw);
     const result = operation(db);
+    // Only an action that succeeded writes, so only then is the older file copied, once, before it is replaced.
+    if (preSchema6 && raw) await keepPreSchema6Backup(path, raw);
     const file = await open(temporary, "wx", 0o600);
     try { await file.writeFile(JSON.stringify(db)); await file.sync(); } finally { await file.close(); }
     await rename(temporary, path);

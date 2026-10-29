@@ -9,7 +9,12 @@
   - A v5 file becomes an active Play Together adventure with team A holding the old roles and missions; the seven seats are its members and the host is unset. A read migrates only in memory; the first write persists v6.
 - **Team scoping:** views and actions use only the actor's team, and members see only their own team's list. The guide acts on team A until I7. A session outside every team gets 403; a member of a missing team or an unknown future schema is refused.
 - **Moved to I2:** the invitations' optional `kind` and `teamId`.
-- **No v5 safety copy:** the migration does not write a one-time v5 copy beside the state file. That was an optional idea, never approved or built; the manual backup and the restore procedure below cover rollback. Add it only if the owner asks.
+- **Automatic pre-schema-6 copy** (owner-approved safeguard, its own commit):
+  - Before the first successful write that turns an older file into schema 6, the store keeps the file's exact bytes as `state.json.pre-schema6-<first 12 hex of their SHA-256>`, beside the state file (live: in `/data`).
+  - It is mode 600, written whole to a temporary file, then linked into place, so it's never overwritten and never partial. The directory is synced before the state file is replaced.
+  - Reads and rejected actions make no copy. An identical existing copy is reused.
+  - Fail closed: if the copy can't be kept (disk full, permissions, a different file under its name), the write is refused with a 503, the old file stays as it is, queued actions retry, and the server logs only the reason (`Shuk storage: the pre-schema-6 backup could not be kept: <code>`). The operator clears the cause.
+  - The manual pre-deploy backup is still required; the automatic copy is a second line of defence.
 - **Tests:**
   - 3 new: v5 → v6 with identical views, two teams kept apart, refusals.
   - Existing tests changed only how they read the raw file (`storedTeam`, `schema5Snapshot` in `legacy-store-fixture.ts`).
@@ -28,6 +33,7 @@
   - The v5 code refuses a v6 file.
   - A temp-file-and-rename restore is byte-identical to the backup and is read by v5 again.
   - The restored file re-migrates identically.
+- **Restore source:** the manual backup in `/root/backups/amazing-shuk/`, or the automatic copy inside the volume (`docker exec dori-shuk ls -l /data`; restore it with the same command, reading it via `docker exec dori-shuk cat /data/state.json.pre-schema6-<hash>`).
 - **The operator restore command,** tested on an isolated container of the live v5 image (`--network none`, its own `/data`): the v5 app fails on a v6 file, and after the restore the file matches the backup and v5 reads and writes it.
 
   `docker exec -i dori-shuk sh -c 'cat > /data/state.json.restore && mv /data/state.json.restore /data/state.json' < /root/backups/amazing-shuk/<backup>.json`

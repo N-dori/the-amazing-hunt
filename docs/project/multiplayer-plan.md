@@ -162,7 +162,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
   - A rehearsal on a copy of the latest live backup, kept in `.local/` and never committed.
   - All existing tests pass unchanged.
 - **Acceptance:** identical behaviour; the rehearsal migrates the copy and every session and mission record survives.
-- **Rollback:** the v5 image can't read v6 files. Before any deploy, back up `/data/state.json`; rollback = the previous image plus the restored backup.
+- **Rollback:** the v5 image can't read v6 files. Before any deploy, back up `/data/state.json`; rollback = the previous image plus the restored backup. The store also keeps an automatic copy of the older file's exact bytes (`state.json.pre-schema6-<hash>`, mode 600) before its first schema-6 write, and refuses to write if it can't.
 - **Gate:** O17 (no live migration without separate authorisation).
 
 ### I2. Host invitation, lobby and Start Adventure

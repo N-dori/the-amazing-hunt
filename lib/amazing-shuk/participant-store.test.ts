@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, mkdtemp, readFile, readdir, rename, stat, writeFile, rm } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
+import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -405,4 +406,75 @@ test("a session outside every team, a member of a missing team and an unknown fu
   await assert.rejects(sessionView(path, player), /Unsupported Shuk storage state/);
   await writeFile(path, JSON.stringify({ ...db, version: 7 }));
   await assert.rejects(sessionView(path, player), /Unsupported Shuk storage state/);
+}));
+
+// The pre-schema-6 backup beside the state file: its name carries the hash of the bytes it keeps.
+const backupOf = (path: string, bytes: Buffer) => `${path}.pre-schema6-${createHash("sha256").update(bytes).digest("hex").slice(0, 12)}`;
+const backupsBeside = async (path: string) => (await readdir(dirname(path))).filter(name => name.startsWith(basename(path) + ".pre-schema6-"));
+const leftoverTemporaries = async (path: string) => (await readdir(dirname(path))).filter(name => name.endsWith(".tmp"));
+async function schema5File(path: string) {
+  const player = await redeemInvitation(path, await issueInvitation(path, "player-2"));
+  await sessionAction(path, player, { missionId: WELL, type: "start" }, "backup-start-challenge");
+  await sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "backup-fill-large-001");
+  await writeFile(path, JSON.stringify(schema5Snapshot(JSON.parse(await readFile(path, "utf8")))));
+  return { player, bytes: await readFile(path) };
+}
+
+test("the first schema-6 write keeps the exact v5 bytes once, readable only by the owner; reads never make a copy", () => fixture(async path => {
+  const { player, bytes } = await schema5File(path);
+  await sessionView(path, player);
+  assert.deepEqual(await backupsBeside(path), [], "a read migrates only in memory and keeps no copy");
+  await assert.rejects(sessionAction(path, player, { missionId: WELL, type: "hint", hint: 9 }, "backup-bad-hint-0001"));
+  assert.deepEqual(await backupsBeside(path), [], "a rejected action writes nothing, so it keeps no copy");
+  await issueInvitation(path, "player-3");
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 6);
+  assert.deepEqual(await backupsBeside(path), [basename(backupOf(path, bytes))]);
+  assert.ok((await readFile(backupOf(path, bytes))).equals(bytes), "the copy holds the original bytes exactly");
+  assert.equal((await stat(backupOf(path, bytes))).mode & 0o777, 0o600);
+  await sessionAction(path, player, { missionId: WELL, type: "move", move: "empty-large" }, "backup-later-write-001");
+  assert.equal((await backupsBeside(path)).length, 1, "later schema-6 writes keep no further copies");
+  assert.deepEqual(await leftoverTemporaries(path), []);
+}));
+
+test("rollback: restoring the copy gives back the v5 file, which reads as before and migrates again onto the same copy", () => fixture(async path => {
+  const { player, bytes } = await schema5File(path);
+  const before = await sessionView(path, player);
+  await issueInvitation(path, "player-3");
+  // The documented restore: write the copy beside the state file, then rename it over the state file.
+  await writeFile(path + ".restore", await readFile(backupOf(path, bytes)), { mode: 0o600 });
+  await rename(path + ".restore", path);
+  assert.ok((await readFile(path)).equals(bytes));
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 5);
+  assert.deepEqual(await sessionView(path, player), before);
+  await issueInvitation(path, "player-4");
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 6);
+  assert.deepEqual(await backupsBeside(path), [basename(backupOf(path, bytes))], "the same bytes reuse the same copy");
+}));
+
+test("an existing identical copy is reused; anything else under its name stops the write and leaves both files as they were", () => fixture(async path => {
+  const { bytes } = await schema5File(path);
+  await writeFile(backupOf(path, bytes), bytes, { mode: 0o600 });
+  await issueInvitation(path, "player-3");
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 6);
+  assert.ok((await readFile(backupOf(path, bytes))).equals(bytes));
+  await writeFile(path, bytes);
+  await writeFile(backupOf(path, bytes), "not the same bytes", { mode: 0o600 });
+  await assert.rejects(issueInvitation(path, "player-4"), (error: Error & { status?: number }) => error.status === 503);
+  assert.ok((await readFile(path)).equals(bytes), "the v5 file is untouched");
+  assert.equal(await readFile(backupOf(path, bytes), "utf8"), "not the same bytes", "an existing file is never overwritten");
+  assert.deepEqual(await leftoverTemporaries(path), []);
+}));
+
+test("a copy that can't be kept stops the write: the v5 file stays as it was and the action can be retried", () => fixture(async path => {
+  const { player, bytes } = await schema5File(path);
+  // Something that isn't a file already holds the copy's name, so the copy can be neither linked nor read back.
+  await mkdir(backupOf(path, bytes));
+  await assert.rejects(sessionAction(path, player, { missionId: WELL, type: "move", move: "empty-large" }, "backup-blocked-move-01"),
+    (error: Error & { status?: number }) => error.status === 503 && !/player-|\/|\.json/.test(error.message));
+  assert.ok((await readFile(path)).equals(bytes), "the v5 file is untouched");
+  assert.deepEqual(await leftoverTemporaries(path), []);
+  await rm(backupOf(path, bytes), { recursive: true });
+  await sessionAction(path, player, { missionId: WELL, type: "move", move: "empty-large" }, "backup-blocked-move-01");
+  assert.ok((await readFile(backupOf(path, bytes))).equals(bytes));
+  assert.deepEqual(cupsOf(await sessionView(path, player)), { small: 0, large: 0, jar: 0 });
 }));
