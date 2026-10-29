@@ -9,7 +9,7 @@ import { handleParticipantRequest } from "./participant-http.ts";
 import { issueInvitation, redeemInvitation, sessionView, sessionAction, logout, transact } from "./participant-store.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
-import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { schema4Snapshot, schema5Snapshot, storedTeam } from "./legacy-store-fixture.ts";
 import { MURAL_MISSION_ID } from "./mural-task.ts";
 import { SYNAGOGUE_MISSION_ID } from "./synagogue-task.ts";
 import { MONTEFIORE_MISSION_ID } from "./montefiore-task.ts";
@@ -266,7 +266,7 @@ test("polling reads take no lock, never rewrite storage and cannot block group a
   const results = await Promise.allSettled([...polls, move]);
   assert.deepEqual(results.filter(result => result.status === "rejected"), []);
   assert.deepEqual(cupsOf(await sessionView(path, player)), { small: 0, large: 5, jar: 0 });
-  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 5);
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 6);
 }));
 
 test("schema 4 migrates into per-mission records without losing progress, rewards, roles or logins", () => fixture(async path => {
@@ -281,13 +281,13 @@ test("schema 4 migrates into per-mission records without losing progress, reward
   await writeFile(path, JSON.stringify(schema4Snapshot(current)));
   const view = await sessionView(path, submitter);
   assert.equal(view.session.completed, true); assert.equal(view.mission.state, "completed");
-  assert.deepEqual(view.session.roles, current.roles);
+  assert.deepEqual(view.session.roles, storedTeam(current).roles);
   assert.deepEqual(view.sharedBalance, { points: 120, foodTokens: 2, status: "Provisional local-development rewards" });
   assert.equal(JSON.parse(await readFile(path, "utf8")).version, 4);
   await issueInvitation(path, "player-3");
   const migrated = JSON.parse(await readFile(path, "utf8"));
-  assert.equal(migrated.version, 5);
-  assert.deepEqual(migrated.missions[WELL], current.missions[WELL]);
+  assert.equal(migrated.version, 6);
+  assert.deepEqual(storedTeam(migrated).missions[WELL], storedTeam(current).missions[WELL]);
   assert.deepEqual(migrated.sessions, current.sessions); assert.deepEqual(migrated.applied, current.applied);
   await sessionAction(path, submitter, { missionId: WELL, type: "submit" }, "schema5-repeat-submit-001");
   assert.deepEqual((await sessionView(path, guide)).sharedBalance, view.sharedBalance);
@@ -307,9 +307,9 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.equal((await read(encodeURIComponent(WELL))).status, 200);
   // A record for a mission no longer in the catalogue keeps its rewards in the group balance.
   const db = JSON.parse(await readFile(path, "utf8"));
-  const retired = { ...db.missions[WELL], completed: true, arrival: { method: "guide", acceptedAt: 1, points: 5 },
-    performance: { ...db.missions[WELL].performance, award: { points: 50, foodTokens: 1, hintsUsed: 0, awardedAt: 1, elapsedMs: null } } };
-  await writeFile(path, JSON.stringify({ ...db, missions: { ...db.missions, "retired-mission": retired } }));
+  const retired = { ...storedTeam(db).missions[WELL], completed: true, arrival: { method: "guide", acceptedAt: 1, points: 5 },
+    performance: { ...storedTeam(db).missions[WELL].performance, award: { points: 50, foodTokens: 1, hintsUsed: 0, awardedAt: 1, elapsedMs: null } } };
+  await writeFile(path, JSON.stringify({ ...db, teams: { ...db.teams, A: { ...storedTeam(db), missions: { ...storedTeam(db).missions, "retired-mission": retired } } } }));
   assert.equal((await post({ type: "start", missionId: WELL, actionId: "listed-mission-start-001" })).status, 200);
   assert.equal((await post({ type: "move", move: "fill-large", missionId: WELL, actionId: "listed-mission-fill-001" })).status, 200);
   assert.equal((await post({ type: "reset", missionId: "retired-mission", actionId: "retired-mission-reset-001" })).status, 403);
@@ -317,7 +317,7 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.deepEqual(view.missions.map(mission => mission.id), [MURAL_MISSION_ID, MONTEFIORE_MISSION_ID, WELL, SYNAGOGUE_MISSION_ID, LEVIN_MISSION_ID, MARZIPAN_MISSION_ID]);
   assert.deepEqual(cupsOf(view), { small: 0, large: 5, jar: 0 });
   assert.deepEqual(view.sharedBalance, { points: 55, foodTokens: 1, status: "Provisional local-development rewards" });
-  assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions["retired-mission"], retired);
+  assert.deepEqual(storedTeam(JSON.parse(await readFile(path, "utf8"))).missions["retired-mission"], retired);
 }));
 
 test("a lock left by a crashed writer is cleared after STALE_LOCK_MS; a live writer's lock still reports busy", () => fixture(async path => {
@@ -334,4 +334,75 @@ test("a lock left by a crashed writer is cleared after STALE_LOCK_MS; a live wri
   const token = await issueInvitation(path, "player-2");
   assert.ok(await redeemInvitation(path, token));
   await assert.rejects(readFile(lock), { code: "ENOENT" }, "the lock is released after the write");
+}));
+
+test("schema 5 becomes team A of an active adventure played together, losing no progress, rewards, roles, names or logins", () => fixture(async path => {
+  const { setParticipantName } = await import("./participant-store.ts");
+  const guide = await redeemInvitation(path, await issueInvitation(path, "guide"));
+  const submitter = await redeemInvitation(path, await issueInvitation(path, "player-2"));
+  await issueInvitation(path, "player-4");
+  await setParticipantName(path, "player-2", "Sample Name");
+  await sessionAction(path, submitter, { missionId: WELL, type: "start" }, "schema6-start-challenge");
+  await sessionAction(path, submitter, { missionId: WELL, type: "move", move: "fill-large" }, "schema6-fill-large-001");
+  await sessionAction(path, submitter, { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "schema6-pour-jar-001");
+  await sessionAction(path, submitter, { missionId: WELL, type: "submit" }, "schema6-submit-001");
+  await sessionAction(path, guide, { type: "confirm-arrival", missionId: WELL }, "schema6-arrival-001");
+  const before = await sessionView(path, submitter);
+  const v5 = schema5Snapshot(JSON.parse(await readFile(path, "utf8")));
+  await writeFile(path, JSON.stringify(v5));
+  // A read sees exactly the same game and leaves the file as it was; the next write persists the migration.
+  assert.deepEqual(await sessionView(path, submitter), before);
+  assert.equal(JSON.parse(await readFile(path, "utf8")).version, 5);
+  await issueInvitation(path, "player-3");
+  const migrated = JSON.parse(await readFile(path, "utf8"));
+  assert.equal(migrated.version, 6);
+  assert.deepEqual(migrated.adventure, { status: "active", format: "together", hostId: null, intendedCount: null });
+  assert.deepEqual(migrated.teams, { A: { leaderId: null, roles: v5.roles, missions: v5.missions } });
+  assert.deepEqual(migrated.participants, Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map(n => [`player-${n}`, { teamId: "A" }])));
+  assert.deepEqual(migrated.sessions, v5.sessions); assert.deepEqual(migrated.applied, v5.applied); assert.deepEqual(migrated.names, v5.names);
+  assert.equal(Object.keys(migrated.invitations).length, Object.keys(v5.invitations as object).length + 1);
+  assert.deepEqual(await sessionView(path, submitter), before);
+  await sessionAction(path, submitter, { missionId: WELL, type: "submit" }, "schema6-repeat-submit-001");
+  assert.deepEqual((await sessionView(path, guide)).sharedBalance, before.sharedBalance);
+}));
+
+test("each participant acts only on their own team: progress, roles, members and balance stay apart", () => fixture(async path => {
+  const navigator = await redeemInvitation(path, await issueInvitation(path, "player-1"));
+  const other = await redeemInvitation(path, await issueInvitation(path, "player-7"));
+  const guide = await redeemInvitation(path, await issueInvitation(path, "guide"));
+  // A second team, written directly: schema 6 stores teams, but nothing creates one yet.
+  const db = JSON.parse(await readFile(path, "utf8"));
+  await writeFile(path, JSON.stringify({ ...db, teams: { ...db.teams, B: { leaderId: "player-7", roles: { navigator: null, answerSubmitter: null }, missions: {} } },
+    participants: { ...db.participants, "player-7": { teamId: "B" } } }));
+  await sessionAction(path, other, { type: "claim-role", role: "navigator" }, "team-b-claim-navigator");
+  await sessionAction(path, other, { missionId: WELL, type: "start" }, "team-b-start-challenge");
+  await sessionAction(path, other, { missionId: WELL, type: "move", move: "fill-large" }, "team-b-fill-large-001");
+  const teamA = await sessionView(path, navigator);
+  const teamB = await sessionView(path, other);
+  assert.deepEqual(cupsOf(teamB), { small: 0, large: 5, jar: 0 });
+  assert.deepEqual(cupsOf(teamA), { small: 0, large: 0, jar: 0 });
+  assert.equal(teamA.performance.started, false);
+  assert.deepEqual(teamB.session.roles, { navigator: "player-7", answerSubmitter: null });
+  assert.deepEqual(teamA.session.roles, { navigator: "player-1", answerSubmitter: "player-2" });
+  assert.deepEqual(teamB.participants.map(participant => participant.id), ["player-7", "guide"]);
+  assert.ok(!teamA.participants.some(participant => participant.id === "player-7"));
+  // The guide acts on team A, and a role can only go to a member of that team.
+  assert.deepEqual(cupsOf(await sessionView(path, guide)), cupsOf(teamA));
+  await assert.rejects(sessionAction(path, guide, { type: "assign-role", role: "navigator", participantId: "player-7" }, "guide-assign-other-team"), /current group participant/);
+  const stored = JSON.parse(await readFile(path, "utf8"));
+  assert.deepEqual(stored.teams.A.missions[WELL].cups, { small: 0, large: 0, jar: 0 });
+  assert.deepEqual(stored.teams.B.missions[WELL].cups, { small: 0, large: 5, jar: 0 });
+}));
+
+test("a session outside every team, a member of a missing team and an unknown future schema are refused", () => fixture(async path => {
+  const player = await redeemInvitation(path, await issueInvitation(path, "player-3"));
+  const db = JSON.parse(await readFile(path, "utf8"));
+  const forbidden = (error: Error & { status?: number }) => error.status === 403;
+  await writeFile(path, JSON.stringify({ ...db, participants: Object.fromEntries(Object.entries(db.participants).filter(([id]) => id !== "player-3")) }));
+  await assert.rejects(sessionView(path, player), forbidden);
+  await assert.rejects(sessionAction(path, player, { missionId: WELL, type: "start" }, "outside-team-start-001"), forbidden);
+  await writeFile(path, JSON.stringify({ ...db, participants: { ...db.participants, "player-3": { teamId: "Z" } } }));
+  await assert.rejects(sessionView(path, player), /Unsupported Shuk storage state/);
+  await writeFile(path, JSON.stringify({ ...db, version: 7 }));
+  await assert.rejects(sessionView(path, player), /Unsupported Shuk storage state/);
 }));

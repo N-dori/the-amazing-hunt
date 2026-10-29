@@ -8,7 +8,7 @@ import { sessionAction, sessionView, issueInvitation, redeemInvitation } from ".
 import { GAN_HATUT_MISSION, type ArrivalPolicy } from "./mission-arrival.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
-import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { schema4Snapshot, storedTeam } from "./legacy-store-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 const verified: ArrivalPolicy = { ...GAN_HATUT_MISSION.arrival, destination: { latitude: 0, longitude: 0, verified: true } };
 async function fixture(run: (path: string, tokens: Record<string, string>, now: number) => Promise<void>) {
@@ -54,7 +54,7 @@ test("fresh mocked GPS awards once across sessions, retries, guide override and 
   const second = await sessionView(path, tokens["player-2"], now);
   assert.deepEqual(second.mission, first.mission); assert.deepEqual(second.sharedBalance, first.sharedBalance);
   const disk = await readFile(path, "utf8"), db = JSON.parse(disk);
-  assert.deepEqual(db.missions[WELL].arrival, { method: "gps", acceptedAt: now, points: 20 });
+  assert.deepEqual(storedTeam(db).missions[WELL].arrival, { method: "gps", acceptedAt: now, points: 20 });
   assert.doesNotMatch(disk, /latitude|longitude|accuracy|reading/);
   const restarted = await promisify(execFile)(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e",
     'import { sessionView } from "./lib/amazing-shuk/participant-store.ts"; process.stdout.write(JSON.stringify(await sessionView(process.argv[1], process.argv[2])));', path, tokens["player-2"]]);
@@ -72,7 +72,7 @@ test("guide confirmation requires guide identity; concurrent confirmations award
   }
   const view = await sessionView(path, tokens["player-1"], now);
   assert.equal(view.sharedBalance.points, 20); assert.equal(view.mission.arrivalMethod, "guide");
-  assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions[WELL].arrival, { method: "guide", acceptedAt: now, points: 20 });
+  assert.deepEqual(storedTeam(JSON.parse(await readFile(path, "utf8"))).missions[WELL].arrival, { method: "guide", acceptedAt: now, points: 20 });
 }));
 
 test("HTTP keeps CSRF/authentication and rejects unchecked destination evidence without blocking gameplay", () => fixture(async (path, tokens, now) => {

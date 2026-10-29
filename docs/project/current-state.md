@@ -46,7 +46,7 @@
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
-- Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 (skill and docs stabilisation) is done; I1 (the Adventure and Team model, one team, same behaviour) is being prepared and waits for the owner's authorisation to implement.
+- Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 (skill and docs stabilisation) is done. I1 (the Adventure and Team model, schema 6, one team, same behaviour) is committed locally, not pushed or deployed: **live still runs schema 5** (`dori-shuk:20261026-084821-f54f6da`). A fresh live backup and a migration and restore rehearsal passed on 29 Oct (see the [handoff](agent-handoff.md)); the deploy waits for the owner. I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
 
 ## Waiting on the owner
 

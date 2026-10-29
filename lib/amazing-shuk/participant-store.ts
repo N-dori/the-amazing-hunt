@@ -27,7 +27,17 @@ const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 /** Schema 4 and earlier held a single mission: the well. */
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
 // `names` (optional): display names by participant ID, set by an admin command; absent means "Player N".
-type Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
+/** Schema 5 held one group: its roles and missions sat at the top level. */
+type Schema5Database = { version: 5; invitations: Record<string, Credential>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
+/** The team every existing group becomes, and the one the guide acts on until the guide can choose a team. */
+export const DEFAULT_TEAM_ID = "A";
+/** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards. */
+type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missions: Record<string, MissionRecord> };
+/** The adventure around the teams. `intendedCount` is the host's answer to "how many are playing?"; null when never asked. */
+type AdventureRecord = { status: "lobby" | "active"; format: "together" | "twoTeams"; hostId: string | null; intendedCount: number | null };
+/** Schema 6: an adventure of one or two teams. Players belong to one team; the guide oversees every team and is in none. */
+type Database = { version: 6; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, { teamId: string }>;
+  invitations: Record<string, Credential>; sessions: Record<string, Credential>; applied: Record<string, string[]>; names?: ParticipantNames };
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
@@ -39,9 +49,18 @@ function emptyMission(definition: MissionDefinition): MissionRecord {
   return definition.challenge.kind === "water" ? { ...base, kind: "water", cups: EMPTY_WATER_CUPS } : { ...base, kind: "choice", selected: [] };
 }
 const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
-function initial(): Database {
-  return { version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} };
+/** The single group becomes team A of an adventure that is already under way, played together, with no host yet. */
+function toSchema6({ roles, missions, ...rest }: Schema5Database): Database {
+  return { ...rest, version: 6, adventure: { status: "active", format: "together", hostId: null, intendedCount: null },
+    teams: { [DEFAULT_TEAM_ID]: { leaderId: null, roles, missions } },
+    participants: Object.fromEntries(DEV_PARTICIPANTS.map(participant => [participant.id, { teamId: DEFAULT_TEAM_ID }])) };
 }
+function initial(): Database {
+  return toSchema6({ version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} });
+}
+const isValidAdventure = (adventure: AdventureRecord) => Boolean(adventure) && ["lobby", "active"].includes(adventure.status)
+  && ["together", "twoTeams"].includes(adventure.format) && (adventure.hostId === null || typeof adventure.hostId === "string")
+  && (adventure.intendedCount === null || (Number.isSafeInteger(adventure.intendedCount) && adventure.intendedCount > 0));
 function isValidMission(record: MissionRecord): boolean {
   if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
   if (record.bonus !== undefined && !(record.bonus && Array.isArray(record.bonus.selected) && record.bonus.selected.every(id => typeof id === "string")
@@ -54,10 +73,10 @@ export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".lo
 
 /** Reads the latest published snapshot and migrates it in memory; writers persist the migration. */
 async function load(path: string): Promise<Database> {
-  let stored: LegacyDatabase | Database;
-  try { stored = JSON.parse(await readFile(path, "utf8")) as LegacyDatabase | Database; }
+  let stored: LegacyDatabase | Schema5Database | Database;
+  try { stored = JSON.parse(await readFile(path, "utf8")) as LegacyDatabase | Schema5Database | Database; }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; stored = initial(); }
-  if (stored.version !== 5) {
+  if (stored.version !== 5 && stored.version !== 6) {
     let legacy = stored as LegacyDatabase;
     if (legacy.version === 1) {
       // The old measuring-cup task is a different puzzle. Keep credentials and roles,
@@ -71,22 +90,48 @@ async function load(path: string): Promise<Database> {
     const { group, arrival, performance, ...rest } = legacy;
     stored = { ...rest, version: 5, roles: group.roles, missions: { [WATER_TASK_ID]: { kind: "water", cups: group.cups, completed: group.completed, arrival, performance } } };
   }
+  if (stored.version === 5) {
+    const group = stored as Schema5Database;
+    if (!group.roles || !group.missions) throw new Error("Unsupported Shuk storage state");
+    stored = toSchema6(group);
+  }
   const db = stored as Database;
-  if (!db.roles || !db.missions || (db.names !== undefined && !isValidNames(db.names))) throw new Error("Unsupported Shuk storage state");
+  if (!isValidAdventure(db.adventure) || !db.teams || !db.teams[DEFAULT_TEAM_ID] || !db.participants || (db.names !== undefined && !isValidNames(db.names))) throw new Error("Unsupported Shuk storage state");
+  if (!Object.values(db.participants).every(member => Boolean(member) && Object.hasOwn(db.teams, member.teamId))) throw new Error("Unsupported Shuk storage state");
+  const teams: Record<string, TeamRecord> = {};
+  for (const [teamId, team] of Object.entries(db.teams)) {
+    const members = memberIds(db, teamId);
+    if (!team || !team.roles || !team.missions || (team.leaderId !== null && !members.includes(team.leaderId))
+      || [team.roles.navigator, team.roles.answerSubmitter].some(id => id !== null && !members.includes(id))) throw new Error("Unsupported Shuk storage state");
+    teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
+  }
+  db.teams = teams;
+  return db;
+}
+/** A team's missions, checked and brought up to the current catalogue. */
+function catalogueMissions(stored: Record<string, MissionRecord>): Record<string, MissionRecord> {
+  let missions = stored;
   // The first schema-5 records had no kind; they were all the well.
-  for (const [id, record] of Object.entries(db.missions)) if (record && !("kind" in record)) db.missions = { ...db.missions, [id]: { ...(record as object), kind: "water" } as MissionRecord };
-  if (!Object.values(db.missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
+  for (const [id, record] of Object.entries(missions)) if (record && !("kind" in record)) missions = { ...missions, [id]: { ...(record as object), kind: "water" } as MissionRecord };
+  if (!Object.values(missions).every(isValidMission)) throw new Error("Unsupported Shuk storage state");
   // A mission added to the catalogue starts empty. Records of missions no longer listed are kept, with their rewards.
   for (const mission of SHUK_MISSIONS) {
-    const record = db.missions[mission.id];
-    if (!record) db.missions = { ...db.missions, [mission.id]: emptyMission(mission) };
+    const record = missions[mission.id];
+    if (!record) missions = { ...missions, [mission.id]: emptyMission(mission) };
     else if (record.kind !== mission.challenge.kind || (record.kind === "choice" && !isValidChoiceSelection(choiceStep(mission, stepOf(record))?.challenge ?? mission.challenge as ChoiceChallenge, record.selected))
       || (record.kind === "choice" && !choiceStep(mission, stepOf(record)))) throw new Error("Unsupported Shuk storage state");
     // A bonus added to an existing mission starts empty; the main record is kept as it is.
-    else if (mission.bonus && !record.bonus) db.missions = { ...db.missions, [mission.id]: { ...record, bonus: EMPTY_BONUS } };
+    else if (mission.bonus && !record.bonus) missions = { ...missions, [mission.id]: { ...record, bonus: EMPTY_BONUS } };
     else if (mission.bonus && record.bonus && !isValidChoiceSelection(mission.bonus.challenge, record.bonus.selected)) throw new Error("Unsupported Shuk storage state");
   }
-  return db;
+  return missions;
+}
+const memberIds = (db: Database, teamId: string) => Object.keys(db.participants).filter(id => db.participants[id].teamId === teamId);
+/** The team a participant plays in. The guide oversees every team; until the guide can choose one, that is team A. */
+function teamIdOf(db: Database, participantId: string): string {
+  if (participantId === DEV_GUIDE_ID) return DEFAULT_TEAM_ID;
+  if (!Object.hasOwn(db.participants, participantId)) throw new AccessError("Not a member of this adventure");
+  return db.participants[participantId].teamId;
 }
 
 /** A real write holds the lock for milliseconds; a lock older than this was left by a writer that was killed mid-write. */
@@ -172,24 +217,27 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const participantId = identity(db, token, now);
   const definition = findMission(missionId);
   if (!definition) throw new AccessError("Unknown mission", 400);
-  const record = db.missions[missionId];
+  // Everything below is the participant's own team: its roles, progress, members and balance.
+  const teamId = teamIdOf(db, participantId);
+  const team = db.teams[teamId];
+  const record = team.missions[missionId];
   const guide = participantId === DEV_GUIDE_ID;
-  const role = roleForParticipant(participantId, db.roles);
+  const role = roleForParticipant(participantId, team.roles);
   const award = record.performance.award;
-  const records = Object.values(db.missions);
+  const records = Object.values(team.missions);
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
-    missions: SHUK_MISSIONS.map(mission => missionView(mission, db.missions[mission.id])),
-    // Names are shown only to signed-in members of the group (this view needs a session).
-    participants: groupParticipants(db.names ?? {}, db.roles),
+    missions: SHUK_MISSIONS.map(mission => missionView(mission, team.missions[mission.id])),
+    // Names are shown only to signed-in members of the team (this view needs a session), plus the guide.
+    participants: groupParticipants(db.names ?? {}, team.roles).filter(participant => participant.id === DEV_GUIDE_ID || db.participants[participant.id]?.teamId === teamId),
     mission: missionView(definition, record),
-    session: { roles: db.roles, completed: record.completed, activeActorId: participantId,
+    session: { roles: team.roles, completed: record.completed, activeActorId: participantId,
       ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
       ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
-    // The group's balance covers every mission's recorded rewards.
+    // The team's balance covers every one of its missions' recorded rewards.
     sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
       foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0), status: "Provisional local-development rewards" },
     ...(guide ? { guideTiming: { startedAt: record.performance.startedAt, solvedAt: record.performance.solvedAt,
@@ -201,38 +249,41 @@ export async function sessionAction(path: string, token: string, action: GroupAc
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
-    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, db.roles))) throw new AccessError("Only the answer-submitter may submit");
+    // Every action reads and writes only the actor's own team; the team is written back once the action succeeds.
+    const teamId = teamIdOf(db, participantId);
+    const team = { ...db.teams[teamId] };
+    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, team.roles))) throw new AccessError("Only the answer-submitter may submit");
     if (action.type === "confirm-arrival" && participantId !== DEV_GUIDE_ID) throw new AccessError("Only the guide may confirm group arrival");
     if (action.type === "switch-actor") throw new AccessError("Identity comes from the authenticated session");
     if (!/^[A-Za-z0-9-]{16,80}$/.test(actionId)) throw new AccessError("Invalid action ID", 400);
     const applied = db.applied[participantId] ?? [];
     if (applied.includes(actionId)) return "Action already synced.";
     const guide = participantId === DEV_GUIDE_ID;
-    const role = roleForParticipant(participantId, db.roles);
+    const role = roleForParticipant(participantId, team.roles);
+    const ids = memberIds(db, teamId);
     let message = "";
     try {
       if (action.type === "assign-role") {
         if (!guide) throw new Error("Only the guide may assign roles.");
-        db.roles = setGroupRole(DEV_PARTICIPANTS.map(participant => participant.id), db.roles, action.role, action.participantId);
+        team.roles = setGroupRole(ids, team.roles, action.role, action.participantId);
         message = "Group role updated.";
       } else if (action.type === "claim-role" || action.type === "release-role") {
         // Players choose their own roles: a free role can be taken, your own can be given up. The guide assigns any role.
         if (guide) throw new Error("The guide assigns roles from the guide panel.");
-        const ids = DEV_PARTICIPANTS.map(participant => participant.id);
         const label = action.role === "navigator" ? "navigator" : "answer-submitter";
         if (action.type === "claim-role") {
-          if (db.roles[action.role] !== null && db.roles[action.role] !== participantId) throw new Error(`Someone else is already the ${label}. They can step down, or ask your guide.`);
-          db.roles = claimGroupRole(ids, db.roles, action.role, participantId);
+          if (team.roles[action.role] !== null && team.roles[action.role] !== participantId) throw new Error(`Someone else is already the ${label}. They can step down, or ask your guide.`);
+          team.roles = claimGroupRole(ids, team.roles, action.role, participantId);
           message = `You're the ${label} now.`;
         } else {
-          if (db.roles[action.role] !== participantId) throw new Error(`You aren't the ${label}.`);
-          db.roles = releaseGroupRole(ids, db.roles, action.role, participantId);
+          if (team.roles[action.role] !== participantId) throw new Error(`You aren't the ${label}.`);
+          team.roles = releaseGroupRole(ids, team.roles, action.role, participantId);
           message = `You've stepped down. The ${label} role is free for someone else.`;
         }
       } else {
         const definition = findMission(action.missionId);
         if (!definition) throw new Error("Unknown mission");
-        const mission = { ...db.missions[action.missionId] };
+        const mission = { ...team.missions[action.missionId] };
         if (action.type === "arrival" || action.type === "confirm-arrival") {
           const policy = arrivalPolicy ?? definition.arrival;
           // Rechecking proximity still validates this reading even after the group has its bonus.
@@ -297,7 +348,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
         } else if (mission.kind === "water") {
           if (action.type === "toggle-choice") throw new Error("This action doesn't fit this mission");
           if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
-          const result = applyDevWaterAction({ roles: db.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
+          const result = applyDevWaterAction({ roles: team.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
           if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && mission.performance.solvedAt === null) mission.performance = { ...mission.performance, solvedAt: now };
           if (action.type === "reset") mission.performance = { ...mission.performance, solvedAt: null };
           if (result.session.completed && !mission.completed) mission.performance = awardWaterPerformance(mission.performance, now, definition.rewards);
@@ -340,9 +391,10 @@ export async function sessionAction(path: string, token: string, action: GroupAc
               : "Not quite. Look again and talk it over.";
           }
         }
-        db.missions = { ...db.missions, [action.missionId]: mission };
+        team.missions = { ...team.missions, [action.missionId]: mission };
       }
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
+    db.teams = { ...db.teams, [teamId]: team };
     db.applied[participantId] = [...applied, actionId];
     return message;
   });

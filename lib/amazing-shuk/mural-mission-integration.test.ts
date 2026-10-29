@@ -11,6 +11,7 @@ import { LEVIN_MISSION_ID } from "./levin-task.ts";
 import { MARZIPAN_MISSION_ID } from "./marzipan-task.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
+import { storedTeam } from "./legacy-store-fixture.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
 const MURAL = MURAL_MISSION_ID, WELL = GAN_HATUT_MISSION.id;
 const unverified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: false };
@@ -82,7 +83,7 @@ test("the field-checked key: wrong picks don't complete; the right pair complete
   await act("guide", { missionId: MURAL, type: "guide-approve" }, "verified-guide-approve", 80_000);
   await assert.rejects(act("player-3", { missionId: MURAL, type: "reset" }, "verified-reset-after-1", 80_000));
   await assert.rejects(act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "plaque" }, "verified-pick-after-01", 80_000));
-  const disk = JSON.parse(await readFile(path, "utf8"));
+  const disk = storedTeam(JSON.parse(await readFile(path, "utf8")));
   assert.equal(disk.missions[MURAL].performance.award.points, 90);
   assert.equal(disk.missions[WELL].kind, "water"); assert.equal(disk.missions[WELL].completed, false);
   assert.deepEqual((await sessionView(path, tokens["player-1"], now + 90_000, WELL)).sharedBalance, done.sharedBalance);

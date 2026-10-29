@@ -1,6 +1,59 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I0: skill and docs stabilised, multiplayer plan approved, 29 Oct 2026
+## Latest handoff - I1: Adventure and Team model, committed; deploy waits for the owner, 29 Oct 2026
+
+**Committed locally (the I1 commit, after `7548d08`); not pushed, not deployed.** Live runs `dori-shuk:20261026-084821-f54f6da` with **schema 5**; this checkout's code reads and writes **schema 6**. Don't assume I1 is live: check `docker ps` and the live file's `version` (read-only) first.
+
+- **Schema 6** (`lib/amazing-shuk/participant-store.ts`):
+  - `adventure { status, format, hostId, intendedCount }`, `teams { A: { leaderId, roles, missions } }` and `participants { [id]: { teamId } }`. Invitations, sessions, receipts and names are unchanged.
+  - A v5 file becomes an active Play Together adventure with team A holding the old roles and missions; the seven seats are its members and the host is unset. A read migrates only in memory; the first write persists v6.
+- **Team scoping:** views and actions use only the actor's team, and members see only their own team's list. The guide acts on team A until I7. A session outside every team gets 403; a member of a missing team or an unknown future schema is refused.
+- **Moved to I2:** the invitations' optional `kind` and `teamId`.
+- **No v5 safety copy:** the migration does not write a one-time v5 copy beside the state file. That was an optional idea, never approved or built; the manual backup and the restore procedure below cover rollback. Add it only if the owner asks.
+- **Tests:**
+  - 3 new: v5 → v6 with identical views, two teams kept apart, refusals.
+  - Existing tests changed only how they read the raw file (`storedTeam`, `schema5Snapshot` in `legacy-store-fixture.ts`).
+- **Verified:**
+  - `test:shuk` 154/154; `npm test` 61/61 (re-run before the commit).
+  - `tsc` passes. Lint is at its known baseline (3 prototype errors, 11 Memory Protocol warnings), none new.
+  - `/game-verify shuk`: healthy, 8/8 route checks, a fresh state written as v6, 48 MiB. `git diff --check` clean.
+- **Fresh live backup (owner-authorised, read-only), 29 Oct 2026 21:21:56 UTC:**
+  - Location: `/root/backups/amazing-shuk/live-state-before-i1-20261029T212156Z.json`, outside the repo; folder mode 700, file mode 600.
+  - Verified: schema 5, valid JSON, SHA-256 identical to the live file at the time.
+  - Contents: 2 unexpired sessions, 6 expired invitations, 7 names, both roles held, 0 mission records (the game was reset on 26 Oct), 10 receipts, no duplicates.
+  - Earlier backups in `.local/amazing-shuk/backups/` are kept.
+- **Rehearsal** (`.local/amazing-shuk/rehearse-i1b.ts`; isolated copies in `shuk-dev`, deleted afterwards; aggregates only). On the fresh backup and on the 26 Oct pre-reset backup:
+  - The v5 code (`7548d08`, temporary worktree) accepts the backup.
+  - I1 migrates it. Roles, sessions, invitations, receipts and names are kept; missions match what v5 would hold; points, tokens and award records are equal (0/0/0 fresh; 200/4/2 pre-reset); no duplicate receipts.
+  - The v5 code refuses a v6 file.
+  - A temp-file-and-rename restore is byte-identical to the backup and is read by v5 again.
+  - The restored file re-migrates identically.
+- **The operator restore command,** tested on an isolated container of the live v5 image (`--network none`, its own `/data`): the v5 app fails on a v6 file, and after the restore the file matches the backup and v5 reads and writes it.
+
+  `docker exec -i dori-shuk sh -c 'cat > /data/state.json.restore && mv /data/state.json.restore /data/state.json' < /root/backups/amazing-shuk/<backup>.json`
+
+**Deploy (needs the owner's explicit approval; not done):**
+- **Blockers:**
+  - `deploy/deploy.sh` refuses while tracked files have local changes; `docs/RUN_PREVIEW.md` (the owner's local invite notes) is one. Move its content into `.local/` and restore the file before deploying; never commit it.
+  - The deploy builds local HEAD, so push first if live should match GitHub.
+- **Before:** take a new backup right before the deploy (same command as above, new timestamp) and re-run the rehearsal on it.
+- **Deploy:** `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`. It builds, swaps `:current` to `:previous`, recreates `dori-shuk` (a few seconds of downtime; clients' queued actions retry), then runs the health and smoke checks. A failure there rolls the image back automatically, before any v6 write, because those checks only read.
+- **Manual rollback after a v6 write:** tag `dori-shuk:previous` as `:current` and run `docker compose -f deploy/shuk-compose.yml up -d shuk` (as `rollback()` in `deploy.sh` does), then run the restore command at once. Actions made between that backup and the restore are lost.
+
+**Next: I2, host invitation, lobby and Start Adventure** (approved milestone; **implementation not yet authorised**). Spec: [multiplayer plan](multiplayer-plan.md), I2.
+- **Depends on:** I1, committed; deploying I1 isn't required to build I2 locally.
+- **Scope:** invitations gain optional `kind` and `teamId`; `shuk:invite -- host`; redeeming makes the host Team A's leader and opens a lobby; the intended count (1–6 Together; 7+ the choice, with Two Teams hidden until I7); Start Adventure by the host or guide; a "new adventure" CLI that archives the old state.
+- **Open decisions:** O16 (lobby, team and onboarding copy; draft only, marked `TODO(copy)`). O6 and O15 are for I3, not I2. O20 still open; don't touch `.claude/agents/dori-ux-designer.md`.
+- **Security:**
+  - The host invitation is single-use (24 h) and hashed like the others, and host rights come only from it.
+  - Only the host or guide can set the format or start.
+  - Leaders get no guide-only permissions.
+  - Never print invitation links or tokens.
+  - Starting a new adventure keeps a backup.
+
+**Disk:** 70% after the owner-approved cleanups (build cache, unused images, npm cache). Every `:current` and `:previous` image is kept.
+
+## Earlier handoff - I0: skill and docs stabilised, multiplayer plan approved, 29 Oct 2026
 
 **Committed at the owner's request; not pushed.** No game code, deploy or production data touched.
 

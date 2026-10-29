@@ -147,11 +147,11 @@ Each increment ends with section 9's checks. No deploy, push or live-data change
 
 Doc conflicts fixed, library precedents added, skill tests run (see [handoff](agent-handoff.md)), plus the journey-wide-variety principle.
 
-### I1. Adventure and Team model, one team, identical behaviour
+### I1. Adventure and Team model, one team, identical behaviour: committed 29 Oct 2026; deploy waits for the owner
 
 - **Depends on:** I0.
 - **Scope:**
-  - Schema 6: `adventure { status, format, hostId, intendedCount }`, `teams { A: { leaderId, roles, missions } }`, `participants { [id]: { teamId } }`. `invitations` gain `kind` and `teamId?`.
+  - Schema 6: `adventure { status, format, hostId, intendedCount }`, `teams { A: { leaderId, roles, missions } }`, `participants { [id]: { teamId } }`. (The invitations' optional `kind` and `teamId` moved to I2, where they're first used; adding them needs no migration.)
   - `sessionAction` and `sessionView` resolve participant → team and read and write `db.teams[teamId]`.
 - **Migration v5 → v6:** `roles` and `missions` go to team A; the seven seats become its members; status `active`, format `together`, host unset.
 - **Files:** `participant-store.ts`, `participant-identity.ts`, `participant-names.ts`, `dev-water-session.ts`, `legacy-store-fixture.ts` and their tests. `roles.ts` keeps its API.
@@ -169,7 +169,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 
 - **Depends on:** I1.
 - **Scope:**
-  - `shuk:invite -- host` issues a single-use host invitation; redeeming makes the host Team A's leader and opens the lobby.
+  - Invitations gain optional `kind` and `teamId`. `shuk:invite -- host` issues a single-use host invitation; redeeming makes the host Team A's leader and opens the lobby.
   - Intended count: 1–6 Together, 7+ the choice (Two Teams hidden until I7).
   - **Start Adventure** by the host or guide.
   - A "new adventure" CLI archives the old state (the 26 Oct reset-with-backup pattern).

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { issueInvitation, redeemInvitation, sessionView, sessionAction } from "./participant-store.ts";
 import { parseAction } from "./parse-water-action.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
-import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { schema4Snapshot, storedTeam } from "./legacy-store-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 // The well's detail; null if the view is for a "choose N" mission.
 const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
@@ -19,7 +19,9 @@ async function fixture(run: (path: string, tokens: Record<string, string>, base:
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
-const snapshot = async (path: string) => JSON.parse(await readFile(path, "utf8"));
+const stored = async (path: string) => JSON.parse(await readFile(path, "utf8"));
+// Team A's stored record: the single group's progress, as the file keeps it.
+const snapshot = async (path: string) => storedTeam(await stored(path));
 
 test("server clock survives devices and stops on solution; rewards issue only once", () => fixture(async (path, tokens, base) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, base + offset);
@@ -98,7 +100,7 @@ test("concurrent repeated hints are counted once per shared group", () => fixtur
 }));
 
 test("existing progress migrates without invented timing or retroactive rewards", () => fixture(async (path, tokens, base) => {
-  const old = schema4Snapshot(await snapshot(path));
+  const old = schema4Snapshot(await stored(path));
   old.version = 2;
   delete old.performance;
   old.group.cups = { small: 3, large: 0, jar: 2 };
@@ -109,7 +111,7 @@ test("existing progress migrates without invented timing or retroactive rewards"
   assert.equal(migrated.performance.reward, null);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "start" }, "migrated-start-001", base);
   assert.equal((await snapshot(path)).missions[WELL].performance.excluded, true);
-  const completed = schema4Snapshot(await snapshot(path));
+  const completed = schema4Snapshot(await stored(path));
   completed.version = 2;
   delete completed.performance;
   completed.group.completed = true;

@@ -6,6 +6,7 @@ import { issueInvitation, redeemInvitation, sessionAction, sessionView } from ".
 import { evaluateChoice, toggleChoice } from "./choice-task.ts";
 import { findChoiceTask } from "./choice-missions.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
+import { storedTeam } from "./legacy-store-fixture.ts";
 import { MURAL_MISSION_ID } from "./mural-task.ts";
 import { SYNAGOGUE_APPRECIATION, SYNAGOGUE_BONUS, SYNAGOGUE_BONUS_CHALLENGE, SYNAGOGUE_CHALLENGE, SYNAGOGUE_MISSION, SYNAGOGUE_MISSION_ID, SYNAGOGUE_TASK } from "./synagogue-task.ts";
 import { parseAction } from "./parse-water-action.ts";
@@ -89,7 +90,7 @@ test("server: a wrong guess can be revised; the tavern completes the mission onc
   // The mural is untouched.
   const mural = await sessionView(path, tokens["player-3"], now + 90_000, MURAL_MISSION_ID);
   assert.equal(mural.session.completed, false); assert.equal(mural.performance.started, false);
-  const disk = JSON.parse(await readFile(path, "utf8"));
+  const disk = storedTeam(JSON.parse(await readFile(path, "utf8")));
   assert.equal(disk.missions[SYN].kind, "choice"); assert.equal(disk.missions[SYN].performance.award.points, 90);
 }));
 
@@ -144,9 +145,10 @@ test("server: the bonus opens after the main answer, allows retries, adds its po
 test("an existing synagogue record from before the bonus keeps its progress and gains an empty bonus", () => fixture(async (path, tokens, now) => {
   await sessionAction(path, tokens["player-1"], { missionId: SYN, type: "start" }, "legacy-bonus-start-01", now);
   const db = JSON.parse(await readFile(path, "utf8"));
-  const { bonus: _dropped, ...withoutBonus } = db.missions[SYN];
+  const team = storedTeam(db);
+  const { bonus: _dropped, ...withoutBonus } = team.missions[SYN];
   void _dropped;
-  await writeFile(path, JSON.stringify({ ...db, missions: { ...db.missions, [SYN]: withoutBonus } }));
+  await writeFile(path, JSON.stringify({ ...db, teams: { ...db.teams, A: { ...team, missions: { ...team.missions, [SYN]: withoutBonus } } } }));
   const view = await sessionView(path, tokens["player-3"], now + 1, SYN);
   assert.equal(view.performance.started, true);
   assert.deepEqual("bonus" in view.session ? view.session.bonus : null, { selected: [], completed: false, points: 0 });

@@ -6,6 +6,7 @@ import { issueInvitation, redeemInvitation, sessionAction, sessionView } from ".
 import { evaluateChoice } from "./choice-task.ts";
 import { findChoiceTask } from "./choice-missions.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
+import { storedTeam } from "./legacy-store-fixture.ts";
 import { LEVIN_BONUS, LEVIN_BONUS_CHALLENGE, LEVIN_CHALLENGE, LEVIN_MISSION, LEVIN_MISSION_ID, LEVIN_TASK } from "./levin-task.ts";
 
 const LEVIN = LEVIN_MISSION_ID;
@@ -61,7 +62,7 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
 test("server: no clock runs, so a slow answer still earns the full points, and hints are refused", () => fixture(async (path, tokens, now) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset);
   await act("player-1", { missionId: LEVIN, type: "start" }, "levin-navigator-start-1", 0);
-  const started = JSON.parse(await readFile(path, "utf8"));
+  const started = storedTeam(JSON.parse(await readFile(path, "utf8")));
   assert.equal(started.missions[LEVIN].performance.excluded, true);
   await assert.rejects(act("player-3", { missionId: LEVIN, type: "hint", hint: 1 }, "levin-follower-hint-001", 1), /Invalid hint/);
   await act("player-3", { missionId: LEVIN, type: "toggle-choice", optionId: "spare-rabbi" }, "levin-follower-pick-001", 2);
@@ -76,7 +77,7 @@ test("server: no clock runs, so a slow answer still earns the full points, and h
 test("a timed mission still measures time: the mural's start is not excluded", () => fixture(async (path, tokens, now) => {
   const mural = SHUK_MISSIONS[0].id;
   await sessionAction(path, tokens["player-1"], { missionId: mural, type: "start" }, "mural-navigator-start-1", now);
-  const disk = JSON.parse(await readFile(path, "utf8"));
+  const disk = storedTeam(JSON.parse(await readFile(path, "utf8")));
   assert.equal(disk.missions[mural].performance.excluded, false);
 }));
 
