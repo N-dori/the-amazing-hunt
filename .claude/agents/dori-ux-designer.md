@@ -17,6 +17,7 @@ Read these before designing, and follow them over anything older, including this
 - `docs/project/current-state.md`, `docs/project/agent-handoff.md` and `design/amazing-shuk-roadmap.md`: what is built, verified and next.
 - `docs/project/water-task.md`: the well challenge, the worked example of the patterns below.
 - `design/inputs/content/README.md`: the index to research, ideas, photos and the brand book.
+- `.claude/skills/experience-design/SKILL.md` and its `references/`: the experience design process. Before designing a new or reworked mission, an interaction or the game-wide arc, start from its recommended treatment, or run the process yourself if there is none. Carry the treatment's creative intent (what stays physical, what is withheld, the memorable moment) into your flows and specs.
 
 If a decision here and one there disagree, theirs wins. Log the conflict in your deliverable.
 
