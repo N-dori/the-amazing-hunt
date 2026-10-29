@@ -11,10 +11,10 @@ const TIMEOUT = "Time Out Tel Aviv, \"רוגלעך מרציפן\" (22 May 2023)"
 // Maariv, Pascal Perez-Rubin, "מחנה קיץ: מתכונים בהשראת סיור קולינרי בשוק מחנה יהודה" (3 Jul 2020): "כשהרוגלך יוצאים מהתנור,
 // בעודם חמים, מברישים אותם במברשת ענקית בכמות מכובדת של סירופ סוכר"; "לרוגלך צורה ישרה והם לחים, דביקים וספוגים בסירופ סוכר".
 const MAARIV = "Maariv, Pascal Perez-Rubin, culinary tour of Mahane Yehuda (3 Jul 2020): brushed with syrup \"as they come out of the oven, while still warm\"; \"a straight shape… moist, sticky and soaked in sugar syrup\"";
-// Guide's recorded tour (docs/scavenger_hunt/HE_trans.txt, "מאפיית מרציפן והרוגלך"): at first the shop sold marzipan sweets by
+// Guide's recorded tour (docs/knowledge/HE_trans.txt, "מאפיית מרציפן והרוגלך"): at first the shop sold marzipan sweets by
 // weight from a small window; the next generation built the rugelach; syrup brushed on one by one from a bucket, now from a hose.
 // One guide's account, not corroborated: Attributed tradition. The English tour (Stop 22) says the same.
-const GUIDE = "Guide's recorded tour, \"מאפיית מרציפן והרוגלך\" (docs/scavenger_hunt/HE_trans.txt); English tour, Stop 22";
+const GUIDE = "Guide's recorded tour, \"מאפיית מרציפן והרוגלך\" (docs/knowledge/HE_trans.txt); English tour, Stop 22";
 // Marzipan Bakery, "Our Story" (marzipanbakery.com/our-story, read 25 Oct 2026, undated): "We witnessed thousands of American
 // customers filling their empty suitcases full of our rugelach before returning home." "So after baking our rugelach, we flash
 // freeze them and fly them directly to our New York facility." The business's own account.

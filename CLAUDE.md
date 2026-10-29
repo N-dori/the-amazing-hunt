@@ -22,12 +22,15 @@ Follow the rules in `.claude/rules/`:
 
 `docs/coding-rules.md`, `docs/content/methodology.md` and `docs/design/` are copies of the platform's documents, kept here for reference; the platform repo holds the originals.
 
+The story and tour texts (the Memory Protocol story and plan, the guide's recorded Hebrew tour, the Mahane Yehuda tours) are in `docs/knowledge/`. For designing or improving a mission, an interaction or the whole game's arc, use `/experience-design`; its `references/project-context.md` lists every document it draws on.
+
 Commands (`.claude/skills/`):
 
 | Command | Does |
 |---|---|
 | `/game-verify` | Builds the game image and smoke-tests it in an isolated container; touches nothing live |
 | `/game-deploy` | Deploys `dori-game` with `deploy/deploy.sh` (pull, build, health, smoke, rollback) |
+| `/experience-design` | Thinking process for turning historical knowledge into experiences people love: new or improved missions, group interactions, the game-wide arc. Starts from the story, picks mechanics last |
 
 Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit when the user asks, `/game-deploy`.
 

@@ -9,7 +9,7 @@ Owner instruction, 24 Oct 2026: story first; digital-only 3 L / 5 L well measuri
 | Treatment | Shared read-aloud story followed by collaborative digital water allocation |
 | Interaction | Fill/return water to the well; maximal pours between them or into the family jar; reset before final submission |
 | Question | Owner-supplied three-paragraph family-jar question, preserved in task data |
-| Story source | `docs/scavenger_hunt/HE_trans.txt`, lines 60–66, and existing English wording in `Machane_Yehuda_Tour_EN.md`, Stop 5 |
+| Story source | `docs/knowledge/HE_trans.txt`, lines 60–66, and existing English wording in `Machane_Yehuda_Tour_EN.md`, Stop 5 |
 | Evidence label | **Attributed tradition** for the cistern-cleaner story; separate **Fiction · Puzzle scenario** label for the invented 4 L ration/game premise |
 | Guide move | Choose a group reader using the owner's exact instruction; guide or authorized submitter finalizes a solved jar |
 | Renderer | Collapsible source-backed story, CSS vessel illustrations, numeric volumes and accessible native meters |
@@ -74,7 +74,7 @@ Designer guidance/product decisions now contain both reusable principles: measur
 
 ### Current story fidelity
 
-Read the full cistern section in docs/scavenger_hunt/HE_trans.txt, lines 54-66, located via the existing content index. Four English paragraphs / 40 words replace the generic brief. The first asks punishment or honor; line 64 supports the surprising eagerness for the cleaning job, attributed by the transcript to Yossi Banai. The rope/narrow opening/boy are in line 62; before the rainy season is in line 60. The last English line is a present-day gameplay invitation, not a historical claim. No annual frequency, particular boy's identity or quotation was invented; the underlying Banai passage remains unavailable. Story remains Attributed tradition, separate from the invented ration premise.
+Read the full cistern section in docs/knowledge/HE_trans.txt, lines 54-66, located via the existing content index. Four English paragraphs / 40 words replace the generic brief. The first asks punishment or honor; line 64 supports the surprising eagerness for the cleaning job, attributed by the transcript to Yossi Banai. The rope/narrow opening/boy are in line 62; before the rainy season is in line 60. The last English line is a present-day gameplay invitation, not a historical claim. No annual frequency, particular boy's identity or quotation was invented; the underlying Banai passage remains unavailable. Story remains Attributed tradition, separate from the invented ration premise.
 
 The complete Hebrew section is retained in task data, read-aloud invitation unchanged, sources remain in collapsed details. Development can render Source and original Hebrew with .rtl/lang=he; the production variant renders Source and citations with no Hebrew body. The protected Shuk production route still returns 404. No unrelated UI redesign or new colors. The English is conversational rather than a mechanical sentence-for-sentence translation. Count/markup are tested; actual phone layout and read-aloud duration require owner review.
 

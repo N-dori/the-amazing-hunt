@@ -12,7 +12,7 @@ export const LEVIN_MISSION_ID = "aryeh-levin-prisoners";
 // Lehi; 21 April 1947; the embrace with the grenade between them is the romanticised version.
 const HEWIKI = "Hebrew Wikipedia, מאיר פיינשטיין and משה ברזני (read 25 Oct 2026)";
 const ENWIKI = "English Wikipedia, Meir Feinstein (read 25 Oct 2026), quoting Menachem Begin's 1981 speech: \"the Rabbi insisted that he would come to accompany them\"";
-const TOUR = "Hebrew and English tours, Stop 1 (docs/scavenger_hunt/Machane_Yehuda_Tour_HE.md, _EN.md)";
+const TOUR = "Hebrew and English tours, Stop 1 (docs/knowledge/Machane_Yehuda_Tour_HE.md, _EN.md)";
 const INVENTED = "Invented distractor; no source says this";
 
 /** "Why did they change their plan?" One pick from four. Every source names a rabbi; they differ only on which one. */

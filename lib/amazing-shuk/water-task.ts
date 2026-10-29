@@ -15,7 +15,7 @@ export const WATER_TASK = Object.freeze({
       "Now measure your family's water.",
     ],
     source: "Hebrew tour transcript, HE_trans.txt, lines 54–66; English tour, Stop 5: Gan HaTut — Mulberry Garden and the Water Cisterns.",
-    sourcePaths: ["docs/scavenger_hunt/HE_trans.txt", "docs/scavenger_hunt/Machane_Yehuda_Tour_EN.md#stop-5-gan-hatut--mulberry-garden-and-the-water-cisterns"],
+    sourcePaths: ["docs/knowledge/HE_trans.txt", "docs/knowledge/Machane_Yehuda_Tour_EN.md#stop-5-gan-hatut--mulberry-garden-and-the-water-cisterns"],
     originalHebrew: [
       "אנחנו בסמוך לגן התות, יש פה בור מים, בכלל במהלך השכונה יש עוד ועוד, פשוט צריך לחפש אותם. אנחנו ממש ליד בית משפחת אבון, שעוד מעט תראו.",
       "אז כל בור מים הייעוד שלו נקבע לפי מידת הניקיון. כלומר, הבור הענקי ביותר שמשמש לשתייה, בדרגה השנייה של ניקיון לרחצה ולכביסה, ובדרגה שלישית לספונג'ה וניקיונות.",

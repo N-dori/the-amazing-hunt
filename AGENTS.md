@@ -32,7 +32,7 @@ Add or update `*.test.ts` coverage for game logic, especially scoring, unlocks a
 
 ### Sources of Truth
 
-The repository contains two separate games with separate sources. For **The Memory Protocol**, docs/scavenger_hunt/The_Memory_Protocol_Story_V1(1).md is locked: do not rewrite it, rename the Israelianes or HARMONY, or change its premise without explicit user approval. Use docs/scavenger_hunt/Memory_Protocol_New_Chat_Handoff_v02.md for gameplay, scoring proposals, evidence boundaries and open questions.
+The repository contains two separate games with separate sources. For **The Memory Protocol**, docs/knowledge/The_Memory_Protocol_Story_V1(1).md is locked: do not rewrite it, rename the Israelianes or HARMONY, or change its premise without explicit user approval. Use docs/knowledge/Memory_Protocol_New_Chat_Handoff_v02.md for gameplay, scoring proposals, evidence boundaries and open questions.
 
 For **The Amazing Shuk** (Nahlaot and Mahane Yehuda), use Part 2 of research/prompts/DORI_UXUI_Designer_Agent_Prompt(1).md, plus mission/task ideas and the photo index in design/inputs/content/. Do not use the Memory Protocol story as a source: this game has no HARMONY, Israelianes, parallel Earth, library act or crisis layer. Map idea tags DOC and FIELD to **Historical fact**; map ORAL and FOLK to **Attributed tradition**.
 
@@ -55,5 +55,7 @@ Every content item must have one visible label: **Historical fact** (cited sourc
 ## Shared Project Memory
 
 Before meaningful Amazing Shuk work, read `docs/project/product-decisions.md`, `docs/project/current-state.md`, `docs/project/agent-handoff.md`, and `design/amazing-shuk-roadmap.md`. Follow the decision priority recorded in the product decisions. After meaningful work, update current state and handoff with verified facts only. Keep Shuk production features isolated from the Memory Protocol until a separate protected app boundary is established; the opt-in loopback-only development simulation is the exception. Check Git status and preserve other agents' changes.
+
+Before designing or reworking an Amazing Shuk mission, an interaction or the game-wide arc, follow the experience design process in `.claude/skills/experience-design/SKILL.md` (it is a Claude skill; other agents can read it as a document).
 
 @CLAUDE.md

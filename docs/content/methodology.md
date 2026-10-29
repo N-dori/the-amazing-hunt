@@ -27,4 +27,6 @@ Keep the registers deliberately distinct:
 
 The second side must complicate the first without replacing it with a flattering counter-stereotype. Front-side slang is a small cultural doorway, not a test of insider knowledge.
 
-The detailed working source is `docs/creative_treatments/DORI Content Methodology.md`.
+To apply this method when designing a mission or interaction, use the experience design skill: `.claude/skills/experience-design/SKILL.md`.
+
+The detailed working source is `design/inputs/content/DORI Content Methodology.md`.

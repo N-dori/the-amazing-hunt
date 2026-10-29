@@ -1,6 +1,6 @@
 # The Memory Protocol: new-session handoff (2026-10-16, updated after Mission 00C)
 
-Read first: `CLAUDE.md` and `.claude/rules/`, then `docs/DORI_Memory_Protocol_Approved_Build_Spec_v1.md` (amended 16 Oct 2026). The story is locked: `docs/scavenger_hunt/The_Memory_Protocol_Story_V1(1).md`. Claude never reviews in a browser; the owner does.
+Read first: `CLAUDE.md` and `.claude/rules/`, then `docs/DORI_Memory_Protocol_Approved_Build_Spec_v1.md` (amended 16 Oct 2026). The story is locked: `docs/knowledge/The_Memory_Protocol_Story_V1(1).md`. Claude never reviews in a browser; the owner does.
 
 Work happens on branch `main` of this repo, `/root/projects/The-Amazing-Hunt` (since 20 Oct 2026; before that the game was `apps/memory-protocol` on branch `scavenger_hunt` of the DORI platform monorepo).
 

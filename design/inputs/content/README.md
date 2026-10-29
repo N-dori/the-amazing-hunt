@@ -4,6 +4,8 @@ Inputs for the `dori-ux-designer` agent and anyone designing The Amazing Shuk, t
 
 Most of the background files here were copied from the platform's creative-treatments folder. They describe methods and are not specific to this game.
 
+To turn these inputs into a mission or interaction, follow the experience design process in [`.claude/skills/experience-design/`](../../../.claude/skills/experience-design/SKILL.md); its [project context](../../../.claude/skills/experience-design/references/project-context.md) maps which of these files serve which step.
+
 ## Reading order
 
 **Read in full before designing:**
@@ -63,8 +65,8 @@ Each run file holds the prompt, its input packet and the answer. They were made 
 
 | Document | What it is | Use it for |
 |---|---|---|
-| [Audience engagement mechanics](Audience_Engagement_Mechanics.md) | Landscape survey: museums, theme parks, tours, games; 16 examples, a mechanic taxonomy and families; teen engagement. Same text as `docs/scavenger_hunt/audience_engagement_and_interactive_digital_experiences..md` | Ideas for interaction mechanics |
-| [DORI digital platform research](DORI_Digital_Platform_Research.md) | Research on DORI's digital platform; copied from `docs/scavenger_hunt/Cluade-Dori-digital-platform.md` | The restraint rules the brief cites (no badges, chatbots or social sharing) |
+| [Audience engagement mechanics](Audience_Engagement_Mechanics.md) | Landscape survey: museums, theme parks, tours, games; 16 examples, a mechanic taxonomy and families; teen engagement. Same text as `docs/content/audience_engagement_and_interactive_digital_experiences..md` | Ideas for interaction mechanics |
+| [DORI digital platform research](DORI_Digital_Platform_Research.md) | Research on DORI's digital platform; copied from `docs/project/Cluade-Dori-digital-platform.md` | The restraint rules the brief cites (no badges, chatbots or social sharing) |
 | [Cognitive load](Cognitive_Load.md) | Edited transcript of a UX talk: intrinsic vs extraneous load; avoid clutter, build on mental models, offload tasks | Keeping screens and steps light |
 | [Endowment effect](Endowment_Effect_Creatively.md) | Edited transcript of a UX talk (partial recording): customization, interactive previews, personal investment, breaking attachment | Building player ownership, e.g. choices the player makes and keeps |
 
@@ -74,7 +76,7 @@ The two UX transcripts have no recorded speaker or source; treat them as general
 - Start with [Mission and task ideas](Mission_Task_Ideas.md), the 35-entry working bank plus the opening mural, token loop and Rachmo board transcription. The file labels these as ideas; it is not approved player content. Its old team competition and team-earned points/tokens are superseded by the one-shared-group decision in [product decisions](../../../docs/project/product-decisions.md).
 - The strongest low-cost candidates to investigate first are idea #24 (portable measuring puzzle; only the cup prototype exists), #13 (count the synagogue's twelve-tribes door), #15 (transcribe the Montefiore gate inscription), #27 (decode the Beit El panel), #1 (read the sundial), and #31 (gematria). These are shortlist recommendations, not approved or field-verified tasks. Confirm sites, exact answers, access and copy before implementation.
 - [Photo index](photo_index_ALL.csv) is the visual-reference register, not a photo asset folder. In this checkout the photos directory contains only .gitkeep and the index CSV; indexed photos are unavailable. The index flags identifiable people, minors, private homes and archive rights. Mural crop/alteration rights remain unresolved; see [mural research](../../../research/results/07_citecreation_market_mural.md).
-- Food candidates are in idea #32 and the menu/route sections of the ideas file: kubbeh (Rachmo), etrog drink (Etrog Man), rugelach (Marzipan), tahini tasting (mill), and malawach (Jahnun Bar). The culinary route adds Rahmo, Hachapuria, Cookie Cream, Hayazdi, Chochmat HaBurekas MeHaifa, Mizrahi Nuts and conditional/story-only stops; see [English tour draft](../../../docs/scavenger_hunt/Machane_Yehuda_Tour_EN.md) and [site research](06_nahlaot_market_sites_verification.md). These are leads, not confirmed live offers or group tastings.
+- Food candidates are in idea #32 and the menu/route sections of the ideas file: kubbeh (Rachmo), etrog drink (Etrog Man), rugelach (Marzipan), tahini tasting (mill), and malawach (Jahnun Bar). The culinary route adds Rahmo, Hachapuria, Cookie Cream, Hayazdi, Chochmat HaBurekas MeHaifa, Mizrahi Nuts and conditional/story-only stops; see [English tour draft](../../../docs/knowledge/Machane_Yehuda_Tour_EN.md) and [site research](06_nahlaot_market_sites_verification.md). These are leads, not confirmed live offers or group tastings.
 - Rachmo's board and shekel amounts are a transcription from an owner's photo, explicitly awaiting restaurant confirmation. No food-token menu costs are set: +3 per stop is a brainstormed task reward, not a vendor price. Token costs and redemption terms remain pending owner decision and vendor agreement.
 - The site research is dated 16 Oct 2026; the task/photo bank is dated 23–24 Oct 2026. Neither date means a claim or offer is approved. Check the source files for evidence labels, caveats and citations before use.
 
@@ -82,7 +84,7 @@ The two UX transcripts have no recorded speaker or source; treat them as general
 
 The [local water task](../../../app/dev/amazing-shuk/water/page.tsx) now uses a [story-backed task definition](../../../lib/amazing-shuk/water-task.ts), [three-container rules](../../../lib/amazing-shuk/water-measurement.ts) and authenticated shared JSON progress. Owner-approved iteration: 3 L / 5 L well vessels fill a separate 4 L family jar, all digitally. The physical cup variant above is historical brainstorming, superseded for this task.
 
-Story discovery: [original Hebrew transcript](../../../docs/scavenger_hunt/HE_trans.txt), lines 54-66, and [English tour](../../../docs/scavenger_hunt/Machane_Yehuda_Tour_EN.md), Stop 5. The story is **Attributed tradition**; the transcript names Yossi Banai as the attributed recollection but does not explicitly state once a year. English is now adapted from the full Hebrew cistern section; original Hebrew is available only in development source details and is not rendered in production. The invented family-ration puzzle is labeled separately.
+Story discovery: [original Hebrew transcript](../../../docs/knowledge/HE_trans.txt), lines 54-66, and [English tour](../../../docs/knowledge/Machane_Yehuda_Tour_EN.md), Stop 5. The story is **Attributed tradition**; the transcript names Yossi Banai as the attributed recollection but does not explicitly state once a year. English is now adapted from the full Hebrew cistern section; original Hebrew is available only in development source details and is not rendered in production. The invented family-ration puzzle is labeled separately.
 
 See the [task/source/brand verification record](../../../docs/project/water-task.md), [current state](../../../docs/project/current-state.md) and [shared handoff](../../../docs/project/agent-handoff.md). Source photo #66 is not used; no physical well interaction or player-facing timer was added. Provisional local rewards are now configured in the task record. Brand reference: [DORI Final Brand Book](../brand/DORI_Final_Brand_Book.pdf).
 
