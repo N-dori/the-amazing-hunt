@@ -66,7 +66,14 @@
   - **Never write "A guide tells that…"** (or similar guide attributions) in visitor-facing copy. The hedge a tradition needs comes from other wording. First case: Marzipan's follow-up lead (`marzipan-task.ts`, the syrup bucket line); not changed yet.
   - **The synagogue's blue-sign line is a hint** to the place's story ("Now look for the blue heritage sign nearby…", `synagogue-task.ts`), not an instruction placed above or below "Behind the answer". Not changed yet.
   - **The mural's before photo:** the owner has had it a long time and isn't sure of its origin, and thinks it may have been altered with GPT. Its source and rights stay unknown; treat it as possibly edited, not as a documentary photo. No decision yet on keeping or replacing it.
-  - **Experience design direction:** the physical world is the centre and technology serves the game, never the reverse. Every stop has its own character, and one connecting line runs through the whole game. Model: knowledge → story → a changing interaction that brings the whole group in → discovery, a memorable moment, a surprise. Find the experiential potential in the actual historical stories before choosing mechanics. Kept for later: split clues across phones, predict-first at some stops (not all), and stop souvenirs leading to a final puzzle, whose meaning is still open. See [the skill brief](experience-design-skill-brief.md).
+  - **Experience design direction** (after Claude's diagnosis that five of the six missions follow the same pattern: story, multiple choice, reveal). This entry is the one record of it; the skill and the notes link here.
+    - The physical world is the centre; technology serves the game, never the reverse.
+    - Every stop has its own character, and one connecting line runs through the whole game.
+    - The model: knowledge → story → a changing interaction that brings the whole group in (task or challenge) → discovery, a memorable experience, a surprise.
+    - Above all, find the experiential potential hidden inside the actual historical stories before deciding which mechanics to use.
+    - Kept from Claude's 29 Oct ideas: **split clues across phones** (each role's phone holds a different piece), to give real expression to the multiplayer game; **predict first, then reveal**, but not at every stop; **souvenirs from each stop leading to a final puzzle**, a good progression system, but the owner asks what they would mean: the objects need real meaning (open).
+    - Not taken up for now, nor rejected: a map uncovered stop by stop, a voice per stop, a group memory at the end, and Claude's per-mission and market ideas.
+    - Carried out by the `/experience-design` skill (`.claude/skills/experience-design/`); the owner's brief for it is kept word for word in [the skill brief](experience-design-skill-brief.md).
   - **Map rule: markers shrink when the map zooms out**, so nearby pins (e.g. the gate and the well, 2 and 3, 67 image px apart) don't overlap. No pin is moved for this. Not yet built; wait for the owner.
 
 ## Conflict priority

@@ -51,7 +51,7 @@ When no web research was done, say so plainly. Never claim to have looked at a s
 
 ## The Amazing Shuk context
 
-For Shuk work, read [project context](references/project-context.md) first: the owner's decisions, the existing method documents this skill builds on (and doesn't replace), the content and copy rules, and how the output feeds into the design and build loop.
+For Shuk work, read [project context](references/project-context.md) first. It sets the order: the owner's guiding philosophy, then this skill (up to an approved treatment), then the build process. It also covers the owner's decisions, the existing method documents this skill builds on (and doesn't replace), the content and copy rules, and how the output feeds into the design and build loop.
 
 Outside the Shuk, use the process and criteria as they are, and swap in the other project's audience, constraints and sources.
 

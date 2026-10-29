@@ -1,6 +1,6 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 26 Oct 2026 (Claude), after the owner's review fixes; committed (`3958bd3`, `f54f6da`), deployed, and the live game reset.** Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 29 Oct 2026 (Claude).** Live code is unchanged since 26 Oct (`3958bd3`, `f54f6da`, deployed, live game reset); since then only notes, docs and the experience design skill changed. Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
@@ -40,6 +40,29 @@
 - Change of course (owner, 29 Oct 2026): the market can also hold challenges. Not built; waiting for the owner.
 - Map rule (owner, 29 Oct 2026): markers shrink as the map zooms out, so the gate and well pins stop overlapping. Not built; waiting for the owner.
 
+## Next
+
+- The owner's phone review of the 26 Oct changes and of the Stitch slice (the eight preview checks in the handoff).
+- Possibly compact role pills on phones narrower than 22rem.
+- Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
+- New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
+
+## Waiting on the owner
+
+- Copy: all the missions' drafts, the UI labels, the alt texts, the cheers, "Behind the answer", the Marzipan lock note and the next-stop lines (listed per slice in the handoff).
+- Rewards: every mission's rewards and both bonuses are provisional; no food offers are approved.
+- Rights: the mural image (still unresolved in [decisions](product-decisions.md)) and the before photo's source (possibly altered). The photo rights audit is deferred.
+- Field checks:
+  - every marker placement;
+  - GPS points for Gan HaTut, the synagogue, the gate and Levin's home;
+  - the gate's Arabic panel and its rosette;
+  - whether the Kramer plaque is legible;
+  - the gate and the well share the gate photo.
+- Luna: no source gives her relationship to Yitzhak Armoza; only the literary version is built.
+- The well: keep the two-move solution? Story wording (cistern vs. well, the question answered too soon, the title)?
+- The original photos left untracked in `public/shuk/` (move them to `design/inputs/photos/`).
+- The Stitch slice's draft labels ("pts", "tokens", "Mission N · status", "+N food tokens"); whether to restyle the map markers (shared with the Memory Protocol); whether to add the filter chips, map scale, path line or audio button.
+
 ## Current verification (clean `node:22-alpine` container)
 
 - `npm run test:shuk`: **151 passed, 0 failed** (in `shuk-dev`, 26 Oct).
@@ -58,4 +81,4 @@
 - Back up with `docker exec dori-shuk cat /data/state.json > .local/amazing-shuk/backups/<name>.json`.
 - A new web photo under `public/shuk/` needs a `!` line in `.dockerignore`, or it 404s live.
 
-**Local simulation:** the dev page and API stay development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. `lib/base-path.ts` is the only source of both prefixes (`/memory-protocol`, and `/shuk` in the Shuk build).
+**Local simulation:** the dev page and API stay development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. The host network matters: with Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404 (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). Local invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`. `lib/base-path.ts` is the only source of both prefixes (`/memory-protocol`, and `/shuk` in the Shuk build).

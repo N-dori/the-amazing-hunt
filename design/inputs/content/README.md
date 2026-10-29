@@ -33,7 +33,7 @@ To turn these inputs into a mission or interaction, follow the experience design
 |---|---|---|
 | [Mission and task ideas](Mission_Task_Ideas.md) | Nadav's working bank of ideas (23–24 Oct 2026), tagged DOC, FIELD, ORAL or FOLK. Raw material, not approved missions | The stops, tasks, bonus rounds and food-token loop |
 | [Photo index](photo_index_ALL.csv) | Master index of 117 photos (23 Oct 2026): 107 field photos in `../photos/no-faces/` and `../photos/faces/`, plus archival images and the map. Original and new file names, description, mission link, faces and consent, archive item ID, credit and rights. A copy is kept in `../photos/` | Choosing photos and crops; checking for faces |
-| [Machane Yehuda and Nachlaot stories](machane-yehuda-nachlaot-stories.md) | Stories, anecdotes and facts extracted from Nadav's Google Drive (15 Oct 2026), each tagged with its source file | Story candidates for stops and reveals; each needs its source and an evidence label |
+| [Machane Yehuda and Nachlaot stories](machane-yehuda-nachlaot-stories.md) | Stories, anecdotes and facts extracted from Nadav's Google Drive (15 Oct 2026), each tagged with its source file. The one copy; `docs/knowledge/machane-yehuda-nachlaot-stories.md` points here | Story candidates for stops and reveals; each needs its source and an evidence label |
 | [Run 06: site verification](06_nahlaot_market_sites_verification.md) | Perplexity research run (16 Oct 2026) checking which Nahlaot and market sites are publicly visible and documented. Same file as `research/results/06_nahlaot_market_sites_verification.md` | Which stops can carry evidence, and which claims to avoid |
 
 ### General knowledge
@@ -65,8 +65,8 @@ Each run file holds the prompt, its input packet and the answer. They were made 
 
 | Document | What it is | Use it for |
 |---|---|---|
-| [Audience engagement mechanics](Audience_Engagement_Mechanics.md) | Landscape survey: museums, theme parks, tours, games; 16 examples, a mechanic taxonomy and families; teen engagement. Same text as `docs/content/audience_engagement_and_interactive_digital_experiences..md` | Ideas for interaction mechanics |
-| [DORI digital platform research](DORI_Digital_Platform_Research.md) | Research on DORI's digital platform; copied from `docs/project/Cluade-Dori-digital-platform.md` | The restraint rules the brief cites (no badges, chatbots or social sharing) |
+| [Audience engagement mechanics](Audience_Engagement_Mechanics.md) | Landscape survey: museums, theme parks, tours, games; 16 examples, a mechanic taxonomy and families; teen engagement. The one copy; `docs/content/audience_engagement_and_interactive_digital_experiences..md` points here | Ideas for interaction mechanics |
+| [DORI digital platform research](DORI_Digital_Platform_Research.md) | Research on DORI's digital platform. The one copy; `docs/project/Cluade-Dori-digital-platform.md` points here | The restraint rules the brief cites (no badges, chatbots or social sharing) |
 | [Cognitive load](Cognitive_Load.md) | Edited transcript of a UX talk: intrinsic vs extraneous load; avoid clutter, build on mental models, offload tasks | Keeping screens and steps light |
 | [Endowment effect](Endowment_Effect_Creatively.md) | Edited transcript of a UX talk (partial recording): customization, interactive previews, personal investment, breaking attachment | Building player ownership, e.g. choices the player makes and keeps |
 

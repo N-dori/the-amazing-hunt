@@ -2,24 +2,11 @@
 
 **Status: built 29 Oct 2026** as `.claude/skills/experience-design/` (owner: "yes, build the skill now"). This file keeps the owner's original brief.
 
-## The owner's direction (29 Oct 2026)
-
-Written after reviewing Claude's diagnosis of the six missions (five of them follow the same pattern: story, then a multiple-choice question, then the reveal):
-
-- **The physical world is the centre.** Technology serves the game, never the reverse.
-- **Every stop has a different character**, and **one connecting line runs through the whole game**.
-- **The model** (owner agrees):
-  knowledge → story → a changing interaction that brings the whole group in (task or challenge) → discovery, a memorable experience, a surprise.
-- **Above all, find the experiential potential hidden inside the actual historical stories before deciding which mechanics to use.**
-- From Claude's ideas of 29 Oct, the owner keeps:
-  1. **Split clues across phones** (each role's phone holds a different piece): give real expression to the multiplayer game.
-  2. **Predict first, then reveal**: yes, but **not at every stop**.
-  4. **Souvenirs from each stop leading to a final puzzle**: a good progression system, **but what do they mean?** The collected objects need real meaning; open question for the owner and the skill.
-- Not kept for now: ideas 3 (a map you uncover), 5 (a voice per stop), 6 (a group memory at the end), the per-mission table and the market ideas. Not rejected either; they were not mentioned.
+The owner's experience design direction from the same day is recorded only in [product decisions](product-decisions.md) (29 Oct 2026, "Change of course").
 
 ## The owner's brief for the skill (verbatim)
 
-The owner's reference "~/docs/content/audience_engagement_and_interactive_digital_experiences..md" is `docs/content/audience_engagement_and_interactive_digital_experiences..md` in this repo.
+The owner's reference "~/docs/content/audience_engagement_and_interactive_digital_experiences..md" is `docs/content/audience_engagement_and_interactive_digital_experiences..md` in this repo, now a pointer to its one copy, `design/inputs/content/Audience_Engagement_Mechanics.md`.
 
 > please Create a skill or write it into a file you can later refer to from one of the context files - see what al ready exsist make a skill with is an actual thinking process - use a subagent even  Educational Experience Design / Educational Treatment framework for Amazing Shuk:
 >
