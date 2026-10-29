@@ -1,8 +1,51 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I1: Adventure and Team model, committed; deploy waits for the owner, 29 Oct 2026
+## Latest handoff - I2 implemented, uncommitted: host invitation, lobby, Start Adventure; many-teams correction, 29 Oct 2026
 
-**Committed locally (the I1 commit, after `7548d08`); not pushed, not deployed.** Live runs `dori-shuk:20261026-084821-f54f6da` with **schema 5**; this checkout's code reads and writes **schema 6**. Don't assume I1 is live: check `docker ps` and the live file's `version` (read-only) first.
+**Authorised by the owner (29 Oct 2026); left uncommitted for review.** No deploy, push or live-data change; the live app is still `175548f` and its file still schema 5. `.claude/agents/dori-ux-designer.md` untouched (O20).
+
+**Owner's correction, the same day:** an adventure holds **many teams of about 5**, not one or two. Recorded in [product decisions](product-decisions.md) (the one record) and carried through the [multiplayer plan](multiplayer-plan.md) (I7 became I7a, multiple teams, and I7b, the optional comparison; new gates O25 and O26), `AGENTS.md` and `design/amazing-shuk-roadmap.md`.
+
+**What I2 does:**
+- **Host invitation:** `npm run shuk:invite -- host <player seat> <origin>` (inside the app container: `tools/scripts/shuk-invite.ts host player-N https://doriisrael.com`). Single-use, 24 h, hashed, a player seat in team A, only while the adventure waits in its lobby with no host; it replaces that seat's other invitations and any other host invitation. Redeeming sets `adventure.hostId` and team A's `leaderId`; a replay, an expired link, or a lobby that already has a host or has started → 401.
+- **Invitation kinds:** `host`, and `leader` reserved for I7a. Nothing issues a `leader` invitation, and redeeming any kind other than `host` is refused (fail closed).
+- **Lobby** (`adventure.status === "lobby"`, the whole screen): the host or guide answers "How many are playing?" (1–30). The app shows the **recommended teams** (`recommendedTeamCount = ceil(n / 5)`, `recommendedTeamSizes` split evenly: 6 → 3 + 3, 11 → 4 + 4 + 3, 30 → six of 5) as a recommendation only. No team beyond A is created; the stored `format` stays `"together"`.
+- **Start Adventure** (host or guide only). It needs a count. When more than one team is recommended, the server refuses a plain Start; the lobby says "Playing in several teams isn't available yet" and the button becomes "Start as one team" (`asOneTeam: true`). A second Start changes nothing.
+- **Lobby gate:** every journey action (start, picks, hints, submit, arrival, timing, approve) is refused for everyone, guide included, until Start; roles may be claimed or assigned meanwhile.
+- **Host and leader get no guide-only permission:** tested for confirm-arrival, timing, guide-approve and assign-role; without a role the host can't start a challenge or submit either.
+- **New adventure (development and testing only):** `npm run shuk:new-adventure -- --confirm` in `shuk-dev`. It keeps the old file's exact bytes as `state.json.before-new-adventure-<UTC>`, mode 600, then opens an empty lobby: every seat in team A, no host, sessions, invitations, roles and progress cleared; names and action receipts kept. If the copy can't be kept, nothing changes (503). It refuses in the app build and isn't shipped in the image (Dockerfile unchanged); shipping it needs the owner's approval.
+- **Unchanged:** the migrated live adventure is `active` with no host, so deploying I2 alone shows players nothing new.
+
+**Files:** `lib/amazing-shuk/adventure-lobby.ts` (new: the recommendation and the lobby view model), `participant-store.ts`, `group-action.ts`, `parse-water-action.ts`, `welcome-copy.ts` (`LOBBY_COPY`), `scripts/shuk-invite.ts`, `scripts/shuk-new-adventure.ts` (new), `package.json` (script), `components/amazing-shuk/IndexAdventureLobby.tsx`, `PreviewAdventureLobby.tsx` and `.module.scss` (new), `components/amazing-shuk/dev/IndexWaterTask.tsx`, `components/icons/iconPaths.tsx` (`minus`, `plus`). Tests: `lib/amazing-shuk/adventure-lobby.test.ts` (new, 13).
+
+**Copy (gate O16), all draft, `TODO(copy)` in `LOBBY_COPY`:** "Before you set off"; the host, guide and waiting leads; "Count everyone in your group, including you."; "Not set"; the stepper labels; "Recommended teams"; "One team of N" / "N teams: 4, 4 and 3 players"; "Playing in several teams isn't available yet. For now, everyone plays as one team."; "Start as one team"; "Starting…"; "Say how many are playing first."; and the server messages ("Player count saved.", "The adventure has started.", "Multiple teams aren't available yet. Start as one team.", "The adventure hasn't started yet.", "Only the host or the guide can set up the adventure."). Approved: "Start Adventure"; "How many are playing?" is the plan's.
+
+**Verified (29 Oct 2026):**
+- `test:shuk` 171/171 in `shuk-dev` (158 before); `npm test` 61/61.
+- `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new.
+- The counts 1, 5, 6, 7, 11, 17 and 30, plus an even split ≤ 5 for every count 1–30.
+- **Rollback to I1** (rehearsed with a temporary `175548f` worktree on isolated copies, deleted afterwards): I1 reads every file I2 writes (a lobby with a pending host invitation, a hosted lobby of 30, an active one-team start of 30), acts on them, and keeps the host, leader and count; an unredeemed host invitation redeems in I1 as a plain session. I1 has no lobby gate, so a rolled-back lobby simply plays.
+- CLI smoke on a throwaway file: new-adventure refuses without `--confirm` and in the app build; a host invitation is refused outside the lobby and for the guide; the link's shape (pattern only, never printed).
+- `/game-verify shuk` (isolated `dori-shuk:test`, nothing live): healthy, 8/8 route checks, an invitation link of the right shape (not printed), a host invitation refused on a fresh (active) state, the image ships only `shuk-invite.ts` and `shuk-name.ts`, 47 MiB. `git diff --check` clean on these changes (`docs/RUN_PREVIEW.md`, the owner's, still has its own trailing whitespace).
+- Self code and security review of the diff: no secret in a URL, log or output beyond the operator's link; server-side bounds on the count; lobby powers only for the host or guide; unknown invitation kinds refused.
+- **Not checked:** anything in a browser or on a phone (layout, the stepper, the one-team wording on screen).
+
+**Risks and notes:**
+- Host rights belong to the seat, so any session of the host's seat has them, including one from a plain invitation the operator issued for that seat before the host redeemed. Only the operator can cause that; the new adventure signs everyone out first.
+- The fixed seven seats still cap the adventure at 7 people until I3's dynamic participants, whatever count the host enters.
+- 30 is a planning limit only: one JSON file, one lock, every phone polling every 1.5 s, on the shared 4 GB server. Load-test before any real 30-person run (plan, section 9).
+- `format` stays the two-value field I1 reads until schema 7 in I7a.
+- The guide still acts on team A only (switcher in I7a). One guide for many teams is open (O25).
+
+**Next:** the owner reviews the uncommitted I2 and its draft copy, then decides on commit, push and deploy (each separately). Running a new adventure on live data needs its own approval (and shipping the CLI in the image). Then I3.
+
+## Earlier handoff - I1 deployed: Adventure and Team model (schema 6), 29 Oct 2026
+
+**Deployed 29 Oct 2026, 21:36 UTC (owner-authorised): `dori-shuk:20261029-213559-175548f`, commit `175548f`; all commits pushed.** Rollback image `dori-shuk:previous` = `20261026-084821-f54f6da` (schema 5).
+
+- **The live file is still schema 5 on disk** until the first write after the deploy (any sign-in, invitation or game action). That write migrates it to v6 and creates the automatic copy `/data/state.json.pre-schema6-<hash>`.
+- **To confirm after that write** (read-only): `docker exec dori-shuk node -e` printing only `version`, and `docker exec dori-shuk ls -l /data` showing the copy at mode 600.
+- **Commits:** I0 `7548d08`, I1 `8ed2970`, safeguard `175548f`.
 
 - **Schema 6** (`lib/amazing-shuk/participant-store.ts`):
   - `adventure { status, format, hostId, intendedCount }`, `teams { A: { leaderId, roles, missions } }` and `participants { [id]: { teamId } }`. Invitations, sessions, receipts and names are unchanged.
@@ -38,16 +81,19 @@
 
   `docker exec -i dori-shuk sh -c 'cat > /data/state.json.restore && mv /data/state.json.restore /data/state.json' < /root/backups/amazing-shuk/<backup>.json`
 
-**Deploy (needs the owner's explicit approval; not done):**
-- **Blockers:**
-  - `deploy/deploy.sh` refuses while tracked files have local changes; `docs/RUN_PREVIEW.md` (the owner's local invite notes) is one. Move its content into `.local/` and restore the file before deploying; never commit it.
-  - The deploy builds local HEAD, so push first if live should match GitHub.
-- **Before:** take a new backup right before the deploy (same command as above, new timestamp) and re-run the rehearsal on it.
-- **Deploy:** `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`. It builds, swaps `:current` to `:previous`, recreates `dori-shuk` (a few seconds of downtime; clients' queued actions retry), then runs the health and smoke checks. A failure there rolls the image back automatically, before any v6 write, because those checks only read.
-- **Manual rollback after a v6 write:** tag `dori-shuk:previous` as `:current` and run `docker compose -f deploy/shuk-compose.yml up -d shuk` (as `rollback()` in `deploy.sh` does), then run the restore command at once. Actions made between that backup and the restore are lost.
+**Deploy record (29 Oct 2026):**
+- **Before:**
+  - `docs/RUN_PREVIEW.md` was kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-i1-deploy` (with a `.patch`), reset for the deploy, and restored identically afterwards.
+  - Fresh backup `/root/backups/amazing-shuk/live-state-before-i1-deploy-20261029T213546Z.json` (mode 600): schema 5, byte-identical to live; 2 unexpired sessions, 7 names, both roles, 0 mission records, 10 receipts, no duplicates.
+- **Deploy:** `deploy/deploy.sh shuk` in tmux. The container was recreated, healthy, 0 restarts; all 7 smoke checks passed, plus the dev page (404) and the API without a cookie (401). No error lines in the live log.
+- **After** (read-only for live data): the deployed code ran on a `/tmp` copy of the live file inside the container. It migrated to v6 (team A, 7 members, active, together); sessions, names, invitations, roles and receipts were kept; 6 missions, 0 points, no duplicate receipts; exactly one automatic copy, byte-exact, mode 600. The live file was still byte-identical to the backup afterwards.
+- **Rollback, if needed:**
+  1. Tag `dori-shuk:previous` as `:current` and run `docker compose -f deploy/shuk-compose.yml up -d shuk` (as `rollback()` in `deploy.sh`).
+  2. If a v6 write has happened, run the restore command above at once, with the deploy backup or the automatic copy.
+  3. Actions made since that backup are lost, so report the recovery options to the owner before restoring.
 
 **Next: I2, host invitation, lobby and Start Adventure** (approved milestone; **implementation not yet authorised**). Spec: [multiplayer plan](multiplayer-plan.md), I2.
-- **Depends on:** I1, committed; deploying I1 isn't required to build I2 locally.
+- **Depends on:** I1, deployed 29 Oct 2026.
 - **Scope:** invitations gain optional `kind` and `teamId`; `shuk:invite -- host`; redeeming makes the host Team A's leader and opens a lobby; the intended count (1–6 Together; 7+ the choice, with Two Teams hidden until I7); Start Adventure by the host or guide; a "new adventure" CLI that archives the old state.
 - **Open decisions:** O16 (lobby, team and onboarding copy; draft only, marked `TODO(copy)`). O6 and O15 are for I3, not I2. O20 still open; don't touch `.claude/agents/dori-ux-designer.md`.
 - **Security:**

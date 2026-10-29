@@ -12,6 +12,9 @@ export const iconPaths = {
   arrowForward: <><path d="M4 12h15" /><path d="M13 6l6 6-6 6" /></>,
   arrowBack: <><path d="M20 12H5" /><path d="M11 6l-6 6 6 6" /></>,
   close: <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></>,
+  // Steppers: one fewer, one more.
+  minus: <path d="M5 12h14" />,
+  plus: <><path d="M5 12h14" /><path d="M12 5v14" /></>,
   externalLink: <><path d="M14 4h6v6" /><path d="M20 4l-9 9" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>,
 
   // Map and places

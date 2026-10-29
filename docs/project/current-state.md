@@ -1,6 +1,6 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 29 Oct 2026 (Claude).** Live code is unchanged since 26 Oct (`3958bd3`, `f54f6da`, deployed, live game reset); since then only notes, docs and the experience design skill changed. Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 29 Oct 2026 (Claude).** **Live since 29 Oct 2026, 21:36 UTC: `175548f`** (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
@@ -46,7 +46,8 @@
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
-- Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 (skill and docs stabilisation) is done. I1 (the Adventure and Team model, schema 6, one team, same behaviour) is committed locally, not pushed or deployed: **live still runs schema 5** (`dori-shuk:20261026-084821-f54f6da`). A fresh live backup and a migration and restore rehearsal passed on 29 Oct (see the [handoff](agent-handoff.md)); the deploy waits for the owner. I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
+- Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 and I1 are done, and **I1 is deployed**. The live file becomes schema 6 on its first write after the deploy and keeps an automatic `pre-schema6` copy; see the [handoff](agent-handoff.md). I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
+- **I2 (host invitation, lobby, Start Adventure) is implemented and verified locally, uncommitted, for the owner's review** (29 Oct 2026). Not deployed or pushed; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only and still plays as one team; see the [handoff](agent-handoff.md).
 
 ## Waiting on the owner
 
@@ -66,7 +67,7 @@
 
 ## Current verification (clean `node:22-alpine` container)
 
-- `npm run test:shuk`: **151 passed, 0 failed** (in `shuk-dev`, 26 Oct).
+- `npm run test:shuk`: **171 passed, 0 failed** (in `shuk-dev`, 29 Oct, with the uncommitted I2 work; 158 at `175548f`).
 - `npm test`: **61 passed, 0 failed.**
 - `npx next typegen && npx tsc --noEmit`: pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk`: clean; full lint still has the three pre-existing errors in the isolated prototype and eleven warnings in Memory Protocol files. Changed Sass modules compile. `git diff --check`: pass.
 

@@ -1,8 +1,12 @@
-import { issueInvitation, defaultStorePath } from "../lib/amazing-shuk/participant-store.ts";
+import { issueHostInvitation, issueInvitation, defaultStorePath } from "../lib/amazing-shuk/participant-store.ts";
 import { isDevSimulationEnabled, isLocalDevelopmentHost } from "../lib/amazing-shuk/dev-water-session.ts";
 import { shukPublicOrigin } from "../lib/amazing-shuk/shuk-access.ts";
 import { BASE_PATH } from "../lib/base-path.ts";
-const [participantId, origin = "http://127.0.0.1:3000"] = process.argv.slice(2);
+// shuk-invite.ts <participant> [origin], or shuk-invite.ts host <player seat> [origin] for the single-use host invitation.
+const args = process.argv.slice(2);
+const host = args[0] === "host";
+const [participantId, origin = "http://127.0.0.1:3000"] = host ? args.slice(1) : args;
+if (!participantId) throw new Error("Usage: shuk-invite.ts <participant> [origin] | host <player seat> [origin]");
 const url = new URL(origin);
 const bare = !url.username && !url.password && url.pathname === "/" && !url.search && !url.hash;
 // The protected app (inside the dori-shuk container) links to its one public https origin; the local simulation to loopback HTTP.
@@ -13,6 +17,6 @@ if (app) {
 } else if (!isDevSimulationEnabled(process.env) || !isLocalDevelopmentHost(url.host) || url.protocol !== "http:" || !bare) {
   throw new Error("Requires development, SHUK_DEV_SIMULATION=1, and a loopback HTTP origin");
 }
-const token = await issueInvitation(defaultStorePath(), participantId);
+const token = await (host ? issueHostInvitation : issueInvitation)(defaultStorePath(), participantId);
 // The token travels in the fragment, which browsers never send to the server or its logs.
 console.log(`${url.origin}${BASE_PATH}${app ? "/amazing-shuk" : "/dev/amazing-shuk/water"}#invite=${token}`);

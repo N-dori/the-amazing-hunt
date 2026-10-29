@@ -24,14 +24,22 @@
 
 **Supersedes:** Earlier 1/2/3-team brainstorming and the team-count selection behavior in `design/prototypes/amazing-shuk-team-format/`. Preserve that prototype as an isolated experiment; never integrate its selector into the Shuk app.
 
-**Superseded for the future design (owner, 29 Oct 2026):** see "Approved: adventure, teams, invitations and roles" below. Until those increments ship, the live app keeps this one-group behaviour. The prototype's selector still stays out of the app; the new format choice is designed fresh.
+**Superseded for the future design (owner, 29 Oct 2026):** see "Approved: adventure, teams, invitations and roles" below. Until those increments ship, the live app keeps this one-group behaviour. The prototype's selector still stays out of the app: teams come from the recommended count, not from a format choice.
 
 ## Approved: adventure, teams, invitations and roles (owner, 29 Oct 2026; future design)
 
-Approved as the target design, built in increments I0–I8, each implemented, verified and approved before the next. **None of it is built yet:** the live app is the one-group game above. The increments, their checks, which one is authorised and the open gates are in the [multiplayer plan](multiplayer-plan.md).
+Approved as the target design, built in increments I0–I8, each implemented, verified and approved before the next. **Only I1's internal model is live:** players still see the one-group game above. The increments, their checks, which one is authorised and the open gates are in the [multiplayer plan](multiplayer-plan.md).
 
-- **Format:** 1–6 players play together automatically. At 7+ the host chooses **Play Together** (default) or **Two Teams**; no other format. An explicit **Start Adventure** begins play.
-- **Invitations:** the host opens the original invitation. Each team has a reusable join link (QR or ordinary link) that only lets a device *ask* to join; the team leader approves, and each player gets an individual authenticated session. Team B's leader gets a single-use invitation. Player names are optional.
+- **One adventure of many small teams (owner's correction, 29 Oct 2026; supersedes the earlier "1–6 Together; 7+ Play Together or Two Teams; no other format").** Adventure size and team size are separate:
+  - Teams aim for **5 participants**. The recommended number of teams is `ceil(count / 5)`, with participants split as evenly as possible: 5 → one team of 5; 6 → 3 + 3; 7 → 4 + 3; 11 → 4 + 4 + 3; 30 → six teams of 5. Five is the planned maximum per team.
+  - The host enters the expected total; the app recommends the teams. No team-format selection screen, and the host never assigns every player by hand.
+  - **30 participants is a provisional ceiling**, a planning limit and not proof of readiness. Before any real 30-person run: test simultaneous polling and actions, server resources and concurrency, guide oversight and crowd management, and onboarding at that scale. Don't advertise 30-person readiness until then.
+  - Until multiple teams can be created (I7a), the recommendation is only advice: the app never implies the teams exist, and a count that recommends more than one team starts only as an explicit one-team adventure.
+  - An explicit **Start Adventure** (host or guide) begins play.
+- **Host, Team Leader and Guide are distinct permissions.** The host initially leads team A; later, team leadership can be transferred without changing who the host is or what the host may do.
+- **Host overview (for I7a, not before):** each team's name, leader, participant count and readiness only; no mission answers, hidden clues or unnecessary personal information from other teams.
+- **One guide** for now, with the existing guide-only permissions; no multiple guide identities and no wider leader permissions. Whether larger groups need staggered starts or team-led play is a future operational design question.
+- **Invitations:** the host opens the original invitation. Each team has a reusable join link (QR or ordinary link) that only lets a device *ask* to join; the team leader approves, and each player gets an individual authenticated session. Each other team's leader gets a single-use invitation from the host. Player names are optional.
 - **Roles:**
   - Navigator and **Submitter** stay the two permanent gameplay roles; everyone else is an Advisor. "Submitter" is the approved new name for answer-submitter; the app still shows the old one.
   - Team leaders may manage roles in their own team, but get **no guide-only permissions**.
@@ -39,10 +47,11 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
   - Optional mission parts can be swapped and combined; every mission must stay playable with roles unassigned. Part names other than Language Explorer (draft: Spotter, Reader) are not yet approved.
   - Photographer is deferred: no photo capture or storage.
 - **Language:** English-first. "Language Explorer" is the optional player-facing part. Translation help never costs a hint penalty. Verified Hebrew only; Hebrew story bodies stay out of production; other languages need approved translations.
-- **Teams:** points per team, compared only at the end; food tokens may be earned per team but are pooled for the whole group. Both teams stay together with the guide and visit the same places; no independent routes.
+- **Teams:** each team has its own leader, members, roles, mission progress and points. Any competition between teams is optional and friendly, and points are compared only at the end; food tokens may be earned per team but are pooled for the whole adventure. All teams share the same content and approved route with the guide; no independent routes.
 - **Sensitive places:** Rabbi Aryeh Levin and Chesed VeRachamim are never competitive.
+- **Staggered team routes (owner, 29 Oct 2026): Approved direction — Deferred / Not scheduled.** In larger adventures, teams may begin at different eligible stops and move through the same overall route in a staggered sequence, all converging at **Marzipan for a shared finale**. The aims: less crowding in narrow streets and at historical places, a sense of independent exploration, the same historical content and learning for every team, and an exciting shared ending. Not designed, planned or built: the current mission order, navigation, Marzipan's finale rules and the multiplayer plan stay as they are. Revisit only after core multi-team play works and the physical route has been tested.
 - **Pilot:** validate distributed parts on the well with real participants before expanding them.
-- **Still open:** the plan's gates O6, O15, O16 and O17 (operational and copy choices; no live data migration without separate authorisation), and O20: the 29 Oct line in the protected `.claude/agents/dori-ux-designer.md` still awaits explicit approval or revert, and that file must not be changed meanwhile.
+- **Still open:** the plan's gates O6, O15, O16, O17 and O25 (how many teams one guide can lead at once) (operational and copy choices; no live data migration without separate authorisation), and O20: the 29 Oct line in the protected `.claude/agents/dori-ux-designer.md` still awaits explicit approval or revert, and that file must not be changed meanwhile.
 
 ## Other current owner directions
 

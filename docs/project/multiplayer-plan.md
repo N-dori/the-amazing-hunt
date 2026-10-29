@@ -2,30 +2,31 @@
 
 **Status, 29 Oct 2026:**
 - Approved by the owner as the target design and roadmap.
-- **I0 is done. I1 may be prepared but not implemented.** Every later increment needs the owner's go-ahead at its boundary.
-- None of the multiplayer features below is built: the live app still runs the single group described in [current state](current-state.md).
+- **I0 and I1 are done; I1 is deployed (29 Oct 2026, `175548f`). I2 is implemented and verified locally, uncommitted, awaiting the owner's review** (authorised 29 Oct 2026; no deploy or push). Every later increment needs the owner's go-ahead at its boundary.
+- **Corrected 29 Oct 2026 (owner): one adventure of many small teams of about 5**, not one or two teams. This file follows the correction; the approved rules are in [product decisions](product-decisions.md).
+- Only I1's internal model is live: players still see the single group described in [current state](current-state.md), with no visible multiplayer features yet.
 - The approved decisions are summarised in [product decisions](product-decisions.md). This file holds the increments, their checks and the open gates.
 
 Made with `/experience-design`, after reading the repository and the official Claude Code guidance on [skills](https://code.claude.com/docs/en/skills), [memory](https://code.claude.com/docs/en/memory) and [best practices](https://code.claude.com/docs/en/best-practices). Build each increment in a fresh session with this file as the spec.
 
 ## 1. Approach
 
-- **An Adventure holds one or two Teams.** A team owns what the single group owns today: roles, mission records, points and food tokens. The current game becomes "an adventure with one team".
+- **An Adventure holds as many Teams as its size needs, each of about 5** (recommended teams `ceil(count / 5)`, split evenly; provisional ceiling 30 participants, so at most 6 teams). A team owns what the single group owns today: roles, mission records, points and food tokens. The current game becomes "an adventure with one team". Adventure size and team size are separate settings.
 - **Permissions and roles are separate.**
   - Host, Team Leader and Guide are permissions, enforced by the server.
   - The permanent gameplay roles stay the two that already carry server permissions: **Navigator** (opens a challenge) and **Submitter** (submits). Everyone else is an **Advisor**.
   - Spotting, reading aloud and language work become **mission parts**: cards dealt per mission across whoever is present. They can be swapped and combined, carry no permissions and never block play.
 - **Individual sessions always.**
-  - The host's and Team B leader's invitations are single-use.
+  - The host's and the other team leaders' invitations are single-use.
   - Players use a reusable team join link (QR or ordinary link, fit for a family group chat). The link is **not a credential**: it only lets a device ask to join. The leader approves, and the server then gives that device its own session.
 - **Language access is infrastructure; the Language Explorer is an optional part.** Everything essential is complete in English.
 - **Bounded competition:**
   - Team points are compared only at the end.
   - Food is pooled for everyone.
   - Rabbi Levin and Chesed VeRachamim are never competitive.
-  - Both teams walk together with the guide.
+  - All teams share the same content and approved route with the guide; how many teams one guide can lead at once is open (O25).
 
-**Why the well pilot (I5) comes before Two Teams (I7):** parts don't depend on teams. Two Teams is the most expensive increment and the one that reverses the earlier one-group decision. Proving inside one team that parts create real participation de-risks it, and the owner asked for the pilot to be validated with real players before parts spread further.
+**Why the well pilot (I5) comes before multiple teams (I7a):** parts don't depend on teams. Multiple teams is the most expensive increment and the one that reverses the earlier one-group decision. Proving inside one team that parts create real participation de-risks it, and the owner asked for the pilot to be validated with real players before parts spread further.
 
 ## 2. What exists and what changes
 
@@ -43,9 +44,9 @@ Made with `/experience-design`, after reading the repository and the official Cl
 ## 3. Data and permission model
 
 ```text
-Adventure ── format: together | twoTeams ── status: lobby | active ── hostId
- ├── Team A ── leaderId ── roles {navigator, submitter} ── missions {progress, timing, hints, awards} ── joinLink
- └── Team B (twoTeams only) ── same shape
+Adventure ── status: lobby | active ── hostId ── intendedCount (1–30) ── format (stored "together" for the I1 app; a team count replaces it in I7a, schema 7)
+ ├── Team A ── leaderId (the host at first) ── roles {navigator, submitter} ── missions {progress, timing, hints, awards} ── joinLink
+ └── Team B, C, … (I7a; as many as the recommendation) ── same shape
 Participant ── id (random) ── teamId ── name? ── language? ── readsHebrew? (opt-in)
 Guide ── the fixed "guide" seat, CLI invitation, sees and acts on every team
 Parts ── per team, per mission: { partId → participantId[] } (UI only)
@@ -53,8 +54,8 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 
 | Action | Host | Guide | Leader (own team) | Navigator | Submitter | Player | Server-enforced |
 |---|---|---|---|---|---|---|---|
-| Set intended count and format; start the adventure (lobby only) | ✓ | ✓ | – | – | – | – | yes |
-| Invite Team B's leader | ✓ | ✓ | – | – | – | – | yes |
+| Set the intended count; start the adventure (lobby only) | ✓ | ✓ | – | – | – | – | yes |
+| Create the recommended teams; invite each other team's leader (I7a) | ✓ | ✓ | – | – | – | – | yes |
 | Let players in, remove, regenerate the join link | ✓ (A) | ✓ (all) | ✓ | – | – | – | yes |
 | Transfer leadership | ✓ | ✓ | ✓ | – | – | – | yes |
 | Assign or clear roles | – | ✓ (all) | ✓ | – | – | – | yes |
@@ -63,18 +64,18 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 | Picks, hints, swap parts | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | team scope only |
 | Submit | as role | ✓ | as role | – | ✓ | vacant-seat fallback | yes |
 | Arrival confirm, timing, approve | – | ✓ | – | – | – | – | yes |
-| See the other team | – | ✓ | – | – | – | – | yes (view filter) |
+| See every team's overview: name, leader, count, ready (I7a) | ✓ | ✓ | – | – | – | – | yes (view filter) |
+| See another team's progress, answers or clues | – | ✓ | – | – | – | – | yes (view filter) |
 
-**Leaders never get guide-only permissions** (owner). Leadership grants membership powers only; gameplay powers come from holding a role.
+**Leaders never get guide-only permissions** (owner). Leadership grants membership powers only; gameplay powers come from holding a role. Host, Team Leader and Guide stay distinct: the host leads team A at first, and transferring that leadership never changes who the host is or what the host may do.
 
 ## 4. Invitation and onboarding flow
 
 1. The operator issues one host link (CLI), as today.
-2. **Host:** "How many are playing?"
-   - 1–6: Together, set automatically.
-   - 7+: **Play Together** (preselected) or **Two Teams**.
-3. **Together:** the host is Team A's leader. **Invite players** shows a QR, *Share link* and *Copy*.
-4. **Two Teams:** first **Invite Team B's leader** (single-use). Each leader then has their own team's link.
+2. **Host:** "How many are playing?" (1–30). The app recommends the teams, `ceil(count / 5)`, split evenly (11 → 4 + 4 + 3; 30 → six of 5). No format screen, and the host never assigns every player.
+   - **Until I7a** the recommendation is advice only: everyone plays as team A, and a count that recommends several teams starts only through an explicit "start as one team".
+3. **One team:** the host is Team A's leader. **Invite players** shows a QR, *Share link* and *Copy* (I3).
+4. **Several teams (I7a):** the host accepts the recommendation, which creates the teams, then sends each other team's leader a single-use invitation. Each leader then has their own team's link and QR. The host sees each team's name, leader, count and readiness.
 5. **Player:** opens the team link → "Join Team …" → optional first name → **Ask to join** → waits → the leader taps **Let in** → the map.
 6. **Roles come in context:** a free role is shown on the Group tab; the vacant-seat fallback sits on the submit bar. An optional "swap roles?" appears on the cheer card. Nothing is chosen at join.
 7. **Leader's Group tab:** requests, and members with avatar, name, role and "active now / last seen". Readiness comes from activity, with no extra tap.
@@ -133,9 +134,9 @@ Each needs its own `/experience-design` treatment and the owner's approval befor
 - **R1, the well (pilot, I5).**
   - Each vessel's controls go on a different phone (3 L, 5 L, the family jar), and everyone sees all the levels. Only talking moves water between phones (the *Spaceteam* principle, without the timer).
   - Small teams hold several vessels; Show all works solo.
-  - Two Teams: each team solves in parallel, and the guide gives the reveal to both together.
-- **R2, the market mural.** An unscored prediction ("how many of the 8 are real?"); each Spotter holds 2–3 different items to judge against the wall; the Submitter enters the group's two. Two Teams: parallel, and the end reveal compares the predictions, not speed. No mural image (rights unresolved).
-- **R3, Rabbi Levin.** Two voluntary reader parts, Meir's background and Moshe's background; if nobody takes them, the guide reads. The question stays a quiet discussion; untimed, no hints. **Never competitive:** both teams gather for one joint reading.
+  - Several teams: each team solves in parallel, and the guide gives the reveal to all of them together.
+- **R2, the market mural.** An unscored prediction ("how many of the 8 are real?"); each Spotter holds 2–3 different items to judge against the wall; the Submitter enters the group's two. Several teams: parallel, and the end reveal compares the predictions, not speed. No mural image (rights unresolved).
+- **R3, Rabbi Levin.** Two voluntary reader parts, Meir's background and Moshe's background; if nobody takes them, the guide reads. The question stays a quiet discussion; untimed, no hints. **Never competitive:** all teams gather for one joint reading.
 
 The I0 skill test showed that treatments for three other missions all reached for split clues. So parts beyond the well pilot must earn their place mission by mission.
 
@@ -147,7 +148,7 @@ Each increment ends with section 9's checks. No deploy, push or live-data change
 
 Doc conflicts fixed, library precedents added, skill tests run (see [handoff](agent-handoff.md)), plus the journey-wide-variety principle.
 
-### I1. Adventure and Team model, one team, identical behaviour: committed 29 Oct 2026; deploy waits for the owner
+### I1. Adventure and Team model, one team, identical behaviour: deployed 29 Oct 2026 (`175548f`)
 
 - **Depends on:** I0.
 - **Scope:**
@@ -170,11 +171,12 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Depends on:** I1.
 - **Scope:**
   - Invitations gain optional `kind` and `teamId`. `shuk:invite -- host` issues a single-use host invitation; redeeming makes the host Team A's leader and opens the lobby.
-  - Intended count: 1–6 Together, 7+ the choice (Two Teams hidden until I7).
-  - **Start Adventure** by the host or guide.
-  - A "new adventure" CLI archives the old state (the 26 Oct reset-with-backup pattern).
-- **Files:** `scripts/shuk-invite.ts`, `participant-store.ts`, `app/amazing-shuk/page.tsx`, new `IndexAdventureLobby` / `PreviewAdventureLobby` with modules, `welcome-copy.ts`.
-- **Tests:** redeem as host → Team A's leader; a second redeem fails; a non-host can't change the format or start.
+  - Intended count 1–30 and the recommended teams (`recommendedTeamCount`, `recommendedTeamSizes`), shown as a recommendation only. The stored `format` stays `"together"`, and no team beyond A is created.
+  - **Start Adventure** by the host or guide; when more than one team is recommended the server requires an explicit one-team start (`asOneTeam`).
+  - Invitation kinds `host` and `leader` (reserved; a `leader` invitation is refused until I7a).
+  - A "new adventure" CLI archives the old state (the 26 Oct reset-with-backup pattern); development and testing only, not shipped in the app image.
+- **Files:** `scripts/shuk-invite.ts`, `scripts/shuk-new-adventure.ts`, `participant-store.ts`, `group-action.ts`, `parse-water-action.ts`, new `adventure-lobby.ts`, new `IndexAdventureLobby` / `PreviewAdventureLobby` with module, `IndexWaterTask.tsx`, `welcome-copy.ts`.
+- **Tests:** redeem as host → Team A's leader; a second redeem fails; a non-host can't set the count or start; the counts 1, 5, 6, 7, 11, 17 and 30; a multi-team count can't start without the one-team confirmation; the host gets no guide-only permission; the lobby refuses journey actions; the I1 code reads every I2 file.
 - **Acceptance:** a fresh adventure starts from one host link.
 - **Rollback:** the previous image, plus the I1 backup note.
 - **Gate:** O16 (copy).
@@ -229,18 +231,26 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Acceptance:** a group with no Hebrew reader can complete every mission.
 - **Rollback:** the previous image.
 
-### I7. Two Teams
+### I7a. Multiple teams
 
-- **Depends on:** I2–I4, and the I5 pilot result.
+- **Depends on:** I2–I4 (I3 brings dynamic participants, which lift the fixed seven seats), and the I5 pilot result.
 - **Scope:**
-  - The format choice at 7+.
-  - A single-use Team B leader invitation, regenerable and revocable.
+  - Schema 7: a team count replaces `format`, with the same automatic pre-migration copy as I1.
+  - The host accepts the recommended teams (`ceil(count / 5)`, split evenly), which creates teams B, C, … No format screen and no manual assignment of players.
+  - A single-use leader invitation per team, from the host, regenerable and revocable; team leadership transferable without changing the host.
+  - The host overview: each team's name, leader, participant count and readiness; nothing of other teams' answers, clues or unnecessary personal details.
   - Team-scoped points; food tokens pooled; a guide team switcher; the Marzipan lock per team.
-  - The end-only comparison, with Levin and Chesed VeRachamim excluded (`competitive: false`).
-  - A return to Together allowed before Start.
-- **Tests:** 8 sessions in 2 teams; cross-team writes rejected; concurrent submissions in both teams; the comparison appears only at the end and excludes the sensitive missions.
-- **Acceptance:** an 8-player two-team test.
-- **Rollback:** a config flag hides the format choice; no data change.
+  - Seat enforcement per team (O6), with 5 as the planned maximum.
+- **Tests:** 30 sessions in 6 teams; cross-team writes rejected; concurrent submissions in every team; the host overview shows no other team's progress.
+- **Acceptance:** a multi-team test on real phones, and the 30-participant checks below before any real 30-person run.
+- **Rollback:** the previous image plus the pre-schema-7 copy.
+
+### I7b. End-of-game comparison (optional)
+
+- **Depends on:** I7a.
+- **Scope:** the end-only comparison across the teams, with Levin and Chesed VeRachamim excluded (`competitive: false`); friendly, and possible to switch off.
+- **Tests:** the comparison appears only at the end and excludes the sensitive missions.
+- **Rollback:** a config flag hides it; no data change.
 
 ### I8. Expand parts
 
@@ -249,7 +259,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 
 ## 9. Verification
 
-**Technical.** Tests first for pure functions; integration through `sessionAction`; `npm run test:shuk` in `shuk-dev`; `npm test`; lint and `tsc` in the one-shot container (`.claude/rules/verify.md`); `/game-verify shuk`; `git diff --check`. A `/code-review` of each diff, plus a security review for I2, I3 and I7. The tests cover:
+**Technical.** Tests first for pure functions; integration through `sessionAction`; `npm run test:shuk` in `shuk-dev`; `npm test`; lint and `tsc` in the one-shot container (`.claude/rules/verify.md`); `/game-verify shuk`; `git diff --check`. A `/code-review` of each diff, plus a security review for I2, I3 and I7a. The tests cover:
 - invitation and join-link security (single-use, expiry, hashing, replay, revocation, limits);
 - session independence;
 - team isolation;
@@ -257,10 +267,11 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - progress after refresh and reconnection;
 - scoring awarded once, per team;
 - backward compatibility (the v5 fixture and the backup rehearsal);
-- 8 simulated devices against the lock.
+- 8 simulated devices against the lock, then 30 (polling and actions at once) before any real 30-person run.
 
 **Experience** (the owner's real phones; Claude does no browser review and claims no field results):
-- 3 people Together; 8 Together; 8 as two teams;
+- 3 people in one team; 8 as two teams; a larger group in several teams;
+- before a real 30-person run (the provisional ceiling): server resources and concurrency, guide oversight and crowd management, and onboarding at that scale;
 - a group with no Hebrew reader;
 - fewer players than parts;
 - a player joining late;
@@ -278,7 +289,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 
 | # | Decision | Status |
 |---|---|---|
-| O1–O3 | Format rule (1–6 Together; 7+ Together or Two Teams), Start Adventure; one-group-only superseded for the future design | **Approved** |
+| O1–O3 | ~~Format rule (1–6 Together; 7+ Together or Two Teams)~~ superseded 29 Oct 2026 by teams of about 5: recommended `ceil(count / 5)`, split evenly, 5 the planned maximum, ceiling 30 participants (provisional); Start Adventure; one-group-only superseded for the future design | **Approved** |
 | O4, O5 | Team join links with leader approval; optional names | **Approved** |
 | O6 | Join-link limits (seat cap, pending requests, link lifetime, rate limit): recommend and justify before I3 | **Open** |
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
@@ -286,12 +297,14 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 | O15 | QR approach: the smallest secure option given the repo's dependencies, chosen before I3 | **Open** |
 | O16 | Team names, part names (Spotter, Reader) and all onboarding copy | **Open** |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
-| O18, O19 | Team points compared only at the end; food tokens pooled | **Approved** |
+| O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |
 | O21 | Change the skill description only if tests support it | **Resolved:** the tests didn't, so no change |
 | O22 | Add the verified game-design precedents to the inspiration library | **Approved and done** (I0) |
 | O23 | Rabbi Levin and Chesed VeRachamim never competitive | **Approved** |
-| O24 | Both teams stay together with the guide at the same places; no independent routes | **Approved** |
+| O24 | All teams share the same content and approved route with the guide; no independent routes | **Approved** |
+| O25 | How many teams one guide can lead at once: staggered starts or team-led play for larger groups (operational design, not built). One guide for now | **Open** |
+| O26 | Host overview: team name, leader, count and readiness only (I7a) | **Approved** |
 | — | Deploy, push or live-data changes for any increment | Separate approval each time |
 
 ## 11. Risks
@@ -300,5 +313,6 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Migration:** a v6 state isn't readable by the v5 image; backup and rehearsal come first.
 - **Accessibility:** a part must be readable at a glance; outdoor targets of at least 3 rem; nothing relies on colour or sound alone.
 - **Scoring:** competition plus hidden timing rewards speed, so the comparison comes at the end only and the sensitive missions are excluded.
-- **Operations:** one guide for two teams (approvals, crowding at narrow stops), so the guide staggers the teams; one adventure per data file.
+- **Operations:** one guide for up to six teams (approvals, crowding at narrow stops); staggered starts or team-led play are open (O25); one adventure per data file.
+- **Scale:** 30 participants is a planning limit, not proven: 30 phones polling every 1.5 s, all writes through one file lock, on a 4 GB production server shared with other sites. Test before any real 30-person run, and don't advertise it until then.
 - **Design:** split clues can become the new monotony; parts must be justified mission by mission.

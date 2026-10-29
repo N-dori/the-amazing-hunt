@@ -7,7 +7,7 @@ const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "t
 
 const BONUS_ACTIONS: ReadonlySet<string> = new Set(["toggle-choice", "reset", "submit"]);
 
-/** Role changes are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
+/** Role changes and lobby actions are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
 export function parseAction(value: unknown): GroupAction | null {
   if (!isRecord(value) || !("part" in value)) return parseMissionAction(value);
   if (value.part !== "bonus" || !BONUS_ACTIONS.has(value.type as string)) return null;
@@ -18,6 +18,13 @@ export function parseAction(value: unknown): GroupAction | null {
 function parseMissionAction(value: unknown): GroupAction | null {
   if (isRecord(value) && (value.type === "claim-role" || value.type === "release-role")) {
     return value.role === "navigator" || value.role === "answerSubmitter" ? { type: value.type, role: value.role } : null;
+  }
+  if (isRecord(value) && value.type === "set-intended-count") {
+    return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
+  }
+  if (isRecord(value) && value.type === "start-adventure") {
+    if (value.asOneTeam !== undefined && typeof value.asOneTeam !== "boolean") return null;
+    return value.asOneTeam === true ? { type: value.type, asOneTeam: true } : { type: value.type };
   }
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;

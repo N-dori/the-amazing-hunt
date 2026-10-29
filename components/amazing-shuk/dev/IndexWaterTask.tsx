@@ -11,6 +11,8 @@ import ListGroupOverview from "@/components/amazing-shuk/ListGroupOverview";
 import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
 import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
 import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
+import IndexAdventureLobby from "@/components/amazing-shuk/IndexAdventureLobby";
+import type { AdventureView } from "@/lib/amazing-shuk/adventure-lobby";
 import { WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
@@ -56,8 +58,8 @@ type Props = { mode: keyof typeof MODE_COPY };
 
 // The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
 type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number } };
-// `participants` carries the group's display names (from the server's state, never git); older servers omit it.
-type ServerView = { participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+// `participants` carries the group's display names (from the server's state, never git); older servers omit it, and `adventure` too.
+type ServerView = { adventure?: AdventureView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 /** The Shuk game: the local simulation ("dev") or the protected app ("app"), which differ only in wording and the dev panel. */
 export default function IndexWaterTask({ mode }: Props) {
@@ -270,6 +272,10 @@ export default function IndexWaterTask({ mode }: Props) {
   if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
   if (!view && signedOut) return <PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
+  // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.
+  if (view.adventure?.status === "lobby") return <main className={styles.page}>
+    <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} busy={busy} message={message} onAction={act} />
+  </main>;
   const participants = view.participants ?? PARTICIPANT_IDENTITIES;
   // A locked finale (Marzipan) can't be played yet, even from a saved screen or the Mission tab: its map preview says why.
   const openDefinition = findMission(missionId);

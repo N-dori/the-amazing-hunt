@@ -1,0 +1,37 @@
+// One column on every screen, like the welcome: the words first, then the host's two answers and the one action.
+.lobby { display: flex; flex-direction: column; gap: 1rem; width: min(100% - 2rem, 30rem); margin-inline: auto;
+  padding-block: 1.5rem calc(1.5rem + env(safe-area-inset-bottom)); color: var(--ink); animation: rise var(--dur-base) var(--ease-out) both; }
+.eyebrow { color: var(--sumac); font-size: .75rem; font-weight: 700; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; }
+.title { margin-block-start: -.5rem; font-family: var(--font-display); font-size: clamp(2rem, 9vw, 2.75rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.lead { color: var(--ink-subdued); font-size: 1.0625rem; line-height: 1.55; }
+
+.card { display: grid; gap: .75rem; min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--line-stone); border-radius: 1rem; background: var(--surface-raised); }
+.question { padding: 0; font-size: 1.125rem; font-weight: 700; line-height: 1.3; }
+.help { color: var(--ink-subdued); font-size: .9375rem; line-height: 1.45; }
+
+// Outdoor targets: 3.5rem buttons either side of a large count.
+.stepper { display: grid; grid-template-columns: 3.5rem 1fr 3.5rem; align-items: center; gap: .75rem; }
+.step { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border: 1px solid var(--line-stone); border-radius: 50%;
+  background: var(--chalk); color: var(--ink); cursor: pointer; transition: background-color var(--dur-fast) var(--ease-out); }
+.step:hover:not(:disabled) { background: var(--chalk-tint); }
+.step:focus-visible { outline: 2px solid var(--sumac); outline-offset: 2px; }
+.step:disabled { color: var(--neutral-line); cursor: not-allowed; }
+.stepIcon { width: 1.5rem; height: 1.5rem; }
+.count { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; line-height: 1; text-align: center; }
+
+// The recommendation reads as advice, not as a team that exists: plain text with an icon, no selected state.
+.recommendation { display: flex; align-items: center; gap: .75rem; font-size: 1.0625rem; font-weight: 600; line-height: 1.4; }
+.recommendationIcon { flex: none; width: 1.25rem; height: 1.25rem; color: var(--zaatar); }
+.notYet { display: flex; align-items: flex-start; gap: .5rem; padding: .75rem; border-radius: .75rem; background: var(--chalk-tint);
+  color: var(--ink); font-size: .9375rem; line-height: 1.45; }
+.notYetIcon { flex: none; width: 1.125rem; height: 1.125rem; margin-block-start: .15rem; color: var(--sumac); }
+
+.action { display: grid; gap: .5rem; padding-block-start: .5rem; }
+.action .start { min-height: 3.5rem; border-radius: 9999px; font-weight: 700; }
+.message { min-height: 1.5rem; color: var(--sumac); font-size: .9375rem; }
+.message:empty { min-height: 0; }
+
+@media (min-width: 48rem) { .lobby { padding-block: 3rem; } }
+
+@keyframes rise { from { opacity: 0; transform: translateY(.75rem); } }
+@media (prefers-reduced-motion: reduce) { .lobby { animation: none; } .step { transition: none; } }

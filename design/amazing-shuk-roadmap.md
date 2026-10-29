@@ -14,10 +14,11 @@
 - Current map-to-mission slice is implemented: Gan HaTut selection opens the same well story/puzzle without GPS. Optional **We're Here?** may award20 group points once; guide confirmation works without GPS. Next: owner confirms the garden photograph, approximate illustrated pin and actual arrival coordinate, then checks mobile/HTTPS behavior. No location dot, georeferencing, routing or GPS gate. See [well/map record](../docs/project/water-task.md).
 - Add shared multi-task progress and guide-controlled food redemption only with approved offers/token costs, preserving existing atomic completion receipts and backend roles.
 - Four-screen onboarding using approved concise copy and the one-group model. (Replaced by the multiplayer plan's host, lobby and join flow, increments I2–I3.)
-- **Multiplayer (approved 29 Oct 2026):** adventure with one or two teams, leader-approved join links, roles and mission parts, Language Explorer, in increments I0–I8 with gates. See the [multiplayer plan](../docs/project/multiplayer-plan.md).
+- **Multiplayer (approved 29 Oct 2026):** adventure of teams of about five (corrected 29 Oct 2026), leader-approved join links, roles and mission parts, Language Explorer, in increments I0–I8 with gates. See the [multiplayer plan](../docs/project/multiplayer-plan.md).
 
 ## Deferred / approval needed
 
+- Staggered team routes converging at Marzipan for a shared finale: approved direction, deferred and not scheduled; revisit after multi-team play works and the route is field-tested. See [product decisions](../docs/project/product-decisions.md).
 - Email magic links/SMTP, external providers/Auth.js, expanded enrollment/authentication; retain implemented manual invitations. Gameplay has priority.
 - Protected Shuk production app boundary, VPS permissions/backups/durability, deployment and public phone access. Deployment requires explicit approval; retain the opt-in loopback development gates.
   - **Done 25 Oct 2026:** the Shuk is its own app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Still open: backups, display names, real-phone testing.
