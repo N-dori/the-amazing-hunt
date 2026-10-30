@@ -5,7 +5,8 @@ import { BASE_PATH } from "@/lib/base-path";
 import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import IndexParticipantMenu from "@/components/amazing-shuk/IndexParticipantMenu";
-import ListParticipantBadges from "@/components/amazing-shuk/ListParticipantBadges";
+import IndexGroupSheet from "@/components/amazing-shuk/IndexGroupSheet";
+import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProgress";
 import PreviewShukHeader from "@/components/amazing-shuk/PreviewShukHeader";
 import ListGroupOverview from "@/components/amazing-shuk/ListGroupOverview";
 import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
@@ -19,7 +20,7 @@ import IndexGuideWaterTask from "./IndexGuideWaterTask";
 import ListArrivalMission from "./ListArrivalMission";
 import ActionButton from "@/components/ui/ActionButton";
 import type { MapView } from "@/components/map/LeafletBaseMap";
-import { finaleLocked, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
+import { destinationTitle, finaleLocked, missionStage, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amazing-shuk/request-arrival-location";
 import ListWaterTask from "./ListWaterTask";
 import PreviewWellStory from "./PreviewWellStory";
@@ -280,13 +281,21 @@ export default function IndexWaterTask({ mode }: Props) {
   // A locked finale (Marzipan) can't be played yet, even from a saved screen or the Mission tab: its map preview says why.
   const openDefinition = findMission(missionId);
   const journeyStage = stage === "challenge" && openDefinition && finaleLocked(openDefinition, view.missions) ? "location" : stage;
+  // Where the mission on screen stands: from shared progress, plus this phone being on its challenge. Never from an arrival.
+  const progress = missionStage({ state: view.mission.state, started: view.mission.id === missionId && view.performance.started,
+    onChallenge: nav.area === "journey" && journeyStage === "challenge" });
+  const guideTools = (part: "roles" | "timing") => <IndexGuideWaterTask part={part} participants={participants.filter(participant => participant.id !== DEV_GUIDE_ID)}
+    missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} />;
+  // Find this place names the destination as the task; a locked finale stays on the map, under its plain name.
+  const headerTitle = nav.area !== "journey" || !openDefinition || (journeyStage !== "location" && journeyStage !== "challenge") ? "Explore the market"
+    : journeyStage === "location" && !finaleLocked(openDefinition, view.missions) ? destinationTitle(openDefinition.name) : openDefinition.name;
   return (
     <main className={styles.page} ref={pageRef}>
-      <PreviewShukHeader ref={headerRef} title={nav.area === "journey" && (stage === "location" || stage === "challenge") ? findMission(missionId)?.name ?? "Explore the market" : "Explore the market"}
-        points={view.sharedBalance.points} foodTokens={view.sharedBalance.foodTokens}
+      <PreviewShukHeader ref={headerRef} title={headerTitle}
+        group={<IndexGroupSheet participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
+          missions={view.missions} balance={view.sharedBalance} onOpenGroupTab={() => navigate(goToTab(nav, "group"))} />}
         menu={<IndexParticipantMenu participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
-          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />}
-        badges={<ListParticipantBadges participants={participants} roles={view.session.roles} currentId={view.session.activeActorId} />} />
+          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />} />
       {nav.area === "noMission" ? <section className={styles.empty} aria-labelledby="no-mission-title">
         <h2 id="no-mission-title">No mission open yet</h2>
         <p>Choose a mission on the map, then open its location.</p>
@@ -296,7 +305,9 @@ export default function IndexWaterTask({ mode }: Props) {
       {nav.area === "group" ? <ListGroupOverview participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
         missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
         onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
-      {nav.area === "journey" && journeyStage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={journeyStage} guide={activeRole === "guide"} busy={busy || arrivalBusy}
+      {/* The guide assigns roles with the group, not under the map or a mission. */}
+      {nav.area === "group" && activeRole === "guide" ? guideTools("roles") : null}
+      {nav.area === "journey" && journeyStage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={journeyStage} progress={progress} guide={activeRole === "guide"} busy={busy || arrivalBusy}
         feedback={arrivalFeedback} mapView={mapView} onMapViewChange={setMapView} onArrival={() => void checkArrival()}
         onSelect={(id) => {
           if (!findMission(id)) return;
@@ -313,6 +324,7 @@ export default function IndexWaterTask({ mode }: Props) {
         <ActionButton variant="quiet" onClick={() => goTo("location")}>Back to location</ActionButton>
         <ActionButton variant="quiet" onClick={() => goTo("map")}>Back to map</ActionButton>
       </nav> : null}
+      {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId ? <PreviewMissionProgress stage={progress} /> : null}
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
       <h2>{choiceTask.task.title}</h2>
       <PreviewChoiceStory {...choiceTask.task.story} instruction={choiceTask.task.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
@@ -345,7 +357,8 @@ export default function IndexWaterTask({ mode }: Props) {
         }} />
       {cheer(false)}
       </> : null}
-      {activeRole === "guide" ? <IndexGuideWaterTask participants={participants.filter(participant => participant.id !== DEV_GUIDE_ID)} missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} /> : null}
+      {/* The timing review belongs to the challenge it measures. */}
+      {nav.area === "journey" && journeyStage === "challenge" && activeRole === "guide" ? guideTools("timing") : null}
       {/* On the mural, replies to an action appear beside its submit button instead. */}
       {message && !(nav.area === "journey" && journeyStage === "challenge" && view.session.kind === "choice") ? <p className={styles.message} role="status">{message}</p> : null}
       {mode === "dev" ? <details className={styles.dev}>

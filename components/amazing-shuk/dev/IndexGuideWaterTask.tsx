@@ -6,11 +6,13 @@ import type { GroupRoleAssignments } from "@/lib/amazing-shuk/roles";
 import styles from "./IndexGuideWaterTask.module.scss";
 
 // `participants`: the players the guide can give a role to, with their display names.
-type Props = { participants: readonly { id: string; name: string }[]; missionId: string; roles: GroupRoleAssignments; timing?: GuideTimingView; completed: boolean; busy: boolean; onAction: (action: GroupAction) => void };
+// `part`: where it sits. Role assignment belongs with the group (the Group tab); the timing review with the challenge it measures.
+type Props = { part: "roles" | "timing"; participants: readonly { id: string; name: string }[]; missionId: string; roles: GroupRoleAssignments; timing?: GuideTimingView; completed: boolean; busy: boolean; onAction: (action: GroupAction) => void };
 /** Guide feature boundary. The server independently authorizes every callback. */
-export default function IndexGuideWaterTask({ participants, missionId, roles, timing, completed, busy, onAction }: Props) {
+export default function IndexGuideWaterTask({ part, participants, missionId, roles, timing, completed, busy, onAction }: Props) {
+  if (part === "timing" && !(timing && timing.startedAt !== null)) return null;
   return <section className={styles.simulation} aria-label="Guide controls">
-    <div className={styles.guideControls}>
+    {part === "roles" ? <div className={styles.guideControls}>
       <label className={styles.label} htmlFor="navigator">Assign navigator</label>
       <select id="navigator" value={roles.navigator ?? ""} disabled={busy}
         onChange={event => onAction({ type: "assign-role", role: "navigator", participantId: event.target.value || null })}>
@@ -23,8 +25,8 @@ export default function IndexGuideWaterTask({ participants, missionId, roles, ti
         <option value="">Unassigned</option>
         {participants.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select>
-    </div>
-    {timing && timing.startedAt !== null ? <details className={styles.timingReview}>
+    </div> : null}
+    {part === "timing" && timing && timing.startedAt !== null ? <details className={styles.timingReview}>
       <summary>Timing review (guide)</summary>
       <p>Started: {new Date(timing.startedAt).toISOString()}</p>
       {timing.solvedAt !== null ? <p>Solution recorded: {new Date(timing.solvedAt).toISOString()}</p> : null}

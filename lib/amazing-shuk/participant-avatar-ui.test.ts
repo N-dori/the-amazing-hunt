@@ -105,14 +105,12 @@ test("profile menu shows only the avatar until opened; the open panel holds iden
   assert.match(open, /Answer-submitter: free \(anyone can take it in the Group tab\)/);
 });
 
-test("slim header: title, profile slot, role slot and the group's balance as two labelled chips, with no balance card", () => {
+test("slim header: title, then the group slot and the profile slot; roles and the balance live in the group sheet", () => {
   const Header = loadComponent("components/amazing-shuk/PreviewShukHeader.tsx");
-  const html = renderToStaticMarkup(createElement(Header, { title: "Explore the market", points: 265, foodTokens: 6,
-    menu: createElement("button", null, "avatar"), badges: createElement("ul", null, "roles") }));
-  assert.match(html, /<header[^>]*>.*The Amazing Shuk.*<h1[^>]*>Explore the market<\/h1>.*avatar.*roles/);
-  assert.match(html, /aria-label="Group points: 265"[^>]*>.*265 pts/);
-  assert.match(html, /aria-label="Food tokens: 6"[^>]*>.*6 tokens/);
-  assert.doesNotMatch(html, /<strong>|<section/);
+  const html = renderToStaticMarkup(createElement(Header, { title: "Explore the market",
+    group: createElement("button", null, "group"), menu: createElement("button", null, "avatar") }));
+  assert.match(html, /<header[^>]*>.*The Amazing Shuk.*<h1[^>]*>Explore the market<\/h1>.*group.*avatar/);
+  assert.doesNotMatch(html, /pts|tokens|<strong>|<section/);
 });
 
 test("bottom bar: four labelled buttons, one marked as the current page, and no game actions", () => {

@@ -12,3 +12,7 @@
 // The map as a rounded field card. It shrinks when the sheet opens but always keeps a usable strip.
 .mapCard { --map-height: 100%; --map-border: 0;
   flex: 1 1 0; min-height: 8rem; overflow: hidden; border: 1.5px solid var(--line-stone); border-radius: 1rem; box-shadow: var(--shadow-float); }
+
+// Find this place: a short strip of the same map, centred on the destination. Low enough that the clue follows on a phone.
+.strip { --map-height: clamp(9rem, 24svh, 15rem); --map-border: 0;
+  overflow: hidden; border: 1.5px solid var(--line-stone); border-radius: 1rem; box-shadow: var(--shadow-float); }

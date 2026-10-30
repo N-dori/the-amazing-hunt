@@ -124,3 +124,22 @@ export function buildMissionPresentation(definition: MissionDefinition, mission:
     } };
 }
 export type MissionPresentation = ReturnType<typeof buildMissionPresentation>;
+
+/** The destination as a task: "Find the Montefiore Gate". TODO(copy): draft pattern from the owner's brief, 30 Oct 2026. */
+export function destinationTitle(name: string): string {
+  return "Find " + name.replace(/^The /, "the ");
+}
+
+export type MissionProgressStage = "find" | "solve" | "complete";
+// TODO(copy): drafts from the owner's brief, 30 Oct 2026 (stage names, then the line for the current stage).
+export const MISSION_STAGES: readonly Readonly<{ id: MissionProgressStage; label: string; status: string }>[] = Object.freeze([
+  { id: "find", label: "Find the Place", status: "Finding the place" },
+  { id: "solve", label: "Solve the Challenge", status: "Challenge in progress" },
+  { id: "complete", label: "Mission Complete", status: "Mission complete" },
+]);
+/** Where a mission stands, from shared progress and the screen on this phone. An arrival (GPS or the guide's confirmation) never
+ * moves it on: finding the place is the players' judgement, and the challenge opens without it. */
+export function missionStage(mission: Readonly<{ state: MissionState; started: boolean; onChallenge: boolean }>): MissionProgressStage {
+  if (mission.state === "completed") return "complete";
+  return mission.started || mission.onChallenge ? "solve" : "find";
+}

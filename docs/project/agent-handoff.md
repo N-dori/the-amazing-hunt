@@ -1,12 +1,69 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - "Find this place" location screen (option B): implemented, uncommitted, 30 Oct 2026
+## Latest handoff - B-lite mission discovery, steps 1–5: implemented locally, uncommitted, 30 Oct 2026
 
-**Owner-approved plan (30 Oct 2026); uncommitted, not deployed.** Presentation only: no mission data, GPS policy, scoring or permission change.
+**Owner-approved (30 Oct 2026), B-lite only:** presentation work with no change to permissions, scoring, GPS policy or server. The plan with the evidence is in `/root/.claude/plans/update-plan-pasted-content-id-6f83-swift-glade.md`. **Uncommitted, not deployed, live state untouched.**
+
+**What was built:**
+1. **Guide tools placement:** `IndexGuideWaterTask` now takes `part`.
+   - The role selects show only on the Group tab.
+   - The timing review shows only on the challenge.
+   - Before, both sat under every screen for the guide, which is what the owner's phone showed under the mission preview.
+2. **Bottom sheet:**
+   - `PreviewBottomSheet` is a native `<dialog>` with `showModal()`.
+   - It closes with Close, Escape, a backdrop tap, a downward swipe on the handle and heading, and the phone's Back.
+   - Focus returns to the opener.
+   - Back closes the sheet first through `lib/amazing-shuk/sheet-history.ts`. Opening pushes one marker entry, a copy of the screen's `shukNav` entry, so the game's own `popstate` restores the same screen. Closing any other way steps back over it.
+   - Reopening while that step is pending waits. A tab change from inside the sheet runs after the step. A stale forward marker is reused, never stacked.
+3. **Group status:**
+   - `IndexGroupSheet` adds a header button with a dot while a role is free. A second header row shows **Roles needed: …** only while a role is free, and it opens the sheet.
+   - The sheet shows the points, food tokens, missions completed, the role chips (`ListParticipantBadges`), "Anyone can take a free role in the Group tab." and **Open the Group tab**.
+   - The header lost its role pills and balance chips (`PreviewShukHeader`: title, group, menu).
+4. **Mission progress:** `missionStage()` and `MISSION_STAGES` in `mission-arrival.ts` feed `PreviewMissionProgress`.
+   - Stages: Find the Place → Solve the Challenge → Mission Complete.
+   - Completed → complete. Otherwise, a started challenge or the challenge screen on this phone → solve. Otherwise → find.
+   - An arrival never advances it.
+   - It shows on the preview card (not on a locked finale), on Find this place and on the challenge.
+5. **Destination wording and Find this place:**
+   - Card: pill `Mission N` (plus Locked or Arrival confirmed), title `Find …` (`destinationTitle(name)`), the challenge's name, progress, button **Find this place**.
+   - Header on the location screen: `Find …`.
+   - Location screen:
+     - `Mission N` + progress, the area and the Hebrew name (`.rtl`).
+     - A **strip of the illustrated map with only this marker**: `focusId`, two-finger mode and hint, no `onViewChange`, so the Map tab keeps its view.
+     - **What to look for** (clue, photo, clue photo, landmarks, About), with the photo as a button that enlarges it in a sheet.
+     - Check our location, Open Challenge.
+   - **Back to map removed** from the location screen (the Map tab and Back cover it); the challenge screen keeps its two Back buttons.
+
+**Draft copy (`TODO(copy)`), awaiting the owner:**
+- Find …, Find this place, What to look for
+- Enlarge the photo, Close photo
+- Group status, Roles needed, Your group, Close group status
+- Anyone can take a free role in the Group tab., Open the Group tab
+- The three stage names and status lines
+
+Pattern note: `destinationTitle` lowercases a leading "The", giving "Find Chesed VeRachamim Synagogue", "Find Marzipan Bakery" and "Find Gan HaTut (Mulberry Garden)". The owner may prefer per-mission wording.
+
+**Verified:**
+- `test:shuk` 191/191 (16 new: sheet history with a fake `History`, stage derivation, the progress line, the one-marker strip, the photo sheet, guide tools by place, the group sheet's real data and the role-needed line).
+- `npm test` 63/63; `tsc` passes; lint at its baseline (3 errors, 11 warnings, none new).
+- `/game-verify shuk`: build OK, healthy, 8/8 route checks, an invitation link of the right shape (not printed), 47 MiB; `dori-shuk:test` left in place (remove before the next deploy).
+- **No browser or phone check.**
+
+**Phone checklist:** see the report to the owner for this entry. It covers 375 × 667, 320 px, Android Back and 200% text.
+
+## Earlier handoff - "Find this place" location screen (option B): committed and deployed, 30 Oct 2026
+
+**Deployed 30 Oct 2026, 16:20 UTC (owner-authorised): `dori-shuk:20261030-162047-b84ce27`** (commit `b84ce27`, not yet pushed; the owner pushes from VS Code), healthy, 0 restarts, 7/7 smoke checks, the live file unchanged (schema 6, active). Rollback `dori-shuk:previous` = `eeab22b`. Backup `/root/backups/amazing-shuk/live-state-before-find-this-place-deploy-20261030T162036Z.json` (mode 600, byte-identical); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-find-this-place-deploy` (+ `.patch`) and restored identically. `dori-shuk:test` removed before the deploy; disk 80% after, then the whole build cache pruned (3.49 GB, owner-approved): **72%, 11 GB free**; images and containers unchanged (`:current` `b84ce27`, `:previous` `eeab22b`). The next build runs without cache, so it is slower.
+
+**Next session, in order** (each needs the owner's approval): push `b84ce27` (the owner, from VS Code); the phone checklist below on the live site and the dev page, "Find this place" first (**map gestures: the owner confirmed on the phone that they work, 30 Oct 2026**); approve or reword the drafts "About this place", "Continue" and "Change the number"; a live new adventure to show the new lobby (separate approval); optionally a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml` (the image-cache log error); then I3 after O6 and O15, and O27 before any I7a work.
+
+**Live new adventure (owner-asked, 30 Oct 2026, 16:26 UTC):** backup `/root/backups/amazing-shuk/live-state-before-new-adventure-20261030T162616Z.json`, then `shuk-new-adventure.ts --confirm` in `dori-shuk` (it also kept `state.json.before-new-adventure-20261030T162625Z` in `/data`). The live file is now schema 6, **lobby, no host, no sessions**, names kept. Fresh single-use 24 h links (never printed): `.local/amazing-shuk/links-new-adventure-20261030T1626Z/` (`host-player-1.txt`, `player-2.txt`, `guide.txt`; mode 700/600). The older link folders are void.
+
+**Owner-approved plan (30 Oct 2026).** Presentation only: no mission data, GPS policy, scoring or permission change.
 - `PreviewArrivalMission.tsx` is now an outdoor recognition task: *What are we looking for?* (the Look for card first: clue, the photo right under it capped at 32svh, the water mission's second image, the landmarks always visible because they carry how to behave at each stop, then a folded *About this place* with the summary) · *Have we found it?* (a light row, no card: **Check our location** + the Optional note, the guide's Confirm Group Arrival, feedback) · *What next?* (Open Challenge, unchanged). The mission name stays as a screen-reader `h2` (`.srOnly`), since the header shows it; the area and Hebrew name share one small line. No sticky bar.
 - **Owner decisions:** "We're Here?" renamed **Check our location** (product decisions updated); the summary folded behind **"About this place"**, a `TODO(copy)` draft.
 - **Honest viewport:** at 375 × 667, with the header and the bottom nav, the clue and photo fit the first view and both actions follow after one short scroll (before: 2–3 screens). A strict no-scroll screen would mean hiding the landmarks.
-- **Verified:** `test:shuk` 175/175 (a new order check for all six missions); `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or phone check.** `dori-shuk:test` is left from the verify (prune when disk climbs; 79% now).
+- **Verified:** `test:shuk` 175/175 (a new order check for all six missions); `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or phone check.**
 - **Phone checklist** (dev page, about 375 × 667, then 320 px and 200% text): every mission shows the clue and photo without scrolling; the landmarks always visible; *About this place* opens and closes (3rem target); *Check our location* is clearly secondary and its feedback appears under it; Open Challenge one short scroll down; Back to map and the bottom nav work; the screen reader starts at the mission name; no horizontal scroll at 320 px.
 
 ## Earlier handoff - compact onboarding, two-finger map, I7a leader-invitation design: deployed, 30 Oct 2026

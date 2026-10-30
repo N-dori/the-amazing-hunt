@@ -1,0 +1,73 @@
+// A sheet from the foot of the screen in the browser's top layer, above the map, the header and the bottom bar.
+.sheet {
+  --sheet-drag: 0px;
+  inset-block: auto 0;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 85dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: 1.5px solid var(--line-stone);
+  border-block-start: 3px solid var(--sumac);
+  border-block-end: 0;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: var(--surface-raised);
+  color: var(--ink);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  transform: translateY(var(--sheet-drag));
+}
+
+.sheet[open] { display: flex; animation: sheetUp var(--dur-base) var(--ease-out) backwards; }
+
+// The page stays visible under a dimmed veil. Ink at 55%, not yet confirmed against the brand book; the rgb() line is the fallback
+// for browsers whose backdrop can't read the page's custom properties.
+.sheet::backdrop { background: rgb(37 43 42 / 55%); background: color-mix(in srgb, var(--ink) 55%, transparent); }
+
+.panel { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; width: 100%; }
+
+// The grab area: handle, heading and Close. Dragging it down closes the sheet, so the browser mustn't scroll it.
+.top {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.25rem .75rem .5rem 1rem;
+  touch-action: none;
+  cursor: grab;
+}
+
+.handle { position: absolute; inset-block-start: .5rem; inset-inline-start: 50%; width: 2.5rem; height: .25rem; border-radius: 9999px;
+  background: var(--neutral-line); transform: translateX(-50%); }
+
+.title { font-family: var(--font-display); font-size: clamp(1.25rem, 5vw, 1.5rem); font-weight: 700; line-height: 1.2; }
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-recessed);
+  color: var(--ink);
+  cursor: pointer;
+
+  &:hover { background: var(--chalk-shade); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 0; }
+}
+
+.icon { width: 1.25rem; height: 1.25rem; }
+
+// Long content scrolls inside the sheet, never the page under it.
+.body { flex: 1 1 auto; min-height: 0; padding: .25rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px)); overflow-y: auto; overscroll-behavior: contain; }
+
+@media (min-width: 48rem) { .top { padding-inline: 1.5rem 1rem; } .body { padding-inline: 1.5rem; } }
+
+// `backwards` only: once it has slid in, the drag offset above moves it freely.
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+
+@media (prefers-reduced-motion: reduce) { .sheet[open] { animation: none; } }
+
+@media (forced-colors: active) { .sheet { border-color: CanvasText; } }
