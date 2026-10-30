@@ -1,6 +1,29 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - next session: compact onboarding (Stitch) review, plan only, 30 Oct 2026
+## Latest handoff - compact onboarding, two-finger map, I7a leader-invitation design: committed and pushed, not deployed, 30 Oct 2026
+
+**Authorised by the owner (30 Oct 2026):** implement A (compact I2 onboarding) and B (map touch gestures), design only C (named Team Leader invitations). **Committed at the owner's request as A `6d35b59` (onboarding) and B `19c5a8e` (map, revertable alone), pushed by the owner; this docs entry and C follow in a docs commit. Not deployed; no live-state change.** No server action, permission or schema changed.
+
+- **A, onboarding:** the lobby is now one step at a time (`lobbyStep` in `lib/amazing-shuk/adventure-lobby.ts`): *count* (host lead + stepper + Continue) → *ready* (1–5: count, "Recommended teams: 1", Start Adventure, Change the number) or *teams* (6–30: the split and the approved multiple-teams note, **no Start at all**, Change the number). Players see only the approved waiting words. The count still stays on the phone until Start; focus moves to the heading on each step. The lobby fills the phone with its action at the foot (no bottom-bar padding, no double gutter); the welcome's hero follows the screen height and its highlights became wrapping pills. New drafts: `next` "Continue", `changeCount` "Change the number" (`TODO(copy)`, O16).
+- **B, map:** root cause: Leaflet's one-finger drag handler sets `touch-action: none` on the map and pans on one finger, so a swipe over the full-screen map never scrolls the page. Fix, opt-in `twoFingerHint` on `LeafletBaseMap` (Shuk only; Memory Protocol maps unchanged): Leaflet's drag is disabled for touch and re-enabled for a mouse or pen; CSS keeps `pan-x pan-y`; Leaflet's own two-finger handler pans and pinches. The hint "Use two fingers to move the map." shows after a one-finger drag that didn't scroll the page, for 3 s, at most every 30 s, never after a two-finger gesture (`lib/map/two-finger-hint.ts`, tested; `npm test` now includes `lib/map/`).
+- **C:** the proposal and gate **O27** are in the [multiplayer plan](multiplayer-plan.md) under I7a. Nothing built.
+- **Verified:** `test:shuk` 174/174; `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or device check**: the owner's phone checklist is still required.
+- **Leaflet.GestureHandling evaluated and rejected (owner asked for a check against a GPT brief, 30 Oct 2026; no file changed).** `leaflet-gesture-handling` 1.2.2 (last published May 2022, no declared Leaflet range; works through 1.x's global `L`). Against our map: its marker check looks only at the touched element's own class, so a tap on our pin `<span>` flashes the warning; the touch warning shows on every one-finger touch until the finger lifts (`duration` only times the desktop wheel warning), with no cooldown; a full-map 50% black overlay above the markers; on desktop it needs Ctrl/Cmd + wheel to zoom and turns dragging off on mouse-out, with no option to keep only the touch part; and it re-enables dragging on two fingers, so the first one-finger swipe after a pinch can't scroll the page. Our CSS `touch-action` fixes that last one for good. Leaflet 2.0 is alpha only (`2.0.0-alpha.1`); revisit the gesture code if we ever upgrade. Extra phone check: pinch, then at once swipe with one finger: the page should scroll.
+- **Disk (owner-approved, 30 Oct 2026):** `dori-shuk:test` removed and the whole build cache pruned (4.67 GB): 84% → 72%, 11 GB free. Live containers untouched; `dori-shuk:current` (`364a4f5`) and `:previous` (`175548f`) kept. The next build runs without cache, so it is slower.
+
+**Phone checklist** (`shuk-dev`, about 375 × 667, then 320 px and 200% text; set-up commands in the I2 entry below):
+1. Host: the count step at "Not set yet"; Continue disabled until +; − disabled at 1, + at 30.
+2. 1 and 5: Continue → Ready, "Recommended teams: 1" → Start Adventure → "Starting…" → the map; the player's phone leaves the waiting screen.
+3. 6, 11, 30: 3 + 3, 4 + 4 + 3, six of 5; the multiple-teams note; no Start; Change the number goes back.
+4. Player: only the waiting screen. Guide: the guide lead and the same steps.
+5. No horizontal scroll at 320 px; the action reachable at 200% text; landscape scrolls.
+6. Map: one finger scrolls the page where it can; a one-finger drag shows the hint once, gone in about 3 s, none again within 30 s; two fingers pan and pinch and dismiss the hint; marker taps open the preview; zoom buttons work; a desktop mouse drags with no hint; pinch then one-finger swipe scrolls.
+
+**Next session, in order** (each step needs the owner's approval): the phone checklist above (iOS Safari especially); approve or reword the two draft lines; then deploy with `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'` after a fresh backup of `/data/state.json`. Decide O27 before any I7a work.
+
+**Untracked or the owner's, keep out of commits:** `docs/RUN_PREVIEW.md` (it also has trailing whitespace on line 1, the only `git diff --check` hit), `docs/project/trip-doriisrael-paths.md`, `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier handoff - next session: compact onboarding (Stitch) review, plan only, 30 Oct 2026
 
 **Start here.** The owner reviewed a four-screen Stitch export of the onboarding (Host Welcome, Participant Count, Team Recommendation, Ready to Start) and wrote the review and brief: [`docs/design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md`](../design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md) (the owner's file, in the untracked Stitch folder; read it in full). **Visual direction approved with required corrections; plan and report only, no file changes until the owner approves.**
 

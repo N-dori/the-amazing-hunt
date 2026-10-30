@@ -246,6 +246,34 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Acceptance:** a multi-team test on real phones, and the 30-participant checks below before any real 30-person run.
 - **Rollback:** the previous image plus the pre-schema-7 copy.
 
+#### I7a design proposal: named Team Leader invitations (draft, 30 Oct 2026; not approved, nothing built)
+
+A compact way for the host to hand each recommended team to a person before sharing that team's leader invitation. **For the owner's decision (O27); design only.** It adds nothing to I2 or I3.
+
+**The host's screen** (after accepting the recommendation, e.g. 20 → four teams of 5): one row per team, nothing else.
+
+```text
+Team A   You (host)                         Leading
+Team B   Ari               [Share invite]   Waiting to be accepted
+Team C   Bea               [Share invite]   Accepted ✓
+Team D   + Add a name      [Share invite]   Not sent
+```
+
+1. **Name (optional).** Tapping the name opens a one-line field for the intended leader's first name, for the host's own reference. The host may skip it ("Team D" stays unnamed) and may edit it any time before the invitation is accepted. The host never names or assigns the other players.
+2. **Share invite.** Opens a small sheet for that team only: its QR, *Share link* and *Copy* (the same pattern as I3's join link, O15). The sheet says whose team it is ("Invite for Team B · Ari") so the host scans or sends the right one; a link is shown only on this sheet, never in the list.
+3. **Status** per row, from the server: *Not sent* · *Waiting to be accepted* · *Accepted* (with the leader's own chosen name, if any) · *Expired* · *Replaced*. Plain words with an icon, never colour alone.
+4. **Replace.** On a row that is waiting, expired or (after a lost phone) accepted, *Make a new invite* revokes the old link at once and shows the new one. Replacing an accepted leader asks for confirmation and moves leadership to whoever redeems the new link; the team's progress stays with the team.
+5. **After acceptance** the leader's phone shows their own team and their team's join link (I3): the leader, not the host, lets their players in.
+
+**Security and data** (none of this exists yet; it follows the I2 host model):
+- **The typed name is a label, not an identity.** It grants nothing, proves nothing, and isn't checked against the name the leader chooses. Shown only to the host and the guide.
+- **Authority comes from redemption only.** Redeeming a team's single-use `leader` invitation marks *that session* as the team's leader (as `host: true` marks the host's session in I2), and the server checks the session flag together with `team.leaderId`. A seat alone never grants leader rights; I3 already has to bind leader rights to sessions before leaders can let players in.
+- **Secrets:** the invitation is hashed at rest, single-use, 24 h, scoped to one team, refused once the team has a leader; replacing it revokes the old hash; the plain link appears only on the share sheet, never in logs or in the host's list; issuing and replacing are host- or guide-only and rate-limited (O6).
+- **Minimal data per team** (schema 7): `leaderLabel?` (the host's typed first name, at most ~30 characters, deleted with the adventure), and on the invitation record `{ teamId, kind: "leader", hash, expiresAt, status: pending | accepted | expired | revoked }`. The host's view gets only each team's label, status and member count (O26), never another team's answers or players' details.
+- **Edge cases:** the host forwards the wrong link → *Make a new invite* revokes it; two people try the same link → the first redemption wins, the second sees the friendly invitation message; the named person can't come → anyone can redeem it and the host may rename the row afterwards.
+
+**Open questions for the owner:** is the name field wanted at all, or is "Team B" enough (it adds personal data, however small)? Should the guide see the typed names? Can a leader decline, handing the team back to the host?
+
 ### I7b. End-of-game comparison (optional)
 
 - **Depends on:** I7a.
@@ -306,6 +334,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 | O24 | All teams share the same content and approved route with the guide; no independent routes | **Approved** |
 | O25 | How many teams one guide can lead at once: staggered starts or team-led play for larger groups (operational design, not built). One guide for now | **Open** |
 | O26 | Host overview: team name, leader, count and readiness only (I7a) | **Approved** |
+| O27 | Named Team Leader invitations: the host's optional leader label per team, per-team single-use invitations with status and replace ([I7a design proposal](#i7a-design-proposal-named-team-leader-invitations-draft-30-oct-2026-not-approved-nothing-built)) | **Open**: design only, not built |
 | — | Deploy, push or live-data changes for any increment | Separate approval each time |
 
 ## 11. Risks
