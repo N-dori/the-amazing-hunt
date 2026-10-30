@@ -523,7 +523,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
   });
 }
 /**
- * Development and testing only (scripts/shuk-new-adventure.ts): keeps the current file's exact bytes as
+ * Operator only (scripts/shuk-new-adventure.ts --confirm, on the server): keeps the current file's exact bytes as
  * `<state>.before-new-adventure-<UTC time>`, mode 600, then opens a fresh adventure in its lobby with no host.
  * Every seat is in team A again; sessions, invitations, roles and progress are cleared. Display names stay (they belong to
  * the seats and the server, never git), and so do action receipts, which keep stale queued actions from replaying.
