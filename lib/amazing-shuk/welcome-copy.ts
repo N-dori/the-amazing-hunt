@@ -29,47 +29,51 @@ export const WELCOME_COPY: WelcomeCopy = Object.freeze({
 }) as WelcomeCopy;
 
 // The lobby, after the host's invitation and before Start Adventure (gate O16).
-// "Start Adventure" is the owner's approved name and "How many are playing?" the plan's (29 Oct 2026).
-// TODO(copy): every other line here is a draft for owner review.
+// Approved by the owner (29 Oct 2026): the host welcome, the waiting state, the participant count, the recommendation, "Start Adventure"
+// and the multiple-team limitation. The other lines below were kept by the owner as they are; those marked TODO(copy) are still drafts.
 export type LobbyCopy = {
   eyebrow: string;
   title: string;
   hostLead: string;
   guideLead: string;
+  waitingTitle: string;
   waiting: string;
   countQuestion: string;
   countHelp: string;
   countEmpty: string;
   decrease: string;
   increase: string;
-  recommendationHeading: string;
-  /** The recommendation, never presented as teams that exist: e.g. "6 teams: 5, 5, 5, 5, 5 and 5 players". */
-  recommendation: (teams: number, sizes: readonly number[]) => string;
-  notYet: string;
+  /** "Recommended teams: 3", from the actual count. */
+  recommendedTeams: (teams: number) => string;
+  /** "Suggested split: 4 + 4 + 3", from the actual count. */
+  suggestedSplit: (sizes: readonly number[]) => string;
+  needsTeamsTitle: string;
+  needsTeams: string;
   start: string;
-  startAsOneTeam: string;
   starting: string;
   needCount: string;
 };
 
-const listSizes = (sizes: readonly number[]) => sizes.length === 1 ? String(sizes[0]) : `${sizes.slice(0, -1).join(", ")} and ${sizes[sizes.length - 1]}`;
-
 export const LOBBY_COPY: LobbyCopy = Object.freeze({
   eyebrow: "Nahlaot · Mahane Yehuda",
+  // TODO(copy): draft.
   title: "Before you set off",
-  hostLead: "You're the host. Tell us how many are playing, then start the adventure when everyone is here.",
-  guideLead: "The host or you can set up the adventure.",
-  waiting: "Waiting for the host to start the adventure.",
+  hostLead: "You're the host! Tell us how many people are playing. When everyone is ready, start the adventure.",
+  // TODO(copy): draft.
+  guideLead: "You can set up the adventure here, or leave it to the host.",
+  waitingTitle: "Waiting for the adventure to begin",
+  waiting: "Your host is getting everything ready. You'll be exploring soon!",
   countQuestion: "How many are playing?",
-  countHelp: "Count everyone in your group, including you.",
-  countEmpty: "Not set",
+  countHelp: "Include yourself in the total.",
+  // TODO(copy): drafts (the empty count and the stepper buttons' spoken labels).
+  countEmpty: "Not set yet",
   decrease: "One fewer player",
   increase: "One more player",
-  recommendationHeading: "Recommended teams",
-  recommendation: (teams: number, sizes: readonly number[]) => teams === 1 ? `One team of ${sizes[0]}` : `${teams} teams: ${listSizes(sizes)} players`,
-  notYet: "Playing in several teams isn't available yet. For now, everyone plays as one team.",
+  recommendedTeams: (teams: number) => `Recommended teams: ${teams}`,
+  suggestedSplit: (sizes: readonly number[]) => `Suggested split: ${sizes.join(" + ")}`,
+  needsTeamsTitle: "Your adventure needs multiple teams.",
+  needsTeams: "We recommend splitting into teams of up to five. Multi-team adventures are coming soon. For now, adventures can start with up to five players.",
   start: "Start Adventure",
-  startAsOneTeam: "Start as one team",
   starting: "Starting…",
-  needCount: "Say how many are playing first.",
+  needCount: "First, tell us how many are playing.",
 }) as LobbyCopy;

@@ -73,7 +73,7 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 
 1. The operator issues one host link (CLI), as today.
 2. **Host:** "How many are playing?" (1–30). The app recommends the teams, `ceil(count / 5)`, split evenly (11 → 4 + 4 + 3; 30 → six of 5). No format screen, and the host never assigns every player.
-   - **Until I7a** the recommendation is advice only: everyone plays as team A, and a count that recommends several teams starts only through an explicit "start as one team".
+   - **Until I7a** the recommendation is advice only: groups of 1–5 start as team A; groups of 6–30 see the recommendation but can't start (enforced by the server), with no one-team stand-in.
 3. **One team:** the host is Team A's leader. **Invite players** shows a QR, *Share link* and *Copy* (I3).
 4. **Several teams (I7a):** the host accepts the recommendation, which creates the teams, then sends each other team's leader a single-use invitation. Each leader then has their own team's link and QR. The host sees each team's name, leader, count and readiness.
 5. **Player:** opens the team link → "Join Team …" → optional first name → **Ask to join** → waits → the leader taps **Let in** → the map.
@@ -172,11 +172,12 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Scope:**
   - Invitations gain optional `kind` and `teamId`. `shuk:invite -- host` issues a single-use host invitation; redeeming makes the host Team A's leader and opens the lobby.
   - Intended count 1–30 and the recommended teams (`recommendedTeamCount`, `recommendedTeamSizes`), shown as a recommendation only. The stored `format` stays `"together"`, and no team beyond A is created.
-  - **Start Adventure** by the host or guide; when more than one team is recommended the server requires an explicit one-team start (`asOneTeam`).
+  - **Start Adventure** by the host or guide, for 1–5 participants only; 6–30 can't start until I7a (server-enforced).
+  - **Host rights belong to the session** made by redeeming the host invitation, not to the seat: other sessions of the seat get none. A lost phone gets a new host link for the same seat, which moves the rights to the new session.
   - Invitation kinds `host` and `leader` (reserved; a `leader` invitation is refused until I7a).
   - A "new adventure" CLI archives the old state (the 26 Oct reset-with-backup pattern); development and testing only, not shipped in the app image.
 - **Files:** `scripts/shuk-invite.ts`, `scripts/shuk-new-adventure.ts`, `participant-store.ts`, `group-action.ts`, `parse-water-action.ts`, new `adventure-lobby.ts`, new `IndexAdventureLobby` / `PreviewAdventureLobby` with module, `IndexWaterTask.tsx`, `welcome-copy.ts`.
-- **Tests:** redeem as host → Team A's leader; a second redeem fails; a non-host can't set the count or start; the counts 1, 5, 6, 7, 11, 17 and 30; a multi-team count can't start without the one-team confirmation; the host gets no guide-only permission; the lobby refuses journey actions; the I1 code reads every I2 file.
+- **Tests:** redeem as host → Team A's leader; a second redeem fails; a non-host can't set the count or start; the counts 1, 5, 6, 7, 11, 17 and 30; 6–30 can't start, with or without a one-team flag; earlier, later and replaced sessions of the host seat get no host rights; the host gets no guide-only permission; the lobby refuses journey actions; the I1 code reads every I2 file.
 - **Acceptance:** a fresh adventure starts from one host link.
 - **Rollback:** the previous image, plus the I1 backup note.
 - **Gate:** O16 (copy).
@@ -295,7 +296,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
 | O11–O13 | English-first; "Language Explorer"; Hebrew story bodies stay out of production; other languages need approved translations | **Approved** |
 | O15 | QR approach: the smallest secure option given the repo's dependencies, chosen before I3 | **Open** |
-| O16 | Team names, part names (Spotter, Reader) and all onboarding copy | **Open** |
+| O16 | Team names, part names (Spotter, Reader) and all onboarding copy | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
 | O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |

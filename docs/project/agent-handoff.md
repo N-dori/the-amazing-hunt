@@ -1,8 +1,59 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I2 implemented, uncommitted: host invitation, lobby, Start Adventure; many-teams correction, 29 Oct 2026
+## Latest handoff - I2 complete: corrections after the owner's review committed, 29–30 Oct 2026
 
-**Authorised by the owner (29 Oct 2026); left uncommitted for review.** No deploy, push or live-data change; the live app is still `175548f` and its file still schema 5. `.claude/agents/dori-ux-designer.md` untouched (O20).
+I2 was committed at the owner's request as `dccaf95`; the owner's review then asked for the corrections below, **committed at the owner's request on 30 Oct 2026** in the commit after `dccaf95`. **Not pushed or deployed**; no live-data change. The live app is still `175548f`, its file still schema 5.
+
+**Corrections:**
+1. **No misleading multi-team starts.** Groups of 1–5 can start as one team. Groups of 6–30 see the balanced recommendation but **can't start**; the server refuses Start for any count that needs more than one team (an `asOneTeam` flag is dropped by the parser and was removed from the action type). The lobby disables Start and explains why. No team creation.
+2. **Host rights belong to the host invitation's session, not the seat.** Redeeming a host invitation marks that session `host: true`; host rights need that flag *and* the seat still being `adventure.hostId`. An earlier, later or replacing ordinary session of the seat gets none. A host who loses their phone gets a new host link for the same seat (operator CLI, lobby only); redeeming it moves the rights to the new session, and there is only ever one host session. Another seat can't become host while one is set. The view's `leader` flag still follows the seat; leaders have no powers in I2 (decide the binding in I3).
+3. **One friendly message for every failed invitation** (`INVITATION_UNUSABLE`), whatever the reason.
+
+**Tests:** `adventure-lobby.test.ts` now has 15 (173 in `test:shuk`): sessions of the host seat from before, after and in replacement of the host's; host redemption and the lost-phone re-issue; one host session at a time; unauthorised lobby actions; replayed, expired and after-start host invitations; counts 6, 7, 11, 17 and 30 refused (with or without the flag), 1 and 5 allowed; the friendly invitation message.
+
+**Lobby copy (O16), approved by the owner with refinements (29 Oct 2026)** and in `LOBBY_COPY`:
+
+| Where | Text | Status |
+|---|---|---|
+| Host welcome | You're the host! Tell us how many people are playing. When everyone is ready, start the adventure. | Approved |
+| Waiting (players) | **Waiting for the adventure to begin** · Your host is getting everything ready. You'll be exploring soon! | Approved |
+| Count | How many are playing? · Include yourself in the total. | Approved |
+| Recommendation | Recommended teams: 3 · Suggested split: 4 + 4 + 3 (both filled from the actual count) | Approved |
+| Start | Start Adventure | Approved |
+| Multiple-team limitation | **Your adventure needs multiple teams.** We recommend splitting into teams of up to five. Multi-team adventures are coming soon. For now, adventures can start with up to five players. | Approved |
+| Server refusal of a 6+ start | Your adventure needs multiple teams. For now, adventures can start with up to five players. | Aligned with the approved wording |
+| Messages kept by the owner | Starting… · First, tell us how many are playing. · Got it. Player count saved. · The adventure has started! · The adventure has already started. · Only the host or the guide can set up the adventure. · Choose a number from 1 to 30. · The adventure hasn't started yet. Your host will start it soon. · This invitation link has expired or has already been used. Ask your guide for a new one. | Kept |
+| Still draft (`TODO(copy)`) | Before you set off (title) · You can set up the adventure here, or leave it to the host. (guide) · Not set yet · One fewer player / One more player (spoken button labels) | Draft |
+
+**Browser check: not done; mobile visual acceptance is a deployment prerequisite** (owner, 29 Oct 2026). The project rules exclude browser review on this server (the owner reviews). The lobby reuses the welcome screen's patterns (eyebrow, Plex Serif title, raised cards, the pill-shaped primary button) within the Stitch direction; no new visual direction. Manual checklist for a phone-sized browser (about 375 × 667), on the dev page in `shuk-dev`:
+- Set up (signs everyone out of the dev state and keeps a copy): `docker exec -w /w shuk-dev npm run -s shuk:new-adventure -- --confirm`, then `docker exec -w /w shuk-dev npm run -s shuk:invite -- host player-1 http://localhost:3300 > .local/host-link.txt` and an ordinary link for `player-2` and `guide` the same way. Open each in its own browser profile.
+- Host: the welcome, then the lobby with the host welcome; − is disabled at "Not set yet"; + goes 1, 2…; 30 disables +; each button is easy to hit (3.5 rem).
+- 1–5: "Recommended teams: 1" and "Suggested split: N"; Start Adventure is enabled; tap it → "Starting…", then the map. The player's phone leaves the waiting screen within a couple of seconds.
+- 6 (3 + 3), 7 (4 + 3), 11 (4 + 4 + 3), 30 (six of 5): the numbers match the count; the tinted "Your adventure needs multiple teams." note; Start disabled (and a forced request is refused by the server); going back to 5 enables it.
+- Player (`player-2`): only the title and the "Waiting for the adventure to begin" card, no controls.
+- Guide: the guide lead and the same controls as the host.
+- Errors: reopen a used host link → the friendly invitation message on the welcome screen.
+- Readability in sunlight: contrast of the note and the disabled button; text at 200% zoom; no horizontal scroll at 320 px.
+
+**Verified (29 Oct 2026, after the approved copy):**
+- `test:shuk` 173/173 in `shuk-dev`; `npm test` 61/61; `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new; `git diff --check` clean on these changes.
+- I1 rollback rehearsed on isolated copies: I1 reads and writes a lobby of 11 and an active adventure of 4, keeps the host session's flag and `hostId`, and I2 reads the result with the host intact. A rolled-back I1 has no lobby gate.
+- `/game-verify shuk` (isolated `dori-shuk:test`): healthy, 8/8 route checks, an invitation link of the right shape (not printed), a host invitation refused on a fresh (active) state, the image ships only `shuk-invite.ts` and `shuk-name.ts`, 48 MiB.
+- Disk: the owner-approved `docker builder prune -a` (build cache only; images, containers and volumes checked unchanged, `dori-shuk:current` and `:previous` kept) took the disk from 84% (6.0 GB free) to 72%; 76% after the rebuild. The next builds and deploy run without cache, so they are slower.
+- Live, read-only: `dori-shuk` running `:current` (`175548f`), 0 restarts; the file still schema 5; `/data` holds only `state.json` and the 26 Oct reset copy.
+- The uncommitted diff holds only I2 files (no links, tokens or participants' names); `docs/RUN_PREVIEW.md` and the untracked owner files are untouched.
+
+**Next session, in order** (each step needs the owner's separate approval):
+1. **Phone review of the lobby** with the checklist above. Mobile visual acceptance is a deployment prerequisite. Claude can't do it on this server.
+2. **Push** (the owner pushes from VS Code; a push from Claude's shell hangs on the git login), then **deploy** with `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`, after a fresh manual backup of `/data/state.json`. The first build runs without cache (pruned on 29 Oct), so it is slower. Deploying I2 alone changes nothing players see: the live adventure is active with no host.
+3. **A live new adventure** needs its own approval, and the CLI isn't in the app image yet (add `scripts/shuk-new-adventure.ts` to the Dockerfile's tools copy, and lift the app-build refusal, only then).
+4. **I3** (team join link with leader approval, dynamic participants) after the owner's go-ahead. Before it: decide O6 (join-link limits, with a seat ceiling of 5 per team) and O15 (QR approach), and bind leader rights to sessions the way I2 binds the host's.
+
+**Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (local invite links; modified), `docs/project/trip-doriisrael-paths.md`, `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier handoff - I2 implemented and committed (`dccaf95`): host invitation, lobby, Start Adventure; many-teams correction, 29 Oct 2026
+
+**Authorised by the owner (29 Oct 2026); committed at the owner's request as `dccaf95`.** No deploy, push or live-data change; the live app is still `175548f` and its file still schema 5. `.claude/agents/dori-ux-designer.md` untouched (O20).
 
 **Owner's correction, the same day:** an adventure holds **many teams of about 5**, not one or two. Recorded in [product decisions](product-decisions.md) (the one record) and carried through the [multiplayer plan](multiplayer-plan.md) (I7 became I7a, multiple teams, and I7b, the optional comparison; new gates O25 and O26), `AGENTS.md` and `design/amazing-shuk-roadmap.md`.
 
@@ -10,7 +61,7 @@
 - **Host invitation:** `npm run shuk:invite -- host <player seat> <origin>` (inside the app container: `tools/scripts/shuk-invite.ts host player-N https://doriisrael.com`). Single-use, 24 h, hashed, a player seat in team A, only while the adventure waits in its lobby with no host; it replaces that seat's other invitations and any other host invitation. Redeeming sets `adventure.hostId` and team A's `leaderId`; a replay, an expired link, or a lobby that already has a host or has started → 401.
 - **Invitation kinds:** `host`, and `leader` reserved for I7a. Nothing issues a `leader` invitation, and redeeming any kind other than `host` is refused (fail closed).
 - **Lobby** (`adventure.status === "lobby"`, the whole screen): the host or guide answers "How many are playing?" (1–30). The app shows the **recommended teams** (`recommendedTeamCount = ceil(n / 5)`, `recommendedTeamSizes` split evenly: 6 → 3 + 3, 11 → 4 + 4 + 3, 30 → six of 5) as a recommendation only. No team beyond A is created; the stored `format` stays `"together"`.
-- **Start Adventure** (host or guide only). It needs a count. When more than one team is recommended, the server refuses a plain Start; the lobby says "Playing in several teams isn't available yet" and the button becomes "Start as one team" (`asOneTeam: true`). A second Start changes nothing.
+- **Start Adventure** (host or guide only). It needs a count. *(Corrected after the owner's review, see above: 6–30 can't start at all; the "Start as one team" stand-in is gone.)* A second Start changes nothing.
 - **Lobby gate:** every journey action (start, picks, hints, submit, arrival, timing, approve) is refused for everyone, guide included, until Start; roles may be claimed or assigned meanwhile.
 - **Host and leader get no guide-only permission:** tested for confirm-arrival, timing, guide-approve and assign-role; without a role the host can't start a challenge or submit either.
 - **New adventure (development and testing only):** `npm run shuk:new-adventure -- --confirm` in `shuk-dev`. It keeps the old file's exact bytes as `state.json.before-new-adventure-<UTC>`, mode 600, then opens an empty lobby: every seat in team A, no host, sessions, invitations, roles and progress cleared; names and action receipts kept. If the copy can't be kept, nothing changes (503). It refuses in the app build and isn't shipped in the image (Dockerfile unchanged); shipping it needs the owner's approval.
@@ -18,7 +69,7 @@
 
 **Files:** `lib/amazing-shuk/adventure-lobby.ts` (new: the recommendation and the lobby view model), `participant-store.ts`, `group-action.ts`, `parse-water-action.ts`, `welcome-copy.ts` (`LOBBY_COPY`), `scripts/shuk-invite.ts`, `scripts/shuk-new-adventure.ts` (new), `package.json` (script), `components/amazing-shuk/IndexAdventureLobby.tsx`, `PreviewAdventureLobby.tsx` and `.module.scss` (new), `components/amazing-shuk/dev/IndexWaterTask.tsx`, `components/icons/iconPaths.tsx` (`minus`, `plus`). Tests: `lib/amazing-shuk/adventure-lobby.test.ts` (new, 13).
 
-**Copy (gate O16), all draft, `TODO(copy)` in `LOBBY_COPY`:** "Before you set off"; the host, guide and waiting leads; "Count everyone in your group, including you."; "Not set"; the stepper labels; "Recommended teams"; "One team of N" / "N teams: 4, 4 and 3 players"; "Playing in several teams isn't available yet. For now, everyone plays as one team."; "Start as one team"; "Starting…"; "Say how many are playing first."; and the server messages ("Player count saved.", "The adventure has started.", "Multiple teams aren't available yet. Start as one team.", "The adventure hasn't started yet.", "Only the host or the guide can set up the adventure."). Approved: "Start Adventure"; "How many are playing?" is the plan's.
+**Copy (gate O16):** superseded by the proposed final copy in the entry above.
 
 **Verified (29 Oct 2026):**
 - `test:shuk` 171/171 in `shuk-dev` (158 before); `npm test` 61/61.

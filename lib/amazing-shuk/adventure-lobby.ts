@@ -30,8 +30,8 @@ export type LobbyView = Readonly<{
   canIncrease: boolean;
   /** The recommendation for this count, or null before a count is chosen. Only a recommendation: the app has one team until multiple teams exist (I7a). */
   recommendation: Readonly<{ teams: number; sizes: readonly number[] }> | null;
-  /** The start has to say "as one team" when more than one team is recommended, so nobody starts a multi-team adventure that doesn't exist. */
-  startsAsOneTeam: boolean;
+  /** More than one team is recommended, so this group can't start until teams exist (the server refuses it too). */
+  needsTeams: boolean;
   canStart: boolean;
 }>;
 
@@ -45,8 +45,8 @@ export function buildLobbyView(adventure: AdventureView, draftCount: number | nu
     canDecrease: adventure.canManage && count !== null && count > LOBBY_COUNT.min,
     canIncrease: adventure.canManage && (count === null || count < LOBBY_COUNT.max),
     recommendation,
-    startsAsOneTeam: recommendation !== null && recommendation.teams > 1,
-    canStart: adventure.canManage && adventure.status === "lobby" && count !== null,
+    needsTeams: recommendation !== null && recommendation.teams > 1,
+    canStart: adventure.canManage && adventure.status === "lobby" && recommendation !== null && recommendation.teams === 1,
   };
 }
 

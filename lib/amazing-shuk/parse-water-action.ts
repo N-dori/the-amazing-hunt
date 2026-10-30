@@ -22,10 +22,7 @@ function parseMissionAction(value: unknown): GroupAction | null {
   if (isRecord(value) && value.type === "set-intended-count") {
     return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
   }
-  if (isRecord(value) && value.type === "start-adventure") {
-    if (value.asOneTeam !== undefined && typeof value.asOneTeam !== "boolean") return null;
-    return value.asOneTeam === true ? { type: value.type, asOneTeam: true } : { type: value.type };
-  }
+  if (isRecord(value) && value.type === "start-adventure") return { type: value.type };
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
   }

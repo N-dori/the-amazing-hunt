@@ -43,14 +43,13 @@ test("the recommended teams: never more than five in a team, split as evenly as 
   }
 });
 
-test("the lobby view recommends teams without claiming them: from 6, the start says it is one team", () => {
+test("the lobby view recommends teams without claiming them: 1 to 5 can start, 6 and more can't until teams exist", () => {
   const host: AdventureView = { status: "lobby", intendedCount: null, host: true, leader: true, canManage: true };
-  assert.deepEqual(buildLobbyView(host, null), { canManage: true, count: null, canDecrease: false, canIncrease: true, recommendation: null, startsAsOneTeam: false, canStart: false });
+  assert.deepEqual(buildLobbyView(host, null), { canManage: true, count: null, canDecrease: false, canIncrease: true, recommendation: null, needsTeams: false, canStart: false });
+  for (const count of [1, 5]) assert.deepEqual([buildLobbyView(host, count).needsTeams, buildLobbyView(host, count).canStart], [false, true], `count ${count}`);
   assert.deepEqual(buildLobbyView(host, 5).recommendation, { teams: 1, sizes: [5] });
-  assert.equal(buildLobbyView(host, 5).startsAsOneTeam, false);
   assert.deepEqual(buildLobbyView(host, 6).recommendation, { teams: 2, sizes: [3, 3] });
-  assert.equal(buildLobbyView(host, 6).startsAsOneTeam, true);
-  assert.equal(buildLobbyView(host, 30).canStart, true);
+  for (const count of [6, 7, 11, 17, 30]) assert.deepEqual([buildLobbyView(host, count).needsTeams, buildLobbyView(host, count).canStart], [true, false], `count ${count}`);
   assert.equal(buildLobbyView({ ...host, intendedCount: 3 }, null).count, 3);
   assert.equal(buildLobbyView(host, 30).canIncrease, false);
   assert.equal(buildLobbyView(host, 1).canDecrease, false);
@@ -59,17 +58,21 @@ test("the lobby view recommends teams without claiming them: from 6, the start s
   assert.equal(buildLobbyView({ ...host, status: "active" }, 4).canStart, false);
   assert.deepEqual([stepCount(null, 1), stepCount(null, -1), stepCount(1, -1), stepCount(30, 1), stepCount(6, 1)], [1, 1, 1, 30, 7]);
   // The draft wording names a recommendation, and says plainly that one team plays for now.
-  assert.equal(LOBBY_COPY.recommendation(1, [5]), "One team of 5");
-  assert.equal(LOBBY_COPY.recommendation(3, [4, 4, 3]), "3 teams: 4, 4 and 3 players");
-  assert.match(LOBBY_COPY.notYet, /isn't available yet/);
+  // The approved wording, filled from the actual count.
+  const eleven = buildLobbyView(host, 11).recommendation!;
+  assert.equal(LOBBY_COPY.recommendedTeams(eleven.teams), "Recommended teams: 3");
+  assert.equal(LOBBY_COPY.suggestedSplit(eleven.sizes), "Suggested split: 4 + 4 + 3");
+  const thirty = buildLobbyView(host, 30).recommendation!;
+  assert.deepEqual([LOBBY_COPY.recommendedTeams(thirty.teams), LOBBY_COPY.suggestedSplit(thirty.sizes)], ["Recommended teams: 6", "Suggested split: 5 + 5 + 5 + 5 + 5 + 5"]);
+  assert.deepEqual([LOBBY_COPY.recommendedTeams(1), LOBBY_COPY.suggestedSplit(buildLobbyView(host, 4).recommendation!.sizes)], ["Recommended teams: 1", "Suggested split: 4"]);
+  assert.match(LOBBY_COPY.needsTeams, /coming soon/);
 });
 
 test("lobby actions parse only with a whole count", () => {
   assert.deepEqual(parseAction({ type: "set-intended-count", count: 7 }), { type: "set-intended-count", count: 7 });
   assert.deepEqual(parseAction({ type: "start-adventure", missionId: WELL }), { type: "start-adventure" });
-  assert.deepEqual(parseAction({ type: "start-adventure", asOneTeam: true }), { type: "start-adventure", asOneTeam: true });
-  assert.deepEqual(parseAction({ type: "start-adventure", asOneTeam: false }), { type: "start-adventure" });
-  assert.equal(parseAction({ type: "start-adventure", asOneTeam: "yes" }), null);
+  // No one-team stand-in for a larger group: an "as one team" flag is dropped, and the server decides from the stored count.
+  assert.deepEqual(parseAction({ type: "start-adventure", asOneTeam: true }), { type: "start-adventure" });
   for (const count of [2.5, "7", null, undefined, Number.MAX_VALUE]) assert.equal(parseAction({ type: "set-intended-count", count }), null);
   assert.equal(parseAction({ type: "start-adventure", part: "bonus" }), null);
 });
@@ -92,8 +95,9 @@ test("a host invitation makes its seat the host and team A's leader, once; host 
   const fresh = await issueHostInvitation(path, "player-1", NOW);
   const host = await redeemInvitation(path, fresh, NOW);
   assert.deepEqual((await sessionView(path, host, NOW)).adventure, { status: "lobby", intendedCount: null, host: true, leader: true, canManage: true });
-  // The earlier plain session of the same seat is the same seat, so it has the host's lobby powers too.
-  assert.equal((await sessionView(path, plain, NOW)).adventure.host, true);
+  // The earlier plain session of the same seat stays an ordinary player: host rights belong to the host invitation's session.
+  assert.deepEqual((await sessionView(path, plain, NOW)).adventure, { status: "lobby", intendedCount: null, host: false, leader: true, canManage: false });
+  await assert.rejects(sessionAction(path, plain, { type: "set-intended-count", count: 3 }, "plain-seat-count-00001", NOW), forbidden);
   const written = JSON.parse(await readFile(path, "utf8"));
   assert.equal(written.adventure.hostId, "player-1");
   assert.equal(written.teams.A.leaderId, "player-1");
@@ -122,11 +126,11 @@ test("only the host or the guide sets the count and starts; Start needs a count 
   for (const count of [0, 31, 2.5]) await assert.rejects(sessionAction(path, host, { type: "set-intended-count", count }, `host-bad-count-${count}`.replace(".", "-") + "-x", NOW), forbidden);
   await sessionAction(path, guide, { type: "set-intended-count", count: 9 }, "guide-count-nine-0001", NOW);
   assert.deepEqual((await sessionView(path, player, NOW)).adventure, { status: "lobby", intendedCount: 9, host: false, leader: false, canManage: false });
-  // 9 recommends two teams, which don't exist yet: a plain Start is refused, and only an explicit one-team start would go ahead.
-  await assert.rejects(sessionAction(path, host, { type: "start-adventure" }, "host-start-nine-plain-1", NOW), /Start as one team/);
+  // 9 recommends two teams, which don't exist yet: Start is refused.
+  await assert.rejects(sessionAction(path, host, { type: "start-adventure" }, "host-start-nine-plain-1", NOW), /needs multiple teams/);
   assert.equal((await sessionView(path, player, NOW)).adventure.status, "lobby");
   await sessionAction(path, host, { type: "set-intended-count", count: 5 }, "host-count-five-00001", NOW);
-  assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-adventure-1", NOW), "The adventure has started.");
+  assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-adventure-1", NOW), "The adventure has started!");
   assert.equal((await sessionView(path, player, NOW)).adventure.status, "active");
   // A second Start (the guide's, queued at the same time) changes nothing; the count is fixed once play begins.
   assert.equal(await sessionAction(path, guide, { type: "start-adventure" }, "guide-start-adventure-2", NOW), "The adventure has already started.");
@@ -217,20 +221,61 @@ test("if the new-adventure copy can't be kept, nothing changes", () => fixture(a
   assert.equal(JSON.parse(await readFile(path, "utf8")).adventure.status, "lobby");
 }));
 
-test("30 players start only as one team, said explicitly; the stored format stays the one the I1 app reads", () => fixture(async path => {
-  const { host } = await lobbyWithHost(path);
-  await sessionAction(path, host, { type: "set-intended-count", count: 30 }, "host-count-thirty-0001", NOW);
-  await assert.rejects(sessionAction(path, host, { type: "start-adventure" }, "host-start-thirty-plain", NOW), /Multiple teams aren't available yet/);
-  await sessionAction(path, host, { type: "start-adventure", asOneTeam: true }, "host-start-thirty-one-t", NOW);
+test("6 to 30 can't start, even with an \"as one team\" flag; 5 or fewer can, and the live format stays what I1 reads", () => fixture(async path => {
+  const { host, guide } = await lobbyWithHost(path);
+  for (const count of [6, 7, 11, 17, 30]) {
+    await sessionAction(path, host, { type: "set-intended-count", count }, `host-count-${count}-big-0001`, NOW);
+    await assert.rejects(sessionAction(path, host, { type: "start-adventure" }, `host-start-${count}-big-001`, NOW), /needs multiple teams/);
+    await assert.rejects(sessionAction(path, guide, { type: "start-adventure", asOneTeam: true } as never, `guide-start-${count}-big-01`, NOW), /needs multiple teams/);
+  }
+  assert.equal(JSON.parse(await readFile(path, "utf8")).adventure.status, "lobby");
+  await sessionAction(path, host, { type: "set-intended-count", count: 5 }, "host-count-back-to-five", NOW);
+  assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-five-0000001", NOW), "The adventure has started!");
   const db = JSON.parse(await readFile(path, "utf8"));
-  assert.deepEqual(db.adventure, { status: "active", format: "together", hostId: "player-1", intendedCount: 30 });
+  assert.deepEqual(db.adventure, { status: "active", format: "together", hostId: "player-1", intendedCount: 5 });
   assert.deepEqual(Object.keys(db.teams), ["A"]);
-  // 5 or fewer is one team anyway: a plain Start is enough, and "as one team" changes nothing.
-  await startNewAdventure(path, NOW + 1000);
-  const second = await redeemInvitation(path, await issueHostInvitation(path, "player-2", NOW), NOW);
-  await sessionAction(path, second, { type: "set-intended-count", count: 5 }, "second-count-five-0001", NOW);
-  await sessionAction(path, second, { type: "start-adventure" }, "second-start-plain-0001", NOW);
-  assert.equal((await sessionView(path, second, NOW)).adventure.status, "active");
+}));
+
+test("host rights belong to the host invitation's session: other sessions of the seat, replacements and later links get none", () => fixture(async path => {
+  await startNewAdventure(path, NOW);
+  // A session of the seat from before the host invitation.
+  const before = await redeemInvitation(path, await issueInvitation(path, "player-1", NOW), NOW);
+  const host = await redeemInvitation(path, await issueHostInvitation(path, "player-1", NOW), NOW);
+  // A later ordinary invitation for the same seat (a second phone): signed in, but not the host.
+  const later = await redeemInvitation(path, await issueInvitation(path, "player-1", NOW), NOW);
+  for (const [label, session] of [["before", before], ["later", later]] as const) {
+    assert.equal((await sessionView(path, session, NOW)).adventure.canManage, false, label);
+    await assert.rejects(sessionAction(path, session, { type: "set-intended-count", count: 2 }, `seat-${label}-count-00001`, NOW), forbidden);
+    await assert.rejects(sessionAction(path, session, { type: "start-adventure" }, `seat-${label}-start-00001`, NOW), forbidden);
+  }
+  assert.equal((await sessionView(path, host, NOW)).adventure.canManage, true);
+  // The host's browser opens an ordinary link: the replaced host session is gone, and the new one isn't the host.
+  const replaced = await redeemInvitation(path, await issueInvitation(path, "player-1", NOW), NOW, host);
+  await assert.rejects(sessionView(path, host, NOW), unauthorised);
+  assert.equal((await sessionView(path, replaced, NOW)).adventure.host, false);
+  // A lost phone: the operator issues the same seat a new host link. Redeeming it (here replacing an ordinary session) moves the
+  // rights to the new session; another seat can't be made host while this one is.
+  await assert.rejects(issueHostInvitation(path, "player-2", NOW), conflict);
+  const again = await redeemInvitation(path, await issueHostInvitation(path, "player-1", NOW), NOW, later);
+  await assert.rejects(sessionView(path, later, NOW), unauthorised);
+  assert.equal((await sessionView(path, again, NOW)).adventure.host, true);
+  const third = await redeemInvitation(path, await issueHostInvitation(path, "player-1", NOW), NOW);
+  assert.equal((await sessionView(path, third, NOW)).adventure.host, true);
+  assert.equal((await sessionView(path, again, NOW)).adventure.host, false);
+  await assert.rejects(sessionAction(path, again, { type: "set-intended-count", count: 2 }, "old-host-count-attempt", NOW), forbidden);
+  const stored = JSON.parse(await readFile(path, "utf8"));
+  assert.equal(Object.values(stored.sessions as Record<string, { host?: true }>).filter(session => session.host).length, 1);
+  // Replayed, expired, and after the start.
+  const unused = await issueHostInvitation(path, "player-1", NOW);
+  await assert.rejects(redeemInvitation(path, unused, NOW + 86_400_000), unauthorised);
+  await sessionAction(path, third, { type: "set-intended-count", count: 4 }, "host-third-count-00001", NOW);
+  await sessionAction(path, third, { type: "start-adventure" }, "host-third-start-00001", NOW);
+  await assert.rejects(issueHostInvitation(path, "player-1", NOW), conflict);
+  await assert.rejects(redeemInvitation(path, unused, NOW), unauthorised);
+}));
+
+test("unknown or failed invitations get one friendly message", () => fixture(async path => {
+  await assert.rejects(redeemInvitation(path, "x".repeat(43), NOW), (error: Error & { status?: number }) => error.status === 401 && /expired or has already been used/.test(error.message));
 }));
 
 test("an invitation of a kind this version doesn't grant is refused (leader invitations are reserved for I7a)", () => fixture(async path => {

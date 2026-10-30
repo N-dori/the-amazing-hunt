@@ -12,13 +12,13 @@ type Props = { adventure: AdventureView; guide: boolean; busy: boolean; message:
 export default function IndexAdventureLobby({ adventure, guide, busy, message, onAction }: Props) {
   const [draft, setDraft] = useState<number | null>(null);
   const lobby = useMemo(() => buildLobbyView(adventure, draft), [adventure, draft]);
-  const lead = adventure.host ? LOBBY_COPY.hostLead : guide ? LOBBY_COPY.guideLead : LOBBY_COPY.waiting;
+  // Players without lobby powers get the waiting state instead of a lead.
+  const lead = adventure.host ? LOBBY_COPY.hostLead : guide ? LOBBY_COPY.guideLead : null;
   const start = async () => {
-    if (lobby.count === null) return;
+    if (!lobby.canStart || lobby.count === null) return;
     // Both go through the offline queue in order: the count first, then Start.
     if (lobby.count !== adventure.intendedCount) await onAction({ type: "set-intended-count", count: lobby.count });
-    // A count that recommends several teams starts, explicitly, as the one team the app has.
-    await onAction(lobby.startsAsOneTeam ? { type: "start-adventure", asOneTeam: true } : { type: "start-adventure" });
+    await onAction({ type: "start-adventure" });
   };
   return <PreviewAdventureLobby copy={LOBBY_COPY} lobby={lobby} lead={lead} busy={busy} message={message}
     onStep={delta => setDraft(stepCount(lobby.count, delta))} onStart={() => void start()} />;

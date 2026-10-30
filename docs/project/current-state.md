@@ -47,7 +47,7 @@
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
 - Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 and I1 are done, and **I1 is deployed**. The live file becomes schema 6 on its first write after the deploy and keeps an automatic `pre-schema6` copy; see the [handoff](agent-handoff.md). I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
-- **I2 (host invitation, lobby, Start Adventure) is implemented and verified locally, uncommitted, for the owner's review** (29 Oct 2026). Not deployed or pushed; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only and still plays as one team; see the [handoff](agent-handoff.md).
+- **I2 (host invitation, lobby, Start Adventure) is implemented and committed (`dccaf95`, 29 Oct 2026).** Not deployed or pushed; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only: groups of 1–5 start as one team, and groups of 6–30 can't start until multi-team play exists. The corrections after the owner's review are committed too (30 Oct 2026); mobile visual acceptance is still a deployment prerequisite. See the [handoff](agent-handoff.md).
 
 ## Waiting on the owner
 
@@ -67,7 +67,7 @@
 
 ## Current verification (clean `node:22-alpine` container)
 
-- `npm run test:shuk`: **171 passed, 0 failed** (in `shuk-dev`, 29 Oct, with the uncommitted I2 work; 158 at `175548f`).
+- `npm run test:shuk`: **173 passed, 0 failed** (in `shuk-dev`, 29 Oct, with the I2 corrections; 158 at `175548f`).
 - `npm test`: **61 passed, 0 failed.**
 - `npx next typegen && npx tsc --noEmit`: pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk`: clean; full lint still has the three pre-existing errors in the isolated prototype and eleven warnings in Memory Protocol files. Changed Sass modules compile. `git diff --check`: pass.
 

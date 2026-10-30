@@ -15,6 +15,9 @@ import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPA
 export const SESSION_COOKIE = "shuk_session";
 const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
+/** A session. `host` marks the one session made by redeeming the host invitation: host rights belong to that session, never to
+ * the seat, so another session of the same seat (earlier, later or replaced) has none. Older sessions have no flag. */
+type Session = Credential & { host?: true };
 /** An invitation is a credential that may carry a kind and a team: a host invitation makes its seat the adventure's host and its
  * team's leader. "leader" is reserved for the team leaders' invitations (I7a); nothing issues one yet, and redeeming one is refused.
  * Older invitations have neither field and sign a participant in as before. */
@@ -33,7 +36,7 @@ const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
 // `names` (optional): display names by participant ID, set by an admin command; absent means "Player N".
 /** Schema 5 held one group: its roles and missions sat at the top level. */
-type Schema5Database = { version: 5; invitations: Record<string, Invitation>; sessions: Record<string, Credential>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
+type Schema5Database = { version: 5; invitations: Record<string, Invitation>; sessions: Record<string, Session>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
 /** The team every existing group becomes, and the one the guide acts on until the guide can choose a team. */
 export const DEFAULT_TEAM_ID = "A";
 /** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards. */
@@ -44,7 +47,9 @@ type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missio
 type AdventureRecord = { status: "lobby" | "active"; format: "together" | "twoTeams"; hostId: string | null; intendedCount: number | null };
 /** Schema 6: an adventure of teams (any number of team IDs; one, "A", until I7a). Players belong to one team; the guide oversees every team and is in none. */
 type Database = { version: 6; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, { teamId: string }>;
-  invitations: Record<string, Invitation>; sessions: Record<string, Credential>; applied: Record<string, string[]>; names?: ParticipantNames };
+  invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; names?: ParticipantNames };
+/** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
+export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
 export class AccessError extends Error {
   status: number;
   constructor(message: string, status = 403) { super(message); this.status = status; }
@@ -243,14 +248,16 @@ export async function issueInvitation(path: string, participantId: string, now =
 }
 /**
  * The operator's host invitation (scripts/shuk-invite.ts host <seat>): single-use, 24 hours, for a player seat in team A.
- * Only while the adventure waits in its lobby with no host. It replaces the seat's other invitations and any other host invitation.
+ * Only while the adventure waits in its lobby, with no host yet or with this seat as host (a host who lost their phone gets a
+ * new link; redeeming it moves the host rights to the new session). It replaces the seat's other invitations and any other
+ * host invitation.
  */
 export async function issueHostInvitation(path: string, participantId: string, now = Date.now()) {
   if (!DEV_PARTICIPANTS.some(p => p.id === participantId)) throw new AccessError("The host must be a player seat");
   const token = secret();
   await transact(path, db => {
     if (db.adventure.status !== "lobby") throw new AccessError("The adventure has already started; start a new adventure first", 409);
-    if (db.adventure.hostId !== null) throw new AccessError("This adventure already has a host", 409);
+    if (db.adventure.hostId !== null && db.adventure.hostId !== participantId) throw new AccessError("This adventure already has a host", 409);
     if (db.participants[participantId]?.teamId !== DEFAULT_TEAM_ID) throw new AccessError("The host must be a member of team A");
     for (const [key, invitation] of Object.entries(db.invitations)) {
       if (invitation.participantId === participantId || invitation.kind === "host" || invitation.expiresAt <= now) delete db.invitations[key];
@@ -260,25 +267,28 @@ export async function issueHostInvitation(path: string, participantId: string, n
   return token;
 }
 export async function redeemInvitation(path: string, token: string, now = Date.now(), replaceSession = "") {
-  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new AccessError("Invalid or expired invitation", 401);
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new AccessError(INVITATION_UNUSABLE, 401);
   const session = secret();
   await transact(path, db => {
     const invitation = db.invitations[hash(token)];
-    if (!invitation || invitation.expiresAt <= now) throw new AccessError("Invalid or expired invitation", 401);
+    if (!invitation || invitation.expiresAt <= now) throw new AccessError(INVITATION_UNUSABLE, 401);
     // Fail closed on any kind this version doesn't grant.
-    if (invitation.kind !== undefined && invitation.kind !== "host") throw new AccessError("Invalid or expired invitation", 401);
+    if (invitation.kind !== undefined && invitation.kind !== "host") throw new AccessError(INVITATION_UNUSABLE, 401);
     if (invitation.kind === "host") {
-      // Host rights come only from this invitation, and only into a lobby that still has no host.
+      // Host rights come only from this invitation, only in the lobby, and only for a lobby with no host or with this seat as host.
       const teamId = invitation.teamId ?? DEFAULT_TEAM_ID;
-      if (db.adventure.status !== "lobby" || db.adventure.hostId !== null || db.participants[invitation.participantId]?.teamId !== teamId || !db.teams[teamId]) {
-        throw new AccessError("Invalid or expired invitation", 401);
+      if (db.adventure.status !== "lobby" || (db.adventure.hostId !== null && db.adventure.hostId !== invitation.participantId)
+        || db.participants[invitation.participantId]?.teamId !== teamId || !db.teams[teamId]) {
+        throw new AccessError(INVITATION_UNUSABLE, 401);
       }
       db.adventure = { ...db.adventure, hostId: invitation.participantId };
       db.teams = { ...db.teams, [teamId]: { ...db.teams[teamId], leaderId: invitation.participantId } };
+      // One host session at a time: an earlier host session (a lost phone) keeps its sign-in but loses the host rights.
+      for (const [key, existing] of Object.entries(db.sessions)) if (existing.host) db.sessions[key] = { participantId: existing.participantId, expiresAt: existing.expiresAt };
     }
     delete db.invitations[hash(token)];
     if (replaceSession) delete db.sessions[hash(replaceSession)];
-    db.sessions[hash(session)] = { participantId: invitation.participantId, expiresAt: now + 7 * DAY };
+    db.sessions[hash(session)] = { participantId: invitation.participantId, expiresAt: now + 7 * DAY, ...(invitation.kind === "host" ? { host: true as const } : {}) };
   });
   return session;
 }
@@ -287,6 +297,8 @@ function identity(db: Database, token: string, now: number) {
   if (!credential || credential.expiresAt <= now) throw new AccessError("Invitation login required", 401);
   return credential.participantId;
 }
+/** Whether this session holds the host rights: it came from the host invitation, and its seat is still the adventure's host. */
+const isHostSession = (db: Database, token: string) => db.sessions[hash(token)]?.host === true && db.sessions[hash(token)].participantId === db.adventure.hostId;
 function missionView(definition: MissionDefinition, record: MissionRecord): MissionView {
   return { id: definition.id, state: missionState(record.arrival, record.completed),
     arrivalPoints: record.arrival?.points ?? 0, arrivalMethod: record.arrival?.method ?? null,
@@ -309,8 +321,9 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const role = roleForParticipant(participantId, team.roles);
   const award = record.performance.award;
   const records = Object.values(team.missions);
+  const host = isHostSession(db, token);
   const adventure = { status: db.adventure.status, intendedCount: db.adventure.intendedCount,
-    host: participantId === db.adventure.hostId, leader: participantId === team.leaderId, canManage: guide || participantId === db.adventure.hostId };
+    host, leader: participantId === team.leaderId, canManage: guide || host };
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
     adventure,
@@ -352,27 +365,27 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     try {
       if (action.type === "set-intended-count" || action.type === "start-adventure") {
         // Lobby powers: the host's and the guide's only. Being host or leader grants nothing else (no guide-only permission).
-        if (!guide && participantId !== db.adventure.hostId) throw new Error("Only the host or the guide can set up the adventure.");
+        if (!guide && !isHostSession(db, token)) throw new Error("Only the host or the guide can set up the adventure.");
         if (db.adventure.status !== "lobby") {
           if (action.type === "set-intended-count") throw new Error("The adventure has already started.");
           message = "The adventure has already started.";
         } else if (action.type === "set-intended-count") {
           if (!Number.isSafeInteger(action.count) || action.count < LOBBY_COUNT.min || action.count > LOBBY_COUNT.max) {
-            throw new Error(`Choose between ${LOBBY_COUNT.min} and ${LOBBY_COUNT.max} players.`);
+            throw new Error(`Choose a number from ${LOBBY_COUNT.min} to ${LOBBY_COUNT.max}.`);
           }
           // The count only feeds the recommended number of teams; the adventure keeps its one team until teams can be created.
           db.adventure = { ...db.adventure, intendedCount: action.count, format: "together" };
-          message = "Player count saved.";
+          message = "Got it. Player count saved.";
         } else {
-          if (db.adventure.intendedCount === null) throw new Error("Say how many are playing before you start.");
-          // More than one team recommended: only an explicit one-team start goes ahead, so no one starts teams that don't exist.
-          if (recommendedTeamCount(db.adventure.intendedCount) > 1 && !action.asOneTeam) throw new Error("Multiple teams aren't available yet. Start as one team.");
+          if (db.adventure.intendedCount === null) throw new Error("First, tell us how many are playing.");
+          // A count that needs more than one team can't start until teams can be created (I7a): no one-team stand-in.
+          if (recommendedTeamCount(db.adventure.intendedCount) > 1) throw new Error("Your adventure needs multiple teams. For now, adventures can start with up to five players.");
           db.adventure = { ...db.adventure, status: "active" };
-          message = "The adventure has started.";
+          message = "The adventure has started!";
         }
       } else if (db.adventure.status === "lobby" && !["assign-role", "claim-role", "release-role"].includes(action.type)) {
         // Nothing on the journey counts until the adventure starts; roles may be settled while the group waits.
-        throw new Error("The adventure hasn't started yet.");
+        throw new Error("The adventure hasn't started yet. Your host will start it soon.");
       } else if (action.type === "assign-role") {
         if (!guide) throw new Error("Only the guide may assign roles.");
         team.roles = setGroupRole(ids, team.roles, action.role, action.participantId);
