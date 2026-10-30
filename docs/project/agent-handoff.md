@@ -2,7 +2,22 @@
 
 ## Latest handoff - I2 complete: corrections after the owner's review committed, 29–30 Oct 2026
 
-I2 was committed at the owner's request as `dccaf95`; the owner's review then asked for the corrections below, **committed at the owner's request on 30 Oct 2026** in the commit after `dccaf95`. **Not pushed or deployed**; no live-data change. The live app is still `175548f`, its file still schema 5.
+**Status at a glance (30 Oct 2026):**
+
+| | |
+|---|---|
+| I2 implementation | `dccaf95` (29 Oct): host invitation, lobby, Start Adventure, new-adventure CLI (dev only). On `origin/main`. |
+| I2 corrections | `a05c2a7` (30 Oct): host rights bound to the host session; 6–30 can't start; the approved lobby copy. **Not pushed yet** (the owner pushes from VS Code). |
+| Production | **I2 is committed but not deployed.** Live `dori-shuk` runs `dori-shuk:20261029-213559-175548f` (I1, `175548f`); its `/data/state.json` is still **schema 5** on disk, as no write has happened since the I1 deploy (the first write migrates it to schema 6 and keeps the automatic `pre-schema6` copy). Rollback image `dori-shuk:previous` = `f54f6da` (schema 5). |
+| Verification | `test:shuk` 173/173; `npm test` 61/61; `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new; `/game-verify shuk` healthy, 8/8 routes, 48 MiB; I1 rollback rehearsed on copies; `git diff --check` clean. Details below. |
+| Mobile visual acceptance | **Not done, and required before any I2 deploy.** Claude can't review in a browser on this server; the owner runs the phone checklist below. |
+| I1 rollback limitation | I1 reads and writes every I2 file, but **has no lobby gate**: after a rollback, an adventure still in its lobby simply plays (no count, no Start). The host fields survive. |
+| Host security model | **Session-bound:** only the session that redeemed the host invitation (`host: true`) holds the host rights, and only while its seat is `adventure.hostId`. Other sessions of the seat get none; a new host link for the same seat moves the rights; one host session at a time. Host rights grant lobby powers only, never guide-only ones. |
+| Leader permissions (deferred to I3) | The view's `leader` flag still follows the **seat**, not the session. Harmless in I2 (leaders have no powers yet), but I3 must bind leader rights to sessions the way I2 binds the host's, before leaders can let players in. |
+| Fixed seats | The roster is still the fixed `guide` + `player-1…7`, so an adventure holds at most 7 players whatever count the host enters, until I3 brings dynamic participants. |
+| Multi-team (deferred to I7a) | Teams of about 5 are only a recommendation (`ceil(count / 5)`, split evenly). Groups of 6–30 can't start until I7a builds team creation, leader invitations, the host overview and the guide's team switcher (schema 7). |
+
+The corrections below were asked for in the owner's review of `dccaf95` and committed at the owner's request as `a05c2a7`. No live-data change.
 
 **Corrections:**
 1. **No misleading multi-team starts.** Groups of 1–5 can start as one team. Groups of 6–30 see the balanced recommendation but **can't start**; the server refuses Start for any count that needs more than one team (an `asOneTeam` flag is dropped by the parser and was removed from the action type). The lobby disables Start and explains why. No team creation.
