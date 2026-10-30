@@ -47,4 +47,6 @@ Same conventions as the editorial platform (the platform repo's `app/globals.scs
 
 ## Look
 
+Stitch mockups (`docs/design/stitch-reference/`) are a visual reference only, last in priority: follow the Stitch reference policy in `docs/project/product-decisions.md` and never paste their HTML, Tailwind, scripts or copy into the app. Colours always come from the brand tokens, never from a mockup.
+
 Restrained, warm, editorial and illustrated. No neon sci-fi dashboard styling, even for HARMONY screens: the fiction is carried by the content and illustration, not by glowing UI chrome.

@@ -75,6 +75,46 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
 - **Stitch visual direction (approved 25 Oct 2026):**
   - The owner's Stitch mockups (`docs/design/stitch-reference/`) set the look of the Shuk screens. They are a layout reference only: their copy and features are not approved.
   - Where they conflict with the decisions in this file, these decisions win.
+  - **Stitch reference policy (owner, 30 Oct 2026).** This covers every Stitch material, now and later: screenshots, exported HTML, CSS and JavaScript, tokens, interactions and sample text. Stitch shows how a screen might look and feel. Product decisions define what it must do, and the existing app architecture decides how it is built.
+    - **Priority:**
+      1. Owner-approved decisions and instructions.
+      2. Verified app behaviour, security rules and technical constraints.
+      3. Existing Shuk components, tokens and patterns.
+      4. Approved UX specs and accessibility requirements.
+      5. Stitch.
+
+      Where Stitch conflicts with a higher level, adapt the design; never change the behaviour.
+    - **Colours are always the brand's, never the mockup's** (owner, 30 Oct 2026): only the DORI tokens in `app/globals.scss` (from `docs/design/dori-brand-to-ui.md`). Never copy a hex, Tailwind colour or palette from a Stitch export, even where it looks close; map it to the nearest brand token instead.
+    - **Learn from it:** hierarchy and composition, relative type emphasis, how colours are related (which roles they play, not their values), card layout and spacing, how controls are presented, information density, mobile patterns. Keep the established Shuk identity.
+    - **Don't copy:**
+      - HTML or component structure, the Tailwind config, event handlers, calculations or state;
+      - invitation codes, QR data or names;
+      - scores, rewards or mission counts;
+      - historical claims;
+      - GPS behaviour;
+      - authentication or permission assumptions;
+      - accessibility settings;
+      - prototype navigation;
+      - unapproved copy;
+      - external asset URLs (check licence and the asset policy first).
+
+      Reimplement in the app's own components and styles; if a needed pattern is missing, explain the gap and propose the smallest compatible addition.
+    - **Known export errors**, as examples:
+      - `Math.round(count / 5)`: use the app's `ceil`, balanced split;
+      - "Confirm Squad Setup" and "Squads Dispatched!": there is no multi-team creation in I2;
+      - "All Devices Synced": no sync, readiness, attendance or connection claim without real state;
+      - "GPS mode engages automatically upon launch": GPS stays optional and tap-triggered;
+      - `min-height: max(884px, 100dvh)` and `user-scalable=no`: compact screens that normally fit one viewport, but zoom, text scaling and scrolling stay possible.
+    - **Failed exports:** a `screen.png` that holds only `<FIFE Image failed to fetch>` is not an image. Don't treat it as visual evidence; the HTML can still serve as a reference under these rules. Don't block work on missing screenshots when the code and other references suffice.
+    - **The collection:** `docs/design/stitch-reference/` is a reference collection. A file there, such as the untracked `3_main_screens.html`, may be inspected for context. It doesn't supersede newer designs, isn't approved behaviour, and isn't committed or changed without authorisation.
+    - **In UI work:**
+      1. Inspect the existing screens and components, then the Stitch reference.
+      2. Pick the reusable visual patterns.
+      3. Check every interaction against these decisions.
+      4. Build with the existing component and state architecture, keeping accessibility, authentication and security.
+      5. Verify at suitable screen sizes, and report significant differences from the mockup.
+
+      No pixel-perfect reproduction where it hurts usability or the project's constraints.
   - IBM Plex Serif is approved for Shuk headings (`--font-display`), beside the brand's Plex Sans, Sans Hebrew and Mono.
   - The participant avatar is DiceBear Thumbs (CC0) in a round frame, coloured with the DORI tokens.
   - Before play, screens show only the food tokens a mission gives, never a points promise.

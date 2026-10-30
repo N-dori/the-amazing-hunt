@@ -1,6 +1,6 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 29 Oct 2026 (Claude).** **Live since 29 Oct 2026, 21:36 UTC: `175548f`** (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 30 Oct 2026 (Claude).** **Live since 30 Oct 2026, 06:27 UTC: `364a4f5`** (I2, host invitation and lobby); before that **`175548f`** from 29 Oct 21:36 UTC (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
@@ -42,12 +42,13 @@
 
 ## Next
 
+- **Next session: the compact onboarding (Stitch) review, plan only** (owner's brief, 30 Oct 2026): map the four onboarding screens to the I2 welcome and lobby, with a UI diff plan, final copy and a mobile checklist. No file changes until approved. See the top of the [handoff](agent-handoff.md).
 - The owner's phone review of the 26 Oct changes and of the Stitch slice (the eight preview checks in the handoff).
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
 - Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 and I1 are done, and **I1 is deployed**. The live file becomes schema 6 on its first write after the deploy and keeps an automatic `pre-schema6` copy; see the [handoff](agent-handoff.md). I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
-- **I2 (host invitation, lobby, Start Adventure) is implemented and committed (`dccaf95`, 29 Oct 2026).** Not deployed or pushed; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only: groups of 1–5 start as one team, and groups of 6–30 can't start until multi-team play exists. The corrections after the owner's review are committed too (30 Oct 2026); mobile visual acceptance is still a deployment prerequisite. See the [handoff](agent-handoff.md).
+- **I2 (host invitation, lobby, Start Adventure) is deployed (30 Oct 2026, 06:27 UTC, `364a4f5`) for the owner's phone test**; a new live adventure waits in its lobby (schema 6, no host, everyone signed out). Before that, committed as `dccaf95` and `a05c2a7`; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only: groups of 1–5 start as one team, and groups of 6–30 can't start until multi-team play exists. The corrections after the owner's review are committed too (30 Oct 2026); mobile visual acceptance is still a deployment prerequisite. See the [handoff](agent-handoff.md).
 
 ## Waiting on the owner
 

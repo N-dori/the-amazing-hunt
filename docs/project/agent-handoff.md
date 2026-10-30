@@ -1,16 +1,50 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I2 complete: corrections after the owner's review committed, 29–30 Oct 2026
+## Latest handoff - next session: compact onboarding (Stitch) review, plan only, 30 Oct 2026
+
+**Start here.** The owner reviewed a four-screen Stitch export of the onboarding (Host Welcome, Participant Count, Team Recommendation, Ready to Start) and wrote the review and brief: [`docs/design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md`](../design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md) (the owner's file, in the untracked Stitch folder; read it in full). **Visual direction approved with required corrections; plan and report only, no file changes until the owner approves.**
+
+**What the brief asks for:**
+- A **mapping** of the four Stitch screens to the existing I2 components, a concise **UI diff plan**, proposed **final copy**, and a **mobile acceptance checklist**, with *current I2* kept apart from *future multi-team* elements.
+- **Compact onboarding:** one purpose and one primary action per screen, fitting a normal phone viewport, but no hard no-scroll rule (320 px, zoom, larger text, keyboard, short viewports must still work; never `user-scalable=no`).
+- **Stitch is a visual reference only, last in priority** (the owner's Stitch reference policy, 30 Oct 2026, in [product decisions](product-decisions.md); it supersedes the brief's "visual authority" wording). Keep the existing tokens, Plex Serif/Sans, cards and pills; no Tailwind CDN, external photos or mockup JavaScript.
+- Export mistakes to correct, not copy: `Math.round(n/5)` (use the existing `recommendedTeamCount`/`recommendedTeamSizes` in `lib/amazing-shuk/adventure-lobby.ts`); Confirm Squad Setup / Customize Roster / Re-balance / "Squads Dispatched!" (don't exist; 6–30 stay informational with no usable Start); "GPS engages automatically" (GPS stays optional and tap-triggered); "All Devices Synced", member portraits and names, a share code, mission and token counts (not live facts); `min-height: max(884px, 100dvh)`; jargon ("algorithmic split", "alleyway pacing", "guild", "radios & satchels").
+
+**The four-screen export is in `docs/design/stitch-reference/` (saved by the owner, 30 Oct 2026, untracked):** `1._host_welcome_compact/`, `2._participant_count_compact/`, `3._team_recommendation_compact/` and `4._ready_to_start_compact/`, each with a `code.html`, plus `jerusalem_shuk_field_guide/DESIGN.md` (identical to the copy in `stitch_the_amazing_shuk_ui_ux/`). **The `screen.png` files are not images:** each is 28 bytes of text, `<FIFE Image failed to fetch>`. So the visual reference is the HTML only; ask the owner to re-export the screenshots if a picture is needed. A quick grep confirms the brief's findings in the HTML: `Math.round(count / 5)` (screen 2), Confirm Squad Setup and Squads Dispatched (3), All Devices Synced and "GPS mode engages automatically upon launch" (4), and `min-height: max(884px, 100dvh)` on all four. **All four also set `user-scalable=no`**, which the brief forbids; don't carry it over.
+
+**Starting points in the code** (I2, live):
+- `components/amazing-shuk/PreviewShukWelcome.tsx` (+ `.module.scss`): the invitation welcome, before the lobby → Stitch *Host Welcome*.
+- `components/amazing-shuk/IndexAdventureLobby.tsx` → `PreviewAdventureLobby.tsx` (+ `.module.scss`): today **one screen** that holds the count stepper, the recommendation card, the multiple-teams note, Start Adventure and the players' waiting card → Stitch *Participant Count*, *Team Recommendation* and *Ready to Start*. Splitting it into steps is the main UI decision; the server actions (`set-intended-count`, `start-adventure`) and their checks don't need to change.
+- `lib/amazing-shuk/adventure-lobby.ts` (`buildLobbyView`, `canStart`, `needsTeams`), `lib/amazing-shuk/welcome-copy.ts` (`LOBBY_COPY`: approved lines and the `TODO(copy)` drafts listed in the I2 entry below).
+- Rendered from `components/amazing-shuk/dev/IndexWaterTask.tsx` while `adventure.status === "lobby"`.
+
+**Live, read 30 Oct 2026, 10:30 UTC (counts only):** `dori-shuk:current` = `364a4f5`, healthy. The owner's phone test used the guide link (`guide-0633.txt`, which replaced the first guide link): the adventure is now **active**, count 5, no host (the guide started it), one guide session, mission records opened but none completed. The `host-player-1.txt` and `player-2.txt` invitations are unused (about 20 h left), but **the host link can no longer work**, because a host invitation is redeemable only in the lobby. Testing the host and waiting screens on a phone needs another live new adventure (separate approval) or the `shuk-dev` checklist in the I2 entry below.
+
+**Repo:** `main` is one commit ahead of `origin/main` (`364a4f5`, unpushed; the owner pushes from VS Code). This entry, the deploy record, the Stitch reference policy and its pointer in `.claude/rules/scss.md` are committed with it; `docs/RUN_PREVIEW.md` (the owner's, local links) stays out of commits, as do the untracked files listed below.
+
+**Not authorised by the brief:** implementation, commits, push, deploy, live-state reset, I3 or I7 work, multi-team flows, bypassing server gates, or claiming mobile acceptance.
+
+**Next-session prompt (the owner's):**
+> Review the attached Compact Onboarding Stitch Handoff and the original Amazing Shuk Stitch reference screens. Inspect our current I2 components and product decisions. Propose the smallest visual changes needed to adopt the compact, single-viewport onboarding design while retaining the established styling and enforcing real I2 behavior (1–5 Start, 6–30 informational only). Explicitly address the known export mismatches and show a screen-to-component mapping with final copy and mobile acceptance checklist. **Plan and report only; do not modify files until I approve implementation.**
+
+## Earlier handoff - I2 complete: corrections after the owner's review committed, 29–30 Oct 2026
+
+**Deployed 30 Oct 2026, 06:27 UTC (owner-authorised, for the owner's phone test): `dori-shuk:20261030-062727-364a4f5`**, commit `364a4f5` (ships `shuk-new-adventure.ts` in the image; local, not yet pushed). Rollback image `dori-shuk:previous` = `175548f` (I1, reads schema 6).
+- **Before:** disk cleanup (the `dori-shuk:test` image and unused build cache; 77% → 75%); a fresh backup `/root/backups/amazing-shuk/live-state-before-i2-deploy-20261030T062705Z.json` (mode 600, byte-identical to live: schema 5, 2 unexpired sessions, 7 names, 0 mission records, 10 receipts); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-i2-deploy` (+ `.patch`), reset for the deploy and restored identically.
+- **Deploy:** `deploy/deploy.sh shuk` in tmux: healthy, 0 restarts, 7/7 smoke checks; the dev page 404 and the API without a cookie 401; no error lines in the log; the live file unchanged by the deploy.
+- **Live new adventure (owner-approved):** `shuk-new-adventure.ts --confirm` in the container. The file is now **schema 6, status lobby, no host**, team A with all 7 seats, 0 sessions (everyone signed out), names kept. `/data` gained `state.json.pre-schema6-<hash>` and `state.json.before-new-adventure-<UTC>`, both mode 600 and byte-identical to the deploy backup.
+- **Links for the phone test** (never printed): `.local/amazing-shuk/links-i2-phone-test/` (mode 700; files 600): `host-player-1.txt` (host invitation, seat player-1), `player-2.txt`, `guide-0633.txt` (re-issued 06:33 UTC; it replaced the first guide link); each single-use, 24 h.
+- **Rollback, if needed:** tag `dori-shuk:previous` as `:current` and `docker compose -f deploy/shuk-compose.yml up -d shuk`. I1 reads the v6 lobby file but has no lobby gate. To return to the pre-deploy state, restore the deploy backup with the restore command in the I1 entry below (it is schema 5, so it also works with `f54f6da`).
 
 **Status at a glance (30 Oct 2026):**
 
 | | |
 |---|---|
 | I2 implementation | `dccaf95` (29 Oct): host invitation, lobby, Start Adventure, new-adventure CLI (dev only). On `origin/main`. |
-| I2 corrections | `a05c2a7` (30 Oct): host rights bound to the host session; 6–30 can't start; the approved lobby copy. **Not pushed yet** (the owner pushes from VS Code). |
-| Production | **I2 is committed but not deployed.** Live `dori-shuk` runs `dori-shuk:20261029-213559-175548f` (I1, `175548f`); its `/data/state.json` is still **schema 5** on disk, as no write has happened since the I1 deploy (the first write migrates it to schema 6 and keeps the automatic `pre-schema6` copy). Rollback image `dori-shuk:previous` = `f54f6da` (schema 5). |
+| I2 corrections | `a05c2a7` (30 Oct): host rights bound to the host session; 6–30 can't start; the approved lobby copy. Pushed with `9f80338`; `364a4f5` is not pushed yet (the owner pushes from VS Code). |
+| Production | **I2 deployed 30 Oct 2026** (`364a4f5`, see above), for the owner's phone test; mobile visual acceptance still pending. The live file is schema 6, a new adventure in its lobby. |
 | Verification | `test:shuk` 173/173; `npm test` 61/61; `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new; `/game-verify shuk` healthy, 8/8 routes, 48 MiB; I1 rollback rehearsed on copies; `git diff --check` clean. Details below. |
-| Mobile visual acceptance | **Not done, and required before any I2 deploy.** Claude can't review in a browser on this server; the owner runs the phone checklist below. |
+| Mobile visual acceptance | **Not done.** Required before I2 counts as accepted (deployed early, at the owner's request, for the phone test). Claude can't review in a browser on this server; the owner runs the phone checklist below. |
 | I1 rollback limitation | I1 reads and writes every I2 file, but **has no lobby gate**: after a rollback, an adventure still in its lobby simply plays (no count, no Start). The host fields survive. |
 | Host security model | **Session-bound:** only the session that redeemed the host invitation (`host: true`) holds the host rights, and only while its seat is `adventure.hostId`. Other sessions of the seat get none; a new host link for the same seat moves the rights; one host session at a time. Host rights grant lobby powers only, never guide-only ones. |
 | Leader permissions (deferred to I3) | The view's `leader` flag still follows the **seat**, not the session. Harmless in I2 (leaders have no powers yet), but I3 must bind leader rights to sessions the way I2 binds the host's, before leaders can let players in. |
