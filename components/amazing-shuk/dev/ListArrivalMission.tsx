@@ -10,6 +10,8 @@ import styles from "./ListArrivalMission.module.scss";
 const NO_MEMORY_LAYERS: [] = [];
 // The preview sheet overlaps the map's lower edge by 1.5rem (ListArrivalMission.module.scss); the map keeps the selected pin above it.
 const SHEET_OVERLAP = { bottomInset: 24 };
+// The owner's wording (30 Oct 2026): one finger scrolls the page over the map, two fingers move it.
+const TWO_FINGER_HINT_TEXT = "Use two fingers to move the map.";
 /** The first three stages of every mission: the map, a compact preview, then the location details. */
 export type MissionStage = "map" | "preview" | "location";
 type Props = { missions: readonly MissionView[]; mission: MissionView; stage: MissionStage; guide: boolean; busy: boolean; feedback: string;
@@ -40,7 +42,8 @@ export default function ListArrivalMission({ missions, mission, stage, mapView, 
       markers={markers} selectedId={sheet ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
       notice="Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."
       initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss}
-      frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} showLabels={false} zoomOutBy={1} openOnMarkers />
+      frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} showLabels={false} zoomOutBy={1} openOnMarkers
+      twoFingerHint={TWO_FINGER_HINT_TEXT} />
     {sheet && view ? <PreviewMissionCard view={view} onViewLocation={props.onViewLocation} onClose={props.onClosePreview} /> : null}
   </div>;
 }

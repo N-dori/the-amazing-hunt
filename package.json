@@ -10,7 +10,7 @@
     "shuk:invite": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-invite.ts",
     "shuk:new-adventure": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-new-adventure.ts",
     "test:shuk": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/amazing-shuk/*.test.ts",
-    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/game/*.test.ts"
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/game/*.test.ts lib/map/*.test.ts"
   },
   "dependencies": {
     "@dicebear/core": "10.7.0",

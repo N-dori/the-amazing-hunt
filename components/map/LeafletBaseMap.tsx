@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type * as Leaflet from "leaflet";
 import { BASE_PATH } from "@/lib/base-path";
 import { imageToLatLng, type ImageBaseMap } from "@/lib/map/image-map";
+import { NEW_HINT_MEMORY, shouldShowTwoFingerHint, TWO_FINGER_HINT, type TwoFingerHintMemory } from "@/lib/map/two-finger-hint";
 import styles from "./LeafletBaseMap.module.scss";
 
 export type MapMarkerState = "active" | "locked" | "conditional" | "completed";
@@ -58,11 +59,18 @@ type LeafletBaseMapProps = {
   zoomOutBy?: number;
   // Open on all the markers, as close as fits them (with a pin's margin), instead of "cover" around `focusId`.
   openOnMarkers?: boolean;
+  // Two-finger mode (The Amazing Shuk): one finger scrolls the page, two fingers pan and pinch, a mouse still drags. The text is
+  // the hint shown when a finger tries to drag the map alone.
+  twoFingerHint?: string;
 };
 
 type MapHandle = { L: typeof Leaflet; map: Leaflet.Map; markers: Leaflet.LayerGroup; memory: Leaflet.LayerGroup };
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+// Kept for the page's life, across the map's remounts (map → location → map), so the hint's cooldown holds.
+let hintMemory: TwoFingerHintMemory = NEW_HINT_MEMORY;
+const pageScroll = () => document.scrollingElement?.scrollTop ?? 0;
 
 // A static base map (Leaflet CRS.Simple + ImageOverlay) with separate layers for mission
 // markers and historical memory overlays. One image pixel is one map unit, so marker points
@@ -71,8 +79,11 @@ const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt
 export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   const { baseMap, alt, markers, selectedId, memoryLayers, attribution, notice } = props;
   const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<MapHandle | null>(null);
   const [ready, setReady] = useState(0);
+  const [hintVisible, setHintVisible] = useState(false);
+  const twoFinger = Boolean(props.twoFingerHint);
   // Latest props for Leaflet's listeners and the one-time setup, so they never go stale.
   const latest = useRef(props);
   useEffect(() => {
@@ -191,6 +202,60 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
 
   useEffect(() => { revealSelected(); }, [ready, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Two-finger mode. Leaflet's two-finger handler already pans with the fingers' midpoint while it pinches, so only its one-finger
+  // drag has to step aside: it is turned off for touch and back on for a mouse or pen. The listeners capture on the frame, so they
+  // run before Leaflet's own on the map container; the stylesheet lets the browser scroll the page under one finger.
+  useEffect(() => {
+    const h = handleRef.current;
+    const frame = frameRef.current;
+    if (!h || !frame || !twoFinger) return;
+    const { map } = h;
+    let gesture: { x: number; y: number; scroll: number; shown: boolean } | null = null;
+    let timer: number | undefined;
+    const hide = () => { window.clearTimeout(timer); setHintVisible(false); };
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") map.dragging.disable();
+      else map.dragging.enable();
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      map.dragging.disable();
+      if (e.touches.length > 1) {
+        // Two fingers: the player knows the gesture, so the hint goes and doesn't come back.
+        gesture = null;
+        hintMemory = { ...hintMemory, learned: true };
+        hide();
+        return;
+      }
+      gesture = { x: e.touches[0].clientX, y: e.touches[0].clientY, scroll: pageScroll(), shown: false };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!gesture || e.touches.length !== 1) return;
+      const distance = Math.hypot(e.touches[0].clientX - gesture.x, e.touches[0].clientY - gesture.y);
+      const now = Date.now();
+      if (!shouldShowTwoFingerHint({ distance, pageScrolled: pageScroll() !== gesture.scroll, alreadyShown: gesture.shown }, hintMemory, now)) return;
+      gesture.shown = true;
+      hintMemory = { ...hintMemory, lastShownAt: now };
+      window.clearTimeout(timer);
+      setHintVisible(true);
+      timer = window.setTimeout(() => setHintVisible(false), TWO_FINGER_HINT.showFor);
+    };
+    const onTouchEnd = (e: TouchEvent) => { if (e.touches.length === 0) gesture = null; };
+    const passive = { capture: true, passive: true } as const;
+    frame.addEventListener("pointerdown", onPointerDown, true);
+    frame.addEventListener("touchstart", onTouchStart, passive);
+    frame.addEventListener("touchmove", onTouchMove, passive);
+    frame.addEventListener("touchend", onTouchEnd, passive);
+    frame.addEventListener("touchcancel", onTouchEnd, passive);
+    return () => {
+      frame.removeEventListener("pointerdown", onPointerDown, true);
+      frame.removeEventListener("touchstart", onTouchStart, passive);
+      frame.removeEventListener("touchmove", onTouchMove, passive);
+      frame.removeEventListener("touchend", onTouchEnd, passive);
+      frame.removeEventListener("touchcancel", onTouchEnd, passive);
+      hide();
+    };
+  }, [ready, twoFinger]);
+
   // Historical memory layer.
   useEffect(() => {
     const h = handleRef.current;
@@ -207,9 +272,11 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   }, [ready, memoryLayers, baseMap]);
 
   return (
-    <div className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
-      <div ref={containerRef} className={styles.map} role="region" aria-label={alt} />
+    <div ref={frameRef} className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
+      <div ref={containerRef} className={`${styles.map} ${twoFinger ? styles.twoFinger : ""}`} role="region" aria-label={alt} />
       {notice ? <p className={styles.notice}>{notice}</p> : null}
+      {/* Always in the page, so a screen reader announces the hint when it appears; it never takes a tap. */}
+      {twoFinger ? <p className={`${styles.gestureHint} ${hintVisible ? styles.gestureHintVisible : ""}`} role="status">{hintVisible ? props.twoFingerHint : ""}</p> : null}
     </div>
   );
 }
