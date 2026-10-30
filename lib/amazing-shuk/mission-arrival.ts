@@ -69,7 +69,7 @@ export const GAN_HATUT_MISSION = Object.freeze({
   challenge: Object.freeze({ kind: "water" as const }),
   rewards: WELL_REWARDS, hintCount: WATER_HINTS.length,
 }) satisfies MissionDefinition;
-// Owner-approved "We're Here?" feedback, 24 Oct 2026.
+// Owner-approved feedback for the optional location check ("Check our location", renamed from "We're Here?" on 30 Oct 2026), 24 Oct 2026.
 export const ARRIVAL_NEARBY = "You're very close! Look around for the destination.";
 export const ARRIVAL_NOT_NEARBY = "Not quite there yet. Use the picture and landmarks to find your way.";
 export const ARRIVAL_UNAVAILABLE = "We couldn't check your location. No problem\u2014you can continue.";

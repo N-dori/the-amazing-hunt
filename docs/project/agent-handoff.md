@@ -1,6 +1,20 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - compact onboarding, two-finger map, I7a leader-invitation design: committed and pushed, not deployed, 30 Oct 2026
+## Latest handoff - "Find this place" location screen (option B): implemented, uncommitted, 30 Oct 2026
+
+**Owner-approved plan (30 Oct 2026); uncommitted, not deployed.** Presentation only: no mission data, GPS policy, scoring or permission change.
+- `PreviewArrivalMission.tsx` is now an outdoor recognition task: *What are we looking for?* (the Look for card first: clue, the photo right under it capped at 32svh, the water mission's second image, the landmarks always visible because they carry how to behave at each stop, then a folded *About this place* with the summary) · *Have we found it?* (a light row, no card: **Check our location** + the Optional note, the guide's Confirm Group Arrival, feedback) · *What next?* (Open Challenge, unchanged). The mission name stays as a screen-reader `h2` (`.srOnly`), since the header shows it; the area and Hebrew name share one small line. No sticky bar.
+- **Owner decisions:** "We're Here?" renamed **Check our location** (product decisions updated); the summary folded behind **"About this place"**, a `TODO(copy)` draft.
+- **Honest viewport:** at 375 × 667, with the header and the bottom nav, the clue and photo fit the first view and both actions follow after one short scroll (before: 2–3 screens). A strict no-scroll screen would mean hiding the landmarks.
+- **Verified:** `test:shuk` 175/175 (a new order check for all six missions); `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or phone check.** `dori-shuk:test` is left from the verify (prune when disk climbs; 79% now).
+- **Phone checklist** (dev page, about 375 × 667, then 320 px and 200% text): every mission shows the clue and photo without scrolling; the landmarks always visible; *About this place* opens and closes (3rem target); *Check our location* is clearly secondary and its feedback appears under it; Open Challenge one short scroll down; Back to map and the bottom nav work; the screen reader starts at the mission name; no horizontal scroll at 320 px.
+
+## Earlier handoff - compact onboarding, two-finger map, I7a leader-invitation design: deployed, 30 Oct 2026
+
+**Deployed 30 Oct 2026, 11:08 UTC (owner-authorised): `dori-shuk:20261030-110821-eeab22b`**, healthy, 0 restarts, 7/7 smoke checks. Rollback `dori-shuk:previous` = `364a4f5` (I2, same schema 6; tag it `:current` and `docker compose -f deploy/shuk-compose.yml up -d shuk`). Before: disk already clean (72%, no build cache); backup `/root/backups/amazing-shuk/live-state-before-compact-onboarding-deploy-20261030T110809Z.json` (mode 600, byte-identical to live: schema 6, active, count 5); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-compact-onboarding-deploy` (+ `.patch`) and restored identically. The live file is unchanged by the deploy. The live adventure is **active**, so players see the map change now; the new lobby shows only after a new adventure (separate approval). The keep-3 rule removed `f54f6da`. Disk 76% after.
+- **Found, not caused by this deploy:** the read-only container can't write Next's image cache (`ENOENT: mkdir '/app/.next/cache'` in the log when the welcome map is requested). The image is still served (200, webp); it is just re-optimised on every request. Since `d1d507a`. Fix for later (needs approval): a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml`.
+
+### Work in this deploy - compact onboarding, two-finger map, I7a leader-invitation design, 30 Oct 2026
 
 **Authorised by the owner (30 Oct 2026):** implement A (compact I2 onboarding) and B (map touch gestures), design only C (named Team Leader invitations). **Committed at the owner's request as A `6d35b59` (onboarding) and B `19c5a8e` (map, revertable alone), pushed by the owner; this docs entry and C follow in a docs commit. Not deployed; no live-state change.** No server action, permission or schema changed.
 

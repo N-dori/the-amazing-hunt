@@ -35,17 +35,35 @@ function load(path: string, reactOverride?: object): ComponentType<Record<string
 }
 const callbacks = { onArrival() {}, onConfirm() {}, onOpenChallenge() {}, onBack() {} };
 
-test("mission preview uses We're Here? and ordinary GPS uncertainty has no failure screen", () => {
+test("mission preview uses Check our location and ordinary GPS uncertainty has no failure screen", () => {
   const Preview = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
   for (const state of ["available", "arrived", "completed"] as const) {
     const view = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state, arrivalPoints: state === "available" ? 0 : 20, arrivalMethod: null, gpsEnabled: true }, 1);
     const html = renderToStaticMarkup(createElement(Preview, { view, selected: true, guide: false, busy: false, feedback: LOCATION_UNAVAILABLE_MESSAGE, ...callbacks }));
-    assert.match(html, /Here\?/); assert.doesNotMatch(html, /Here!|role="alert"|latitude|longitude|timer|countdown/);
+    assert.match(html, /Check our location/); assert.doesNotMatch(html, /We&#x27;re Here|Here!|role="alert"|latitude|longitude|timer|countdown/);
     assert.match(html, /play without checking/);
     assert.match(html, /gan-hatut-gate\.jpg/); assert.match(html, /gan-hatut-cistern\.jpg/); assert.match(html, /Montefiore Testimonial/);
     assert.doesNotMatch(html, /Confirm Group Arrival/);
     assert.match(html, /Open Challenge/); assert.match(html, /Back to map/);
     assert.match(html, /Landmarks/); assert.match(html, /lang="he"/);
+  }
+});
+
+test("find this place reads in order for every mission: clue, photo, landmarks, about, location check, then Open Challenge", () => {
+  const Preview = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
+  for (const [index, definition] of SHUK_MISSIONS.entries()) {
+    const view = buildMissionPresentation(definition, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: true }, index + 1);
+    const html = renderToStaticMarkup(createElement(Preview, { view, guide: false, busy: false, feedback: "", ...callbacks }));
+    // The heading stays for screen readers, though the header shows the name.
+    assert.ok(html.includes(`<h2 id="mission-location-title" class="srOnly">${escapeText(definition.name)}</h2>`), definition.id);
+    const at = (text: string) => { const i = html.indexOf(text); assert.ok(i >= 0, `${definition.id}: ${text}`); return i; };
+    // next/image encodes the path, so find the photo by its file name.
+    const photo = definition.photo ? at(definition.photo.src.split("/").pop()!) : at("Reference photograph not yet available");
+    const order = [at("Look for"), at(escapeText(definition.clue)), photo, at("Landmarks"), at("About this place"), at("Check our location"), at("Open Challenge")];
+    assert.deepEqual(order, [...order].sort((a, b) => a - b), `${definition.id} order`);
+    // Landmarks (which carry how to behave at the stop) are always visible; only the summary is folded away.
+    for (const landmark of definition.location.landmarks) assert.ok(html.includes(`<li>${escapeText(landmark)}</li>`), `${definition.id} landmark`);
+    assert.match(html, new RegExp(`<details class="about"><summary class="aboutToggle">About this place</summary><p>${escapeText(definition.location.summary).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</p></details>`));
   }
 });
 

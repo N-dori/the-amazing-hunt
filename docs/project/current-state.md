@@ -7,7 +7,7 @@
 - One fixed development roster (`guide`, `player-1` to `player-7`), server-validated browser sessions and one shared JSON group. Single-use invitations (24 h) and sessions (7 days) are hashed. Roles are enforced by the server; navigator and answer-submitter may be the same person. No external sign-in or SMTP. See the [login runbook](local-participant-login.md). Invitations: `npm run shuk:invite -- <participant> http://localhost:3300` inside the dev container.
 - JSON writers use a filesystem lock, a synced temporary snapshot and an atomic rename; action receipts prevent duplicate actions and rewards. Browsers queue actions locally and retry.
 - Progress, invisible timing, hints and rewards are stored per mission (schema 5, protocol revision 5); `lib/amazing-shuk/missions.ts` is the catalogue. A mission may also have an optional bonus question with its own picks and one-time points.
-- **Six playable missions**, all on the standard journey (map → preview → location → optional We're Here? → challenge → rewards → map):
+- **Six playable missions**, all on the standard journey (map → preview → location → optional Check our location → challenge → rewards → map):
   1. **Gan HaTut, the well** — the 3 L / 5 L / 4 L family-jar puzzle. See the [well record](water-task.md).
   2. **The market mural, "Is It Real or Is It Painted?"** — pick 2 of 8, answer key field-checked by the owner, GPS point confirmed.
   3. **Chesed VeRachamim, "What Was This Building Before?"** — pick 1 of 4 (the tavern), then the blue heritage sign and Yitzhak Armoza; an optional bonus on the novel *The Beauty Queen of Jerusalem* (10 points, no food tokens) and an unscored Eshet Chayil moment. Sources and the Luna findings are in the [handoff](agent-handoff.md).
@@ -19,7 +19,7 @@
   - a sticky slim header: game name, screen title in Plex Serif, avatar, role pills and the points and tokens chips;
   - the illustrated Leaflet map in a rounded field card;
   - a mission preview that overlaps the map's lower edge, with a "Mission N · status" pill tied to its marker, a thumbnail and a teaser, and View Location in a row that never scrolls; the map keeps the selected pin in view;
-  - a location view with a photo, names, a "Look for" card, a "We're Here?" card, and Open Challenge with the food tokens;
+  - a "Find this place" location view (30 Oct 2026): the "Look for" card first, with the clue, the photo, the landmarks and the folded "About this place"; then the optional "Check our location" row; then Open Challenge with the food tokens;
   - checkbox-card answers with a sticky submit bar;
   - a profile panel from the avatar;
   - a fixed bottom bar (Map, Mission, Food, Group) with browser history and refresh kept in the tab;

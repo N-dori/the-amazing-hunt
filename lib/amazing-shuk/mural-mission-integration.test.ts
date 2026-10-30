@@ -105,7 +105,7 @@ test("browsers send toggle-choice over HTTP with the mission ID; the GET returns
   assert.deepEqual(body.missions.map((mission: { id: string }) => mission.id), [MURAL, MONTEFIORE_MISSION_ID, WELL, SYNAGOGUE_MISSION_ID, LEVIN_MISSION_ID, MARZIPAN_MISSION_ID]);
 }));
 
-test("We're Here? uses the mural's confirmed corner: near earns the bonus once, far never blocks play", () => fixture(async (path, tokens, now) => {
+test("Check our location uses the mural's confirmed corner: near earns the bonus once, far never blocks play", () => fixture(async (path, tokens, now) => {
   const reading = (latitude: number) => ({ type: "arrival", missionId: MURAL, reading: { latitude, longitude: 35.2087861, accuracy: 20, timestamp: now } }) as const;
   // About 220 m north of the corner: friendly refusal, no bonus, and the challenge still starts.
   await assert.rejects(sessionAction(path, tokens["player-1"], reading(31.7877892), "mural-far-arrival-0001", now));

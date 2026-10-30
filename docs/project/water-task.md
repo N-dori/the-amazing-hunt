@@ -101,7 +101,7 @@ No deployment, production route enablement, auth replacement or Claude UX-agent 
 
 ## Current Gan HaTut map / optional GPS slice (24 Oct 2026)
 
-The same task ID (`water-measurement-family-jar`) and existing route now have one Gan HaTut mission marker/preview. No duplicate well challenge. Selecting it reveals the story and challenge immediately. **We're Here?** is optional reassurance, not an unlock: no GPS outcome blocks starting, solving or submitting under existing roles.
+The same task ID (`water-measurement-family-jar`) and existing route now have one Gan HaTut mission marker/preview. No duplicate well challenge. Selecting it reveals the story and challenge immediately. **Check our location** (named **We're Here?** until 30 Oct 2026) is optional reassurance, not an unlock: no GPS outcome blocks starting, solving or submitting under existing roles.
 
 `lib/amazing-shuk/mission-arrival.ts` holds destination/clue, independent image placement and configurable arrival policy. The illustrated point(600,650) is a manual provisional prototype placement, explicitly flagged; no documented garden placement was found. The photo index has no identified current garden view and local `design/inputs/photos/` contains only index/.gitkeep. No generic, archival-family or unrelated courtyard image substituted; approved photograph remains missing.
 
