@@ -55,3 +55,12 @@ export function stepCount(count: number | null, delta: -1 | 1): number {
   const next = count === null ? LOBBY_COUNT.min : count + delta;
   return Math.min(LOBBY_COUNT.max, Math.max(LOBBY_COUNT.min, next));
 }
+
+/** One screen at a time in the lobby (compact onboarding, 30 Oct 2026): the count, then either Ready to Start (one team) or the teams
+ * recommendation (6–30, which can't start yet). Players without lobby powers only wait. `counted` is the host's Continue on this phone. */
+export type LobbyStep = "waiting" | "count" | "ready" | "teams";
+export function lobbyStep(lobby: LobbyView, counted: boolean): LobbyStep {
+  if (!lobby.canManage) return "waiting";
+  if (!counted || lobby.recommendation === null) return "count";
+  return lobby.needsTeams ? "teams" : "ready";
+}

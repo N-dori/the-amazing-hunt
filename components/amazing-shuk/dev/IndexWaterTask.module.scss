@@ -1,5 +1,7 @@
 // --shuk-nav-offset is the fixed bottom bar's height: the page leaves room for it, and sticky sheets and bars sit above it.
 .page { --shuk-nav-offset: calc(4rem + 1.5px + env(safe-area-inset-bottom)); width: min(100% - 2rem, 54rem); margin: 0 auto; padding: 0 0 calc(var(--shuk-nav-offset) + 2rem); }
+// The lobby has no bottom bar, so it keeps no room for one: its single screen then fits the phone without scrolling.
+.lobbyPage { padding-block-end: 0; }
 .draft, .label, .target { color: var(--ink); font-size: .8rem; }
 .draft { color: var(--sumac); }
 .simulation { border: 1px solid var(--neutral-line); border-radius: 1rem; background: var(--chalk); padding: 1rem; margin-block: 1rem; }

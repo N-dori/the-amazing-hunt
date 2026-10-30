@@ -1,8 +1,10 @@
-// One column on every screen, like the welcome: the words first, then the host's two answers and the one action.
-.lobby { display: flex; flex-direction: column; gap: 1rem; width: min(100% - 2rem, 30rem); margin-inline: auto;
+// One column, one step at a time, filling the phone like the welcome: the words on top, the one action at the foot of the screen on
+// tall phones. Nothing has a fixed height, so short screens, landscape and large text simply scroll.
+.lobby { display: flex; flex-direction: column; gap: 1rem; width: min(100%, 30rem); min-height: 100svh; min-height: 100dvh; margin-inline: auto;
   padding-block: 1.5rem calc(1.5rem + env(safe-area-inset-bottom)); color: var(--ink); animation: rise var(--dur-base) var(--ease-out) both; }
 .eyebrow { color: var(--sumac); font-size: .75rem; font-weight: 700; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; }
 .title { margin-block-start: -.5rem; font-family: var(--font-display); font-size: clamp(2rem, 9vw, 2.75rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.title:focus { outline: none; }
 .lead { color: var(--ink-subdued); font-size: 1.0625rem; line-height: 1.55; }
 
 .card { display: grid; gap: .75rem; min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--line-stone); border-radius: 1rem; background: var(--surface-raised); }
@@ -17,7 +19,13 @@
 .step:focus-visible { outline: 2px solid var(--sumac); outline-offset: 2px; }
 .step:disabled { color: var(--neutral-line); cursor: not-allowed; }
 .stepIcon { width: 1.5rem; height: 1.5rem; }
-.count { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; line-height: 1; text-align: center; }
+.count { font-family: var(--font-display); font-size: clamp(2.5rem, 12vw, 3.25rem); font-weight: 700; line-height: 1; text-align: center; }
+// "Not set yet" is words, not a number: smaller, so it fits between the buttons at 320px and with large text.
+.countEmpty { color: var(--ink-subdued); font-family: var(--font-body); font-size: 1rem; font-weight: 600; line-height: 1.3; }
+
+// After the count: the number chosen, on one line, above the advice it gives.
+.summary { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem .75rem; }
+.summaryCount { font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1; }
 
 // The recommendation reads as advice, not as a team that exists: plain text with an icon, no selected state.
 .recommendation { display: flex; align-items: center; gap: .75rem; font-size: 1.0625rem; font-weight: 600; line-height: 1.4; }
@@ -26,12 +34,22 @@
   color: var(--ink); font-size: .9375rem; line-height: 1.45; }
 .notYetIcon { flex: none; width: 1.125rem; height: 1.125rem; margin-block-start: .15rem; color: var(--sumac); }
 
-.action { display: grid; gap: .5rem; padding-block-start: .5rem; }
-.action .start { min-height: 3.5rem; border-radius: 9999px; font-weight: 700; }
+// The players' screen: the approved waiting words, centred in the space, with nothing to press.
+.waiting { display: grid; flex: 1; align-content: center; justify-items: center; gap: 1rem; padding-block: 1rem; text-align: center; }
+.waitingBadge { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 50%; background: var(--chalk-tint); color: var(--zaatar);
+  animation: breathe 2.4s var(--ease-out) infinite alternate; }
+.waitingIcon { width: 1.75rem; height: 1.75rem; }
+.waiting .title { margin-block-start: 0; font-size: clamp(1.75rem, 8vw, 2.25rem); }
+
+// The action sits at the foot of the screen on tall phones and follows the content on short ones.
+.action { display: grid; justify-items: center; gap: .5rem; margin-block-start: auto; padding-block-start: .5rem; }
+.action .primary { width: 100%; min-height: 3.5rem; border-radius: 9999px; font-weight: 700; }
+.action .back { min-height: 3rem; padding-inline: 1rem; }
 .message { min-height: 1.5rem; color: var(--sumac); font-size: .9375rem; }
 .message:empty { min-height: 0; }
 
-@media (min-width: 48rem) { .lobby { padding-block: 3rem; } }
+@media (min-width: 48rem) { .lobby { justify-content: center; min-height: 0; padding-block: 3rem; } .action { margin-block-start: .5rem; } .waiting { flex: none; } }
 
 @keyframes rise { from { opacity: 0; transform: translateY(.75rem); } }
-@media (prefers-reduced-motion: reduce) { .lobby { animation: none; } .step { transition: none; } }
+@keyframes breathe { to { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .lobby, .waitingBadge { animation: none; } .step { transition: none; } }

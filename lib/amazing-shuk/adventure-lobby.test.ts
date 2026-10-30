@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, readdir, stat, writeFile, rm } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import { buildLobbyView, recommendedTeamCount, recommendedTeamSizes, stepCount, type AdventureView } from "./adventure-lobby.ts";
+import { buildLobbyView, lobbyStep, recommendedTeamCount, recommendedTeamSizes, stepCount, type AdventureView } from "./adventure-lobby.ts";
 import { parseAction } from "./parse-water-action.ts";
 import { issueHostInvitation, issueInvitation, redeemInvitation, sessionAction, sessionView, setParticipantName, startNewAdventure } from "./participant-store.ts";
 import { schema5Snapshot } from "./legacy-store-fixture.ts";
@@ -66,6 +66,18 @@ test("the lobby view recommends teams without claiming them: 1 to 5 can start, 6
   assert.deepEqual([LOBBY_COPY.recommendedTeams(thirty.teams), LOBBY_COPY.suggestedSplit(thirty.sizes)], ["Recommended teams: 6", "Suggested split: 5 + 5 + 5 + 5 + 5 + 5"]);
   assert.deepEqual([LOBBY_COPY.recommendedTeams(1), LOBBY_COPY.suggestedSplit(buildLobbyView(host, 4).recommendation!.sizes)], ["Recommended teams: 1", "Suggested split: 4"]);
   assert.match(LOBBY_COPY.needsTeams, /coming soon/);
+});
+
+test("the lobby shows one step at a time: the count, then Ready to Start for 1 to 5 or the teams recommendation for 6 to 30", () => {
+  const host: AdventureView = { status: "lobby", intendedCount: null, host: true, leader: true, canManage: true };
+  // Continue without a count stays on the count.
+  assert.deepEqual([lobbyStep(buildLobbyView(host, null), false), lobbyStep(buildLobbyView(host, null), true)], ["count", "count"]);
+  for (const count of [1, 5]) assert.deepEqual([lobbyStep(buildLobbyView(host, count), false), lobbyStep(buildLobbyView(host, count), true)], ["count", "ready"], `count ${count}`);
+  for (const count of [6, 11, 30]) assert.equal(lobbyStep(buildLobbyView(host, count), true), "teams", `count ${count}`);
+  // Only the step that can start offers Start: the teams step never can.
+  for (const count of [6, 11, 30]) assert.equal(buildLobbyView(host, count).canStart, false);
+  const player = { ...host, host: false, leader: false, canManage: false };
+  assert.deepEqual([lobbyStep(buildLobbyView(player, null), false), lobbyStep(buildLobbyView(player, 4), true)], ["waiting", "waiting"]);
 });
 
 test("lobby actions parse only with a whole count", () => {

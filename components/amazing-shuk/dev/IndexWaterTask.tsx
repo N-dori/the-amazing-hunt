@@ -273,7 +273,7 @@ export default function IndexWaterTask({ mode }: Props) {
   if (!view && signedOut) return <PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.
-  if (view.adventure?.status === "lobby") return <main className={styles.page}>
+  if (view.adventure?.status === "lobby") return <main className={`${styles.page} ${styles.lobbyPage}`}>
     <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} busy={busy} message={message} onAction={act} />
   </main>;
   const participants = view.participants ?? PARTICIPANT_IDENTITIES;

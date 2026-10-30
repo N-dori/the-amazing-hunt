@@ -52,6 +52,10 @@ export type LobbyCopy = {
   start: string;
   starting: string;
   needCount: string;
+  /** The count step's one action: on to Ready to Start or the teams recommendation. */
+  next: string;
+  /** Back from Ready to Start or the teams recommendation to the count. */
+  changeCount: string;
 };
 
 export const LOBBY_COPY: LobbyCopy = Object.freeze({
@@ -76,4 +80,7 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   start: "Start Adventure",
   starting: "Starting…",
   needCount: "First, tell us how many are playing.",
+  // TODO(copy): drafts for the compact onboarding steps (30 Oct 2026).
+  next: "Continue",
+  changeCount: "Change the number",
 }) as LobbyCopy;
