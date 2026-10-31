@@ -1,8 +1,24 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - B-lite mission discovery, steps 1–5: implemented locally, uncommitted, 30 Oct 2026
+## Latest handoff - B-lite mission discovery, steps 1–5: committed and deployed, 30 Oct 2026
 
-**Owner-approved (30 Oct 2026), B-lite only:** presentation work with no change to permissions, scoring, GPS policy or server. The plan with the evidence is in `/root/.claude/plans/update-plan-pasted-content-id-6f83-swift-glade.md`. **Uncommitted, not deployed, live state untouched.**
+**Committed as `0c03a61` and deployed on 30 Oct 2026 at 23:55 UTC (owner-authorised): `dori-shuk:20261030-235512-0c03a61`.**
+- Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged (byte-identical to the backup).
+- Rollback: `dori-shuk:previous` = `b84ce27`.
+- Before the deploy:
+  - `dori-shuk:test` removed.
+  - Backup `/root/backups/amazing-shuk/live-state-before-b-lite-deploy-20261030T235503Z.json` (mode 600, byte-identical).
+  - `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-b-lite-deploy` (+ `.patch`) and restored identically.
+- Disk 79% after. The phone checklist is still pending.
+
+**Next session, in order** (each needs the owner's approval):
+1. Push `b84ce27` and `0c03a61` (the owner, from VS Code) and commit this handoff note when asked.
+2. The owner's phone check of the live site: 375 × 667, 320 px, Android Back closing a sheet first (photo and group sheets), 200% text, the guide's role selects only under Group and the timing review only on the challenge, the **Roles needed** line while a role is free. To see it, use the lobby links in `.local/amazing-shuk/links-new-adventure-20261030T1626Z/` (single-use, valid until about 16:26 UTC on 31 Oct; never print them). After that, a new adventure needs separate approval.
+3. Approve or reword the B-lite drafts below (and the earlier "About this place", "Continue", "Change the number").
+4. Not authorised yet: B-lite steps 6–7 (finding hints, paid or not; any cost shown), new clue content, team names, onboarding roles, routing, a location dot, distances or ETAs, any GPS-policy change.
+5. Optional: a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml`. Then I3 after O6 and O15, and O27 before any I7a work.
+
+**Owner-approved (30 Oct 2026), B-lite only:** presentation work with no change to permissions, scoring, GPS policy or server. The plan with the evidence is in `/root/.claude/plans/update-plan-pasted-content-id-6f83-swift-glade.md`. Live state untouched by the work and the deploy.
 
 **What was built:**
 1. **Guide tools placement:** `IndexGuideWaterTask` now takes `part`.

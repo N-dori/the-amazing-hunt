@@ -1,6 +1,6 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 30 Oct 2026 (Claude).** **Live since 30 Oct 2026, 06:27 UTC: `364a4f5`** (I2, host invitation and lobby); before that **`175548f`** from 29 Oct 21:36 UTC (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 31 Oct 2026 (Claude).** **Live since 30 Oct 2026, 23:55 UTC: `0c03a61`** (B-lite mission discovery: destination-first location screen, group-status sheet, mission progress), image `dori-shuk:20261030-235512-0c03a61`; before that `b84ce27` ("Find this place", 30 Oct 16:20 UTC) and `364a4f5` (I2, host invitation and lobby, 30 Oct 06:27 UTC); before that **`175548f`** from 29 Oct 21:36 UTC (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
 
 ## Implemented; automated verification passes
 
@@ -42,7 +42,8 @@
 
 ## Next
 
-- **Next session: the compact onboarding (Stitch) review, plan only** (owner's brief, 30 Oct 2026): map the four onboarding screens to the I2 welcome and lobby, with a UI diff plan, final copy and a mobile checklist. No file changes until approved. See the top of the [handoff](agent-handoff.md).
+- **Next session:** the owner's phone check of the live B-lite screens, then the copy drafts; the ordered list is at the top of the [handoff](agent-handoff.md). B-lite steps 6–7 (finding hints), routing and any GPS-policy change are not authorised.
+- Done (`6d35b59`, 30 Oct 2026): the compact onboarding (Stitch): the one-step lobby.
 - The owner's phone review of the 26 Oct changes and of the Stitch slice (the eight preview checks in the handoff).
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
