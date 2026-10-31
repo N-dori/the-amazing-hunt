@@ -6,6 +6,7 @@ import { parseAction } from "./parse-water-action.ts";
 import { AccessError, ALREADY_IN, APPROVED_MS, askToJoin, createJoinLink, defaultStorePath, exchangeJoin, isSignedIn, joinStatus, logout, PENDING_MS,
   redeemInvitation, SESSION_COOKIE, sessionAction, sessionView } from "./participant-store.ts";
 import { allowJoinAsk } from "./join-rate-limit.ts";
+import { JOIN_ERROR, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY } from "./team-membership.ts";
 
 /** The joining device's request secret (I3b): the same flags as the session cookie, and no longer than its request can live. */
 export const JOIN_COOKIE = "shuk_join";
@@ -31,20 +32,29 @@ export async function handleParticipantRequest(request: Request, path = defaultS
   const joinLinks = environment.SHUK_JOIN_LINKS === "1";
   const secure = (publicOrigin?.protocol ?? url.protocol) === "https:" ? "; Secure" : "";
   const cookie = (name: string, value: string, seconds: number) => `${name}=${value}; Path=${BASE_PATH}/; HttpOnly; SameSite=Strict; Max-Age=${value ? seconds : 0}${secure}`;
+  // Join links switched off: a 404 that says so with a code, so the joining phone hides its form and a queued decision is dropped.
+  const linksOff = (message: string = TEAM_JOIN_COPY.linksOff) => json({ error: message, code: JOIN_ERROR.linksOff }, 404);
   const view = async (missionId?: string) => {
     const { membership, ...rest } = await sessionView(path, token, Date.now(), missionId);
     return joinLinks && membership ? { ...rest, membership } : rest;
   };
   try {
     if (request.method === "GET" && url.searchParams.get("join") === "status") {
-      // The joining device's poll: a read with no lock and no side effects. A request that has gone takes its cookie with it.
-      if (!joinLinks) return new Response(null, { status: 404, headers });
+      // The joining device's poll: a read with no lock and no side effects. A request that has gone takes its cookie with it;
+      // a device that sent one learns its request ended, so after a reload it can say so instead of showing the welcome.
+      if (!joinLinks) return linksOff();
       const status = await joinStatus(path, joinSecret);
-      const response = json(status ?? { status: "gone" });
+      const response = json(status ?? (joinSecret ? { status: "gone", ended: true } : { status: "gone" }));
       if (!status && joinSecret) response.headers.set("Set-Cookie", cookie(JOIN_COOKIE, "", 0));
       return response;
     }
-    if (request.method === "GET") return json(await view(url.searchParams.get("mission") ?? undefined));
+    if (request.method === "GET") {
+      try { return json(await view(url.searchParams.get("mission") ?? undefined)); } catch (error) {
+        // A session cookie the server no longer knows (removed from the team, a new adventure, or expired) isn't "never signed in".
+        if (error instanceof AccessError && error.status === 401 && token) throw new AccessError(TEAM_JOIN_COPY.sessionEnded, 401, JOIN_ERROR.sessionEnded);
+        throw error;
+      }
+    }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
     // Next may construct request.url from its listening hostname rather than the
     // browser's Host (localhost versus 127.0.0.1). Compare against the actual
@@ -69,14 +79,16 @@ export async function handleParticipantRequest(request: Request, path = defaultS
       return response;
     }
     if (body.type === "join-ask" || body.type === "join-exchange" || body.type === "join-link") {
-      if (!joinLinks) return new Response(null, { status: 404, headers });
+      if (!joinLinks) return linksOff();
       if (body.type === "join-link") return json({ link: await createJoinLink(path, token, body.replace === true) });
       // A device already signed in makes nothing: no second identity, no switching teams.
-      if (await isSignedIn(path, token)) throw new AccessError(ALREADY_IN, 409);
+      if (await isSignedIn(path, token)) throw new AccessError(ALREADY_IN, 409, JOIN_ERROR.alreadyIn);
       if (body.type === "join-ask") {
         if (typeof body.link !== "string" || !(body.name === undefined || body.name === null || typeof body.name === "string")) return json({ error: "Invalid request" }, 400);
-        if (!allowJoinAsk(body.link)) throw new AccessError(TOO_MANY_ASKS, 429);
-        const { secret, ...status } = await askToJoin(path, body.link, typeof body.name === "string" && body.name.trim() ? body.name : null, joinSecret);
+        // Counted only once the link is known to be live, so asks with made-up links can't use up everyone's minute (M1).
+        const link = body.link;
+        const { secret, ...status } = await askToJoin(path, link, typeof body.name === "string" && body.name.trim() ? body.name : null, joinSecret, Date.now(),
+          () => { if (!allowJoinAsk(link)) throw new AccessError(TOO_MANY_ASKS, 429); });
         const response = json(status);
         if (secret) response.headers.set("Set-Cookie", cookie(JOIN_COOKIE, secret, JOIN_COOKIE_SECONDS));
         return response;
@@ -89,12 +101,15 @@ export async function handleParticipantRequest(request: Request, path = defaultS
     }
     const action = parseAction(body);
     if (!action || typeof body.actionId !== "string") return json({ error: "Invalid action" }, 400);
+    // The kill switch covers deciding on requests and removing members too (M2): off, they answer 404 like the join calls (N1:
+    // with a body, so the phone's queue drops the action as refused instead of retrying it forever).
+    if (!joinLinks && (action.type === "let-in" || action.type === "decline" || action.type === "remove-member")) return linksOff(TEAM_MEMBERS_COPY.linksOff);
     if (body.puzzleRevision !== WATER_PUZZLE_REVISION) throw new AccessError("Puzzle updated; reload before continuing", 422);
     if (typeof body.expectedParticipantId !== "string") return json({ error: "Expected participant required" }, 400);
     const message = await sessionAction(path, token, action, body.actionId, Date.now(), body.expectedParticipantId);
     return json({ ...await view("missionId" in action ? action.missionId : undefined), message });
   } catch (error) {
-    if (error instanceof AccessError) return json({ error: error.message }, error.status);
+    if (error instanceof AccessError) return json({ error: error.message, ...(error.code ? { code: error.code } : {}) }, error.status);
     return json({ error: "Local storage unavailable" }, 503);
   }
 }

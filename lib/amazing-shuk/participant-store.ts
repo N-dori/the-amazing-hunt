@@ -10,6 +10,7 @@ import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, typ
 import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount } from "./adventure-lobby.ts";
+import { JOIN_ERROR, TEAM_JOIN_COPY, type JoinErrorCode } from "./team-membership.ts";
 import { applyDevWaterAction, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
 export const SESSION_COOKIE = "shuk_session";
@@ -78,14 +79,17 @@ export const PENDING_MS = 10 * 60_000;
 export const APPROVED_MS = 15 * 60_000;
 // TODO(copy): drafts for the join flow (O16).
 export const TEAM_FULL = "This team is full. Ask your guide.";
-export const JOIN_LINK_UNUSABLE = "This join link isn't valid anymore. Ask your team leader for a new one.";
-export const JOIN_REQUEST_GONE = "This request has expired. Ask to join again.";
-export const ALREADY_IN = "You're already in.";
+// The joining phone's own copy, kept once in team-membership.ts; the app tells these refusals apart by their codes (JOIN_ERROR).
+export const JOIN_LINK_UNUSABLE = TEAM_JOIN_COPY.noLink;
+export const JOIN_REQUEST_GONE = TEAM_JOIN_COPY.gone;
+export const ALREADY_IN = TEAM_JOIN_COPY.alreadyIn;
 /** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
 export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
+/** A refusal with its HTTP status; `code` is a stable reason the app can act on (I3b join refusals only). */
 export class AccessError extends Error {
   status: number;
-  constructor(message: string, status = 403) { super(message); this.status = status; }
+  code?: JoinErrorCode;
+  constructor(message: string, status = 403, code?: JoinErrorCode) { super(message); this.status = status; this.code = code; }
 }
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
 const secret = () => randomBytes(32).toString("base64url");
@@ -531,22 +535,24 @@ const statusOf = (request: JoinRequest): JoinStatus => ({ status: request.status
  * A device asks to join with a team's link (I3b): no session, no rights; only a pending request the leader or guide decides on.
  * `joinSecret` is the device's `shuk_join` cookie: a device that already has a live request with this link's team gets that
  * request back, whatever its state, so asking again creates nothing (and a declined device can't ask again until it expires).
- * Returns the new secret only when a request was made. The caller rate-limits before calling, so a flood never reaches the lock.
+ * Returns the new secret only when a request was made. `beforeAsk` (the caller's rate limit) runs once the link is known to be
+ * live and before the lock, and throws to refuse: a flood never reaches the lock, and unknown links are never counted.
  */
-export async function askToJoin(path: string, link: string, name: string | null, joinSecret: string, now = Date.now()): Promise<JoinStatus & { secret?: string }> {
-  if (!isJoinSecret(link)) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+export async function askToJoin(path: string, link: string, name: string | null, joinSecret: string, now = Date.now(), beforeAsk: () => void = () => {}): Promise<JoinStatus & { secret?: string }> {
+  if (!isJoinSecret(link)) throw new AccessError(JOIN_LINK_UNUSABLE, 404, JOIN_ERROR.linkUnusable);
   const clean = name === null ? null : cleanDisplayName(name);
   if (name !== null && !clean) throw new AccessError("A name needs 1–40 characters.", 400);
   // Checked without the lock first, so an unknown link or a repeated ask writes nothing.
   const current = await load(path);
   const linkTeam = teamOfLink(current, link);
-  if (linkTeam === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+  if (linkTeam === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404, JOIN_ERROR.linkUnusable);
+  beforeAsk();
   const mine = isJoinSecret(joinSecret) ? requestOfSecret(current, joinSecret, now) : null;
   if (mine && mine.teamId === linkTeam) return statusOf(mine.request);
   const fresh = secret();
   return transact(path, db => {
     const teamId = teamOfLink(db, link);
-    if (teamId === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+    if (teamId === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404, JOIN_ERROR.linkUnusable);
     const team = withoutExpired(db.teams[teamId], now);
     const pending = liveRequests(team, now).filter(([, request]) => request.status === "pending").length;
     if (pending >= PENDING_LIMIT) throw new AccessError("Too many people are waiting to join. Try again in a few minutes.", 429);
@@ -567,14 +573,14 @@ export async function joinStatus(path: string, joinSecret: string, now = Date.no
  * deleted in the same write, so a second exchange fails; only the device holding the secret can make it.
  */
 export async function exchangeJoin(path: string, joinSecret: string, now = Date.now()) {
-  if (!isJoinSecret(joinSecret)) throw new AccessError(JOIN_REQUEST_GONE, 401);
+  if (!isJoinSecret(joinSecret)) throw new AccessError(JOIN_REQUEST_GONE, 401, JOIN_ERROR.requestGone);
   // Checked without the lock first, so a guessed or replayed secret writes nothing.
   const current = requestOfSecret(await load(path), joinSecret, now);
-  if (!current || current.request.status !== "approved") throw new AccessError(current ? "Your leader hasn't let you in yet." : JOIN_REQUEST_GONE, current ? 409 : 401);
+  if (!current || current.request.status !== "approved") throw current ? new AccessError("Your leader hasn't let you in yet.", 409) : new AccessError(JOIN_REQUEST_GONE, 401, JOIN_ERROR.requestGone);
   const session = secret();
   await transact(path, db => {
     const found = requestOfSecret(db, joinSecret, now);
-    if (!found || found.request.status !== "approved") throw new AccessError(JOIN_REQUEST_GONE, 401);
+    if (!found || found.request.status !== "approved") throw new AccessError(JOIN_REQUEST_GONE, 401, JOIN_ERROR.requestGone);
     const { teamId, requestId, request } = found;
     const participantId = newParticipantId();
     db.participants[participantId] = { teamId, joinedAt: now, ...(request.name ? { name: request.name } : {}) };

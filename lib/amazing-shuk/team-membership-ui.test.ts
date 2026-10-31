@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 import { createElement, type ComponentType } from "react";
 import ts from "typescript";
 import { renderToStaticMarkup } from "react-dom/server";
-import { buildMemberRows, joinUrl, orderRequests, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY, type MembershipView } from "./team-membership.ts";
+import { buildMemberRows, joinStage, joinUrl, orderRequests, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY, type MembershipView } from "./team-membership.ts";
 
 const nativeRequire = createRequire(import.meta.url);
 // The same loader as role-choice.test.ts: the real TSX and button, without a browser or a CSS loader.
@@ -70,4 +70,28 @@ test("the joining phone: an optional name and Ask to join, then the wait with th
   assert.match(waiting, /Waiting for your leader/); assert.match(waiting, /ACDE/); assert.match(waiting, /aria-label="A C D E"/);
   assert.match(renderToStaticMarkup(createElement(Join, { ...base, stage: "waiting", code: "ACDE", approved: true })), /Joining/);
   assert.match(renderToStaticMarkup(createElement(Join, { ...base, stage: "declined" })), /didn&#x27;t let this phone in/);
+});
+
+test("which joining screen: links off hide the form; a request that ended after a reload says so; otherwise the welcome (C1, C2)", () => {
+  const pending = { status: "pending", code: "ACDE", name: null } as const;
+  assert.equal(joinStage(null, "link", true), "unavailable", "links off, with a link: one line, no form");
+  assert.equal(joinStage(pending, null, true), "unavailable", "switched off mid-wait, after a reload: still told why");
+  assert.equal(joinStage({ status: "gone" }, null, true), null, "links off, no link, no request: nothing join-related at all");
+  assert.equal(joinStage(null, "link", false), "checking");
+  assert.equal(joinStage(pending, null, false), "waiting");
+  assert.equal(joinStage({ ...pending, status: "approved" }, null, false), "waiting");
+  assert.equal(joinStage({ ...pending, status: "declined" }, "link", false), "declined");
+  assert.equal(joinStage({ status: "gone" }, "link", false), "ask");
+  assert.equal(joinStage({ status: "gone", ended: true }, "link", false), "ask", "the link is still here: ask again");
+  assert.equal(joinStage({ status: "gone", ended: true }, null, false), "ended");
+  assert.equal(joinStage({ status: "gone" }, null, false), null, "never asked: the signed-out welcome");
+});
+
+test("the joining phone: an ended request and switched-off links show one line and no form", () => {
+  const Join = loadComponent("components/amazing-shuk/PreviewTeamJoin.tsx");
+  const base = { copy: TEAM_JOIN_COPY, name: "", code: null, approved: false, busy: false, message: "", onName: noop, onAsk: noop };
+  const ended = renderToStaticMarkup(createElement(Join, { ...base, stage: "ended" }));
+  assert.match(ended, /Open the join link again/); assert.doesNotMatch(ended, /<form/);
+  const off = renderToStaticMarkup(createElement(Join, { ...base, stage: "unavailable" }));
+  assert.match(off, /doesn&#x27;t work/); assert.doesNotMatch(off, /<form/); assert.doesNotMatch(off, /Ask to join/);
 });

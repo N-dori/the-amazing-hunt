@@ -15,7 +15,8 @@ import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
 import IndexAdventureLobby from "@/components/amazing-shuk/IndexAdventureLobby";
 import IndexTeamJoin from "@/components/amazing-shuk/IndexTeamJoin";
 import IndexTeamMembers from "@/components/amazing-shuk/IndexTeamMembers";
-import { TEAM_JOIN_COPY, type MembershipView } from "@/lib/amazing-shuk/team-membership";
+import { JOIN_ERROR, TEAM_JOIN_COPY, type MembershipView } from "@/lib/amazing-shuk/team-membership";
+import { queuedActionOutcome } from "@/lib/amazing-shuk/action-sync";
 import type { AdventureView } from "@/lib/amazing-shuk/adventure-lobby";
 import { WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
@@ -116,6 +117,8 @@ export default function IndexWaterTask({ mode }: Props) {
   const joinLinkRef = useRef("");
   // The server said there is no session: the welcome screen, without a sign-in button, replaces the bare status line.
   const [signedOut, setSignedOut] = useState(false);
+  // Signed out because the server no longer knows this phone's session (removed from the team, a new adventure): said plainly.
+  const [sessionEnded, setSessionEnded] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try { setStoryOpen(localStorage.getItem("shuk:well-story-collapsed") !== "1"); } catch { /* Reading remains available without local preferences. */ }
@@ -145,7 +148,11 @@ export default function IndexWaterTask({ mode }: Props) {
     try {
       const response = await fetch(API + "?mission=" + encodeURIComponent(missionId), { cache: "no-store" });
       setSignedOut(response.status === 401);
-      if (response.status === 401) setView(null);
+      if (response.status === 401) {
+        setView(null);
+        const refusal = await response.json().catch(() => ({})) as { code?: string };
+        setSessionEnded(refusal.code === JOIN_ERROR.sessionEnded);
+      } else setSessionEnded(false);
       if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : copy.unavailable);
       setView(await response.json() as ServerView);
       setMessage(joinLinkRef.current ? TEAM_JOIN_COPY.alreadyIn : "");
@@ -201,11 +208,15 @@ export default function IndexWaterTask({ mode }: Props) {
         const response = await fetch(API, {
           method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...action, expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION }),
         });
-        const data = await response.json() as ServerView;
-        if (response.status >= 500 || response.status === 401 || response.status === 409) throw new Error(data.error ?? "Action saved; waiting to reconnect.");
+        // A reply without a JSON body (a proxy's error page, an empty 404) must not stop the queue: it is judged by its status alone.
+        // A success must carry the view, though; without it the action stays queued, as before.
+        const body = await response.json().catch(() => null) as Partial<ServerView> | null;
+        const data = body ?? {};
+        const outcome = queuedActionOutcome(response.status);
+        if (outcome === "retry" || (outcome === "applied" && body === null)) throw new Error(data.error ?? "Action saved; waiting to reconnect.");
         const remaining = JSON.parse(localStorage.getItem(key) ?? "[]") as { actionId: string }[];
         localStorage.setItem(key, JSON.stringify(remaining.filter(item => item.actionId !== action.actionId)));
-        if (response.ok) { setView(data); setMessage(action.type === "move" ? "" : data.message ?? ""); }
+        if (outcome === "applied") { setView(data as ServerView); setMessage(action.type === "move" ? "" : data.message ?? ""); }
         else setMessage(data.error ?? "Action rejected.");
       }
     } catch (error) { setMessage(error instanceof Error ? error.message : "Action saved; waiting to reconnect."); }
@@ -282,7 +293,7 @@ export default function IndexWaterTask({ mode }: Props) {
 
   if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
   // No session: a join link, or a request this phone made earlier, leads to joining; otherwise the signed-out welcome.
-  if (!view && signedOut) return <IndexTeamJoin link={joinLink || null} fallback={<PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />}
+  if (!view && signedOut) return <IndexTeamJoin link={joinLink || null} fallback={<PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} signedOut={sessionEnded ? TEAM_JOIN_COPY.sessionEnded : undefined} />}
     onJoined={async () => { joinLinkRef.current = ""; setJoinLink(""); await refresh(); }} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.

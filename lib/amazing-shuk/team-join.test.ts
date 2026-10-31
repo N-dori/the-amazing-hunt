@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { APPROVED_MS, askToJoin, createJoinLink, exchangeJoin, issueHostInvitation, issueInvitation, joinStatus, PENDING_LIMIT, PENDING_MS,
   redeemInvitation, sessionAction, sessionView, startNewAdventure, TEAM_CAPACITY, TEAM_FULL } from "./participant-store.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
-import { ASKS_PER_LINK, resetJoinAsks } from "./join-rate-limit.ts";
+import { ASKS_OVERALL, ASKS_PER_LINK, resetJoinAsks } from "./join-rate-limit.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 
@@ -249,7 +249,8 @@ test("HTTP: ask, poll and exchange with HttpOnly SameSite=Strict cookies; CSRF r
   assert.equal(view.status, 200);
   assert.equal((await call(path, { type: "join-exchange" }, { cookie: `shuk_join=${secret}` })).status, 401, "no second exchange");
   const gone = await call(path, null, { cookie: `shuk_join=${secret}`, query: "?join=status" });
-  assert.deepEqual(await gone.json(), { status: "gone" }); assert.match(setCookies(gone)[0], /^shuk_join=; .*Max-Age=0/);
+  // The used cookie's request has ended (the phone is signed in by now, so it never shows this).
+  assert.deepEqual(await gone.json(), { status: "gone", ended: true }); assert.match(setCookies(gone)[0], /^shuk_join=; .*Max-Age=0/);
   // The leader's view carries membership; the link call is for the leader session only.
   const leaderView = await (await call(path, null, { cookie: `shuk_session=${leader}` })).json() as { membership?: { taken: number } };
   assert.equal(leaderView.membership!.taken, 3, "the leader, the navigator and the new member; the guide counts for nothing");
@@ -272,18 +273,64 @@ test("HTTP: the join cookie is Secure on the https app; the rate limit refuses b
   assert.ok((await readFile(path)).equals(before), "a rate-limited ask writes nothing");
 }));
 
+test("HTTP: asks with made-up links are refused without being counted, so they can't block real joiners (M1)", () => fixture(async path => {
+  resetJoinAsks();
+  const { link } = await team(path);
+  for (let i = 0; i < ASKS_OVERALL; i++) {
+    assert.equal((await call(path, { type: "join-ask", link: `${i}`.padStart(43, "z") })).status, 404);
+    assert.equal((await call(path, { type: "join-ask", link: "not a link" })).status, 404);
+  }
+  assert.equal((await call(path, { type: "join-ask", link })).status, 200, "the real link still gets through");
+}));
+
 test("HTTP: with join links off, ask, status, exchange and link answer 404 and the view has no membership", () => fixture(async path => {
   const { leader, link } = await team(path);
   const off = { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" };
+  // Every refusal says why with a stable code (N1, C1), so the phone hides its form or drops a queued decision.
+  const offCode = async (response: Response) => { assert.equal(response.status, 404); assert.equal((await response.json() as { code?: string }).code, "join-links-off"); };
   for (const body of [{ type: "join-ask", link }, { type: "join-exchange" }, { type: "join-link" }]) {
-    assert.equal((await call(path, body, { environment: off, cookie: `shuk_session=${leader}` })).status, 404);
+    await offCode(await call(path, body, { environment: off, cookie: `shuk_session=${leader}` }));
   }
-  assert.equal((await call(path, null, { environment: off, query: "?join=status" })).status, 404);
+  await offCode(await call(path, null, { environment: off, query: "?join=status" }));
   const view = await (await call(path, null, { environment: off, cookie: `shuk_session=${leader}` })).json() as { membership?: unknown };
   assert.equal(view.membership, undefined);
-  // Actions still answer with the view, without membership.
   const leaderId = (await sessionView(path, leader, NOW)).session.activeActorId;
+  // Deciding on requests and removing members are off too (M2): 404, and the file is unchanged.
+  const playerId = (await stored(path)).teams.A.roles.navigator as string;
+  const before = await readFile(path);
+  for (const action of [{ type: "let-in", requestId: "r_" + "a".repeat(16) }, { type: "decline", requestId: "r_" + "a".repeat(16) }, { type: "remove-member", participantId: playerId }]) {
+    const refused = await call(path, { ...action, actionId: nextId(), expectedParticipantId: leaderId, puzzleRevision: WATER_PUZZLE_REVISION },
+      { environment: off, cookie: `shuk_session=${leader}` });
+    await offCode(refused);
+  }
+  assert.ok((await readFile(path)).equals(before), "nothing was removed or decided");
+  // Actions still answer with the view, without membership.
   const acted = await call(path, { type: "claim-role", role: "answerSubmitter", actionId: nextId(), expectedParticipantId: leaderId, puzzleRevision: WATER_PUZZLE_REVISION },
     { environment: off, cookie: `shuk_session=${leader}` });
   assert.equal(acted.status, 200); assert.equal((await acted.json() as { membership?: unknown }).membership, undefined);
+}));
+
+test("HTTP: refusals carry stable codes; a request that ended and a session that ended are told apart from never signed in (C2, C3, C4)", () => fixture(async path => {
+  resetJoinAsks();
+  const { leader, player, link } = await team(path);
+  const codeOf = async (response: Response) => (await response.json() as { code?: string }).code;
+  assert.equal(await codeOf(await call(path, { type: "join-ask", link }, { cookie: `shuk_session=${leader}` })), "already-in");
+  assert.equal(await codeOf(await call(path, { type: "join-ask", link: "q".repeat(43) })), "join-link-unusable");
+  assert.equal(await codeOf(await call(path, { type: "join-exchange" }, { cookie: "shuk_join=" + "q".repeat(43) })), "join-request-gone");
+  // A request cancelled by a new link: the device that held it learns it ended; a device that never asked doesn't.
+  const asked = await call(path, { type: "join-ask", link });
+  const secret = valueOf(setCookies(asked), "shuk_join");
+  await createJoinLink(path, leader, true, NOW);
+  assert.deepEqual(await (await call(path, null, { cookie: `shuk_join=${secret}`, query: "?join=status" })).json(), { status: "gone", ended: true });
+  assert.deepEqual(await (await call(path, null, { query: "?join=status" })).json(), { status: "gone" });
+  // Removed from the team: the phone's session cookie now gets "session ended", unlike a phone that was never signed in.
+  const playerId = (await sessionView(path, player, NOW)).session.activeActorId;
+  await sessionAction(path, leader, { type: "remove-member", participantId: playerId }, nextId(), NOW);
+  const removed = await call(path, null, { cookie: `shuk_session=${player}` });
+  assert.equal(removed.status, 401); assert.equal(await codeOf(removed), "session-ended");
+  const stranger = await call(path, null);
+  assert.equal(stranger.status, 401); assert.equal(await codeOf(stranger), undefined);
+  // A removed phone can still ask to join again with the link; the leader decides.
+  const fresh = await createJoinLink(path, leader, true, NOW);
+  assert.equal((await call(path, { type: "join-ask", link: fresh }, { cookie: `shuk_session=${player}` })).status, 200);
 }));

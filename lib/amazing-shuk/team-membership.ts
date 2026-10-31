@@ -1,8 +1,31 @@
 /** The team's membership as its leader session and the guide see it (I3b). Requests carry a public ID, never their secret. */
 export type JoinRequestView = Readonly<{ id: string; code: string; name: string | null; status: "pending" | "approved"; expiresAt: number }>;
 export type MembershipView = Readonly<{ capacity: number; taken: number; leaderId: string | null; hasLink: boolean; requests: readonly JoinRequestView[] }>;
-/** The joining device's request, from its own poll; "gone" when it has none or it expired. */
-export type JoinStatusView = Readonly<{ status: "pending" | "approved" | "declined"; code: string; name: string | null }> | Readonly<{ status: "gone" }>;
+/** The joining device's request, from its own poll; "gone" when it has none or it expired. `ended`: the device sent a request
+ * cookie, so it had a request that has now ended (expired, declined and expired, or cancelled by a new link). */
+export type JoinStatusView = Readonly<{ status: "pending" | "approved" | "declined"; code: string; name: string | null }> | Readonly<{ status: "gone"; ended?: true }>;
+/** Stable codes the server sends with these refusals (`{ error, code }`). The app decides by code, never by the message's words. */
+export const JOIN_ERROR = {
+  linksOff: "join-links-off",
+  alreadyIn: "already-in",
+  linkUnusable: "join-link-unusable",
+  requestGone: "join-request-gone",
+  sessionEnded: "session-ended",
+} as const;
+export type JoinErrorCode = (typeof JOIN_ERROR)[keyof typeof JOIN_ERROR];
+export type TeamJoinStage = "checking" | "ask" | "waiting" | "declined" | "ended" | "unavailable";
+/**
+ * Which joining screen a phone without a session shows; null hands over to the signed-out welcome. Join links switched off hide
+ * the form (only a phone that came with a link learns why); a request that ended after a reload, when no link is held, says so.
+ */
+export function joinStage(request: JoinStatusView | null, link: string | null, linksOff: boolean): TeamJoinStage | null {
+  if (linksOff) return link || (request !== null && request.status !== "gone") ? "unavailable" : null;
+  if (request === null) return "checking";
+  if (request.status === "pending" || request.status === "approved") return "waiting";
+  if (request.status === "declined") return "declined";
+  if (link) return "ask";
+  return request.status === "gone" && request.ended ? "ended" : null;
+}
 export type MemberRow = Readonly<{ id: string; name: string; you: boolean; removable: boolean }>;
 
 /** The members' rows: anyone but the leader (who can't be removed until leadership can pass on, I4), the guide and yourself can be removed. */
@@ -34,6 +57,10 @@ export const TEAM_JOIN_COPY = {
   noLink: "This join link isn't valid anymore. Ask your team leader for a new one.",
   failed: "Could not reach the game. Check your connection and try again.",
   alreadyIn: "You're already in.",
+  // The next three are the dori-ux-designer's O16 drafts (design/output/join-flow-copy-o16-2026-10-31.md J2.8, J5.2, J6.3).
+  linksOff: "This join link doesn't work. Ask your team leader or guide for a new one.",
+  ended: "Your request expired. Open the join link again, or ask your team leader to send it.",
+  sessionEnded: "You're no longer in this team. Talk to your guide.",
 } as const;
 export const TEAM_MEMBERS_COPY = {
   title: "Team members",
@@ -61,4 +88,6 @@ export const TEAM_MEMBERS_COPY = {
   you: "You",
   leader: "Leader",
   linkFailed: "Could not get a join link. Try again.",
+  // New, not in the O16 deck: a queued Let in, Decline or Remove refused because join links were switched off meanwhile.
+  linksOff: "Letting players in by link is switched off right now.",
 } as const;
