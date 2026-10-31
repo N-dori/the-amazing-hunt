@@ -7,8 +7,11 @@ import type { AssignableGroupRole } from "./roles.ts";
 export type RoleChoiceAction = Readonly<{ type: "claim-role"; role: AssignableGroupRole }> | Readonly<{ type: "release-role"; role: AssignableGroupRole }>;
 /** The lobby, before the adventure starts: the host or guide says how many are playing, then starts. */
 export type AdventureAction = Readonly<{ type: "set-intended-count"; count: number }> | Readonly<{ type: "start-adventure" }>;
-/** Shared-state actions sent by browsers. Role changes apply to the whole group, lobby actions to the adventure; every other action names its mission. */
-type GroupWideAction = Extract<DevWaterAction, { type: "assign-role" | "switch-actor" }> | RoleChoiceAction | AdventureAction;
+/** The team's leader or the guide decides on a join request (by its public ID), or removes a member (I3b). */
+export type MembershipAction = Readonly<{ type: "let-in"; requestId: string }> | Readonly<{ type: "decline"; requestId: string }>
+  | Readonly<{ type: "remove-member"; participantId: string }>;
+/** Shared-state actions sent by browsers. Role changes and membership apply to the whole group, lobby actions to the adventure; every other action names its mission. */
+type GroupWideAction = Extract<DevWaterAction, { type: "assign-role" | "switch-actor" }> | RoleChoiceAction | AdventureAction | MembershipAction;
 /** Adds or removes one option in a "choose N" challenge's shared selection. */
 export type ChoiceAction = Readonly<{ type: "toggle-choice"; optionId: string }>;
 // `part: "bonus"` aims a toggle, reset or submit at the mission's optional bonus question instead of its main challenge.

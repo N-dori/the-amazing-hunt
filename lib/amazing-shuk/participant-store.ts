@@ -3,7 +3,7 @@ import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
 import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
@@ -26,7 +26,7 @@ type LegacyInvitation = Credential & { kind?: "host" | "leader"; teamId?: string
  * label for the command-line fallback. Redeeming it signs in the participant who holds that seat, or makes one with a random ID.
  * A host invitation also makes that participant the adventure's host and its team's leader. "leader" is reserved for the team
  * leaders' invitations (I7a); nothing issues one yet, and redeeming one is refused. */
-type Invitation = { seat: string; expiresAt: number; kind?: "host" | "leader"; teamId?: string };
+type Invitation = { seat: string; expiresAt: number; kind?: "host" | "leader"; teamId?: string; overCap?: true };
 /** A member of the adventure (schema 7). Only redeeming an invitation makes one: an ID alone, a seat or a name never does.
  * `seat` links a member to the operator's seat label; members who arrive through I3b's join link will have none.
  * `joinedAt` orders the roster (0 for members carried over from schema 6). `name` is a display label, never a credential. */
@@ -48,8 +48,15 @@ type LegacyDatabase = { version: number; arrival: MissionArrival | null; perform
 type Schema5Database = { version: 5; invitations: Record<string, LegacyInvitation>; sessions: Record<string, Session>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
 /** The team every existing group becomes, and the one the guide acts on until the guide can choose a team. */
 export const DEFAULT_TEAM_ID = "A";
-/** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards. */
-type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missions: Record<string, MissionRecord> };
+/** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards.
+ * `joinLink` and `joinRequests` (I3b, optional under schema 7) are its join link, stored hashed, and the requests made with it. */
+type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>;
+  joinLink?: { tokenHash: string; createdAt: number }; joinRequests?: Record<string, JoinRequest> };
+/** A device's request to join (I3b), keyed by a public ID the leader's screen refers to. Only the device holds the secret, in its
+ * `shuk_join` cookie; `code` is shown on both phones so the leader lets in the right one, and proves nothing. A pending request
+ * lasts 10 minutes; let in, it holds a place for 15 more until the device collects its session. A declined one stays until it
+ * would have expired, so the same cookie can't ask again. `name` is a display label only. */
+type JoinRequest = { code: string; secretHash: string; createdAt: number; expiresAt: number; status: "pending" | "approved" | "declined"; name?: string };
 /** The adventure around the teams. `intendedCount` is the host's answer to "how many are playing?"; null when never asked.
  * `format` is stored for the I1 app, which reads only "together" or "twoTeams": while there is one team it stays "together".
  * A team count replaces it when multiple teams arrive (I7a, schema 7). */
@@ -62,6 +69,18 @@ type Schema6Database = { version: 6; adventure: AdventureRecord; teams: Record<s
 type Database = { version: 7; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, ParticipantRecord>;
   invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; seatNames?: ParticipantNames };
 export const SCHEMA_VERSION = 7;
+/** O6 (owner, 31 Oct 2026): members per team, the leader included; the guide is in no team. Members plus requests let in but not
+ * yet collected count. Operator invitations over it need the explicit --over-cap override. */
+export const TEAM_CAPACITY = 5;
+/** O6: requests waiting for the leader, per team. */
+export const PENDING_LIMIT = 5;
+export const PENDING_MS = 10 * 60_000;
+export const APPROVED_MS = 15 * 60_000;
+// TODO(copy): drafts for the join flow (O16).
+export const TEAM_FULL = "This team is full. Ask your guide.";
+export const JOIN_LINK_UNUSABLE = "This join link isn't valid anymore. Ask your team leader for a new one.";
+export const JOIN_REQUEST_GONE = "This request has expired. Ask to join again.";
+export const ALREADY_IN = "You're already in.";
 /** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
 export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
 export class AccessError extends Error {
@@ -127,6 +146,16 @@ function isValidMission(record: MissionRecord): boolean {
   return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string")
     && [record.step, record.stepHintsStart].every(n => n === undefined || (Number.isSafeInteger(n) && n >= 0));
 }
+/** I3b's optional join fields: absent, or well formed. */
+function isValidJoin(team: TeamRecord): boolean {
+  if (team.joinLink !== undefined && !(team.joinLink && /^[0-9a-f]{64}$/.test(team.joinLink.tokenHash) && Number.isSafeInteger(team.joinLink.createdAt))) return false;
+  if (team.joinRequests === undefined) return true;
+  if (!team.joinRequests || typeof team.joinRequests !== "object") return false;
+  return Object.entries(team.joinRequests).every(([id, request]) => /^r_[A-Za-z0-9_-]{16}$/.test(id) && Boolean(request)
+    && /^[A-Z0-9]{4}$/.test(request.code) && /^[0-9a-f]{64}$/.test(request.secretHash) && Number.isSafeInteger(request.createdAt)
+    && Number.isSafeInteger(request.expiresAt) && ["pending", "approved", "declined"].includes(request.status)
+    && (request.name === undefined || cleanDisplayName(request.name) === request.name));
+}
 const stepOf = (record: MissionRecord) => record.kind === "choice" ? record.step ?? 0 : 0;
 export const defaultStorePath = () => resolve(process.env.SHUK_DATA_FILE ?? ".local/amazing-shuk/state.json");
 
@@ -175,7 +204,7 @@ function migrate(raw: Buffer | null): { db: Database; older: boolean } {
   const teams: Record<string, TeamRecord> = {};
   for (const [teamId, team] of Object.entries(db.teams)) {
     const members = memberIds(db, teamId);
-    if (!team || !team.roles || !team.missions || (team.leaderId !== null && !members.includes(team.leaderId))
+    if (!team || !team.roles || !team.missions || !isValidJoin(team) || (team.leaderId !== null && !members.includes(team.leaderId))
       || [team.roles.navigator, team.roles.answerSubmitter].some(id => id !== null && !members.includes(id))) throw new Error("Unsupported Shuk storage state");
     teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
   }
@@ -267,6 +296,40 @@ async function acquireLock(lock: string, now: number): Promise<void> {
   try { await mkdir(lock); } catch { throw busy(); }
 }
 
+/** A team's join requests that haven't expired. Reads use this; writes also drop the rest (`withoutExpired`). */
+const liveRequests = (team: TeamRecord, now: number) => Object.entries(team.joinRequests ?? {}).filter(([, request]) => request.expiresAt > now);
+/** The team with exactly these join requests (none: no field at all, as before I3b). */
+function withRequests(team: TeamRecord, requests: readonly [string, JoinRequest][]): TeamRecord {
+  const copy = { ...team };
+  delete copy.joinRequests;
+  return requests.length ? { ...copy, joinRequests: Object.fromEntries(requests) } : copy;
+}
+const withoutExpired = (team: TeamRecord, now: number) => withRequests(team, liveRequests(team, now));
+/** Places taken in a team: its members, plus requests let in whose device hasn't collected its session yet. */
+const placesTaken = (db: Database, teamId: string, now: number) =>
+  memberIds(db, teamId).length + liveRequests(db.teams[teamId], now).filter(([, request]) => request.status === "approved").length;
+/** The team whose current join link this is, if any. */
+const teamOfLink = (db: Database, link: string) => Object.keys(db.teams).find(id => db.teams[id].joinLink?.tokenHash === hash(link));
+/** The team and live request a device's join secret belongs to, if any. */
+function requestOfSecret(db: Database, joinSecret: string, now: number) {
+  const secretHash = hash(joinSecret);
+  for (const [teamId, team] of Object.entries(db.teams)) {
+    const found = liveRequests(team, now).find(([, request]) => request.secretHash === secretHash);
+    if (found) return { teamId, requestId: found[0], request: found[1] };
+  }
+  return null;
+}
+// The check code's letters and digits leave out look-alikes (0/O, 1/I/L, 2/Z, 5/S, 6/G, 8/B).
+const CODE_ALPHABET = "ACDEFHJKMNPRTUVWXY3479";
+function checkCode(team: TeamRecord, now: number): string {
+  const used = new Set(liveRequests(team, now).map(([, request]) => request.code));
+  for (;;) {
+    const code = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join("");
+    if (!used.has(code)) return code;
+  }
+}
+const isJoinSecret = (value: string) => /^[A-Za-z0-9_-]{43}$/.test(value);
+
 /** Another process (the operator CLI) holds the lock for milliseconds: wait this long for it, in short jittered steps, before "busy". */
 export const LOCK_WAIT_MS = 1_500;
 async function waitForLock(lock: string): Promise<void> {
@@ -347,13 +410,18 @@ async function write<T>(path: string, operation: (db: Database) => T, beforeWrit
     await rm(lock, { recursive: true });
   }
 }
-/** The operator's single-use invitation for a seat (scripts/shuk-invite.ts <seat>): 24 hours. It makes no member by itself; see redeemInvitation. */
-export async function issueInvitation(path: string, seat: string, now = Date.now()) {
+/** Whether a seat's invitation would add a member to a full team. The seat's own member signing in again adds nobody. */
+const overCapacity = (db: Database, seat: string, teamId: string, now: number) =>
+  seat !== DEV_GUIDE_ID && seatHolder(db, seat) === undefined && placesTaken(db, teamId, now) >= TEAM_CAPACITY;
+/** The operator's single-use invitation for a seat (scripts/shuk-invite.ts <seat>): 24 hours. It makes no member by itself; see redeemInvitation.
+ * A seat that would add a member to a full team is refused unless `overCap` (the script's --over-cap), which the invitation records. */
+export async function issueInvitation(path: string, seat: string, now = Date.now(), overCap = false) {
   if (!SEATS.includes(seat)) throw new AccessError("Unknown participant");
   const token = secret();
   await transact(path, db => {
+    if (!overCap && overCapacity(db, seat, DEFAULT_TEAM_ID, now)) throw new AccessError(TEAM_FULL, 409);
     for (const [key, invitation] of Object.entries(db.invitations)) if (invitation.seat === seat || invitation.expiresAt <= now) delete db.invitations[key];
-    db.invitations[hash(token)] = { seat, expiresAt: now + DAY };
+    db.invitations[hash(token)] = { seat, expiresAt: now + DAY, ...(overCap ? { overCap: true as const } : {}) };
   });
   return token;
 }
@@ -365,7 +433,7 @@ const seatHolder = (db: Database, seat: string) => Object.keys(db.participants).
  * new link; redeeming it moves the host rights to the new session). It replaces the seat's other invitations and any other
  * host invitation.
  */
-export async function issueHostInvitation(path: string, seat: string, now = Date.now()) {
+export async function issueHostInvitation(path: string, seat: string, now = Date.now(), overCap = false) {
   if (!SEATS.includes(seat) || seat === DEV_GUIDE_ID) throw new AccessError("The host must be a player seat");
   const token = secret();
   await transact(path, db => {
@@ -373,10 +441,11 @@ export async function issueHostInvitation(path: string, seat: string, now = Date
     if (db.adventure.hostId !== null && db.participants[db.adventure.hostId]?.seat !== seat) throw new AccessError("This adventure already has a host", 409);
     const holder = seatHolder(db, seat);
     if (holder !== undefined && db.participants[holder].teamId !== DEFAULT_TEAM_ID) throw new AccessError("The host must be a member of team A");
+    if (!overCap && overCapacity(db, seat, DEFAULT_TEAM_ID, now)) throw new AccessError(TEAM_FULL, 409);
     for (const [key, invitation] of Object.entries(db.invitations)) {
       if (invitation.seat === seat || invitation.kind === "host" || invitation.expiresAt <= now) delete db.invitations[key];
     }
-    db.invitations[hash(token)] = { seat, expiresAt: now + DAY, kind: "host", teamId: DEFAULT_TEAM_ID };
+    db.invitations[hash(token)] = { seat, expiresAt: now + DAY, kind: "host", teamId: DEFAULT_TEAM_ID, ...(overCap ? { overCap: true as const } : {}) };
   });
   return token;
 }
@@ -400,6 +469,8 @@ export async function redeemInvitation(path: string, token: string, now = Date.n
         throw new AccessError(INVITATION_UNUSABLE, 401);
       }
     }
+    // The cap holds here too: places may have filled since the invitation was issued.
+    if (existing === undefined && !invitation.overCap && placesTaken(db, teamId, now) >= TEAM_CAPACITY) throw new AccessError(TEAM_FULL, 409);
     const participantId = existing ?? newParticipantId();
     if (existing === undefined) db.participants[participantId] = { teamId, joinedAt: now, seat: invitation.seat };
     if (invitation.kind === "host") {
@@ -430,6 +501,89 @@ const isLeaderSession = (db: Database, token: string, teamId: string) => {
   const session = db.sessions[hash(token)];
   return session?.leaderTeamId === teamId && session.participantId === db.teams[teamId]?.leaderId;
 };
+/** Whether this browser session is signed in as a member or the guide (a read; no lock). */
+export async function isSignedIn(path: string, token: string, now = Date.now()) {
+  if (!token) return false;
+  try { identity(await load(path), token, now); return true; } catch (error) { if (error instanceof AccessError) return false; throw error; }
+}
+/**
+ * The team's join link (I3b), for its leader's session or the guide. The link is stored hashed, so it is returned only here, once.
+ * Without `replace`, it is made only when the team has none: opening Invite players never invalidates anything. With `replace`
+ * (an explicit confirmation on the phone), a new link replaces the old one and cancels the requests still waiting; requests already
+ * let in keep their place.
+ */
+export async function createJoinLink(path: string, token: string, replace: boolean, now = Date.now()) {
+  const link = secret();
+  await transact(path, db => {
+    const participantId = identity(db, token, now);
+    const teamId = teamIdOf(db, participantId);
+    if (participantId !== DEV_GUIDE_ID && !isLeaderSession(db, token, teamId)) throw new AccessError("Only your team's leader or the guide can invite players.");
+    const team = withoutExpired(db.teams[teamId], now);
+    if (team.joinLink && !replace) throw new AccessError("Your team already has a join link. Replace it to get a new one.", 409);
+    const kept = Object.entries(team.joinRequests ?? {}).filter(([, request]) => request.status === "approved");
+    db.teams = { ...db.teams, [teamId]: { ...withRequests(team, kept), joinLink: { tokenHash: hash(link), createdAt: now } } };
+  });
+  return link;
+}
+export type JoinStatus = { status: "pending" | "approved" | "declined"; code: string; name: string | null };
+const statusOf = (request: JoinRequest): JoinStatus => ({ status: request.status, code: request.code, name: request.name ?? null });
+/**
+ * A device asks to join with a team's link (I3b): no session, no rights; only a pending request the leader or guide decides on.
+ * `joinSecret` is the device's `shuk_join` cookie: a device that already has a live request with this link's team gets that
+ * request back, whatever its state, so asking again creates nothing (and a declined device can't ask again until it expires).
+ * Returns the new secret only when a request was made. The caller rate-limits before calling, so a flood never reaches the lock.
+ */
+export async function askToJoin(path: string, link: string, name: string | null, joinSecret: string, now = Date.now()): Promise<JoinStatus & { secret?: string }> {
+  if (!isJoinSecret(link)) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+  const clean = name === null ? null : cleanDisplayName(name);
+  if (name !== null && !clean) throw new AccessError("A name needs 1–40 characters.", 400);
+  // Checked without the lock first, so an unknown link or a repeated ask writes nothing.
+  const current = await load(path);
+  const linkTeam = teamOfLink(current, link);
+  if (linkTeam === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+  const mine = isJoinSecret(joinSecret) ? requestOfSecret(current, joinSecret, now) : null;
+  if (mine && mine.teamId === linkTeam) return statusOf(mine.request);
+  const fresh = secret();
+  return transact(path, db => {
+    const teamId = teamOfLink(db, link);
+    if (teamId === undefined) throw new AccessError(JOIN_LINK_UNUSABLE, 404);
+    const team = withoutExpired(db.teams[teamId], now);
+    const pending = liveRequests(team, now).filter(([, request]) => request.status === "pending").length;
+    if (pending >= PENDING_LIMIT) throw new AccessError("Too many people are waiting to join. Try again in a few minutes.", 429);
+    if (placesTaken(db, teamId, now) >= TEAM_CAPACITY) throw new AccessError(TEAM_FULL, 409);
+    const request: JoinRequest = { code: checkCode(team, now), secretHash: hash(fresh), createdAt: now, expiresAt: now + PENDING_MS, status: "pending", ...(clean ? { name: clean } : {}) };
+    db.teams = { ...db.teams, [teamId]: { ...team, joinRequests: { ...team.joinRequests, ["r_" + randomBytes(12).toString("base64url")]: request } } };
+    return { ...statusOf(request), secret: fresh };
+  });
+}
+/** The joining device's poll: its request's state, or null when it has none or it expired. A read; no lock. */
+export async function joinStatus(path: string, joinSecret: string, now = Date.now()): Promise<JoinStatus | null> {
+  if (!isJoinSecret(joinSecret)) return null;
+  const found = requestOfSecret(await load(path), joinSecret, now);
+  return found ? statusOf(found.request) : null;
+}
+/**
+ * Once let in, the device exchanges its join secret, once, for a new member with a random ID and its own session. The request is
+ * deleted in the same write, so a second exchange fails; only the device holding the secret can make it.
+ */
+export async function exchangeJoin(path: string, joinSecret: string, now = Date.now()) {
+  if (!isJoinSecret(joinSecret)) throw new AccessError(JOIN_REQUEST_GONE, 401);
+  // Checked without the lock first, so a guessed or replayed secret writes nothing.
+  const current = requestOfSecret(await load(path), joinSecret, now);
+  if (!current || current.request.status !== "approved") throw new AccessError(current ? "Your leader hasn't let you in yet." : JOIN_REQUEST_GONE, current ? 409 : 401);
+  const session = secret();
+  await transact(path, db => {
+    const found = requestOfSecret(db, joinSecret, now);
+    if (!found || found.request.status !== "approved") throw new AccessError(JOIN_REQUEST_GONE, 401);
+    const { teamId, requestId, request } = found;
+    const participantId = newParticipantId();
+    db.participants[participantId] = { teamId, joinedAt: now, ...(request.name ? { name: request.name } : {}) };
+    const team = db.teams[teamId];
+    db.teams = { ...db.teams, [teamId]: withRequests(team, liveRequests(team, now).filter(([id]) => id !== requestId)) };
+    db.sessions[hash(session)] = { participantId, expiresAt: now + 7 * DAY };
+  });
+  return session;
+}
 function missionView(definition: MissionDefinition, record: MissionRecord): MissionView {
   return { id: definition.id, state: missionState(record.arrival, record.completed),
     arrivalPoints: record.arrival?.points ?? 0, arrivalMethod: record.arrival?.method ?? null,
@@ -471,6 +625,10 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     // The team's balance covers every one of its missions' recorded rewards.
     sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
       foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0), status: "Provisional local-development rewards" },
+    // Membership (I3b) for the team's leader session and the guide only: requests (never their secrets), the space and the leader.
+    ...(guide || adventure.leader ? { membership: { capacity: TEAM_CAPACITY, taken: placesTaken(db, teamId, now), leaderId: team.leaderId,
+      hasLink: Boolean(team.joinLink), requests: liveRequests(team, now).filter(([, request]) => request.status !== "declined")
+        .map(([id, request]) => ({ id, code: request.code, name: request.name ?? null, status: request.status, expiresAt: request.expiresAt })) } } : {}),
     ...(guide ? { guideTiming: { startedAt: record.performance.startedAt, solvedAt: record.performance.solvedAt,
       stoppedElapsedMs: record.performance.solvedAt === null ? null : measuredWaterTime(record.performance, now), paused: record.performance.pausedAt !== null, excluded: record.performance.excluded } } : {}),
   };
@@ -513,6 +671,40 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (recommendedTeamCount(db.adventure.intendedCount) > 1) throw new Error("Your adventure needs multiple teams. For now, adventures can start with up to five players.");
           db.adventure = { ...db.adventure, status: "active" };
           message = "The adventure has started!";
+        }
+      } else if (action.type === "let-in" || action.type === "decline" || action.type === "remove-member") {
+        // Membership (I3b), in the lobby and during the adventure: the session that leads this team, or the guide. Never a seat,
+        // a role or a name. Every check runs here, inside the lock, so simultaneous approvals can't overfill the team.
+        if (!guide && !isLeaderSession(db, token, teamId)) throw new Error("Only your team's leader or the guide can do that.");
+        // Expired requests go; with none left the field is undefined, which the file doesn't keep.
+        team.joinRequests = withoutExpired(team, now).joinRequests;
+        if (action.type === "remove-member") {
+          const target = action.participantId;
+          if (target === DEV_GUIDE_ID || !ids.includes(target)) throw new Error("That person isn't in your team.");
+          if (target === team.leaderId) throw new Error("The team leader can't be removed.");
+          // Deleting the member ends all their sessions (`identity`); their roles free up and their receipts go, so nothing they
+          // queued can ever apply.
+          delete db.participants[target];
+          for (const [key, session] of Object.entries(db.sessions)) if (session.participantId === target) delete db.sessions[key];
+          delete db.applied[target];
+          team.roles = { navigator: team.roles.navigator === target ? null : team.roles.navigator,
+            answerSubmitter: team.roles.answerSubmitter === target ? null : team.roles.answerSubmitter };
+          message = "Removed from the team.";
+        } else {
+          const request = team.joinRequests?.[action.requestId];
+          if (!request) throw new Error(JOIN_REQUEST_GONE);
+          if (action.type === "decline") {
+            if (request.status === "approved") throw new Error("They're already let in.");
+            team.joinRequests = { ...team.joinRequests, [action.requestId]: { ...request, status: "declined" } };
+            message = "Request declined.";
+          } else if (request.status === "approved") {
+            message = "They're already let in.";
+          } else {
+            if (request.status === "declined") throw new Error("This request was declined.");
+            if (placesTaken(db, teamId, now) >= TEAM_CAPACITY) throw new Error(TEAM_FULL);
+            team.joinRequests = { ...team.joinRequests, [action.requestId]: { ...request, status: "approved", expiresAt: now + APPROVED_MS } };
+            message = "Let in. Their phone will join in a moment.";
+          }
         }
       } else if (db.adventure.status === "lobby" && !["assign-role", "claim-role", "release-role"].includes(action.type)) {
         // Nothing on the journey counts until the adventure starts; roles may be settled while the group waits.

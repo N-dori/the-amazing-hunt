@@ -23,6 +23,12 @@ function parseMissionAction(value: unknown): GroupAction | null {
     return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
   }
   if (isRecord(value) && value.type === "start-adventure") return { type: value.type };
+  if (isRecord(value) && (value.type === "let-in" || value.type === "decline")) {
+    return typeof value.requestId === "string" && /^r_[A-Za-z0-9_-]{16}$/.test(value.requestId) ? { type: value.type, requestId: value.requestId } : null;
+  }
+  if (isRecord(value) && value.type === "remove-member") {
+    return typeof value.participantId === "string" && value.participantId.length <= 40 ? { type: value.type, participantId: value.participantId } : null;
+  }
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
   }

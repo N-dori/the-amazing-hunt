@@ -303,7 +303,7 @@ The smallest secure path from the fixed seats to individually authenticated part
 
 **Owner approval (31 Oct 2026):** the owner approved this plan. I3a may be built next, as a local, uncommitted change that is verified and then reported. The recommendations for O6, O15, showing the link again and the check code are part of the approved plan; confirm them explicitly before I3b starts, since the decision table still lists O6 and O15 as open. Deploying, pushing and any live migration (O17) each still need their own approval.
 
-#### I3b decisions (owner, 31 Oct 2026): approved design; not built, implementation not yet approved
+#### I3b decisions (owner, 31 Oct 2026): approved design; built and committed, not deployed (see "I3b implementation" below)
 
 **Approved defaults:**
 - **Team size:** 5 members per team, including the leader. The guide doesn't count.
@@ -380,6 +380,37 @@ The smallest secure path from the fixed seats to individually authenticated part
 - A signed-in device creates nothing. With the kill switch off, the calls return 404.
 - An I3b file is read by the I3a code.
 - The full suite, lint and `tsc`, and `/game-verify shuk`.
+
+#### I3b implementation (Claude, 31 Oct 2026): built and committed, not deployed
+
+**Built:**
+- **Store:**
+  - `createJoinLink` (leader session or guide; replacing needs `replace`), `askToJoin`, `joinStatus` (a read with no lock) and `exchangeJoin`.
+  - The membership actions `let-in`, `decline` and `remove-member`, through the action queue and receipts.
+  - The cap on operator invitations (`shuk-invite.ts --over-cap`, recorded as `overCap` on the invitation).
+  - `teams[id].joinLink` and `joinRequests` are optional under schema 7 and checked on load, so a malformed file fails closed.
+- **HTTP:**
+  - The `join-ask`, `join-exchange` and `join-link` POSTs (same-origin JSON), and `GET ?join=status`.
+  - The `shuk_join` cookie: HttpOnly, SameSite=Strict, Secure on https, 25 minutes.
+  - The in-memory rate limit (`join-rate-limit.ts`) runs before the store is read or locked.
+  - The `SHUK_JOIN_LINKS=1` kill switch: off by default, so a deploy changes nothing until it's set.
+- **Phones:**
+  - `IndexTeamJoin` / `PreviewTeamJoin` for the joining phone: `#join=`, an optional name, Ask to join, the wait with the code, then the game. A reload finds its request again.
+  - `IndexTeamMembers` / `PreviewJoinRequests` for the leader and guide, in the Group tab and under the lobby: space, Invite players with Share and Copy, the link kept in memory only, a confirmed replace, requests with codes, Let in / Decline, and Remove with a confirmation.
+  - All words are drafts (`TODO(copy)` in `team-membership.ts`, O16).
+- **Tests:**
+  - `team-join.test.ts` (12) and `team-membership-ui.test.ts` (3) cover every acceptance test above, plus the CSRF and cookie rules, Secure on https, and the kill switch.
+
+**Notes:**
+- **A lost reply to the exchange** can't be retried: the request is gone, as approved. That leaves a member without a session, so the leader removes it and the phone asks again. Tested.
+- **A lost reply to the ask** sets no cookie, so asking again makes a second request with a new code. It is capped by the pending limit and expires in 10 minutes.
+- **Rollback:** an I3b file was checked against the I3a code (69b4077). I3a reads it, serves the leader and a joined member, and keeps the join fields when it writes. I3b then reads it back. Without I3b, the cap on operator invitations is lost, and pending requests sit unused until a new adventure.
+- **Before any deploy:**
+  - The live file must already be schema 7, with its pre-schema-7 copy.
+  - S0-B Option A deployed first.
+  - A security review.
+
+**I3c (not built):** QR (O15), rate-limit tuning, leadership transfer for a lost leader (I4).
 
 #### S0-A results and S0-B plan (Claude, 31 Oct 2026): S0-B steps 1–3 approved by the owner on 31 Oct 2026
 
@@ -516,63 +547,100 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
   - The host overview: each team's name, leader, participant count and readiness; nothing of other teams' answers, clues or unnecessary personal details.
   - Team-scoped points; food tokens pooled; a guide team switcher; the Marzipan lock per team.
   - Seat enforcement per team (O6), with 5 as the planned maximum.
-  - Mandatory unique team names from the fixed bank ([below](#i7a-team-names-owner-31-oct-2026-rules-and-bank-shape-approved-content-pending-not-built)).
+  - Mandatory team names, unique per adventure, typed or picked from the suggestions ([below](#i7a-team-names-owner-31-oct-2026-decided-not-built)).
 - **Tests:** 30 sessions in 6 teams; cross-team writes rejected; concurrent submissions in every team; the host overview shows no other team's progress.
 - **Acceptance:** a multi-team test on real phones, and the 30-participant checks below before any real 30-person run.
 - **Rollback:** the previous image plus the pre-schema-7 copy.
 
-#### I7a team names (owner, 31 Oct 2026): rules and bank shape approved; content pending; not built
+#### I7a team names (owner, 31 Oct 2026): decided; not built
 
-**Approved rules (for the multi-team adventure):**
-- Every team must choose a name from the fixed, owner-approved Shuk food-name bank. No free text.
-- Within one adventure, a name belongs to one team only. Different adventures may reuse every name.
-- The team leader chooses the name. The guide can choose it as a fallback.
-- A team can't become ready until the server has confirmed its name.
-- The choice is made on a compact, mobile-first screen showing the available names.
-- If another team claims the name first, the screen refreshes what's available and offers another choice.
-- Server-side, the claim runs inside `transact`, so it is atomic. Retries are idempotent: a team that repeats its claim gets its own name back and never a second one.
-- Teams store a stable name ID, never the display text.
-- The confirmed name is shown the same way on the Group sheet, invitations, the host overview and mission screens.
-- **Changing a name:**
-  - Before Start, the team leader may change it.
-  - After Start, only the guide may authorize a change.
-  - A change releases the old name and claims the new one in the same `transact`.
-  - A released name is available to other teams at once.
+**Superseded:** two earlier versions from the same day are replaced: the fixed 24-name bank (mandatory choice, featured order, an emoji for each name) and the avatar options (a reusable icon set, generated artwork). They survive only in git history (`62ae58f` and the commits around it). No GPT or other image API and no generated artwork is needed.
 
-**Approved bank shape:**
-- 24 English names in a fixed bank, 12 of them featured, and 6 available names shown at first ("See more names" opens the rest).
-- **Falafel Fugitives** stays the leading recommendation and comes first in the featured set. No team is ever given it automatically.
-- **Proposed featured swap:** Malawach Mischief and Amba Low-Key Legends replace Baklava No Cap and Olive Squad Goals in the featured set, because the slang may not last. The two replaced names stay in the bank of 24. The exact final featured order waits for editorial confirmation.
-- **Avatars:** a food emoji per name for now (for example 🧆 for Falafel Fugitives). Original illustrations are future work.
+**Owner decisions:**
+- A team **types its own name** or **picks a suggestion**. Within one adventure every name is unique, and the server confirms it atomically.
+- **Names:** at most 20 user-perceived characters, in English/Latin script, with no emoji in the name.
+- **Content:** a basic content check. The guide can correct an inappropriate name with the existing rename rights.
+- **Suggestions:** 4–6 short ones, always including Falafel Fugitives, taken from the [name bank](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md), which is now an optional suggestion library. Suggestions avoid foods whose route claims haven't been checked (kada, mufleta). A suggestion another team holds isn't shown.
+- **Avatar:** superseded on 31 Oct 2026 by the owner's team-avatar direction: about 8 original Shuk-themed avatars, assigned automatically, with no selection step (see "Team avatars" below).
+- **Who names, and when (kept from earlier):**
+  - The team leader names the team, and the guide can do it as a fallback.
+  - The leader may rename before Start. After Start, only the guide may.
+  - A released name is free for other teams at once.
+  - A team can't become ready until its name is confirmed.
+  - The confirmed name is shown the same way on every screen.
+- **Scope:** I7a onboarding only. Naming doesn't block today's single-team game or I3b.
 
-**Draft copy, pending O16 approval** (`TODO(copy)` until approved; `{name}` is the team's name):
+**Screen (one phone screen):**
+- A heading and a description.
+- The team-name field, with the suggestions under it. Tapping a suggestion fills the field.
+- The confirm button.
+- While the claim is being saved, the name is never shown as secured.
+- When a name is taken, the field keeps what the player typed and the suggestions refresh.
 
-| Where | Draft |
+**Approved copy (O16, owner, 31 Oct 2026):**
+
+| Where | Text |
 |---|---|
-| Selection screen, heading | Name your team |
-| Selection screen, help line | Pick a Shuk name. Each name belongs to one team in this adventure. |
-| Buttons | Confirm name · See more names |
-| Name taken | Another team just claimed that name. Pick another! |
+| Heading | Name your team |
+| Description | Make up a name or pick a Shuk favorite! |
+| Field label | Team name |
+| Suggestions label | Need inspiration? |
+| Button | Confirm name |
+| Empty | Enter a team name. |
+| Too long | Keep it under 20 characters. |
+| Unavailable | That name's taken. Try another! |
+| Not allowed | Choose a different name. |
 | Success | You're {name}! |
-| Change after Start (guide only) | Ask your guide to change your team name. |
 
-**Unresolved content and localization (O16):**
-- The final 24 names and the final featured order.
-- **Hebrew:** every Hebrew variant needs a native speaker's approval before use. Until then the names are English only.
-- **Food claims:** specialist foods (for example kada and mufleta) must be checked before any claim that ties a name to the route or to a vendor. The bank's [own caution](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md) still applies.
-- Each name's emoji, and the original illustrations later.
-- The draft copy above.
+The limit is **20 characters inclusive**; the "Too long" message keeps its approved wording. These also still apply from the earlier approval: "Saving your team name…" while saving, "Change team name" for the leader before Start, and "Ask your guide to change your team name." after Start.
 
-**Future work (I7a, not I3b):**
-- Mandatory naming turns on only when all three of these are true:
-  1. The owner has approved the final bank.
-  2. The selection screen and the server validation are built and tested.
-  3. Multi-team onboarding is ready.
-- I3b's player joining stays independent of team names.
+**Validation and normalization:** the same steps on the phone, for instant feedback, and on the server, whose answer is final.
 
-**The current single-team adventure:**
-- Naming is **not** mandatory. The game keeps working with no team name.
-- Nothing about today's start, lobby or "ready" rules changes until I7a turns naming on.
+| Step | Rule | If it fails |
+|---|---|---|
+| 1. Clean | Unicode NFC, trim, collapse every run of whitespace to one space | (none) |
+| 2. Empty | At least one character after cleaning | Empty |
+| 3. Length | At most 20 grapheme clusters (`Intl.Segmenter`, granularity grapheme) | Too long |
+| 4. Characters | Latin-script letters (accents included), digits 0–9, spaces, and `' ’ - & . !` only. At least one letter. No emoji, no other script, no control characters | Not allowed |
+| 5. Content | Words checked against a small blocklist in code, matched on the comparison key. Not promised complete: the guide's rename is the backstop | Not allowed |
+| 6. Unique | The comparison key isn't held by another team in this adventure | Unavailable |
+
+- **Comparison key:** the cleaned name decomposed (NFKD), with accents removed, lower-cased without locale rules, and with ’ treated as '. So "Café Crew", "cafe  crew" and "CAFE CREW" are one name.
+- **Stored:** the cleaned display name and its key. Every screen shows the display name.
+- **Server:**
+  - A claim or rename is a group action. It is authorized as today: the team's leader session before Start, the guide at any time.
+  - It runs inside `transact`. A rename frees the old key and claims the new one in the same write.
+  - The guide's corrections pass through the same checks.
+- **Retries:**
+  - Each claim carries an action ID and goes through the existing exactly-once receipts.
+  - Repeating a claim for the name the team already holds succeeds and changes nothing.
+  - A replayed old claim can't take back a name the team has since given up.
+- **Other adventures:** they can reuse any name. A new adventure starts with none held.
+
+**Team avatars (owner direction, 31 Oct 2026; design by Dori; artwork and build pending):**
+- **Owner direction:**
+  - About 8 original Shuk-themed team avatars, assigned automatically from the stable team ID, never the name.
+  - Teams in one adventure get different avatars where possible. The avatar stays the same through renames, reconnects and restarts.
+  - No selection step, no emoji per name, no runtime AI or new external API.
+  - Personal avatars stay in Profile, and the team name and avatar are the main identity in play.
+- **Design:** [Dori's recommendation](../../design/output/team-identity-avatars-2026-10-31.md):
+  - The header's group button shows the team avatar, and the small line above the title shows the team name.
+  - The personal avatar stays on Profile, with Sign out.
+  - Eight concepts share one frame.
+- **Assignment (technical recommendation): a stored avatar ID**, not one computed each time.
+  - When a team is created (I7a, inside `transact`), the server stores `teams[id].avatarId`: the first catalogue ID no other team in the adventure holds, starting from a point derived from the team ID.
+  - Stored is simpler than computed. A computed avatar can't guarantee different avatars, and it would change for every team whenever the catalogue changed. A stored ID keeps an existing team's avatar whatever happens to the catalogue, and the field is optional under schema 7, so there is no migration.
+  - **Catalogue changes:** avatar IDs are stable and never reused. Adding avatars changes no existing team. A retired ID is shown with the frame and the team's initials until the next adventure.
+  - Today's team A has no `avatarId`, and nothing shows until I7a.
+- **Pending:**
+  - The owner's approval of the set and the subjects.
+  - Ink or Chalk tile.
+  - Who draws the 8 SVGs, and under what licence.
+  - Whether a one-team adventure shows the team identity.
+  - The draft copy (O16).
+  - Each new `public/shuk/` file needs a `!` line in `.dockerignore`.
+
+**Deferred, not open for I7a:** Hebrew and other scripts, emoji in names, generated avatars, avatar choice.
 
 #### I7a design proposal: named Team Leader invitations (draft, 30 Oct 2026; not approved, nothing built)
 
@@ -652,7 +720,7 @@ Team D   + Add a name      [Share invite]   Not sent
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
 | O11–O13 | English-first; "Language Explorer"; Hebrew story bodies stay out of production; other languages need approved translations | **Approved** |
 | O15 | Share and Copy only in I3b; QR approach chosen in I3c | **Approved** 31 Oct 2026 (QR itself still open for I3c) |
-| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: the rules and the bank shape (24 names, 12 featured, 6 shown) were approved on 31 Oct 2026 ([I7a team names](#i7a-team-names-owner-31-oct-2026-rules-and-bank-shape-approved-content-pending-not-built)); the final names and featured order, the Hebrew, the food checks and the copy are still pending | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
+| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: **decided** on 31 Oct 2026, with copy approved ([I7a team names](#i7a-team-names-owner-31-oct-2026-decided-not-built)) | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
 | O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |

@@ -13,6 +13,9 @@ import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
 import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
 import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
 import IndexAdventureLobby from "@/components/amazing-shuk/IndexAdventureLobby";
+import IndexTeamJoin from "@/components/amazing-shuk/IndexTeamJoin";
+import IndexTeamMembers from "@/components/amazing-shuk/IndexTeamMembers";
+import { TEAM_JOIN_COPY, type MembershipView } from "@/lib/amazing-shuk/team-membership";
 import type { AdventureView } from "@/lib/amazing-shuk/adventure-lobby";
 import { WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
@@ -61,7 +64,8 @@ type Props = { mode: keyof typeof MODE_COPY };
 // The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
 type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number } };
 // `participants` carries the group's display names (from the server's state, never git); older servers omit it, and `adventure` too.
-type ServerView = { adventure?: AdventureView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+// `membership` comes only to the team's leader session and the guide, and only while join links are on (I3b).
+type ServerView = { adventure?: AdventureView; membership?: MembershipView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 /** The Shuk game: the local simulation ("dev") or the protected app ("app"), which differ only in wording and the dev panel. */
 export default function IndexWaterTask({ mode }: Props) {
@@ -107,16 +111,20 @@ export default function IndexWaterTask({ mode }: Props) {
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
   const [invitation, setInvitation] = useState("");
+  // A team's join link from `#join=` (I3b). A phone that turns out to be signed in already just says so.
+  const [joinLink, setJoinLink] = useState("");
+  const joinLinkRef = useRef("");
   // The server said there is no session: the welcome screen, without a sign-in button, replaces the bare status line.
   const [signedOut, setSignedOut] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try { setStoryOpen(localStorage.getItem("shuk:well-story-collapsed") !== "1"); } catch { /* Reading remains available without local preferences. */ }
-      const token = new URLSearchParams(window.location.hash.slice(1)).get("invite");
-      if (token) {
-        window.history.replaceState(null, "", window.location.pathname);
-        setInvitation(token);
-      }
+      const fragment = new URLSearchParams(window.location.hash.slice(1));
+      const token = fragment.get("invite");
+      const join = fragment.get("join");
+      if (token || join) window.history.replaceState(null, "", window.location.pathname);
+      if (token) setInvitation(token);
+      else if (join) { joinLinkRef.current = join; setJoinLink(join); }
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -140,7 +148,8 @@ export default function IndexWaterTask({ mode }: Props) {
       if (response.status === 401) setView(null);
       if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : copy.unavailable);
       setView(await response.json() as ServerView);
-      setMessage("");
+      setMessage(joinLinkRef.current ? TEAM_JOIN_COPY.alreadyIn : "");
+      if (joinLinkRef.current) { joinLinkRef.current = ""; setJoinLink(""); }
     } catch (error) { setMessage(error instanceof Error ? error.message : copy.loadFailed); }
   }, [missionId, copy]);
   useEffect(() => {
@@ -272,11 +281,16 @@ export default function IndexWaterTask({ mode }: Props) {
   };
 
   if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
-  if (!view && signedOut) return <PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />;
+  // No session: a join link, or a request this phone made earlier, leads to joining; otherwise the signed-out welcome.
+  if (!view && signedOut) return <IndexTeamJoin link={joinLink || null} fallback={<PreviewShukWelcome copy={WELCOME_COPY} message="" busy={false} />}
+    onJoined={async () => { joinLinkRef.current = ""; setJoinLink(""); await refresh(); }} />;
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.
   if (view.adventure?.status === "lobby") return <main className={`${styles.page} ${styles.lobbyPage}`}>
     <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} busy={busy} message={message} onAction={act} />
+    {/* Players can join while the group waits in the lobby. */}
+    {view.membership ? <IndexTeamMembers membership={view.membership} participants={view.participants ?? PARTICIPANT_IDENTITIES}
+      currentId={view.session.activeActorId} busy={busy} onAction={act} /> : null}
   </main>;
   const participants = view.participants ?? PARTICIPANT_IDENTITIES;
   // A locked finale (Marzipan) can't be played yet, even from a saved screen or the Mission tab: its map preview says why.
@@ -308,6 +322,8 @@ export default function IndexWaterTask({ mode }: Props) {
       {nav.area === "group" ? <ListGroupOverview participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
         missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
         onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
+      {nav.area === "group" && view.membership ? <IndexTeamMembers membership={view.membership} participants={participants}
+        currentId={view.session.activeActorId} busy={busy} onAction={act} /> : null}
       {/* The guide assigns roles with the group, not under the map or a mission. */}
       {nav.area === "group" && activeRole === "guide" ? guideTools("roles") : null}
       {nav.area === "journey" && journeyStage !== "challenge" ? <ListArrivalMission missions={view.missions} mission={view.mission} stage={journeyStage} progress={progress} guide={activeRole === "guide"} busy={busy || arrivalBusy}

@@ -1,0 +1,9 @@
+// The joining phone shares the lobby's one-column, one-step layout and its waiting state.
+@forward "./PreviewAdventureLobby.module";
+
+// 1rem text so phones don't zoom into the field; an outdoor-sized target.
+.field { width: 100%; min-height: 3rem; padding-inline: .75rem; border: 1px solid var(--line-stone); border-radius: .75rem; background: var(--chalk);
+  color: var(--ink); font: inherit; font-size: 1rem; }
+.field:focus-visible { outline: 2px solid var(--sumac); outline-offset: 2px; }
+// The check code: large, spaced and in the mono face, so it reads at arm's length beside the leader's phone.
+.code { font-family: var(--font-mono); font-size: clamp(2.5rem, 14vw, 3.5rem); font-weight: 700; letter-spacing: .2em; line-height: 1; }

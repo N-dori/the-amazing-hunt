@@ -1,6 +1,6 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - S0-B Option A committed, not deployed; I3b approved, not built; team-name directions recorded: 31 Oct 2026
+## Latest handoff - S0-B Option A and I3b committed, not deployed; team naming decided: 31 Oct 2026
 
 - **Live I3a, checked read-only (31 Oct 2026, about 10:15 UTC):**
   - `dori-shuk:20261031-084833-69b4077` is up, healthy, with 0 restarts.
@@ -20,27 +20,27 @@
     - Whether stress latency is measured from back-online.
     - Whether Option B (client backoff) is still needed. It stays deferred.
   - Not covered by a test: the 10 s turn timeout.
-  - Disk is at 83%. `dori-shuk:test` can be removed.
-- **I3b design approved by the owner** (multiplayer plan, "I3b decisions"):
-  - O6 and O15 are approved.
-  - Replacing the link needs explicit confirmation.
-  - Remove is in I3b.
-  - The team cap is enforced, with an explicit operator override.
-  - **Not built. Implementation needs its own approval.** Its dependencies are listed there.
-- **Team names (owner, 31 Oct 2026; I7a only, not built)** (multiplayer plan, "I7a team names"):
-  - **Approved:**
-    - The rules: unique per adventure, from a fixed bank, claimed atomically by the server.
-    - Changing a name: the leader may change it before Start; after Start only the guide authorizes a change. A released name is free for other teams.
-    - The bank shape: 24 names, 12 featured, 6 shown first. Falafel Fugitives leads.
-    - Food emojis as the first avatars.
-  - **Pending (O16):**
-    - The proposed featured swap (Malawach Mischief and Amba Low-Key Legends in place of Baklava No Cap and Olive Squad Goals), and the final featured order.
-    - A native speaker's approval of the Hebrew.
-    - Checking specialist foods before any claim tied to the route.
-    - The draft copy for the selection, name-taken and success messages.
+  - Disk was at 81% after `docker builder prune` (31 Oct 2026). `dori-shuk:test` holds the I3b build and can be removed.
+- **I3b: committed on `main` ("Add the Shuk team join link…"), not pushed or deployed** (multiplayer plan, "I3b implementation"):
+  - The join link, the request with its check code, Let in / Decline, the one-time exchange, Remove, the team cap (operator `--over-cap`), the rate limit and the `SHUK_JOIN_LINKS` kill switch (off by default).
+  - Verified:
+    - 220 Shuk tests and 63 unit tests pass. tsc is clean, and lint shows only the 3 older prototype errors.
+    - The `dori-shuk:test` smoke test passed with the switch off and on.
+    - The I3a rollback check passed.
+  - Before a deploy:
+    - Option A live first.
+    - The live file at schema 7 with its pre-schema-7 copy.
+    - A security review (`/security-review`).
+    - O16 approval of the join wording.
+    - Then set `SHUK_JOIN_LINKS=1`.
+- **Team names: decided and closed (owner, 31 Oct 2026; I7a only, not built)** (multiplayer plan, "I7a team names"):
+  - A team types its name or picks one of 4–6 suggestions, Falafel Fugitives among them. Names are at most 20 characters, Latin script only, with no emoji, and unique per adventure, compared ignoring case, spacing and accents. The server claims them atomically with receipts.
+  - The guide corrects inappropriate names. The copy is approved.
+  - **Team avatars (owner direction):** about 8, auto-assigned and stored as `avatarId` on the team. Dori's design is in `design/output/team-identity-avatars-2026-10-31.md`. The artwork and the owner's approval of the set are pending.
+  - The fixed bank and the emoji for each name are superseded. Nothing is left open for I7a naming.
   - I3b and today's single-team game work without names.
 - **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
-- **Next, once approved:** deploy S0-B Option A and watch the first live save migrate to schema 7, then I3b implementation.
+- **Next, once approved:** deploy S0-B Option A and watch the first live save migrate to schema 7; then review, commit and deploy I3b (switch off), and turn join links on.
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 

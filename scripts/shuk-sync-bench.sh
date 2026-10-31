@@ -39,7 +39,7 @@ TOOL="docker exec $SRV node --experimental-strip-types --disable-warning=Experim
 $TOOL tools/scripts/shuk-new-adventure.ts --confirm >/dev/null
 # Invitations in rounds of eight (a new invitation replaces the seat's unredeemed one), each round redeemed before the next.
 # The command's errors stay visible and an empty token stops the run (it would otherwise surface later as a 400 at sign-in).
-invite() { link=$($TOOL tools/scripts/shuk-invite.ts "$@" https://doriisrael.com) || exit 1
+invite() { link=$($TOOL tools/scripts/shuk-invite.ts --over-cap "$@" https://doriisrael.com) || exit 1
   t=${link#*#invite=}; [ -n "$t" ] && [ "$t" != "$link" ] || { echo "no invitation token for $*"; exit 1; }; echo "$t"; }
 n=0; round=0
 while [ $n -lt "$CLIENTS" ]; do
