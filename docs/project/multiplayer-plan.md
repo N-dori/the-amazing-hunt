@@ -507,6 +507,7 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 
 ### I4. Roles per team
 
+- **Review (31 Oct 2026, awaiting owner decisions):** [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md) recommends I4 for the permanent roles only and flags the "2 and 6" acceptance below (the team cap is 5).
 - **Depends on:** I1 (I3 for leaders).
 - **Scope:**
   - **Hand to…** (a pure `handGroupRole`).
@@ -521,6 +522,7 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 
 ### I5. Pilot: parts on the well
 
+- **Review (31 Oct 2026, awaiting owner decisions):** [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md): the well's two-move shortcut and its speed-tiered timing need decisions (D1, D2) before the pilot runs; the proposed Jar keeper rule is D5.
 - **Depends on:** I1.
 - **Scope:** `parts` on `MissionDefinition`; `dealParts` with a stored deal; swap, hand on and Show all; a "Your part" card; vessel controls per part (UI only, so the server still accepts every valid move).
 - **Files:** `mission-arrival.ts`, `water-task.ts`, `water-task-view.ts`, `participant-store.ts`, `components/amazing-shuk/dev/IndexWaterTask.tsx`.

@@ -1,12 +1,47 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Latest handoff - I3b security review closed (committed, not deployed); I4/I5 roles review awaiting decisions: 31 Oct 2026
+
+- **Live (unchanged, checked read-only):** `dori-shuk:current` = `69b4077`, healthy. The state file is **still schema 6** (adventure active, 7 members, 1 session), with no `pre-schema7` copy yet. `SHUK_JOIN_LINKS` isn't set in `deploy/shuk-compose.yml`, so it's off. Disk 81%.
+- **I3b security review (manual; `/security-review` sees no diff once commits are pushed).** Fixed in this session's code commit:
+  - **M1:** a join ask counts toward the rate limit only once its link is known to be live (`askToJoin`'s `beforeAsk`). Made-up links can't use up the shared 30 a minute.
+  - **M2:** with the switch off, `let-in`, `decline` and `remove-member` are refused too.
+  - **N1:** those refusals, and every join call with the switch off, answer 404 with `{ error, code: "join-links-off" }`. The phone's queue (`lib/amazing-shuk/action-sync.ts`) retries 5xx, 401 and 409, drops other refusals with their message, and is no longer blocked by a reply without a JSON body.
+  - **C1:** with the switch off, the joining phone shows one line and no form (also mid-wait).
+  - **C2:** a request that ended after a reload says so (`ended` on the status poll).
+  - **C3:** a phone whose session the server no longer knows (removed, new adventure, expired) gets "You're no longer in this team…" instead of the invitation line (`session-ended` code).
+  - **C4:** the app decides by `JOIN_ERROR` codes, never by message text. The three duplicated messages now come from `TEAM_JOIN_COPY` only.
+  - **New copy:** the designer's O16 drafts J2.8, J5.2 and J6.3, plus one new leader line. All are drafts waiting for O16.
+- **Residual risks (documented, accepted for now):**
+  - **L1:** a request that's been let in can't be cancelled; it holds a place for up to 15 minutes.
+  - **L2:** anyone with the link can fill the 5 pending slots for 10 minutes.
+  - **L3 and N2:** reads with made-up tokens, secrets or links aren't rate limited.
+  - **Info:** names in requests can be faked, so leaders should compare check codes.
+  - Minor: a guide whose session ended also sees "no longer in this team".
+- **Verified on the final code (one-shot container, exit codes captured):** `npm ci` 0; `test:shuk` 225/225, exit 0; `npm test` 63/63, exit 0; tsc 0; lint exit 1 with only the 3 older prototype errors (11 warnings, all in untouched files).
+- **Intermittent test:** "writers in two processes share the filesystem lock" (`participant-store.test.ts:401`, from S0-B) failed once under full-suite load ("Storage busy" after the 1.5 s lock wait). Run alone it passed 8 of 8 times, so it's a timing problem, not a regression. Whether it was also the earlier unrecorded failure is unconfirmed.
+- **Designer outputs (dori-ux-designer, drafts for the owner):**
+  - [Join-flow copy deck (O16)](../../design/output/join-flow-copy-o16-2026-10-31.md): every join string, its decisions and conflicts C1–C14. C1–C4 are now fixed. C5–C14 remain (for example, C14 is L1, and C7 is per-row labels for screen readers).
+  - [Avatar set v0.2](../../design/output/team-avatar-set-2026-10-31.md): 8 avatars with IDs, an art brief and the assignment rule. Waiting for the owner on the subjects, the tile, the artist and the licence.
+- **I4/I5 roles review (planning only):** [the review](i4-i5-roles-and-well-pilot-review.md). It recommends:
+  - **I4:** the permanent roles only.
+  - **I5:** the parts mechanism on the well only.
+  - **A Jar-keeper pilot:** only the Jar keeper lets water into the jar.
+  - **Owner decisions D1–D9:** D1, the well's two-move shortcut (recommend a larger jar); D2, exclude the speed timing during the pilot; D3, parts stay self-service; D4, keep solo play; D5, the Jar-keeper rule; D6, Show all one tap away; D7, part names (O16); D8, a Gan HaTut field check; D9, fix I4's "2 and 6" acceptance to 2–5.
+- **Next, once the owner approves each step:**
+  1. `/game-verify shuk` on this commit. Remove `dori-shuk:test` first; a build adds about 626 MB.
+  2. Deploy Option A, or go straight to I3b, which includes Option A, with the switch off (`deploy/deploy.sh shuk`, in tmux, with a fresh state backup first). Then watch the first live save migrate the file to schema 7 and write its `pre-schema7` copy.
+  3. Join links on only after schema 7 with its copy, O16 approval, and the owner's decision to set `SHUK_JOIN_LINKS=1` (a container recreate).
+- **Repo:** two local commits on `main`, not pushed (check `git log origin/main..HEAD`).
+- **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
+
 ## Latest handoff - S0-B Option A and I3b committed, not deployed; team naming decided: 31 Oct 2026
 
 - **Live I3a, checked read-only (31 Oct 2026, about 10:15 UTC):**
   - `dori-shuk:20261031-084833-69b4077` is up, healthy, with 0 restarts.
   - **The live file was still schema 6** then, with the adventure active, 7 seat members and 1 session. There was no `state.json.pre-schema7-<hash>` yet; `state.json.before-i3a-deploy-20261031T0848Z` is in place.
   - The first save will migrate the file. The I3a rollback notes below still apply.
-- **S0-B Option A: committed in `463e62e`, not pushed or deployed** (multiplayer plan, "S0-B results"):
+- **S0-B Option A: committed in `463e62e` and pushed, not deployed** (multiplayer plan, "S0-B results"):
   - `transact` waits its turn in a per-file line inside the process (at most 64 writes, 10 s per turn) before taking the unchanged `mkdir` lock. It waits up to 1.5 s, with jitter, for a lock held by another process. Five new tests cover it.
   - The bench is in `scripts/shuk-sync-bench.{sh,mjs}`; results are in `.local/shuk-bench/` (baseline-* and optionA-*).
     - At 30 clients, stress went from 42% busy to 0%, and tap-to-confirmed p50 from 1.1 s to 28 ms. Realistic passes every check.
@@ -16,12 +51,12 @@
     - Lint fails only on 3 older errors in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs`.
     - `dori-shuk:test` passed its isolated smoke test.
   - **Owner decisions still open:**
-    - Push and deploy (`deploy/deploy.sh shuk`, in tmux).
+    - Deploy (`deploy/deploy.sh shuk`, in tmux). Live still runs `dori-shuk:current` (69b4077).
     - Whether stress latency is measured from back-online.
     - Whether Option B (client backoff) is still needed. It stays deferred.
   - Not covered by a test: the 10 s turn timeout.
   - Disk was at 81% after `docker builder prune` (31 Oct 2026). `dori-shuk:test` holds the I3b build and can be removed.
-- **I3b: committed on `main` ("Add the Shuk team join link…"), not pushed or deployed** (multiplayer plan, "I3b implementation"):
+- **I3b: committed in `0ad9200` and pushed (by the owner), not deployed** (multiplayer plan, "I3b implementation"):
   - The join link, the request with its check code, Let in / Decline, the one-time exchange, Remove, the team cap (operator `--over-cap`), the rate limit and the `SHUK_JOIN_LINKS` kill switch (off by default).
   - Verified:
     - 220 Shuk tests and 63 unit tests pass. tsc is clean, and lint shows only the 3 older prototype errors.
@@ -40,7 +75,7 @@
   - The fixed bank and the emoji for each name are superseded. Nothing is left open for I7a naming.
   - I3b and today's single-team game work without names.
 - **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
-- **Next, once approved:** deploy S0-B Option A and watch the first live save migrate to schema 7; then review, commit and deploy I3b (switch off), and turn join links on.
+- **Next, once approved:** run `/security-review` on I3b (local, read-only); deploy S0-B Option A and watch the first live save migrate to schema 7; then review, commit and deploy I3b (switch off), and turn join links on.
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
