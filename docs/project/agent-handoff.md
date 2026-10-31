@@ -2,6 +2,8 @@
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
+**UX paused (owner, 31 Oct 2026):** the deferred UX backlog UX-1 to UX-4 is recorded in `product-decisions.md` ("Deferred UX backlog"), with the `dori-ux-designer` agent's design notes in `design/output/`. Nothing is built. The engineering roadmap continues: the S0-A benchmark (`scripts/shuk-sync-bench.sh`), then I3.
+
 **Committed as `6ee5c96` and deployed on 31 Oct 2026 at 01:38 UTC (owner-authorised) for the phone check: `dori-shuk:20261031-013832-6ee5c96`.**
 - Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged.
 - Rollback: `dori-shuk:previous` = `0c03a61`.

@@ -145,6 +145,102 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
     - Carried out by the `/experience-design` skill (`.claude/skills/experience-design/`); the owner's brief for it is kept word for word in [the skill brief](experience-design-skill-brief.md).
   - **Map rule: markers shrink when the map zooms out**, so nearby pins (e.g. the gate and the well, 2 and 3, 67 image px apart) don't overlap. No pin is moved for this. Not yet built; wait for the owner.
 
+## Deferred UX backlog (owner, 31 Oct 2026): recorded, not scheduled, not approved for build
+
+The owner paused UX/UI work for the multiplayer engineering roadmap (S0, then I3). These are **owner-requested design directions**, not specifications. Every word below is exploratory wording, not approved visitor copy (O16). Nothing here changes code, map behaviour, coordinates, GPS, scoring, timing or permissions until the owner approves a phase. Shared principles:
+- mobile first, with the existing tokens and components;
+- touch targets of at least 3rem even where icons look smaller;
+- progressive disclosure and less reading while walking;
+- browser zoom and scrolling keep working;
+- Hebrew RTL done properly;
+- no duplicated navigation;
+- the security, multiplayer, GPS and scoring decisions hold.
+
+Stitch stays a visual reference only.
+
+**UX-1. Main map, full width** (a later presentation phase; measure on real phones first).
+- **Direction:**
+  - The map goes edge to edge, with no card margins or side padding, while keeping the bottom bar, safe areas and the required overlays.
+  - Smaller zoom buttons and markers, with their hit areas still 3rem.
+  - A better first zoom and framing on a phone.
+- **Needs approval:** the first zoom and framing, chosen from device measurements. How it relates to the pending "markers shrink when the map zooms out" rule (above).
+- **Dependencies:** `LeafletBaseMap` is shared with the Memory Protocol, so changes go through Shuk-only props. The 16 px gutter rule in `.claude/rules/scss.md` needs a stated full-bleed exception.
+- **Keep:** two-finger gestures, the gesture hint, accessible controls, the approximate-marker notice and its "About this map" control, coordinates and placements.
+- **Accept when** at 375 × 667 and 320 px the map fills the width with no horizontal scroll, every marker and control has a hit area of at least 3rem, and gestures, the hint and the notice are unchanged.
+
+**UX-2. Find this place, spatial rather than article-like.**
+- **Direction:**
+  - The destination map takes most of the screen instead of a strip, with the selected marker kept and no routing.
+  - **What to look for** becomes a compact panel, collapsed at first, that opens on demand.
+  - Swipeable images that can be enlarged, instead of a long vertical article.
+  - A friendlier label than "Landmarks" ("Things to spot" and "Nearby clues" are candidates).
+  - The location details fold away.
+  - Player-facing labels might say "Challenge 1, 2…" instead of "Mission 1, 2…".
+- **Conflicts with approved decisions:**
+  - The landmarks were kept **always visible** on 30 Oct 2026 because they carry how to behave at each stop. Anything about safety, behaviour and identification must stay visible when the panel is collapsed. Only the extras may fold away.
+  - Free finding information must stay clearly separate from any future paid hints. B-lite steps 6–7 (finding hints, costs) are still unapproved.
+- **Needs approval:**
+  - The terms Adventure, Destination, Challenge and challenge stage. Internal names stay as they are. "Mission N" and the three stage names are already drafts.
+  - Which information is "essential and free".
+  - The new labels.
+- **Dependencies:** photo content (only Gan HaTut has a second, "look for" photo today). Image enlargement already exists (`PreviewBottomSheet`). A swipeable gallery would be built in-house, with no new dependency. The no-routing and optional-GPS rules hold.
+- **Accept when:**
+  - The destination, its photo, the safety and behaviour lines and **Open Challenge** are reachable at 375 × 667 without long scrolling.
+  - Collapsed panels and the gallery work by keyboard and screen reader.
+  - Swipe never fights the map's gestures.
+
+**UX-3. Challenge: the story, then Start, then the timed activity.** This is the most important of the four.
+- **Direction:**
+  - Story or context first, compact and engaging.
+  - A clear **Start Challenge**.
+  - No question, options or puzzle before an accepted, authorised Start.
+  - Then the activity appears.
+  - An optional "Need some context?" that never gives answers away.
+  - The story never starts the clock.
+- **Already consistent with:** the invisible-timing decision (24 Oct 2026): the clock starts on an explicit authorised start after the story, is never shown as a running timer, and never fails anyone. It stays invisible. "The mural's before photo goes with the story" (26 Oct 2026).
+- **Conflicts and gaps:**
+  - The brief speaks of "the game's three existing languages". The approved rule is English first: Hebrew story bodies stay out of production, and other languages need approved translations. So production has one language today; I6 (language foundations) is the dependency.
+  - Today the question and options (the choose-N missions) and the containers (the well) are shown before Start.
+- **Technical dependency (fairness):** the challenge content (questions, options, hints) is part of the app's JavaScript (`choice-missions.ts`, `water-task.ts`).
+  - Hiding it until Start would be a presentation change only. A determined player could still read it.
+  - True "no peeking" needs the server to send challenge content only after the start is accepted. That's a content and API change, so it belongs with the multiplayer and security work and needs its own approval.
+  - The start rules (navigator, submitter or guide; I4's vacant-seat fallback) and the per-team clock stay as they are.
+- **Needs approval:** presentation-only hiding, or content served by the server. The copy for "Ready", "Start Challenge" and "Need some context?".
+- **Accept when:**
+  - Before Start, no answer material shows on screen.
+  - The timer starts only on the server's accepted start.
+  - A refresh or a second phone stays on the same side of Start.
+  - The story never changes the timing.
+
+**UX-4. Completion: celebrate, then a user-chosen next step.**
+- **Direction:**
+  - After the server accepts the answer: a clear success state, "Challenge completed" or similar, and points counting up.
+  - Subtle motion with the existing icons, then the approved explanation.
+  - One action, "Continue to the next stop" (draft).
+  - No automatic move on a timer.
+  - Drop a separate "Back to map" where the next-step action and the Map tab already cover it.
+- **Already consistent with:**
+  - "Challenge completed!" with the points, food tokens and hints used (24 Oct 2026).
+  - A cheer on every completion with a clear way to the next stop, and a quiet line at Rabbi Levin's stop (26 Oct 2026).
+  - Before play, no points promise.
+  - Rabbi Levin and Chesed VeRachamim are never competitive (O23), so no score fanfare there.
+- **Rules:**
+  - Only the server's actual award and completed state, shown after confirmation.
+  - Reduced motion removes the count-up animation.
+  - The challenge screen's two Back buttons stay until this is approved.
+- **Accept when:**
+  - No success appears before the server confirms it.
+  - The numbers match the server's award.
+  - With reduced motion there is no animation.
+  - The next step is one tap, and the Map tab still works.
+
+**Suggested order, after S0 and I3:**
+1. UX-3: decide hiding versus server-served content first, because it may touch the API.
+2. UX-4.
+3. UX-1 and UX-2: device measurements first.
+
+Each is its own approval, plan and phone check.
+
 ## Conflict priority
 
 Follow current owner instructions first, then these approved decisions, then verified implementation constraints, current roadmap/design specs, and finally historical brainstorming. Record conflicts and update outdated plans; do not silently reverse a decision. Propose alternatives, but get owner approval before changing fundamental product direction.
