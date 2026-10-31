@@ -2,6 +2,8 @@
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
+**I3 plan (31 Oct 2026, awaiting approval, nothing built):** in [the multiplayer plan](multiplayer-plan.md) under "I3 implementation plan". It's three steps: I3a (roster foundation, schema 7), I3b (join flow, Share and Copy only), I3c (management and QR). Decisions O6, O15 and showing the link again come before I3b. S0-A isn't finished: the harness (`scripts/shuk-sync-bench.*`, uncommitted) fails at sign-in with an empty token.
+
 **UX paused (owner, 31 Oct 2026):** the deferred UX backlog UX-1 to UX-4 is recorded in `product-decisions.md` ("Deferred UX backlog"), with the `dori-ux-designer` agent's design notes in `design/output/`. Nothing is built. The engineering roadmap continues: the S0-A benchmark (`scripts/shuk-sync-bench.sh`), then I3.
 
 **Committed as `6ee5c96` and deployed on 31 Oct 2026 at 01:38 UTC (owner-authorised) for the phone check: `dori-shuk:20261031-013832-6ee5c96`.**

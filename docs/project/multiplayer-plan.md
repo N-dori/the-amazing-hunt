@@ -200,6 +200,107 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Rollback:** a config flag disables join links; CLI invitations still work.
 - **Gates:** O6, O15, O16.
 
+#### I3 implementation plan (Claude, 31 Oct 2026): draft, awaiting the owner's approval, nothing built
+
+The smallest secure path from the fixed seats to individually authenticated participants: one adventure, one team, HTTP actions and polling (no SSE or WebSockets). Built in three steps, each approved separately.
+
+**Data (schema 7):**
+- **`participants[id]`** = `{ teamId, joinedAt, source: "seat" | "join", name? }` is the only roster.
+  - New IDs are random (`p_` plus 16 random bytes), never derived from a name.
+  - The seats `player-1…7` stay valid only for the operator's command-line fallback. A seat becomes a member when it's redeemed, not before.
+- **`names`** is checked against `participants`, not the fixed `KNOWN_IDS`. A name is a display label, never proof of identity.
+- **`teams.A.joinLink`** = `{ tokenHash, createdAt, version }`: 32 random bytes, stored hashed. It lasts until a new adventure or until it's regenerated.
+- **`joinRequests[publicId]`** = `{ teamId, name?, code, secretHash, createdAt, expiresAt, status: pending | approved, participantId? }`.
+  - `publicId` is what the leader's screen refers to, never the secret.
+  - `code` is a short check code shown on both phones.
+- **Sessions** gain `leaderTeamId?` beside `host?`.
+- `memberIds`, `groupParticipants` and the client's identities come from `participants`. `DEV_PARTICIPANTS` is used only by the local simulation.
+
+**Join link and requests:**
+1. The device opens `…#join=<token>`. The fragment never reaches server logs, and the address bar is cleared afterwards.
+2. **Ask to join:** the server checks the link, the team's space and the pending cap. It creates a **pending** request and sets the HttpOnly cookie `shuk_join` (SameSite=Strict, Secure, path `/shuk/`).
+3. **Let in** (the leader or the guide): inside the lock, the server checks the space again, so concurrent approvals can't overfill the team. The request becomes **approved** and holds a seat briefly.
+4. The device polls its status, then exchanges its secret **once** for a participant and a `shuk_session`. The server deletes the request and the cookie.
+
+**Failures and edge cases:**
+- Declined, expired (pending, or approved but never collected), a replayed exchange, or an exchange from another device: all fail.
+- Regenerating the link cancels its pending requests. Approved ones stand.
+- The same device asking again gets its own request back.
+- A device that's already signed in sees "You're already in" (draft).
+- The link alone grants nothing.
+
+**Permissions:**
+- **Leader rights belong to one session:** `session.leaderTeamId === team` and that participant is still `team.leaderId`.
+  - Redeeming the host invitation sets `host: true` and `leaderTeamId: "A"`.
+  - Other sessions of the seat, a typed name, a join cookie or an unrelated invitation grant nothing.
+- **Who can act:** let in, decline, regenerate (I3c) and remove (I3c) are for the leader of their own team and the guide. Players, the navigator and the submitter can't. Everything is checked on the server inside `transact`.
+- **Removal** deletes all of the member's sessions, frees their roles, and drops their records of applied actions (they can never act again).
+- **A lost phone:**
+  - A player rejoins through the link with a new ID. Progress belongs to the team, and the old record can be removed.
+  - For a lost leader, the guide can still let people in. Transferring leadership is I4.
+- **Dropped connections:** leader actions go through the existing action queue with its action IDs, so replays are safe. The joining device retries its status check and exchange, which are safe to repeat.
+
+**Steps:**
+- **I3a, roster foundation** (players see no change): schema 7 with an exact pre-schema-7 copy on first write, `participants` as the roster, `leaderTeamId` on the host's session, and the fixed roster confined to the development simulation.
+- **I3b, join flow:**
+  - The server side of the link, ask, approve, decline and exchange.
+  - The joining device's screens: optional name, **Ask to join**, waiting with the code, then the map.
+  - The leader's Group tab: **Requests**, **Members** and **Space: N of 5**.
+  - **Invite players** with Share and Copy only.
+  - A config flag can turn join links off; command-line invitations keep working.
+- **I3c:** Remove, Regenerate link, rate-limit tuning, and the QR code (after O15).
+- **After I3b:** a security review.
+
+**Files:**
+- `participant-store.ts`, `participant-http.ts` (the `shuk_join` cookie, the unauthenticated ask, status and exchange calls, same-origin JSON).
+- `parse-water-action.ts`, `group-action.ts`, `participant-names.ts`, `participant-identity.ts`, `dev-water-session.ts`.
+- `scripts/shuk-new-adventure.ts`, `shuk-invite.ts`, `shuk-name.ts`.
+- `IndexWaterTask.tsx` (`#join=`, names from the view), `PreviewShukWelcome.tsx`, `ListGroupOverview.tsx`, `IndexAdventureLobby.tsx`.
+- New `IndexTeamJoin`, `PreviewTeamJoin`, `PreviewJoinRequests`.
+- Tests and docs.
+- No new dependencies in I3a or I3b.
+
+**Migration (O17):**
+- The v6 code rejects names that aren't on its fixed list, so schema 7 is required.
+- Migration keeps seats with a live session, a role or a name, and drops the rest. It starts with empty `joinRequests` and no link.
+- Rehearse on a copy of a live backup in the test container. Back up before deploying. Starting a new adventure afterwards is the clean path.
+- **Rollback:** the previous image, plus the pre-schema-7 copy once v7 has been written. Joins made since are lost.
+
+**Tests** (temporary state files and the isolated test container only; never live state):
+- Invitation creation and redemption.
+- The link alone gives no session; one approval gives one session.
+- Decline, expiry, a replayed exchange, an exchange from another device, and a regenerated link.
+- A player, the navigator, a non-leader session of the leader's seat, and a removed leader all fail to approve.
+- Asking twice from the same device; joining when already signed in.
+- No stale privileges after removal or a leadership change.
+- Ten simultaneous asks and approvals against a cap of 5 give exactly 5 members; replayed approvals do nothing.
+- The pending cap; dropped connections and queue retries.
+- Migration from the v5 fixture and a v6 sample, the backup copy, and a failed migration writing nothing.
+- The whole existing suite, including missions, scoring and I2's host rules.
+- **Capacity:** generated IDs remove the seven-seat limit. The team cap (5) is tested fully. The adventure cap (30) can only be exercised in I7a, so it gets a unit test with an injected small cap.
+
+**S0:**
+- Not a blocker for building I3a and I3b: I3 load is at most 5 players plus the guide and a few pending requests.
+- Before going live: finish S0-A (its harness sign-in bug is still open).
+- Join requests write to the file without a session, so the per-link rate limit has to stop floods before they reach the file lock. It runs in memory and resets on restart.
+
+**Decisions needed from the owner:**
+1. **O6, recommended:**
+   - 5 per team including the leader; the guide doesn't count.
+   - At most 5 pending requests per team.
+   - Pending requests expire after 10 minutes; approved but uncollected ones after 15.
+   - The link lasts until a new adventure or until it's regenerated.
+   - At most 10 asks a minute per link and 30 a minute overall, counted in memory.
+2. **O15, recommended:** Share and Copy only in I3b. Then either a small, reviewed open-source encoder copied into the repo that draws the code on the phone, or the `qrcode` npm package. Never a third-party QR website.
+3. **Showing the link again:** it's stored hashed, so the server can't show it twice. Recommended: show it when created, keep it on the leader's phone, and regenerate if that's lost. Storing it readably would change "stored hashed".
+4. **A check code** on each request: recommended.
+5. **Names** stay optional (approved) but are encouraged.
+6. **Seats** stay only as the command-line fallback: recommended.
+7. **O16:** the wording for "Ask to join", "Let in", "Waiting for your leader", "You're already in" and Space.
+8. **O17:** rehearsing the live migration.
+
+**Recommended first step:** I3a, with S0-A fixed and run alongside it.
+
 ### I4. Roles per team
 
 - **Depends on:** I1 (I3 for leaders).
