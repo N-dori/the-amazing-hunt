@@ -200,7 +200,7 @@ Doc conflicts fixed, library precedents added, skill tests run (see [handoff](ag
 - **Rollback:** a config flag disables join links; CLI invitations still work.
 - **Gates:** O6, O15, O16.
 
-#### I3 implementation plan (Claude, 31 Oct 2026): draft, awaiting the owner's approval, nothing built
+#### I3 implementation plan (Claude, 31 Oct 2026): approved by the owner on 31 Oct 2026; I3a is next; nothing built yet
 
 The smallest secure path from the fixed seats to individually authenticated participants: one adventure, one team, HTTP actions and polling (no SSE or WebSockets). Built in three steps, each approved separately.
 
@@ -300,6 +300,8 @@ The smallest secure path from the fixed seats to individually authenticated part
 8. **O17:** rehearsing the live migration.
 
 **Recommended first step:** I3a, with S0-A fixed and run alongside it.
+
+**Owner approval (31 Oct 2026):** the owner approved this plan. I3a may be built next, as a local, uncommitted change that is verified and then reported. The recommendations for O6, O15, showing the link again and the check code are part of the approved plan; confirm them explicitly before I3b starts, since the decision table still lists O6 and O15 as open. Deploying, pushing and any live migration (O17) each still need their own approval.
 
 ### I4. Roles per team
 

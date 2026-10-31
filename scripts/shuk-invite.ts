@@ -2,11 +2,12 @@ import { issueHostInvitation, issueInvitation, defaultStorePath } from "../lib/a
 import { isDevSimulationEnabled, isLocalDevelopmentHost } from "../lib/amazing-shuk/dev-water-session.ts";
 import { shukPublicOrigin } from "../lib/amazing-shuk/shuk-access.ts";
 import { BASE_PATH } from "../lib/base-path.ts";
-// shuk-invite.ts <participant> [origin], or shuk-invite.ts host <player seat> [origin] for the single-use host invitation.
+// shuk-invite.ts <seat> [origin], or shuk-invite.ts host <player seat> [origin] for the single-use host invitation.
+// Seats are player-1…7 and guide: labels for this fallback only. Redeeming the link signs in the seat's member, or makes one.
 const args = process.argv.slice(2);
 const host = args[0] === "host";
 const [participantId, origin = "http://127.0.0.1:3000"] = host ? args.slice(1) : args;
-if (!participantId) throw new Error("Usage: shuk-invite.ts <participant> [origin] | host <player seat> [origin]");
+if (!participantId) throw new Error("Usage: shuk-invite.ts <seat> [origin] | host <player seat> [origin]");
 const url = new URL(origin);
 const bare = !url.username && !url.password && url.pathname === "/" && !url.search && !url.hash;
 // The protected app (inside the dori-shuk container) links to its one public https origin; the local simulation to loopback HTTP.

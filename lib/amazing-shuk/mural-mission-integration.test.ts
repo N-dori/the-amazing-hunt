@@ -12,6 +12,7 @@ import { MARZIPAN_MISSION_ID } from "./marzipan-task.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import { storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 import type { ChoiceChallenge } from "./choice-task.ts";
 const MURAL = MURAL_MISSION_ID, WELL = GAN_HATUT_MISSION.id;
 const unverified: ChoiceChallenge = { ...MURAL_CHALLENGE, answerKeyVerified: false };
@@ -22,6 +23,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "player-3", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
@@ -92,8 +95,9 @@ test("the field-checked key: wrong picks don't complete; the right pair complete
 
 test("browsers send toggle-choice over HTTP with the mission ID; the GET returns the mural's picks", () => fixture(async (path, tokens) => {
   const headers = { host: "127.0.0.1:3000", origin: "http://127.0.0.1:3000", "content-type": "application/json", cookie: `shuk_session=${tokens["player-1"]}` };
+  const playerId = (await sessionView(path, tokens["player-1"])).session.activeActorId;
   const post = (body: object) => handleParticipantRequest(new Request("http://127.0.0.1:3000/api", { method: "POST", headers,
-    body: JSON.stringify({ expectedParticipantId: "player-1", puzzleRevision: WATER_PUZZLE_REVISION, ...body }) }), path, env);
+    body: JSON.stringify({ expectedParticipantId: playerId, puzzleRevision: WATER_PUZZLE_REVISION, ...body }) }), path, env);
   assert.equal((await post({ type: "start", missionId: MURAL, actionId: "http-mural-start-0001" })).status, 200);
   assert.equal((await post({ type: "toggle-choice", optionId: "plaque", actionId: "http-mural-no-mission" })).status, 400);
   const picked = await post({ type: "toggle-choice", optionId: "plaque", missionId: MURAL, actionId: "http-mural-pick-00001" });

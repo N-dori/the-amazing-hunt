@@ -2,7 +2,77 @@
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
-**I3 plan (31 Oct 2026, awaiting approval, nothing built):** in [the multiplayer plan](multiplayer-plan.md) under "I3 implementation plan". It's three steps: I3a (roster foundation, schema 7), I3b (join flow, Share and Copy only), I3c (management and QR). Decisions O6, O15 and showing the link again come before I3b. S0-A isn't finished: the harness (`scripts/shuk-sync-bench.*`, uncommitted) fails at sign-in with an empty token.
+## Latest handoff - I3a participant registry (schema 7): implemented locally, uncommitted, 31 Oct 2026
+
+**Owner-approved: I3a only** (31 Oct 2026). Not committed, pushed or deployed; live state untouched. No I3b or I3c.
+
+**What changed:**
+- **Schema 7.** `participants` is the only roster: `{ teamId, joinedAt, seat?, name? }`.
+  - Only redeeming an invitation makes a member.
+  - A seat nobody holds gets a member with a random ID (`p_` plus 22 characters from 128 random bits); a second phone for the seat signs in as the same member.
+  - The guide is never a member.
+  - Invitations name a seat (`player-1…7`, `guide`), which is only an operator label.
+  - Seat names moved from `names` to `seatNames`, kept across adventures as before. A member may also have their own `name`.
+  - A new adventure empties the registry.
+- **Sessions.**
+  - A session counts only while its member is in the registry, so removing a member ends all their sessions.
+  - Host redemption creates a fresh session with `host` and `leaderTeamId: "A"`, and strips both flags from every other session.
+  - `adventure.leader` is now session-bound: `leaderTeamId` must match **and** the participant must still be `team.leaderId`. **Change from I2:** the seat's other sessions no longer show `leader: true`.
+- **Migration 6 → 7** (in memory on read, persisted by the first successful write):
+  - It keeps the seats in use (named by a session, a role, the host or a leader) under their **existing seat IDs**. Sessions, roles, progress, receipts and phones' queued actions (which carry `expectedParticipantId`) all keep working.
+  - Unused seats are dropped.
+  - The host's session gains `leaderTeamId`.
+  - An exact `state.json.pre-schema7-<hash>` copy (mode 600) is written before the first write, replacing the earlier `pre-schema6` naming. If the copy can't be kept, the write stops and nothing changes.
+- **Hardening:**
+  - An edited host invitation for the guide seat, or one naming a missing team, is refused.
+  - The operator's naming command uses own-property lookups (no `__proto__`).
+- **Files:**
+  - `lib/amazing-shuk/participant-store.ts`, `participant-names.ts` (`rosterParticipants` replaces `groupParticipants`).
+  - `components/amazing-shuk/dev/IndexWaterTask.tsx` (the guide-only fallback roster).
+  - `scripts/shuk-invite.ts`, `scripts/shuk-name.ts` (usage text).
+  - Tests: new `participant-registry.test.ts` (9 tests) and `seat-fixture.ts`; `legacy-store-fixture.ts` gained `schema6Snapshot`; existing tests adapted (no default roles, random IDs, schema 7, `pre-schema7`).
+
+**Rollback (exact path and limits):**
+- **Before any schema-7 write:** use the previous image only.
+- **After one:** the previous image **plus** restoring the copy (write it beside `state.json`, then rename it over).
+  - Anything since the first schema-7 write is lost: new members, sessions and progress.
+  - The I2 image **refuses** a schema-7 file, for reads and writes alike, without changing it (checked with `dori-shuk:current` on a copy). So the image alone never rolls back.
+
+**Verified:**
+- `test:shuk` 201/201; `npm test` 63/63; `tsc` passes.
+- Lint at baseline (3 errors), plus one new warning that belongs to the uncommitted S0 script.
+- `git diff --check` clean.
+- **Rehearsal** on copies of all six schema-6 live backups: migrate, then compare (adventure, roles, leader, progress, sessions, receipts and names unchanged; registry equals the seats in use), then copy, restore and re-migrate. All passed. Every backup held only the guide's session, so the host-and-players case is covered by the tests (`schema6Snapshot` of a hosted adventure). The copies were deleted afterwards.
+- `/game-verify shuk` on the final code (after the build cache was pruned with the owner's OK; disk 75%): build OK, healthy, 8/8 route checks, schema 7 written with 0 members, an invitation link of the right shape (not printed), 47 MiB. `dori-shuk:test` left in place (remove before the next deploy).
+
+
+
+1. **Build I3a** (the owner approved the I3 plan on 31 Oct 2026). Read [the multiplayer plan's "I3 implementation plan"](multiplayer-plan.md#i3-implementation-plan-claude-31-oct-2026-approved-by-the-owner-on-31-oct-2026-i3a-is-next-nothing-built-yet) first.
+   - **Scope:**
+     - Schema 7, with an exact pre-schema-7 copy on the first write.
+     - `participants` as the only roster (names, members, the view, the client's identities).
+     - `leaderTeamId` on the host's session.
+     - `DEV_PARTICIPANTS` used only by the local simulation.
+     - No visible change for players. No join flow yet (that's I3b).
+   - **Check:**
+     - Every existing test, plus migration tests (from the v5 fixture and a v6 sample), session-flag tests, and a failed migration writing nothing.
+     - The lint and type checks inside `shuk-dev`.
+     - `/game-verify shuk`.
+     - A migration rehearsal on a **copy** of a live backup in a test container only.
+   - Leave it local and uncommitted, then report. No deploy, push or live migration without separate approval (O17).
+2. **Before I3b:** get the owner's explicit yes on the plan's O6, O15, showing-the-link-again and check-code recommendations, and on the O16 copy.
+3. **S0-A, alongside I3a:**
+   - Fix `scripts/shuk-sync-bench.sh` (uncommitted): it gets an empty invitation token, so sign-in returns 400. The invite command works in the container; the extraction step or the first `host` invite is the suspect.
+   - Then run the 8- and 30-client runs and the parse benchmark, and report the measurements.
+   - The leftover test container and network were removed.
+4. **Waiting on the owner:**
+   - The phone sign-off of the compact preview (checklist in the next entry).
+   - **Chesed VeRachamim is celebrated and timed** (`mission-cheer.ts` gives it `celebrate: true`, and it has no `timed: false`), against O23 "never competitive". This needs the owner's decision, because changing the timing changes scoring.
+   - The design agent's UX notes, `design/output/deferred-ux-backlog-2026-10-31.md` (uncommitted). Their conflicts aren't yet in the decisions section: Marzipan's guess before Start, the gate and well pins being too close to tap at low zoom, the safety lines mixed with the clues, the gate photo giving away the Montefiore answer, and "Challenge N" suggesting a fixed order.
+5. **Repo:** local commits for the owner to push from VS Code (check `git log origin/main..HEAD`). Keep `docs/RUN_PREVIEW.md` and the untracked photos out of commits.
+6. **Live:** `6ee5c96`. A new adventure waits in its lobby (31 Oct 2026, 01:44 UTC). Its links are in `.local/amazing-shuk/links-new-adventure-20261031T0144Z/` (never print them; valid until about 01:44 UTC on 1 Nov).
+
+**I3 plan (31 Oct 2026, approved by the owner; I3a next, nothing built):** in [the multiplayer plan](multiplayer-plan.md) under "I3 implementation plan". It's three steps: I3a (roster foundation, schema 7), I3b (join flow, Share and Copy only), I3c (management and QR). Decisions O6, O15 and showing the link again come before I3b. S0-A isn't finished: the harness (`scripts/shuk-sync-bench.*`, uncommitted) fails at sign-in with an empty token.
 
 **UX paused (owner, 31 Oct 2026):** the deferred UX backlog UX-1 to UX-4 is recorded in `product-decisions.md` ("Deferred UX backlog"), with the `dori-ux-designer` agent's design notes in `design/output/`. Nothing is built. The engineering roadmap continues: the S0-A benchmark (`scripts/shuk-sync-bench.sh`), then I3.
 

@@ -6,22 +6,31 @@ import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measu
 import { createHash, randomBytes } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
-import { groupParticipants, isValidNames, setDisplayName, type ParticipantNames } from "./participant-names.ts";
+import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
 import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount } from "./adventure-lobby.ts";
-import { applyDevWaterAction, createDevWaterSession, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
+import { applyDevWaterAction, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
 export const SESSION_COOKIE = "shuk_session";
 const DAY = 86_400_000;
 type Credential = { participantId: string; expiresAt: number };
 /** A session. `host` marks the one session made by redeeming the host invitation: host rights belong to that session, never to
- * the seat, so another session of the same seat (earlier, later or replaced) has none. Older sessions have no flag. */
-type Session = Credential & { host?: true };
-/** An invitation is a credential that may carry a kind and a team: a host invitation makes its seat the adventure's host and its
- * team's leader. "leader" is reserved for the team leaders' invitations (I7a); nothing issues one yet, and redeeming one is refused.
- * Older invitations have neither field and sign a participant in as before. */
-type Invitation = Credential & { kind?: "host" | "leader"; teamId?: string };
+ * the seat, so another session of the same seat (earlier, later or replaced) has none. Older sessions have no flag.
+ * `leaderTeamId` does the same for a team's leadership (schema 7): the session that became the leader carries it, and it counts only
+ * while its participant is still that team's leader, so a change of leader ends it without touching any session. */
+type Session = Credential & { host?: true; leaderTeamId?: string };
+/** Schema 6 and earlier: an invitation named the participant it signs in. */
+type LegacyInvitation = Credential & { kind?: "host" | "leader"; teamId?: string };
+/** An operator's single-use invitation (schema 7) names a seat, not a participant: the seat (player-1…7, or the guide) is only a
+ * label for the command-line fallback. Redeeming it signs in the participant who holds that seat, or makes one with a random ID.
+ * A host invitation also makes that participant the adventure's host and its team's leader. "leader" is reserved for the team
+ * leaders' invitations (I7a); nothing issues one yet, and redeeming one is refused. */
+type Invitation = { seat: string; expiresAt: number; kind?: "host" | "leader"; teamId?: string };
+/** A member of the adventure (schema 7). Only redeeming an invitation makes one: an ID alone, a seat or a name never does.
+ * `seat` links a member to the operator's seat label; members who arrive through I3b's join link will have none.
+ * `joinedAt` orders the roster (0 for members carried over from schema 6). `name` is a display label, never a credential. */
+type ParticipantRecord = { teamId: string; joinedAt: number; seat?: string; name?: string };
 /** One mission's shared progress. Its award and arrival bonus are immutable once recorded.
  * `kind` follows the mission's challenge: the well keeps cups, a "choose N" challenge keeps the group's picks.
  * A mission with follow-up questions also keeps the question it is on (`step`, from 0) and how many of the shared hints had been
@@ -36,7 +45,7 @@ const EMPTY_BONUS: BonusRecord = { selected: [], award: null };
 type LegacyDatabase = { version: number; arrival: MissionArrival | null; performance: WaterPerformance; invitations: Record<string, Credential>; sessions: Record<string, Credential>; group: Omit<DevWaterSession, "activeActorId">; applied: Record<string, string[]> };
 // `names` (optional): display names by participant ID, set by an admin command; absent means "Player N".
 /** Schema 5 held one group: its roles and missions sat at the top level. */
-type Schema5Database = { version: 5; invitations: Record<string, Invitation>; sessions: Record<string, Session>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
+type Schema5Database = { version: 5; invitations: Record<string, LegacyInvitation>; sessions: Record<string, Session>; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>; applied: Record<string, string[]>; names?: ParticipantNames };
 /** The team every existing group becomes, and the one the guide acts on until the guide can choose a team. */
 export const DEFAULT_TEAM_ID = "A";
 /** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards. */
@@ -45,9 +54,14 @@ type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missio
  * `format` is stored for the I1 app, which reads only "together" or "twoTeams": while there is one team it stays "together".
  * A team count replaces it when multiple teams arrive (I7a, schema 7). */
 type AdventureRecord = { status: "lobby" | "active"; format: "together" | "twoTeams"; hostId: string | null; intendedCount: number | null };
-/** Schema 6: an adventure of teams (any number of team IDs; one, "A", until I7a). Players belong to one team; the guide oversees every team and is in none. */
-type Database = { version: 6; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, { teamId: string }>;
-  invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; names?: ParticipantNames };
+/** Schema 6: an adventure of teams; every fixed seat was a member of team A from the start, and names were keyed by seat. */
+type Schema6Database = { version: 6; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, { teamId: string }>;
+  invitations: Record<string, LegacyInvitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; names?: ParticipantNames };
+/** Schema 7: the participant registry is the only roster. Players belong to one team; the guide oversees every team and is in none.
+ * `seatNames` are the operator's display names for the seats (set with scripts/shuk-name.ts); they outlive adventures, as before. */
+type Database = { version: 7; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, ParticipantRecord>;
+  invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; seatNames?: ParticipantNames };
+export const SCHEMA_VERSION = 7;
 /** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
 export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
 export class AccessError extends Error {
@@ -62,13 +76,46 @@ function emptyMission(definition: MissionDefinition): MissionRecord {
 }
 const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
 /** The single group becomes team A of an adventure that is already under way, played together, with no host yet. */
-function toSchema6({ roles, missions, ...rest }: Schema5Database): Database {
+function toSchema6({ roles, missions, ...rest }: Schema5Database): Schema6Database {
   return { ...rest, version: 6, adventure: { status: "active", format: "together", hostId: null, intendedCount: null },
     teams: { [DEFAULT_TEAM_ID]: { leaderId: null, roles, missions } },
     participants: Object.fromEntries(DEV_PARTICIPANTS.map(participant => [participant.id, { teamId: DEFAULT_TEAM_ID }])) };
 }
+/**
+ * Schema 6 → 7: the registry keeps the seats someone actually uses, under their existing IDs, so sessions, roles, the host,
+ * progress, receipts and phones' queued actions (which name their participant) all carry on. A seat is in use when a session
+ * (live or expired) names it, it holds a role, or it is the host or a leader. The other seats are dropped: they become labels
+ * for the operator's invitations again. Invitations move from participant to seat; names keyed by seat become seat names.
+ * The session that holds the host rights also gets team A's leadership, which I2 tied to the host.
+ */
+function toSchema7({ participants, invitations, sessions, names, ...rest }: Schema6Database): Database {
+  const inUse = new Set<string>([...Object.values(sessions).map(session => session.participantId), rest.adventure.hostId ?? "",
+    ...Object.values(rest.teams).flatMap(team => [team.leaderId ?? "", team.roles?.navigator ?? "", team.roles?.answerSubmitter ?? ""])]);
+  const registry: Record<string, ParticipantRecord> = {};
+  for (const [id, member] of Object.entries(participants ?? {})) if (inUse.has(id) && id !== DEV_GUIDE_ID) registry[id] = { teamId: member?.teamId, joinedAt: 0, seat: id };
+  const hostTeam = Object.entries(rest.teams ?? {}).find(([, team]) => team?.leaderId !== null && team?.leaderId === rest.adventure?.hostId)?.[0];
+  return { ...rest, version: 7, participants: registry,
+    invitations: Object.fromEntries(Object.entries(invitations ?? {}).map(([key, { participantId, ...invitation }]) => [key, { ...invitation, seat: participantId }])),
+    sessions: Object.fromEntries(Object.entries(sessions ?? {}).map(([key, session]) => [key,
+      session.host && hostTeam && session.participantId === rest.adventure.hostId ? { ...session, leaderTeamId: hostTeam } : session])),
+    ...(names ? { seatNames: names } : {}) };
+}
+/** A file that has never been written: an adventure under way with no members, no host and no roles (the local simulation). */
 function initial(): Database {
-  return toSchema6({ version: 5, invitations: {}, sessions: {}, roles: createDevWaterSession().roles, missions: {}, applied: {} });
+  return toSchema7(toSchema6({ version: 5, invitations: {}, sessions: {}, roles: { navigator: null, answerSubmitter: null }, missions: {}, applied: {} }));
+}
+/** The operator's seats: player-1…7 and the guide. Labels for command-line invitations and names, never members by themselves. */
+const SEATS: readonly string[] = [...DEV_PARTICIPANTS.map(participant => participant.id), DEV_GUIDE_ID];
+/** A new member's ID: 128 random bits, so an ID can't be guessed, and it means nothing without a session. */
+const newParticipantId = () => "p_" + randomBytes(16).toString("base64url");
+const isParticipantId = (id: string) => /^p_[A-Za-z0-9_-]{22}$/.test(id) || (SEATS.includes(id) && id !== DEV_GUIDE_ID);
+function isValidRegistry(db: Database): boolean {
+  const seats = Object.values(db.participants).flatMap(member => member?.seat === undefined ? [] : [member.seat]);
+  return new Set(seats).size === seats.length && Object.entries(db.participants).every(([id, member]) => isParticipantId(id) && Boolean(member)
+    && Object.hasOwn(db.teams, member.teamId) && Number.isSafeInteger(member.joinedAt) && member.joinedAt >= 0
+    && (member.seat === undefined || (SEATS.includes(member.seat) && member.seat !== DEV_GUIDE_ID))
+    && (member.name === undefined || cleanDisplayName(member.name) === member.name))
+    && Object.values(db.invitations).every(invitation => Boolean(invitation) && SEATS.includes(invitation.seat));
 }
 const isValidAdventure = (adventure: AdventureRecord) => Boolean(adventure) && ["lobby", "active"].includes(adventure.status)
   && ["together", "twoTeams"].includes(adventure.format) && (adventure.hostId === null || typeof adventure.hostId === "string")
@@ -92,12 +139,12 @@ async function readStored(path: string): Promise<Buffer | null> {
 async function load(path: string): Promise<Database> {
   return migrate(await readStored(path)).db;
 }
-/** Parses stored bytes and migrates them in memory to schema 6. `preSchema6`: a file exists and was stored in an older schema. */
-function migrate(raw: Buffer | null): { db: Database; preSchema6: boolean } {
-  let stored = (raw === null ? initial() : JSON.parse(raw.toString("utf8"))) as LegacyDatabase | Schema5Database | Database;
-  // Only versions 1 to 6 get past the checks below, so any stored version other than 6 is older.
-  const preSchema6 = raw !== null && stored.version !== 6;
-  if (stored.version !== 5 && stored.version !== 6) {
+/** Parses stored bytes and migrates them in memory to schema 7. `older`: a file exists and was stored in an older schema. */
+function migrate(raw: Buffer | null): { db: Database; older: boolean } {
+  let stored = (raw === null ? initial() : JSON.parse(raw.toString("utf8"))) as LegacyDatabase | Schema5Database | Schema6Database | Database;
+  // Only versions 1 to 7 get past the checks below, so any stored version other than 7 is older.
+  const older = raw !== null && stored.version !== SCHEMA_VERSION;
+  if (stored.version !== 5 && stored.version !== 6 && stored.version !== 7) {
     let legacy = stored as LegacyDatabase;
     if (legacy.version === 1) {
       // The old measuring-cup task is a different puzzle. Keep credentials and roles,
@@ -116,9 +163,15 @@ function migrate(raw: Buffer | null): { db: Database; preSchema6: boolean } {
     if (!group.roles || !group.missions) throw new Error("Unsupported Shuk storage state");
     stored = toSchema6(group);
   }
+  if (stored.version === 6) {
+    const adventure = stored as Schema6Database;
+    if (!isValidAdventure(adventure.adventure) || !adventure.teams || !adventure.participants || (adventure.names !== undefined && !isValidNames(adventure.names))) throw new Error("Unsupported Shuk storage state");
+    stored = toSchema7(adventure);
+  }
   const db = stored as Database;
-  if (!isValidAdventure(db.adventure) || !db.teams || !db.teams[DEFAULT_TEAM_ID] || !db.participants || (db.names !== undefined && !isValidNames(db.names))) throw new Error("Unsupported Shuk storage state");
-  if (!Object.values(db.participants).every(member => Boolean(member) && Object.hasOwn(db.teams, member.teamId))) throw new Error("Unsupported Shuk storage state");
+  if (!isValidAdventure(db.adventure) || !db.teams || !db.teams[DEFAULT_TEAM_ID] || !db.participants || !db.invitations || !db.sessions || !db.applied
+    || (db.seatNames !== undefined && !isValidNames(db.seatNames)) || !isValidRegistry(db)) throw new Error("Unsupported Shuk storage state");
+  if (db.adventure.hostId !== null && !Object.hasOwn(db.participants, db.adventure.hostId)) throw new Error("Unsupported Shuk storage state");
   const teams: Record<string, TeamRecord> = {};
   for (const [teamId, team] of Object.entries(db.teams)) {
     const members = memberIds(db, teamId);
@@ -127,20 +180,20 @@ function migrate(raw: Buffer | null): { db: Database; preSchema6: boolean } {
     teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
   }
   db.teams = teams;
-  return { db, preSchema6 };
+  return { db, older };
 }
 
 /**
- * Before the first schema-6 write, keeps the file's exact older bytes beside it: a rollback to the previous app restores this copy.
+ * Before the first schema-7 write, keeps the file's exact older bytes beside it: a rollback to the previous app restores this copy.
  * The name carries the bytes' hash, so a later migration (after a restore) gets its own copy, and a copy is never overwritten:
  * it is written whole to a temporary file and linked into place, which fails if the name exists, and its directory entry reaches
  * the disk before the state file is replaced. It runs under the write lock, and any failure stops the write, leaving the older
  * file as it was (fail closed: queued actions retry until an operator clears the cause the log names).
  */
-async function keepPreSchema6Backup(path: string, raw: Buffer): Promise<void> {
-  try { await keepExactCopy(path, `${path}.pre-schema6-${createHash("sha256").update(raw).digest("hex").slice(0, 12)}`, raw); } catch (error) {
+async function keepPreMigrationBackup(path: string, raw: Buffer): Promise<void> {
+  try { await keepExactCopy(path, `${path}.pre-schema${SCHEMA_VERSION}-${createHash("sha256").update(raw).digest("hex").slice(0, 12)}`, raw); } catch (error) {
     // No paths or contents: the code or reason says whether the disk is full, permissions are wrong or the name is taken.
-    console.error("Shuk storage: the pre-schema-6 backup could not be kept:", (error as NodeJS.ErrnoException).code ?? (error as Error).message);
+    console.error(`Shuk storage: the pre-schema-${SCHEMA_VERSION} backup could not be kept:`, (error as NodeJS.ErrnoException).code ?? (error as Error).message);
     throw new AccessError("Storage unavailable: the pre-migration backup could not be kept. Nothing was changed.", 503);
   }
 }
@@ -223,10 +276,10 @@ export async function transact<T>(path: string, operation: (db: Database) => T, 
   const temporary = path + "." + secret() + ".tmp";
   try {
     const raw = await readStored(path);
-    const { db, preSchema6 } = migrate(raw);
+    const { db, older } = migrate(raw);
     const result = operation(db);
     // Only an action that succeeded writes, so only then is the older file copied, once, before it is replaced.
-    if (preSchema6 && raw) await keepPreSchema6Backup(path, raw);
+    if (older && raw) await keepPreMigrationBackup(path, raw);
     if (beforeWrite) await beforeWrite(raw);
     const file = await open(temporary, "wx", 0o600);
     try { await file.writeFile(JSON.stringify(db)); await file.sync(); } finally { await file.close(); }
@@ -237,32 +290,36 @@ export async function transact<T>(path: string, operation: (db: Database) => T, 
     await rm(lock, { recursive: true });
   }
 }
-export async function issueInvitation(path: string, participantId: string, now = Date.now()) {
-  if (participantId !== DEV_GUIDE_ID && !DEV_PARTICIPANTS.some(p => p.id === participantId)) throw new AccessError("Unknown participant");
+/** The operator's single-use invitation for a seat (scripts/shuk-invite.ts <seat>): 24 hours. It makes no member by itself; see redeemInvitation. */
+export async function issueInvitation(path: string, seat: string, now = Date.now()) {
+  if (!SEATS.includes(seat)) throw new AccessError("Unknown participant");
   const token = secret();
   await transact(path, db => {
-    for (const [key, invitation] of Object.entries(db.invitations)) if (invitation.participantId === participantId || invitation.expiresAt <= now) delete db.invitations[key];
-    db.invitations[hash(token)] = { participantId, expiresAt: now + DAY };
+    for (const [key, invitation] of Object.entries(db.invitations)) if (invitation.seat === seat || invitation.expiresAt <= now) delete db.invitations[key];
+    db.invitations[hash(token)] = { seat, expiresAt: now + DAY };
   });
   return token;
 }
+/** The member who holds `seat`, if anyone does. */
+const seatHolder = (db: Database, seat: string) => Object.keys(db.participants).find(id => db.participants[id].seat === seat);
 /**
  * The operator's host invitation (scripts/shuk-invite.ts host <seat>): single-use, 24 hours, for a player seat in team A.
  * Only while the adventure waits in its lobby, with no host yet or with this seat as host (a host who lost their phone gets a
  * new link; redeeming it moves the host rights to the new session). It replaces the seat's other invitations and any other
  * host invitation.
  */
-export async function issueHostInvitation(path: string, participantId: string, now = Date.now()) {
-  if (!DEV_PARTICIPANTS.some(p => p.id === participantId)) throw new AccessError("The host must be a player seat");
+export async function issueHostInvitation(path: string, seat: string, now = Date.now()) {
+  if (!SEATS.includes(seat) || seat === DEV_GUIDE_ID) throw new AccessError("The host must be a player seat");
   const token = secret();
   await transact(path, db => {
     if (db.adventure.status !== "lobby") throw new AccessError("The adventure has already started; start a new adventure first", 409);
-    if (db.adventure.hostId !== null && db.adventure.hostId !== participantId) throw new AccessError("This adventure already has a host", 409);
-    if (db.participants[participantId]?.teamId !== DEFAULT_TEAM_ID) throw new AccessError("The host must be a member of team A");
+    if (db.adventure.hostId !== null && db.participants[db.adventure.hostId]?.seat !== seat) throw new AccessError("This adventure already has a host", 409);
+    const holder = seatHolder(db, seat);
+    if (holder !== undefined && db.participants[holder].teamId !== DEFAULT_TEAM_ID) throw new AccessError("The host must be a member of team A");
     for (const [key, invitation] of Object.entries(db.invitations)) {
-      if (invitation.participantId === participantId || invitation.kind === "host" || invitation.expiresAt <= now) delete db.invitations[key];
+      if (invitation.seat === seat || invitation.kind === "host" || invitation.expiresAt <= now) delete db.invitations[key];
     }
-    db.invitations[hash(token)] = { participantId, expiresAt: now + DAY, kind: "host", teamId: DEFAULT_TEAM_ID };
+    db.invitations[hash(token)] = { seat, expiresAt: now + DAY, kind: "host", teamId: DEFAULT_TEAM_ID };
   });
   return token;
 }
@@ -274,31 +331,48 @@ export async function redeemInvitation(path: string, token: string, now = Date.n
     if (!invitation || invitation.expiresAt <= now) throw new AccessError(INVITATION_UNUSABLE, 401);
     // Fail closed on any kind this version doesn't grant.
     if (invitation.kind !== undefined && invitation.kind !== "host") throw new AccessError(INVITATION_UNUSABLE, 401);
+    const teamId = invitation.teamId ?? DEFAULT_TEAM_ID;
+    // The guide is never a member, so never a host; and a member joins only a team that exists (fail closed on an edited file).
+    if (!Object.hasOwn(db.teams, teamId) || (invitation.kind === "host" && invitation.seat === DEV_GUIDE_ID)) throw new AccessError(INVITATION_UNUSABLE, 401);
+    // The seat's member signs in again; a seat nobody holds gets a new member with a random ID. Only this point makes members.
+    const existing = invitation.seat === DEV_GUIDE_ID ? DEV_GUIDE_ID : seatHolder(db, invitation.seat);
     if (invitation.kind === "host") {
       // Host rights come only from this invitation, only in the lobby, and only for a lobby with no host or with this seat as host.
-      const teamId = invitation.teamId ?? DEFAULT_TEAM_ID;
-      if (db.adventure.status !== "lobby" || (db.adventure.hostId !== null && db.adventure.hostId !== invitation.participantId)
-        || db.participants[invitation.participantId]?.teamId !== teamId || !db.teams[teamId]) {
+      if (db.adventure.status !== "lobby" || (db.adventure.hostId !== null && db.adventure.hostId !== existing)
+        || (existing !== undefined && db.participants[existing]?.teamId !== teamId)) {
         throw new AccessError(INVITATION_UNUSABLE, 401);
       }
-      db.adventure = { ...db.adventure, hostId: invitation.participantId };
-      db.teams = { ...db.teams, [teamId]: { ...db.teams[teamId], leaderId: invitation.participantId } };
-      // One host session at a time: an earlier host session (a lost phone) keeps its sign-in but loses the host rights.
-      for (const [key, existing] of Object.entries(db.sessions)) if (existing.host) db.sessions[key] = { participantId: existing.participantId, expiresAt: existing.expiresAt };
+    }
+    const participantId = existing ?? newParticipantId();
+    if (existing === undefined) db.participants[participantId] = { teamId, joinedAt: now, seat: invitation.seat };
+    if (invitation.kind === "host") {
+      db.adventure = { ...db.adventure, hostId: participantId };
+      db.teams = { ...db.teams, [teamId]: { ...db.teams[teamId], leaderId: participantId } };
+      // One host session at a time: an earlier host or leader session (a lost phone) keeps its sign-in but loses those rights.
+      for (const [key, other] of Object.entries(db.sessions)) if (other.host || other.leaderTeamId === teamId) db.sessions[key] = { participantId: other.participantId, expiresAt: other.expiresAt };
     }
     delete db.invitations[hash(token)];
     if (replaceSession) delete db.sessions[hash(replaceSession)];
-    db.sessions[hash(session)] = { participantId: invitation.participantId, expiresAt: now + 7 * DAY, ...(invitation.kind === "host" ? { host: true as const } : {}) };
+    // Rights are granted only to the new session made here, never added to one that already exists.
+    db.sessions[hash(session)] = { participantId, expiresAt: now + 7 * DAY, ...(invitation.kind === "host" ? { host: true as const, leaderTeamId: teamId } : {}) };
   });
   return session;
 }
+/** The signed-in participant. A session counts only while its participant is still a member (or is the guide), so removing a
+ * member from the registry ends every session they hold, wherever it is. */
 function identity(db: Database, token: string, now: number) {
   const credential = db.sessions[hash(token)];
   if (!credential || credential.expiresAt <= now) throw new AccessError("Invitation login required", 401);
+  if (credential.participantId !== DEV_GUIDE_ID && !Object.hasOwn(db.participants, credential.participantId)) throw new AccessError("Invitation login required", 401);
   return credential.participantId;
 }
-/** Whether this session holds the host rights: it came from the host invitation, and its seat is still the adventure's host. */
+/** Whether this session holds the host rights: it came from the host invitation, and its participant is still the adventure's host. */
 const isHostSession = (db: Database, token: string) => db.sessions[hash(token)]?.host === true && db.sessions[hash(token)].participantId === db.adventure.hostId;
+/** Whether this session leads `teamId`: it was given the leadership, and its participant is still that team's leader. */
+const isLeaderSession = (db: Database, token: string, teamId: string) => {
+  const session = db.sessions[hash(token)];
+  return session?.leaderTeamId === teamId && session.participantId === db.teams[teamId]?.leaderId;
+};
 function missionView(definition: MissionDefinition, record: MissionRecord): MissionView {
   return { id: definition.id, state: missionState(record.arrival, record.completed),
     arrivalPoints: record.arrival?.points ?? 0, arrivalMethod: record.arrival?.method ?? null,
@@ -323,13 +397,13 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const records = Object.values(team.missions);
   const host = isHostSession(db, token);
   const adventure = { status: db.adventure.status, intendedCount: db.adventure.intendedCount,
-    host, leader: participantId === team.leaderId, canManage: guide || host };
+    host, leader: isLeaderSession(db, token, teamId), canManage: guide || host };
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
     adventure,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, team.missions[mission.id])),
     // Names are shown only to signed-in members of the team (this view needs a session), plus the guide.
-    participants: groupParticipants(db.names ?? {}, team.roles).filter(participant => participant.id === DEV_GUIDE_ID || db.participants[participant.id]?.teamId === teamId),
+    participants: rosterParticipants(memberIds(db, teamId).map(id => ({ id, ...db.participants[id] })), db.seatNames ?? {}),
     mission: missionView(definition, record),
     session: { roles: team.roles, completed: record.completed, activeActorId: participantId,
       ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
@@ -525,8 +599,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
 /**
  * Operator only (scripts/shuk-new-adventure.ts --confirm, on the server): keeps the current file's exact bytes as
  * `<state>.before-new-adventure-<UTC time>`, mode 600, then opens a fresh adventure in its lobby with no host.
- * Every seat is in team A again; sessions, invitations, roles and progress are cleared. Display names stay (they belong to
- * the seats and the server, never git), and so do action receipts, which keep stale queued actions from replaying.
+ * The registry is emptied (members come back by redeeming new invitations); sessions, invitations, roles and progress are cleared.
+ * The seats' display names stay (they belong to the seats and the server, never git), and so do action receipts, which keep
+ * stale queued actions from replaying.
  * If the copy can't be kept, nothing changes. Returns the copy's file name, or null when there was no file to keep.
  */
 export async function startNewAdventure(path: string, now = Date.now()) {
@@ -535,8 +610,7 @@ export async function startNewAdventure(path: string, now = Date.now()) {
   await transact(path, db => {
     const fresh = initial();
     Object.assign(db, { ...fresh, adventure: { status: "lobby", format: "together", hostId: null, intendedCount: null },
-      teams: { [DEFAULT_TEAM_ID]: { ...fresh.teams[DEFAULT_TEAM_ID], roles: { navigator: null, answerSubmitter: null } } },
-      applied: db.applied, ...(db.names ? { names: db.names } : {}) });
+      applied: db.applied, ...(db.seatNames ? { seatNames: db.seatNames } : {}) });
   }, async raw => {
     if (!raw) return;
     try { await keepExactCopy(path, backup, raw); kept = basename(backup); } catch (error) {
@@ -546,11 +620,22 @@ export async function startNewAdventure(path: string, now = Date.now()) {
   });
   return kept;
 }
-/** Admin only (scripts/shuk-name.ts, run on the server): sets or clears a participant's display name. */
-export async function setParticipantName(path: string, participantId: string, name: string | null) {
+/** Admin only (scripts/shuk-name.ts, run on the server): sets or clears a display name, for a seat (player-1…7, guide; kept
+ * across adventures) or for a member by their ID. A name is a label only: it grants nothing. */
+export async function setParticipantName(path: string, id: string, name: string | null) {
   return transact(path, db => {
-    db.names = setDisplayName(db.names ?? {}, participantId, name);
-    return db.names[participantId] ?? null;
+    if (SEATS.includes(id)) {
+      db.seatNames = setDisplayName(db.seatNames ?? {}, id, name);
+      return db.seatNames[id] ?? null;
+    }
+    if (!Object.hasOwn(db.participants, id)) throw new Error("Unknown participant");
+    const member = db.participants[id];
+    const clean = name === null ? null : cleanDisplayName(name);
+    if (name !== null && !clean) throw new Error("A name needs 1–40 characters");
+    const updated: ParticipantRecord = { ...member };
+    if (clean) updated.name = clean; else delete updated.name;
+    db.participants[id] = updated;
+    return clean;
   });
 }
 export async function logout(path: string, token: string) {

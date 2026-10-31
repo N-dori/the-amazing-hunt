@@ -9,6 +9,7 @@ import { GAN_HATUT_MISSION, type ArrivalPolicy } from "./mission-arrival.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
 import { schema4Snapshot, storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 const verified: ArrivalPolicy = { ...GAN_HATUT_MISSION.arrival, destination: { latitude: 0, longitude: 0, verified: true } };
 async function fixture(run: (path: string, tokens: Record<string, string>, now: number) => Promise<void>) {
@@ -17,6 +18,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
@@ -77,9 +80,10 @@ test("guide confirmation requires guide identity; concurrent confirmations award
 
 test("HTTP keeps CSRF/authentication and rejects unchecked destination evidence without blocking gameplay", () => fixture(async (path, tokens, now) => {
   const origin = "http://127.0.0.1:3000";
+  const playerId = (await sessionView(path, tokens["player-1"])).session.activeActorId;
   const call = (action: object, token = tokens["player-1"]) => handleParticipantRequest(new Request(origin + "/api", {
     method: "POST", headers: { host: "127.0.0.1:3000", origin, "content-type": "application/json", cookie: `shuk_session=${token}` },
-    body: JSON.stringify({ ...action, puzzleRevision: WATER_PUZZLE_REVISION, expectedParticipantId: token === tokens.guide ? "guide" : "player-1", actionId: "http-optional-arrival-001" }),
+    body: JSON.stringify({ ...action, puzzleRevision: WATER_PUZZLE_REVISION, expectedParticipantId: token === tokens.guide ? "guide" : playerId, actionId: "http-optional-arrival-001" }),
   }), path, { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" });
   assert.equal((await call(gps(now))).status, 403); // destination is deliberately not verified
   assert.equal((await call(guideArrival)).status, 403);

@@ -7,6 +7,7 @@ import { evaluateChoice, toggleChoice } from "./choice-task.ts";
 import { findChoiceTask } from "./choice-missions.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import { storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 import { MURAL_MISSION_ID } from "./mural-task.ts";
 import { SYNAGOGUE_APPRECIATION, SYNAGOGUE_BONUS, SYNAGOGUE_BONUS_CHALLENGE, SYNAGOGUE_CHALLENGE, SYNAGOGUE_MISSION, SYNAGOGUE_MISSION_ID, SYNAGOGUE_TASK } from "./synagogue-task.ts";
 import { parseAction } from "./parse-water-action.ts";
@@ -56,6 +57,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "player-3", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }

@@ -1,9 +1,9 @@
 import { DEV_GUIDE_ID, DEV_PARTICIPANTS } from "./dev-water-session.ts";
-import type { GroupRoleAssignments } from "./roles.ts";
 
 /**
- * Display names for the fixed participant IDs. They are personal data, so they live only in the server's state file (set with
- * scripts/shuk-name.ts), never in git. IDs never change, so avatars, roles and progress keep working when a name changes.
+ * Display names: the operator's names for the seats (player-1…7, guide), and a member's own name. They are personal data, so they
+ * live only in the server's state file (set with scripts/shuk-name.ts), never in git, and they are labels only: they grant nothing.
+ * IDs never change, so avatars, roles and progress keep working when a name changes.
  */
 export const MAX_DISPLAY_NAME = 40;
 export type ParticipantNames = Readonly<Record<string, string>>;
@@ -31,13 +31,13 @@ export function setDisplayName(names: ParticipantNames, participantId: string, n
 }
 
 /**
- * The group as players see it, in roster order, then the guide. With no names set (the local simulation) everyone is listed as
- * "Player N". Once names are set, only named players and anyone holding a role are listed, so unused slots don't show.
+ * The team as players see it: its members in the order they joined (members carried over from schema 6 joined at 0, so they keep
+ * seat order), then the guide. A member's own name, else the operator's name for their seat, else "Player N" for a seat.
+ * TODO(copy): "Participant" for a member with neither is a draft (members without a seat arrive with I3b's join link).
  */
-export function groupParticipants(names: ParticipantNames, roles: GroupRoleAssignments): readonly Readonly<{ id: string; name: string }>[] {
-  const named = DEV_PARTICIPANTS.some(participant => names[participant.id]);
-  const players = DEV_PARTICIPANTS
-    .filter(participant => !named || names[participant.id] || roles.navigator === participant.id || roles.answerSubmitter === participant.id)
-    .map(participant => ({ id: participant.id, name: names[participant.id] ?? participant.name }));
-  return [...players, { id: DEV_GUIDE_ID, name: names[DEV_GUIDE_ID] ?? "Guide" }];
+export function rosterParticipants(members: readonly Readonly<{ id: string; joinedAt: number; seat?: string; name?: string }>[], seatNames: ParticipantNames): readonly Readonly<{ id: string; name: string }>[] {
+  const seatOrder = (seat: string | undefined) => { const index = DEV_PARTICIPANTS.findIndex(participant => participant.id === seat); return index < 0 ? DEV_PARTICIPANTS.length : index; };
+  const players = [...members].sort((a, b) => a.joinedAt - b.joinedAt || seatOrder(a.seat) - seatOrder(b.seat) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .map(member => ({ id: member.id, name: member.name ?? (member.seat === undefined ? undefined : seatNames[member.seat] ?? DEV_PARTICIPANTS.find(participant => participant.id === member.seat)?.name) ?? "Participant" }));
+  return [...players, { id: DEV_GUIDE_ID, name: seatNames[DEV_GUIDE_ID] ?? "Guide" }];
 }

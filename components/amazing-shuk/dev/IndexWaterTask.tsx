@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BASE_PATH } from "@/lib/base-path";
-import { DEV_GUIDE_ID, DEV_PARTICIPANTS, getDevWaterActorRole, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
+import { DEV_GUIDE_ID, getDevWaterActorRole, type DevWaterSession } from "@/lib/amazing-shuk/dev-water-session";
 import type { GroupAction } from "@/lib/amazing-shuk/group-action";
 import IndexParticipantMenu from "@/components/amazing-shuk/IndexParticipantMenu";
 import IndexGroupSheet from "@/components/amazing-shuk/IndexGroupSheet";
@@ -39,7 +39,8 @@ import PreviewMissionCheer from "./PreviewMissionCheer";
 import { missionCheer, nextMission } from "@/lib/amazing-shuk/mission-cheer";
 import styles from "./IndexWaterTask.module.scss";
 
-const PARTICIPANT_IDENTITIES = [...DEV_PARTICIPANTS, { id: DEV_GUIDE_ID, name: "Guide" }];
+// The roster always comes from the server (its participant registry); before a view arrives there is only the guide.
+const PARTICIPANT_IDENTITIES = [{ id: DEV_GUIDE_ID, name: "Guide" }];
 // The map opens on marker 1.
 const INITIAL_NAV = initialNavState(SHUK_MISSIONS[0].id);
 // Where the player is survives a refresh in this tab; shared progress always comes from the server.

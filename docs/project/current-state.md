@@ -42,6 +42,7 @@
 
 ## Next
 
+- **Next session: build I3a** (the owner approved the I3 plan on 31 Oct 2026). Start at the top of the [handoff](agent-handoff.md). Fix and run S0-A alongside it.
 - **UX is paused for the multiplayer roadmap (owner, 31 Oct 2026).** The deferred UX backlog (UX-1 full-width map, UX-2 spatial Find this place, UX-3 story then Start then the timed activity, UX-4 the completion celebration) is in [decisions](product-decisions.md#deferred-ux-backlog-owner-31-oct-2026-recorded-not-scheduled-not-approved-for-build). Not scheduled; each phase needs its own approval.
 - **Next session:** the owner's phone sign-off of the uncommitted compact-preview changes (31 Oct 2026; checklist in the handoff), then the B-lite phone check and the copy drafts. The challenge-photo preview is a separate task, not started; the ordered list is at the top of the [handoff](agent-handoff.md). B-lite steps 6–7 (finding hints), routing and any GPS-policy change are not authorised.
 - Done (`6d35b59`, 30 Oct 2026): the compact onboarding (Stitch): the one-step lobby.

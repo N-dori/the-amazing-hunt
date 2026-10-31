@@ -18,6 +18,7 @@ async function fixture(run: (path: string) => Promise<void>) {
   const directory = await mkdtemp(join(process.cwd(), ".local", "shuk-lobby-"));
   try { await run(join(directory, "state.json")); } finally { await rm(directory, { recursive: true, force: true }); }
 }
+const idOf = async (path: string, token: string) => (await sessionView(path, token, NOW)).session.activeActorId;
 const newAdventureCopies = async (path: string) => (await readdir(dirname(path))).filter(name => name.startsWith(basename(path) + ".before-new-adventure-"));
 /** A lobby with player-1 as its host, plus a player and the guide, each signed in. */
 async function lobbyWithHost(path: string) {
@@ -101,18 +102,21 @@ test("a host invitation makes its seat the host and team A's leader, once; host 
   const token = await issueHostInvitation(path, "player-1", NOW);
   const stored = JSON.parse(await readFile(path, "utf8"));
   assert.ok(!JSON.stringify(stored).includes(token));
-  assert.deepEqual(Object.values(stored.invitations), [{ participantId: "player-1", expiresAt: NOW + 86_400_000, kind: "host", teamId: "A" }]);
+  assert.deepEqual(Object.values(stored.invitations), [{ seat: "player-1", expiresAt: NOW + 86_400_000, kind: "host", teamId: "A" }]);
   // Expired after 24 hours.
   await assert.rejects(redeemInvitation(path, token, NOW + 86_400_000), unauthorised);
   const fresh = await issueHostInvitation(path, "player-1", NOW);
   const host = await redeemInvitation(path, fresh, NOW);
   assert.deepEqual((await sessionView(path, host, NOW)).adventure, { status: "lobby", intendedCount: null, host: true, leader: true, canManage: true });
-  // The earlier plain session of the same seat stays an ordinary player: host rights belong to the host invitation's session.
-  assert.deepEqual((await sessionView(path, plain, NOW)).adventure, { status: "lobby", intendedCount: null, host: false, leader: true, canManage: false });
+  // The earlier plain session of the same seat stays an ordinary player: host and leader rights belong to the host invitation's
+  // session (schema 7 binds the leadership to it too; I2 showed the seat's other sessions as leader).
+  assert.deepEqual((await sessionView(path, plain, NOW)).adventure, { status: "lobby", intendedCount: null, host: false, leader: false, canManage: false });
   await assert.rejects(sessionAction(path, plain, { type: "set-intended-count", count: 3 }, "plain-seat-count-00001", NOW), forbidden);
   const written = JSON.parse(await readFile(path, "utf8"));
-  assert.equal(written.adventure.hostId, "player-1");
-  assert.equal(written.teams.A.leaderId, "player-1");
+  // The host is the member the seat already had: one participant, two sessions.
+  assert.equal(written.adventure.hostId, await idOf(path, plain));
+  assert.equal(written.teams.A.leaderId, written.adventure.hostId);
+  assert.equal(await idOf(path, host), written.adventure.hostId);
   await assert.rejects(redeemInvitation(path, fresh, NOW), unauthorised);
   await assert.rejects(issueHostInvitation(path, "player-2", NOW), conflict);
 }));
@@ -147,7 +151,7 @@ test("only the host or the guide sets the count and starts; Start needs a count 
   // A second Start (the guide's, queued at the same time) changes nothing; the count is fixed once play begins.
   assert.equal(await sessionAction(path, guide, { type: "start-adventure" }, "guide-start-adventure-2", NOW), "The adventure has already started.");
   await assert.rejects(sessionAction(path, host, { type: "set-intended-count", count: 6 }, "host-count-after-start", NOW), /already started/);
-  assert.deepEqual(JSON.parse(await readFile(path, "utf8")).adventure, { status: "active", format: "together", hostId: "player-1", intendedCount: 5 });
+  assert.deepEqual(JSON.parse(await readFile(path, "utf8")).adventure, { status: "active", format: "together", hostId: await idOf(path, host), intendedCount: 5 });
 }));
 
 test("being host and leader grants no guide-only permission", () => fixture(async path => {
@@ -175,18 +179,19 @@ test("nothing on the journey counts in the lobby, for anyone; roles may be settl
   await assert.rejects(sessionAction(path, guide, { type: "timing", operation: "pause", missionId: WELL }, "lobby-guide-timing-001", NOW), refused);
   await assert.rejects(sessionAction(path, player, { type: "hint", hint: 1, missionId: WELL }, "lobby-player-hint-0001", NOW), refused);
   await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "lobby-claim-navigator-1", NOW);
-  await sessionAction(path, guide, { type: "assign-role", role: "answerSubmitter", participantId: "player-1" }, "lobby-assign-submitter", NOW);
+  await sessionAction(path, guide, { type: "assign-role", role: "answerSubmitter", participantId: await idOf(path, host) }, "lobby-assign-submitter", NOW);
   await assert.rejects(sessionAction(path, player, { type: "start", missionId: WELL }, "lobby-navigator-start-1", NOW), refused);
   await sessionAction(path, host, { type: "set-intended-count", count: 2 }, "lobby-host-count-two-1", NOW);
   await sessionAction(path, host, { type: "start-adventure" }, "lobby-host-start-00001", NOW);
   await sessionAction(path, player, { type: "start", missionId: WELL }, "after-start-navigator-1", NOW);
   const view = await sessionView(path, player, NOW);
   assert.equal(view.performance.started, true);
-  assert.deepEqual(view.session.roles, { navigator: "player-4", answerSubmitter: "player-1" });
+  assert.deepEqual(view.session.roles, { navigator: await idOf(path, player), answerSubmitter: await idOf(path, host) });
 }));
 
 test("the migrated live game stays an active adventure with no host: play goes on as before", () => fixture(async path => {
   const player = await redeemInvitation(path, await issueInvitation(path, "player-1", NOW), NOW);
+  await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "migrated-claim-navigator", NOW);
   await writeFile(path, JSON.stringify(schema5Snapshot(JSON.parse(await readFile(path, "utf8")))));
   assert.deepEqual((await sessionView(path, player, NOW)).adventure, { status: "active", intendedCount: null, host: false, leader: false, canManage: false });
   await sessionAction(path, player, { type: "start", missionId: WELL }, "migrated-navigator-start", NOW);
@@ -197,6 +202,7 @@ test("the migrated live game stays an active adventure with no host: play goes o
 test("a new adventure keeps the exact old file first, then opens an empty lobby; names and receipts stay", () => fixture(async path => {
   const player = await redeemInvitation(path, await issueInvitation(path, "player-1", NOW), NOW);
   await setParticipantName(path, "player-3", "Test Name");
+  await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "old-adventure-claim-001", NOW);
   await sessionAction(path, player, { type: "start", missionId: WELL }, "old-adventure-start-001", NOW);
   // The old file is schema 5, as live is now: both copies are kept, each with the bytes it was given.
   await writeFile(path, JSON.stringify(schema5Snapshot(JSON.parse(await readFile(path, "utf8")))));
@@ -206,15 +212,16 @@ test("a new adventure keeps the exact old file first, then opens an empty lobby;
   const copy = join(dirname(path), kept);
   assert.ok((await readFile(copy)).equals(before));
   assert.equal((await stat(copy)).mode & 0o777, 0o600);
-  assert.equal((await readdir(dirname(path))).filter(name => name.includes(".pre-schema6-")).length, 1);
+  assert.equal((await readdir(dirname(path))).filter(name => name.includes(".pre-schema7-")).length, 1);
   const db = JSON.parse(await readFile(path, "utf8"));
   assert.deepEqual(db.adventure, { status: "lobby", format: "together", hostId: null, intendedCount: null });
   assert.deepEqual([db.teams.A.leaderId, db.teams.A.roles, db.sessions, db.invitations], [null, { navigator: null, answerSubmitter: null }, {}, {}]);
   // Missions are stored empty; the store rebuilds each one's empty record on load.
   assert.deepEqual(db.teams.A.missions, {});
-  assert.equal(Object.keys(db.participants).length, 7);
-  assert.equal(db.names["player-3"], "Test Name");
-  assert.deepEqual(db.applied["player-1"], ["old-adventure-start-001"]);
+  // Nobody is a member of the new adventure until they redeem a new invitation; the seats' names and the receipts stay.
+  assert.deepEqual(db.participants, {});
+  assert.equal(db.seatNames["player-3"], "Test Name");
+  assert.deepEqual(db.applied["player-1"], ["old-adventure-claim-001", "old-adventure-start-001"]);
   await assert.rejects(sessionView(path, player, NOW), unauthorised);
 }));
 
@@ -244,7 +251,7 @@ test("6 to 30 can't start, even with an \"as one team\" flag; 5 or fewer can, an
   await sessionAction(path, host, { type: "set-intended-count", count: 5 }, "host-count-back-to-five", NOW);
   assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-five-0000001", NOW), "The adventure has started!");
   const db = JSON.parse(await readFile(path, "utf8"));
-  assert.deepEqual(db.adventure, { status: "active", format: "together", hostId: "player-1", intendedCount: 5 });
+  assert.deepEqual(db.adventure, { status: "active", format: "together", hostId: await idOf(path, host), intendedCount: 5 });
   assert.deepEqual(Object.keys(db.teams), ["A"]);
 }));
 

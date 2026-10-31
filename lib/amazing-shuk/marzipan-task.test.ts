@@ -7,6 +7,7 @@ import { evaluateChoice } from "./choice-task.ts";
 import { findChoiceTask } from "./choice-missions.ts";
 import { choiceStep } from "./mission-arrival.ts";
 import { storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import { parseAction } from "./parse-water-action.ts";
 import { MARZIPAN_APPRECIATION, MARZIPAN_BONUS, MARZIPAN_BONUS_CHALLENGE, MARZIPAN_CHALLENGE, MARZIPAN_HORNS_CHALLENGE, MARZIPAN_MISSION, MARZIPAN_MISSION_ID, MARZIPAN_TASK } from "./marzipan-task.ts";
@@ -107,6 +108,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "player-3", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }

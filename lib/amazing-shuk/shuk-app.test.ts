@@ -67,7 +67,7 @@ test("app mode over HTTP: the configured origin only, a Secure HttpOnly cookie, 
   // The session works for reads, and the single-use invitation is spent.
   const session = cookie.split(";")[0];
   const read = await handleParticipantRequest(new Request("http://0.0.0.0:3000/shuk/api/amazing-shuk/dev", { headers: { host: "doriisrael.com", cookie: session } }), path, APP);
-  assert.equal(read.status, 200); assert.equal((await read.json()).session.activeActorId, "player-4");
+  assert.equal(read.status, 200); assert.match((await read.json()).session.activeActorId, /^p_[A-Za-z0-9_-]{22}$/, "a new member gets a random ID, not the seat");
   assert.equal((await handleParticipantRequest(login(token, "https://doriisrael.com"), path, APP)).status, 401);
   const anonymous = await handleParticipantRequest(new Request("http://0.0.0.0:3000/shuk/api/amazing-shuk/dev", { headers: { host: "doriisrael.com" } }), path, APP);
   assert.equal(anonymous.status, 401);
@@ -81,7 +81,7 @@ test("the invite script in the app links to the public https page, and refuses a
   const link = new URL(result.stdout.trim());
   assert.equal(link.origin, "https://doriisrael.com"); assert.equal(link.pathname, "/shuk/amazing-shuk");
   const token = new URLSearchParams(link.hash.slice(1)).get("invite")!;
-  assert.equal((await sessionView(path, await redeemInvitation(path, token))).session.activeActorId, "player-5");
+  assert.match((await sessionView(path, await redeemInvitation(path, token))).session.activeActorId, /^p_[A-Za-z0-9_-]{22}$/);
   for (const origin of ["http://doriisrael.com", "https://evil.example", "https://doriisrael.com/shuk", "http://127.0.0.1:3000"]) {
     await assert.rejects(cli(["player-5", origin], { ...APP, SHUK_DATA_FILE: path }), origin);
   }

@@ -7,6 +7,7 @@ import { evaluateChoice } from "./choice-task.ts";
 import { findChoiceTask } from "./choice-missions.ts";
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import { storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 import { LEVIN_BONUS, LEVIN_BONUS_CHALLENGE, LEVIN_CHALLENGE, LEVIN_MISSION, LEVIN_MISSION_ID, LEVIN_TASK } from "./levin-task.ts";
 
 const LEVIN = LEVIN_MISSION_ID;
@@ -55,6 +56,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "player-3", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
