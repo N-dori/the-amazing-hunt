@@ -2,6 +2,18 @@
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
+**Committed as `6ee5c96` and deployed on 31 Oct 2026 at 01:38 UTC (owner-authorised) for the phone check: `dori-shuk:20261031-013832-6ee5c96`.**
+- Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged.
+- Rollback: `dori-shuk:previous` = `0c03a61`.
+- Backup: `/root/backups/amazing-shuk/live-state-before-compact-preview-deploy-20261031T013831Z.json`.
+- `docs/RUN_PREVIEW.md` was kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-compact-preview-deploy` (+ `.patch`) and restored identically.
+- Disk 84% after: prune the build cache (with the owner's approval) before the next build.
+
+**Live new adventure (owner-asked, 31 Oct 2026, 01:44 UTC):**
+- Backup `/root/backups/amazing-shuk/live-state-before-new-adventure-20261031T014410Z.json`, then `shuk-new-adventure.ts --confirm` in `dori-shuk` (it also kept `state.json.before-new-adventure-20261031T014410Z` in `/data`).
+- Now schema 6, **lobby, no host, no sessions**, names kept.
+- Fresh single-use 24 h links, never printed, in `.local/amazing-shuk/links-new-adventure-20261031T0144Z/` (`host-player-1.txt`, `player-2.txt`, `guide.txt`). Older link folders are void.
+
 **Status (owner, 31 Oct 2026):** accepted as **candidates for mobile sign-off**. No further UX changes until the owner's phone check; **not visually approved**. Nothing committed, pushed or deployed.
 
 **Separate presentation task, recorded, not started:** the challenge screen's story photo (e.g. the mural's "before" photo) as a shorter preview that enlarges in the bottom sheet, with the challenge's purpose and Start challenge reachable sooner. Historical text and facts stay unchanged. It needs its own approval.
