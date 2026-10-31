@@ -249,7 +249,7 @@ const busy = () => new AccessError("Storage busy; retry the same action.", 503);
 /**
  * Takes the write lock (a directory, created atomically). A crashed writer (out of memory, docker kill, reboot) leaves its lock
  * on the data volume, where a restart doesn't clear it; such a lock is moved aside once and the write goes ahead. A lock younger
- * than STALE_LOCK_MS is a live writer: the caller gets "busy" and its queued action retries. Security review, 25 Oct 2026.
+ * than STALE_LOCK_MS is a live writer: "busy" (`waitForLock` retries briefly first). Security review, 25 Oct 2026.
  */
 async function acquireLock(lock: string, now: number): Promise<void> {
   try { await mkdir(lock); return; } catch (error) { if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error; }
@@ -267,12 +267,69 @@ async function acquireLock(lock: string, now: number): Promise<void> {
   try { await mkdir(lock); } catch { throw busy(); }
 }
 
-/** A filesystem lock serializes CLI and HTTP writers. Atomic rename publishes whole snapshots.
- * `beforeWrite` runs under the lock after the operation succeeded and before the file is replaced; if it throws, nothing is written. */
-export async function transact<T>(path: string, operation: (db: Database) => T, beforeWrite?: (raw: Buffer | null) => Promise<void>): Promise<T> {
+/** Another process (the operator CLI) holds the lock for milliseconds: wait this long for it, in short jittered steps, before "busy". */
+export const LOCK_WAIT_MS = 1_500;
+async function waitForLock(lock: string): Promise<void> {
+  const deadline = Date.now() + LOCK_WAIT_MS;
+  for (;;) {
+    try { return await acquireLock(lock, Date.now()); } catch (error) {
+      if ((error as AccessError).status !== 503 || Date.now() >= deadline) throw error;
+    }
+    await new Promise(wake => setTimeout(wake, 20 + Math.random() * 40));
+  }
+}
+
+/** At most this many writes per state file wait in line in one process, the running one included; one more is told "busy". */
+export const WRITE_QUEUE_LIMIT = 64;
+/** A write that has waited this long for its turn gives up with "busy"; its queued action retries. */
+export const WRITE_TURN_WAIT_MS = 10_000;
+type WriteLine = { tail: Promise<void>; waiting: number };
+// On globalThis so that every copy of this module in one server process (Next bundles each route separately) shares one line per file.
+const lines = globalThis as typeof globalThis & { shukWriteLines?: Map<string, WriteLine> };
+const writeLines = lines.shukWriteLines ??= new Map<string, WriteLine>();
+
+/**
+ * Writes from this process take turns per state file, so a burst of taps waits milliseconds in line instead of colliding on the
+ * lock and failing with "busy" (S0-B, 31 Oct 2026). The line only orders writers: the filesystem lock is still taken for every
+ * write and is what keeps the file safe, from other processes too. A failed write still hands on its turn.
+ */
+async function inTurn<T>(path: string, write: () => Promise<T>): Promise<T> {
+  const key = resolve(path);
+  const line = writeLines.get(key) ?? { tail: Promise.resolve(), waiting: 0 };
+  if (line.waiting >= WRITE_QUEUE_LIMIT) throw busy();
+  line.waiting++;
+  writeLines.set(key, line);
+  const previous = line.tail;
+  let handOn!: () => void;
+  line.tail = new Promise<void>(done => { handOn = done; });
+  let timer: NodeJS.Timeout | undefined;
+  const late = new Promise<"late">(give => { timer = setTimeout(() => give("late"), WRITE_TURN_WAIT_MS); });
+  try {
+    if (await Promise.race([previous, late]) === "late") {
+      // Hand on only after the writer ahead finishes, so the writers behind keep their order.
+      void previous.then(handOn);
+      handOn = () => {};
+      throw busy();
+    }
+    return await write();
+  } finally {
+    clearTimeout(timer);
+    handOn();
+    if (--line.waiting === 0 && writeLines.get(key) === line) writeLines.delete(key);
+  }
+}
+
+/** A filesystem lock serializes CLI and HTTP writers; writers in one process also take turns (`inTurn`). Atomic rename publishes
+ * whole snapshots. `beforeWrite` runs under the lock after the operation succeeded and before the file is replaced; if it throws,
+ * nothing is written. */
+export function transact<T>(path: string, operation: (db: Database) => T, beforeWrite?: (raw: Buffer | null) => Promise<void>): Promise<T> {
+  return inTurn(path, () => write(path, operation, beforeWrite));
+}
+
+async function write<T>(path: string, operation: (db: Database) => T, beforeWrite?: (raw: Buffer | null) => Promise<void>): Promise<T> {
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   const lock = path + ".lock";
-  await acquireLock(lock, Date.now());
+  await waitForLock(lock);
   const temporary = path + "." + secret() + ".tmp";
   try {
     const raw = await readStored(path);

@@ -340,6 +340,78 @@ test("mission actions must name a listed mission, and other missions' records st
   assert.deepEqual(storedTeam(JSON.parse(await readFile(path, "utf8"))).missions["retired-mission"], retired);
 }));
 
+// S0-B write line: writers in one process take turns; the filesystem lock still guards every write. Keys are test-only invitations.
+const mark = (key: string) => (db: Parameters<Parameters<typeof transact>[1]>[0]) => { db.invitations[key] = { seat: "player-1", expiresAt: Date.now() + 60_000 }; };
+const marks = async (path: string) => Object.keys(JSON.parse(await readFile(path, "utf8")).invitations).filter(key => key.startsWith("line-")).sort();
+
+test("a burst of writes in one process waits in line: none is busy, none is lost, each action applies once", () => fixture(async path => {
+  await Promise.all(Array.from({ length: 40 }, (_, i) => transact(path, mark(`line-${String(i).padStart(2, "0")}`))));
+  assert.equal((await marks(path)).length, 40);
+  const first = await seat(path, "player-1");
+  const second = await seat(path, "player-2");
+  await sessionAction(path, first, { missionId: WELL, type: "start" }, "line-start-challenge-01");
+  const moves = [
+    { token: first, action: { missionId: WELL, type: "move", move: "fill-small" } as const, id: "line-fill-small-001" },
+    { token: second, action: { missionId: WELL, type: "move", move: "fill-large" } as const, id: "line-fill-large-001" },
+  ];
+  // Every move sent three times at once (a lost reply and two retries): all succeed, and each changes the cups once.
+  const results = await Promise.allSettled([...moves, ...moves, ...moves].map(item => sessionAction(path, item.token, item.action, item.id)));
+  assert.deepEqual(results.map(result => result.status), Array(6).fill("fulfilled"));
+  assert.deepEqual(cupsOf(await sessionView(path, first)), { small: 3, large: 5, jar: 0 });
+  const applied = Object.values(JSON.parse(await readFile(path, "utf8")).applied as Record<string, string[]>).flat();
+  for (const { id } of moves) assert.equal(applied.filter(entry => entry === id).length, 1);
+}));
+
+test("a refused or failing write hands on its turn and writes nothing", () => fixture(async path => {
+  const first = await seat(path, "player-1");
+  await sessionAction(path, first, { missionId: WELL, type: "start" }, "line-start-challenge-02");
+  const results = await Promise.allSettled([
+    transact(path, () => { throw new Error("operation failed"); }),
+    sessionAction(path, first, { missionId: WELL, type: "submit" }, "line-wrong-submit-001"),
+    transact(path, mark("line-after")),
+  ]);
+  assert.deepEqual(results.map(result => result.status), ["rejected", "rejected", "fulfilled"]);
+  assert.deepEqual(await marks(path), ["line-after"]);
+  await assert.rejects(readFile(path + ".lock"), { code: "ENOENT" });
+  assert.equal((await readdir(dirname(path))).filter(name => name.endsWith(".tmp")).length, 0);
+}));
+
+test("another process's lock is waited for briefly; the line is bounded and an overflow is busy, not queued", () => fixture(async path => {
+  const { WRITE_QUEUE_LIMIT, LOCK_WAIT_MS } = await import("./participant-store.ts");
+  await transact(path, mark("line-setup"));
+  const lock = path + ".lock";
+  // The operator CLI is mid-write: the first writer waits on the lock and the rest wait in line behind it.
+  await mkdir(lock);
+  const writes = Array.from({ length: WRITE_QUEUE_LIMIT }, (_, i) => transact(path, mark(`line-${String(i).padStart(2, "0")}`)));
+  await assert.rejects(transact(path, mark("line-overflow")), (error: Error & { status?: number }) => error.status === 503);
+  await new Promise(wake => setTimeout(wake, LOCK_WAIT_MS / 3));
+  await rm(lock, { recursive: true });
+  await Promise.all(writes);
+  assert.equal((await marks(path)).length, WRITE_QUEUE_LIMIT + 1);
+  assert.ok(!(await marks(path)).includes("line-overflow"));
+  // A lock held longer than the wait still gives "busy", and nothing is written.
+  await mkdir(lock);
+  const started = Date.now();
+  await assert.rejects(transact(path, mark("line-late")), (error: Error & { status?: number }) => error.status === 503);
+  assert.ok(Date.now() - started >= LOCK_WAIT_MS);
+  await rm(lock, { recursive: true });
+  assert.ok(!(await marks(path)).includes("line-late"));
+}));
+
+test("writers in two processes share the filesystem lock: all writes land", () => fixture(async path => {
+  await transact(path, mark("line-setup"));
+  const child = promisify(execFile)(process.execPath, ["--experimental-strip-types", "--disable-warning=ExperimentalWarning", "--input-type=module", "-e",
+    'import { transact } from "./lib/amazing-shuk/participant-store.ts"; await Promise.all(Array.from({ length: 30 }, (_, i) => transact(process.argv[1], db => { db.invitations[`line-child-${i}`] = { seat: "player-1", expiresAt: Date.now() + 60000 }; })));', path]);
+  // This process keeps writing in bursts until the child is done, so the two contend for the lock.
+  let done = false, written = 0;
+  void child.finally(() => { done = true; });
+  while (!done) await Promise.all(Array.from({ length: 5 }, () => transact(path, mark(`line-here-${written++}`))));
+  await child;
+  const all = await marks(path);
+  assert.equal(all.filter(key => key.startsWith("line-child-")).length, 30);
+  assert.equal(all.filter(key => key.startsWith("line-here-")).length, written);
+}));
+
 test("a lock left by a crashed writer is cleared after STALE_LOCK_MS; a live writer's lock still reports busy", () => fixture(async path => {
   const { STALE_LOCK_MS } = await import("./participant-store.ts");
   const { utimes } = await import("node:fs/promises");

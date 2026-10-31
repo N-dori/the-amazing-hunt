@@ -281,7 +281,7 @@ The smallest secure path from the fixed seats to individually authenticated part
 
 **S0:**
 - Not a blocker for building I3a and I3b: I3 load is at most 5 players plus the guide and a few pending requests.
-- Before going live: finish S0-A (its harness sign-in bug is still open).
+- Before going live: finish S0-A. The harness is fixed and was run on 31 Oct 2026; results and the next step are in "S0-A results and S0-B plan" below.
 - Join requests write to the file without a session, so the per-link rate limit has to stop floods before they reach the file lock. It runs in memory and resets on restart.
 
 **Decisions needed from the owner:**
@@ -302,6 +302,177 @@ The smallest secure path from the fixed seats to individually authenticated part
 **Recommended first step:** I3a, with S0-A fixed and run alongside it.
 
 **Owner approval (31 Oct 2026):** the owner approved this plan. I3a may be built next, as a local, uncommitted change that is verified and then reported. The recommendations for O6, O15, showing the link again and the check code are part of the approved plan; confirm them explicitly before I3b starts, since the decision table still lists O6 and O15 as open. Deploying, pushing and any live migration (O17) each still need their own approval.
+
+#### I3b decisions (owner, 31 Oct 2026): approved design; not built, implementation not yet approved
+
+**Approved defaults:**
+- **Team size:** 5 members per team, including the leader. The guide doesn't count.
+- **Pending requests:** at most 5 per team.
+- **Expiry:**
+  - A pending request expires after 10 minutes.
+  - An approved request that isn't collected expires after 15 minutes. Until then it holds a place in the team.
+- **Join link:** reusable, until a new adventure or until it's explicitly replaced.
+- **Names:** optional, cleaned with `cleanDisplayName`. A name is a label, never an identity.
+- **Check code:** shown on both phones, only to match the right phone. It is not authentication.
+- **Secrets:** the link, the request secret and sessions are all stored hashed.
+- **O15:** Share and Copy only. QR comes in I3c.
+
+**Owner's refinements:**
+1. **No automatic link replacement.**
+   - Opening **Invite players** never invalidates anything.
+   - Replacing the link (which cancels its pending requests; approved ones stand) needs an explicit confirmation by the leader or guide.
+   - Since the link is stored hashed, the server can't show it again. The leader's phone keeps it in memory only while the screen is open. If it's lost, it is replaced explicitly.
+2. **Remove is in I3b.**
+   - The team's leader (a leader session) or the guide can remove a member.
+   - Removing deletes the member from the registry, which ends every one of their sessions at once (`identity()`), frees their roles and drops their receipts.
+   - The leader can't be removed until leadership can be transferred (I4).
+3. **The team cap is enforced.**
+   - No join-link approval can exceed it. The check runs inside the lock and counts members plus approved requests not yet collected.
+   - Operator invitations no longer bypass it silently: a seat invitation that would exceed the cap is refused, unless the operator issues it with an explicit override flag on the command line (`shuk-invite.ts`). The override is recorded on the invitation.
+
+**Schema:**
+- `teams[id].joinLink` and `joinRequests` are optional additions under schema 7, with no migration.
+- I3a's `isValidRegistry` already accepts members without a seat and passes unknown fields through, so the I3a image stays a rollback target. A test proves it.
+- The planned `source` field is dropped: whether `seat` is present already says how the member joined.
+
+**Joining:**
+- Joining works in the lobby and during the adventure, while there is space.
+- A device that is already signed in gets "You're already in" (draft) and creates nothing. There is no self-service team switching.
+- A declined device can't ask again with the same `shuk_join` cookie until the request would have expired. The rate limit covers the rest.
+- Kill switch: with `SHUK_JOIN_LINKS` off, the ask, status and exchange calls return 404 and the UI hides **Invite players**. Command-line invitations always work.
+
+**Security review (current code; I3b must keep these):**
+- **CSRF:** every POST needs `Origin` equal to the configured public origin (never forwarded headers) and `Content-Type: application/json`. Cookies are `SameSite=Strict`. GET has no side effects. The new ask, status and exchange calls use the same rules: the ask is a POST, and status is a read that takes no lock.
+- **Cookies:**
+  - `shuk_session`: HttpOnly, SameSite=Strict, `Secure` on https, path `BASE_PATH/`, 7 days.
+  - `shuk_join`: the same flags, path `BASE_PATH/`, and it lives no longer than its request.
+  - No secret appears in a URL. `#join=` and `#invite=` sit in the fragment and are cleared from the address bar.
+- **Replay:**
+  - Leader actions (let in, decline, remove, replace link) go through the action queue with action IDs and receipts.
+  - The exchange deletes the request, so a second exchange fails. An exchange needs the cookie of the device that asked.
+  - Asking again with the same cookie returns the same request.
+- **Concurrent approvals:**
+  - Every capacity check and state change happens inside `transact`, so ten simultaneous approvals against the cap admit exactly the free places.
+  - S0-B's write queue keeps this serialization: a queue changes the order, not the checks.
+- **Abuse:**
+  - An in-memory rate limit (10 asks a minute per link, 30 overall) refuses before `transact`, so a flood can't fill the write queue or touch the file.
+  - Pending requests are capped. Request bodies are already limited to 4 KB.
+  - Names never appear in logs or error messages.
+
+**Unresolved implementation dependencies:**
+- **S0-B result (Option A):** the size of the write queue and how it interacts with unauthenticated asks. Build I3b on top of whichever locking S0-B lands with.
+- **O16 copy:** every word in the join flow is a draft (`TODO(copy)`). Live use needs O16.
+- **I4:** a lost or removed leader. Until I4, the guide can still let people in, and the leader can't be removed.
+- **Lobby count:** the lobby's count ("how many are playing?") is separate from the real roster. Keep the start rule as it is; decide in I7a whether the roster should replace it.
+- **Live schema 7:** I3b adds only optional fields to schema 7 (no new migration). Before any I3b deploy, the live file must already be schema 7 with its pre-schema7 copy. On 31 Oct 2026 it was still schema 6 (see the handoff).
+- **Implementation approval:** after the S0-B report. Then a security review before any deploy request.
+
+**Acceptance tests (temporary state files only):**
+- The link alone gives no session. Ask, one approval and an exchange give exactly one session.
+- Ten simultaneous approvals against the cap: exactly the free places are filled, and replays change nothing.
+- A second exchange fails, an exchange from another device fails, and asking again returns the same request.
+- An expired pending or uncollected request can't be approved or exchanged, and its place frees up.
+- A player, the navigator, a second session of the leader's seat and a removed member all fail to let in, decline, remove or replace. The guide succeeds.
+- Replacing the link needs the explicit action, cancels pending requests and keeps approved ones. Opening **Invite players** changes nothing.
+- An operator invitation over the cap is refused unless it has the override.
+- Removing a member ends their sessions, and their queued actions are refused.
+- The pending cap holds, and a rate-limited ask writes nothing.
+- A signed-in device creates nothing. With the kill switch off, the calls return 404.
+- An I3b file is read by the I3a code.
+- The full suite, lint and `tsc`, and `/game-verify shuk`.
+
+#### S0-A results and S0-B plan (Claude, 31 Oct 2026): S0-B steps 1–3 approved by the owner on 31 Oct 2026
+
+**Harness fixed (31 Oct 2026, uncommitted, `scripts/shuk-sync-bench.{sh,mjs}`):**
+- A fresh data file holds an adventure that has already started, so the host invitation was refused (409). The script hid the error and passed on an empty token. It now opens a lobby first, shows the invite command's errors and stops on an empty token.
+- Since schema 7, a seat's member has a random ID. The bench now reads it from the view after sign-in and sends it as `expectedParticipantId`.
+
+**Measured** (an isolated test container at production's limits, 256 MB and 1 CPU; `dori-shuk:current` = `69b4077`; results in `.local/shuk-bench/`):
+
+| | 8 clients | 30 clients |
+|---|---|---|
+| Requests/s | 6.9 | 32.4 |
+| GET p50 / p95 / p99 | 4 / 7 / 11 ms | 4 / 12 / 47 ms |
+| POST p50 / p95 / p99 | 9 / 19 / 24 ms | 25 / 99 / 127 ms |
+| Tap to done, p50 / p95 / max | 0.015 / 16 / 37 s | 12 / 106 / 154 s |
+| "Storage busy" (503) share of POSTs | 37% | 72% |
+| Applied twice | 0 | 0 |
+| Server CPU avg / max; memory | 4.9 / 13.9%; 47 MiB | 13.8 / 36.2%; 55 MiB |
+
+One transaction on the 30-client state (21 KB) takes 1.9 ms at p50 and 6 ms at p95 (the bench's `parse` step).
+
+**Root cause: timing, not capacity.**
+- `acquireLock` tries the `mkdir` lock once and answers 503 if it is held. There is no in-process queue. The lock is held across the transaction's awaits, so any POST that arrives during another write fails.
+- The bench and the app (`IndexWaterTask`) retry on a fixed 2 s interval, with no backoff or jitter. One 503 stops a phone's whole queue until the next tick.
+- In the bench every phone's flush timer starts at the same moment, and each duplicate's two copies collide with each other.
+- The server could serialize about 40 writes a second against about 6 needed. Even so, each phone's queue grew faster than it emptied.
+
+**Accounting:**
+- All 356 rejections are 403 business rules from the workload: 56 lost role claims, most of the rest "Choose up to 2.". There were 0 server, network, 401 or 409 errors.
+- The 31 queued actions were abandoned when the bench's 60 s drain cap ran out (`drainMs` 60 089). The server didn't lose them.
+- The bench records an action only when it is first posted, so actions waiting behind a stuck queue head were never counted. That likely accounts for the 2 missing from 722 (inference).
+- Exactly-once held: every applied ID has a receipt in the file.
+
+**Not yet proven:**
+- A container restart was not tested.
+- The 60 s drain cap hides the tail after sleep and reconnect.
+- `db.applied` is never pruned. At 3,000 receipts per member, a read costs 5 / 32 ms (p50 / p95) and a write 12 / 43 ms; at 10,000, a read costs 35 / 73 ms and a write 53 / 80 ms. This needs a schema decision later, not now.
+
+**Validity:**
+- The 30-client run is a stress test, not a model of visitors: one team of 8 members (about 4 phones per seat), about 6 actions/s on one mural, timers in step, and 10% duplicates.
+- Neither workload stands for six real teams until I7a exists.
+
+**S0-B, approved by the owner (31 Oct 2026) under three conditions:**
+- **A valid baseline comes before any change to the locking.**
+- **The cross-process file lock stays.** The operator scripts write through it.
+- **Client retry behaviour is not changed.** Option B (backoff with jitter) is deferred until after the measurements.
+
+Steps:
+1. **Bench only.** Two workloads:
+   - **Realistic cooperative, a one-team stand-in:** 30 phones, polling and flushing at random phases, about one team action every 10–20 s, role claims by 2–3 contenders, a burst of 3–5 phones at each submission, a reconnect burst at start, 2% lost replies.
+   - **Stress:** today's rate with duplicates and the full role race, a burst where all phones wake together, a restart of the test container, and a drain with no cap (up to 5 minutes).
+
+   Both workloads track every created action to its end, with reasons for each rejection.
+2. **Baseline** the current image on both workloads.
+3. **Option A:** an in-process write queue in `transact` (one at a time per file, kept on `globalThis`), in front of the unchanged `mkdir` lock. If another process holds the lock, wait briefly with jitter, within a fixed limit, before 503. Tests:
+   - concurrent actions apply exactly once;
+   - the operator scripts' lock is still respected;
+   - a stale lock is still recovered;
+   - the migration and backup tests are unchanged.
+
+   Local and uncommitted.
+4. Re-run both workloads on Option A and compare: done, see "S0-B results" below. Option B is still deferred.
+
+Out of scope without separate approval: SSE, WebSockets, new storage, schema changes, group commit.
+
+**Proposed acceptance thresholds:**
+
+| Measure | Realistic | Stress |
+|---|---|---|
+| Tap to confirmed, p95 / p99 / max | ≤ 1 s / ≤ 3 s / ≤ 10 s | ≤ 3 s / ≤ 10 s / ≤ 30 s |
+| "Storage busy" share of POSTs | ≤ 1% | ≤ 5% |
+| Queue drain after taps stop | ≤ 5 s, 0 left | ≤ 15 s; ≤ 30 s after the server is healthy again following a restart |
+| Applied twice; lost or pending forever | 0; 0 | 0; 0 |
+| Operational errors (500, network, unexpected 401/409) | 0 | 0 outside the restart window |
+| Recovery | All phones converge; a lock left by a kill clears within 10 s | Same |
+| Authorization | Every 403 matches an expected rule; host and leader rules unchanged; the full test suite passes | Same |
+| Server CPU p95; memory | < 50% of one core; < 128 MiB | Same |
+
+**S0-B results (Claude, 31 Oct 2026): Option A built locally, uncommitted; waiting for owner review.** 30 clients, the same bench and workloads, the baseline `dori-shuk:current` (69b4077) against `dori-shuk:test` (Option A). Results are in `.local/shuk-bench/`.
+
+- **Option A:** `transact` waits its turn in a per-file line in the process (at most 64 writes, 10 s per turn), then takes the unchanged `mkdir` lock, waiting up to 1.5 s in jittered steps when another process holds it. Five new tests cover the line, overflow, the cross-process lock and failed writes. All 205 Shuk tests pass and tsc is clean.
+- **Realistic:** all checks pass. Tap to confirmed p50/p95/p99 is 6.8 ms / 16 ms / 1.6 s (baseline: 7.3 ms / 14 ms / 0.9 s), with 0 busy before and after. The 3 "socket hang up" errors in the baseline were the bench reusing a keep-alive socket the server had closed. The bench now resends those once, as browsers do, and counts each resend.
+- **Stress:**
+  - Busy share: 0% (baseline 42–44%).
+  - Tap to confirmed p50: 28 ms (baseline 1.1 s).
+  - Restart backlog cleared in 0.8 s (baseline 6–11 s).
+  - Applied twice, pending and unaccounted: 0. Operational errors: one connection refused, inside the restart window.
+  - Tap-to-confirmed p95/p99/max still fail (9.4 s / 27.7 s / 30.2 s). The scenario keeps a quarter of the phones asleep for 30 s and every phone offline for 10 s, so those numbers measure offline time.
+  - A diagnostic that starts the clock when the phone is back online gives 28 ms / 1.0 s / 2.5 s / 4.4 s for p50/p95/p99/max (baseline 1.0 s / 5.6 s / 17 s / 18.6 s). The thresholds themselves are unchanged.
+- **Open for the owner:**
+  - Whether the stress latency thresholds should be measured from back-online.
+  - Whether Option B (client backoff) is still needed.
+  - Commit and deploy.
 
 ### I4. Roles per team
 
@@ -345,9 +516,39 @@ The smallest secure path from the fixed seats to individually authenticated part
   - The host overview: each team's name, leader, participant count and readiness; nothing of other teams' answers, clues or unnecessary personal details.
   - Team-scoped points; food tokens pooled; a guide team switcher; the Marzipan lock per team.
   - Seat enforcement per team (O6), with 5 as the planned maximum.
+  - Mandatory unique team names from the fixed bank ([below](#i7a-team-names-owner-31-oct-2026-rules-approved-name-bank-pending-not-built)).
 - **Tests:** 30 sessions in 6 teams; cross-team writes rejected; concurrent submissions in every team; the host overview shows no other team's progress.
 - **Acceptance:** a multi-team test on real phones, and the 30-participant checks below before any real 30-person run.
 - **Rollback:** the previous image plus the pre-schema-7 copy.
+
+#### I7a team names (owner, 31 Oct 2026): rules approved; name bank pending; not built
+
+**Approved rules (for the multi-team adventure):**
+- Every team must choose a name from the fixed, owner-approved Shuk food-name bank. No free text.
+- Within one adventure, a name belongs to one team only. Different adventures may reuse every name.
+- The team leader chooses the name. The guide can choose it as a fallback.
+- A team can't become ready until the server has confirmed its name.
+- The choice is made on a compact, mobile-first screen showing the available names.
+- If another team claims the name first, the screen refreshes what's available and offers another choice.
+- Server-side, the claim runs inside `transact`, so it is atomic. Retries are idempotent: a team that repeats its claim gets its own name back and never a second one.
+- Teams store a stable name ID, never the display text.
+- The confirmed name is shown the same way on the Group sheet, invitations, the host overview and mission screens.
+
+**Pending: the name bank** ([proposal](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md), part of O16):
+- It is a creative proposal awaiting owner approval. Its 12 featured and 24 shortlisted names are not approved configuration.
+- Its Hebrew variants need review.
+- **Falafel Fugitives** stays the leading editorial recommendation, but no team is ever given it automatically.
+
+**Future work (I7a, not I3b):**
+- Mandatory naming turns on only when all three of these are true:
+  1. The owner has approved the final bank.
+  2. The selection screen and the server validation are built and tested.
+  3. Multi-team onboarding is ready.
+- I3b's player joining stays independent of team names.
+
+**The current single-team adventure:**
+- Naming is **not** mandatory. The game keeps working with no team name.
+- Nothing about today's start, lobby or "ready" rules changes until I7a turns naming on.
 
 #### I7a design proposal: named Team Leader invitations (draft, 30 Oct 2026; not approved, nothing built)
 
@@ -423,11 +624,11 @@ Team D   + Add a name      [Share invite]   Not sent
 |---|---|---|
 | O1–O3 | ~~Format rule (1–6 Together; 7+ Together or Two Teams)~~ superseded 29 Oct 2026 by teams of about 5: recommended `ceil(count / 5)`, split evenly, 5 the planned maximum, ceiling 30 participants (provisional); Start Adventure; one-group-only superseded for the future design | **Approved** |
 | O4, O5 | Team join links with leader approval; optional names | **Approved** |
-| O6 | Join-link limits (seat cap, pending requests, link lifetime, rate limit): recommend and justify before I3 | **Open** |
+| O6 | Join-link limits: 5 per team including the leader (enforced; an operator override must be explicit); 5 pending; 10 and 15 min expiry; reusable link replaced only with explicit confirmation; in-memory rate limit ([I3b decisions](#i3b-decisions-owner-31-oct-2026-approved-design-not-built-implementation-not-yet-approved)) | **Approved** 31 Oct 2026 |
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
 | O11–O13 | English-first; "Language Explorer"; Hebrew story bodies stay out of production; other languages need approved translations | **Approved** |
-| O15 | QR approach: the smallest secure option given the repo's dependencies, chosen before I3 | **Open** |
-| O16 | Team names, part names (Spotter, Reader) and all onboarding copy | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
+| O15 | Share and Copy only in I3b; QR approach chosen in I3c | **Approved** 31 Oct 2026 (QR itself still open for I3c) |
+| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: the rules were approved on 31 Oct 2026 ([I7a team names](#i7a-team-names-owner-31-oct-2026-rules-approved-name-bank-pending-not-built)); the [name bank](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md) is still pending | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
 | O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |

@@ -1,5 +1,23 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Latest handoff - S0-B Option A built, awaiting review; I3b design approved, not built: 31 Oct 2026
+
+- **Live I3a, checked read-only (31 Oct 2026, about 10:15 UTC):**
+  - `dori-shuk:20261031-084833-69b4077` is up, healthy, with 0 restarts.
+  - **The live file is still schema 6**, with the adventure now active, 7 seat members and 1 session. No save since the deploy, so no `state.json.pre-schema7-<hash>` yet. `state.json.before-i3a-deploy-20261031T0848Z` is in place.
+  - The first save will migrate the file. The I3a rollback notes below still apply.
+- **S0-A done, S0-B steps 1–3 approved** (multiplayer plan, "S0-A results and S0-B plan"):
+  - The bench (`scripts/shuk-sync-bench.{sh,mjs}`, uncommitted) now has realistic and stress workloads, a killed-server restart, tracking of every created action, and a drain with no cap.
+  - The baseline on the unchanged image has run (`.local/shuk-bench/baseline-*-c30/`).
+  - Option A is built, local and uncommitted (`participant-store.ts` and its tests), and re-measured: busy went from 42% to 0% in stress, and realistic passes every check. The plan's "S0-B results" has the numbers. Waiting for the owner's review. Client retry (Option B) stays deferred.
+- **I3b design approved by the owner** (multiplayer plan, "I3b decisions"):
+  - O6 and O15 are approved.
+  - Replacing the link needs explicit confirmation.
+  - Remove is in I3b.
+  - The team cap is enforced, with an explicit operator override.
+  - **Not built. Implementation needs its own approval, after the S0-B report.** Its dependencies are listed there.
+- **Team names, rules approved (owner, 31 Oct 2026):** mandatory and unique per adventure, chosen from a fixed bank. **This is I7a only:** I3b and the current single-team game work without names. The name bank (`design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md`) is still pending approval. Details are in the multiplayer plan, "I7a team names".
+
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
 ## Latest handoff - I3a participant registry (schema 7): implemented locally, uncommitted, 31 Oct 2026
@@ -44,6 +62,7 @@
 - `git diff --check` clean.
 - **Rehearsal** on copies of all six schema-6 live backups: migrate, then compare (adventure, roles, leader, progress, sessions, receipts and names unchanged; registry equals the seats in use), then copy, restore and re-migrate. All passed. Every backup held only the guide's session, so the host-and-players case is covered by the tests (`schema6Snapshot` of a hosted adventure). The copies were deleted afterwards.
 - `/game-verify shuk` on the final code (after the build cache was pruned with the owner's OK; disk 75%): build OK, healthy, 8/8 route checks, schema 7 written with 0 members, an invitation link of the right shape (not printed), 47 MiB. `dori-shuk:test` left in place (remove before the next deploy).
+- **Deployed 31 Oct 2026, 08:49 UTC** at the owner's request: `dori-shuk:20261031-084833-69b4077` is live (healthy, deploy smoke checks passed); `dori-shuk:test` removed first. A fresh backup was taken first: `state.json.before-i3a-deploy-20261031T0848Z` in the `dori-shuk_shuk_data` volume. Right after the deploy the live file was still schema 6; the first save migrates it to schema 7 and writes `state.json.pre-schema7-<hash>`. **Rollback:** switch back to `dori-shuk:previous` (`6ee5c96`) **and** restore the pre-schema7 copy (or the backup above); the I2 image refuses a schema-7 file. Anything saved after the migration is lost on rollback.
 
 
 
