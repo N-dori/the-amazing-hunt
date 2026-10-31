@@ -62,7 +62,7 @@ test("image error handlers recover from custom failure to generated avatar then 
   assert.doesNotMatch(fallback, /<img/);
 });
 
-test("current and role identity rendering shows names and one row for a dual-role participant", () => {
+test("the profile's identity shows who is signed in and their role, not the group's roles", () => {
   const List = loadComponent("components/amazing-shuk/ListParticipantIdentity.tsx");
   const html = renderToStaticMarkup(createElement(List, {
     participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }],
@@ -70,10 +70,10 @@ test("current and role identity rendering shows names and one row for a dual-rol
   }));
   assert.match(html, /Signed in as/);
   assert.match(html, /<strong>Bea<\/strong>/);
-  assert.match(html, /<strong>Ari<\/strong>/);
-  assert.match(html, /Navigator \/ Answer-submitter/);
-  assert.equal((html.match(/<li>/g) ?? []).length, 1);
-  assert.equal((html.match(/src="data:image\/svg/g) ?? []).length, 2);
+  assert.match(html, /Your role: Advisor/);
+  // The group sheet and the Group tab hold the roles; the profile repeats none of them.
+  assert.doesNotMatch(html.replace(/ src="[^"]*"/g, ""), /Ari|Navigator|Answer-submitter|<li>/);
+  assert.equal((html.match(/src="data:image\/svg/g) ?? []).length, 1);
 });
 
 // React separates adjacent text with empty comments; drop them so assertions read like the visible text.
@@ -91,7 +91,7 @@ test("role badges stay visible in one compact list: a dual-role participant once
   assert.match(empty, /Navigator: free/); assert.match(empty, /<strong>Bea<\/strong> Answer-submitter/);
 });
 
-test("profile menu shows only the avatar until opened; the open panel holds identity, roles and Sign out", () => {
+test("profile menu shows only the avatar until opened; the open panel holds identity, own role and Sign out", () => {
   const props = { participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }], roles: { navigator: "a", answerSubmitter: null }, currentId: "b", currentRole: "follower", busy: false, onSignOut() {} };
   const Closed = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx");
   const closed = text(createElement(Closed, props));
@@ -102,7 +102,7 @@ test("profile menu shows only the avatar until opened; the open panel holds iden
   const open = text(createElement(Open, props));
   assert.match(open, /aria-expanded="true"/); assert.match(open, /aria-label="Close profile"/);
   assert.match(open, /Signed in as/); assert.match(open, /Your role: Advisor/); assert.doesNotMatch(open, /follower/); assert.match(open, /Sign out/);
-  assert.match(open, /Answer-submitter: free \(anyone can take it in the Group tab\)/);
+  assert.doesNotMatch(open, /: free|Group tab/);
 });
 
 test("slim header: title, then the group slot and the profile slot; roles and the balance live in the group sheet", () => {

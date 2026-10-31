@@ -9,7 +9,7 @@ import ParticipantAvatar from "./ParticipantAvatar";
 import styles from "./IndexParticipantMenu.module.scss";
 
 type Props = { participants: readonly ParticipantIdentity[]; roles: GroupRoleAssignments; currentId: string; currentRole: ParticipantRole | "guide"; busy: boolean; onSignOut: () => void };
-/** The signed-in participant's avatar, opening a small profile panel with the account details and Sign out. */
+/** The signed-in participant's avatar, opening a small panel anchored to it: who is signed in, their role, and Sign out. */
 export default function IndexParticipantMenu({ participants, roles, currentId, currentRole, busy, onSignOut }: Props) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);

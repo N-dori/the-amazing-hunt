@@ -13,6 +13,8 @@ const SHEET_OVERLAP = { bottomInset: 24 };
 // The owner's wording (30 Oct 2026): one finger scrolls the page over the map, two fingers move it.
 const TWO_FINGER_HINT_TEXT = "Use two fingers to move the map.";
 const MAP_NOTICE = "Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide.";
+// TODO(copy): draft name for the map notice's info button (31 Oct 2026).
+const MAP_NOTICE_LABEL = "About this map";
 const noop = () => {};
 /** The first three stages of every mission: the map, a compact preview, then the location details. */
 export type MissionStage = "map" | "preview" | "location";
@@ -39,7 +41,7 @@ export default function ListArrivalMission({ missions, mission, stage, progress,
   if (stage === "location" && !view?.locked) {
     return view ? <PreviewArrivalMission view={view} stage={progress} guide={props.guide} busy={props.busy} feedback={props.feedback}
       map={<LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt={`Illustrated market map with the marker for ${view.shortName}`}
-        markers={destination} selectedId={view.id} focusId={view.id} memoryLayers={NO_MEMORY_LAYERS} attribution={null} notice={MAP_NOTICE}
+        markers={destination} selectedId={view.id} focusId={view.id} memoryLayers={NO_MEMORY_LAYERS} attribution={null} notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL}
         onSelect={noop} onBackground={noop} frameClassName={styles.strip} showLabels={false} twoFingerHint={TWO_FINGER_HINT_TEXT} />}
       onArrival={props.onArrival} onConfirm={props.onConfirm} onOpenChallenge={props.onOpenChallenge} /> : null;
   }
@@ -48,7 +50,7 @@ export default function ListArrivalMission({ missions, mission, stage, progress,
   return <div className={styles.stage}>
     <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with mission markers"
       markers={markers} selectedId={sheet ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
-      notice={MAP_NOTICE}
+      notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL}
       initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss}
       frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} showLabels={false} zoomOutBy={1} openOnMarkers
       twoFingerHint={TWO_FINGER_HINT_TEXT} />

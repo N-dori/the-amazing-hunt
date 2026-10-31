@@ -1,8 +1,9 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import type * as Leaflet from "leaflet";
+import { Icon } from "@/components/icons";
 import { BASE_PATH } from "@/lib/base-path";
 import { imageToLatLng, type ImageBaseMap } from "@/lib/map/image-map";
 import { NEW_HINT_MEMORY, shouldShowTwoFingerHint, TWO_FINGER_HINT, type TwoFingerHintMemory } from "@/lib/map/two-finger-hint";
@@ -41,6 +42,9 @@ type LeafletBaseMapProps = {
   attribution: string | null;
   // A small notice over the map, e.g. "Concept map — not for navigation".
   notice?: string | null;
+  // Folds the notice behind a small info button with this name (The Amazing Shuk): open on the page's first map, then folded
+  // once someone closes it, so the warning is read once and stays one tap away without covering the artwork and markers.
+  noticeToggleLabel?: string;
   // Marker to centre on when there is no saved view.
   focusId?: string | null;
   initialView?: MapView | null;
@@ -70,6 +74,8 @@ const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt
 
 // Kept for the page's life, across the map's remounts (map → location → map), so the hint's cooldown holds.
 let hintMemory: TwoFingerHintMemory = NEW_HINT_MEMORY;
+// Likewise for the folding notice: once closed, it stays folded on later maps (the destination strip, the map again).
+let noticeFolded = false;
 const pageScroll = () => document.scrollingElement?.scrollTop ?? 0;
 
 // A static base map (Leaflet CRS.Simple + ImageOverlay) with separate layers for mission
@@ -77,7 +83,10 @@ const pageScroll = () => document.scrollingElement?.scrollTop ?? 0;
 // come straight from the base map's placement records, never from the artwork. Pan,
 // pinch-zoom and keyboard come from Leaflet.
 export default function LeafletBaseMap(props: LeafletBaseMapProps) {
-  const { baseMap, alt, markers, selectedId, memoryLayers, attribution, notice } = props;
+  const { baseMap, alt, markers, selectedId, memoryLayers, attribution, notice, noticeToggleLabel } = props;
+  // Open on the page's first map (as rendered on the server); later maps mount on the client and remember a fold.
+  const [noticeOpen, setNoticeOpen] = useState(() => !noticeFolded);
+  const noticeId = `${useId()}-notice`;
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<MapHandle | null>(null);
@@ -274,7 +283,13 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   return (
     <div ref={frameRef} className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
       <div ref={containerRef} className={`${styles.map} ${twoFinger ? styles.twoFinger : ""}`} role="region" aria-label={alt} />
-      {notice ? <p className={styles.notice}>{notice}</p> : null}
+      {notice && noticeToggleLabel ? <div className={styles.noticeFold}>
+        <button type="button" className={styles.noticeToggle} aria-label={noticeToggleLabel} aria-expanded={noticeOpen} aria-controls={noticeId}
+          onClick={() => { noticeFolded = noticeOpen; setNoticeOpen(!noticeOpen); }}>
+          <Icon name={noticeOpen ? "close" : "info"} className={styles.noticeIcon} />
+        </button>
+        <p id={noticeId} className={styles.noticeText} hidden={!noticeOpen}>{notice}</p>
+      </div> : notice ? <p className={styles.notice}>{notice}</p> : null}
       {/* Always in the page, so a screen reader announces the hint when it appears; it never takes a tap. */}
       {twoFinger ? <p className={`${styles.gestureHint} ${hintVisible ? styles.gestureHintVisible : ""}`} role="status">{hintVisible ? props.twoFingerHint : ""}</p> : null}
     </div>

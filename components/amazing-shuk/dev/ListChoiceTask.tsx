@@ -9,7 +9,7 @@ type Props = {
   // The question the group is on: 0 is `challenge`, then `followUps` in order (Marzipan's second question).
   step: number; followUps?: readonly ChoiceChallenge[];
   selected: readonly string[]; completed: boolean; feedback: string; activeRole: WaterSubmissionRole; busy: boolean; performance: WaterPerformanceView;
-  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void; onOpenRoles?: () => void;
 };
 /** Any "choose N" mission (the mural, the synagogue): shared picks, revealed hints and the reveal once accepted. */
 export default function ListChoiceTask({ task, challenge, step, followUps, selected, completed, activeRole, busy, performance, ...rest }: Props) {

@@ -42,7 +42,7 @@
 
 ## Next
 
-- **Next session:** the owner's phone check of the live B-lite screens, then the copy drafts; the ordered list is at the top of the [handoff](agent-handoff.md). B-lite steps 6–7 (finding hints), routing and any GPS-policy change are not authorised.
+- **Next session:** the owner's phone sign-off of the uncommitted compact-preview changes (31 Oct 2026; checklist in the handoff), then the B-lite phone check and the copy drafts. The challenge-photo preview is a separate task, not started; the ordered list is at the top of the [handoff](agent-handoff.md). B-lite steps 6–7 (finding hints), routing and any GPS-policy change are not authorised.
 - Done (`6d35b59`, 30 Oct 2026): the compact onboarding (Stitch): the one-step lobby.
 - The owner's phone review of the 26 Oct changes and of the Stitch slice (the eight preview checks in the handoff).
 - Possibly compact role pills on phones narrower than 22rem.

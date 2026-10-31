@@ -20,6 +20,47 @@
   pointer-events: none;
 }
 
+// The folding notice (noticeToggleLabel): an info button in the corner the zoom buttons don't use, and the text in a small card
+// under it, never wider than the map's right part, so it doesn't cover the zoom buttons. The button is a 3rem outdoor target.
+.noticeFold {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  z-index: 500;
+  display: grid;
+  justify-items: end;
+  gap: 0.375rem;
+  max-width: min(16rem, calc(100% - 5rem));
+}
+
+.noticeToggle {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1.5px solid var(--line-stone);
+  border-radius: 50%;
+  background: var(--surface-raised);
+  color: var(--ink);
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}
+
+.noticeIcon { width: 1.25rem; height: 1.25rem; }
+
+.noticeText {
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.5rem;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+@media (forced-colors: active) { .noticeToggle, .noticeText { border: 1px solid CanvasText; } }
+
 // Two-finger mode: the browser keeps one-finger scrolling over the map, whatever Leaflet's handlers add. These selectors outrank
 // leaflet.css's `.leaflet-container.leaflet-touch-drag(.leaflet-touch-zoom)`, which would otherwise turn touch scrolling off.
 .twoFinger:global(.leaflet-container.leaflet-touch-zoom),

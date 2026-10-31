@@ -9,7 +9,7 @@ type Props = {
   interaction: WaterInteraction; performance: WaterPerformanceView;
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (action: WaterActionView["id"]) => void; onCancelPour: () => void;
-  onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void; onOpenRoles?: () => void;
 };
 export default function ListWaterTask({ cups, completed, activeRole, busy, interaction, performance, ...callbacks }: Props) {
   return <PreviewWaterTask view={buildWaterTaskView(cups, completed, activeRole, busy, interaction, performance.started)} narrative={WATER_TASK.narrative}

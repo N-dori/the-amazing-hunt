@@ -1,6 +1,55 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - B-lite mission discovery, steps 1–5: committed and deployed, 30 Oct 2026
+## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
+
+**Status (owner, 31 Oct 2026):** accepted as **candidates for mobile sign-off**. No further UX changes until the owner's phone check; **not visually approved**. Nothing committed, pushed or deployed.
+
+**Separate presentation task, recorded, not started:** the challenge screen's story photo (e.g. the mural's "before" photo) as a shorter preview that enlarges in the bottom sheet, with the challenge's purpose and Start challenge reachable sooner. Historical text and facts stay unchanged. It needs its own approval.
+
+**Sync architecture review (31 Oct 2026, review only, nothing built):**
+- I3 stays on the current polling, after a small "S0": a 30-client load-test script; pause polling while the page is hidden and refresh when it shows or comes online; a version tag on the view with "not modified" replies; a decision on capping `db.applied`, which grows forever.
+- For I7a, an SSE channel that only says "changed" (team-scoped, no data, slow polling as the fallback), as its own flagged increment, only if S0's numbers call for it.
+- No Socket.IO (it needs a custom server, a new dependency and its own resync anyway).
+- Unverified: the live Caddy block for `/shuk` (reading it was denied as a production read).
+
+**Owner's briefs (31 Oct 2026):** "Real Phone UX Refinement Review" (interrupted by the next one) and "Compact Mission Preview Refinement", from the owner's Android screenshots (kept untracked in `docs/design/`; images never go in git). Presentation only: no permission, scoring, progression, GPS, navigation or server change. **Uncommitted, not deployed, live state untouched.**
+
+**What changed:**
+1. **Preview card** (`PreviewMissionCard`):
+   - The title is the short destination, `previewDestinationTitle()`: "Find the Market Mural", "Find the Montefiore Gate". It uses the mission's own `shortName` only where it ends the full name, so the other four keep their full names.
+   - The challenge's name sits under the title, smaller.
+   - The stage is one line in the top row beside the `Mission N` pill: "1 of 3 · Finding the place" (`missionStageLine()`, `PreviewMissionProgress compact`). The three-step indicator stays on the location screen and the challenge.
+   - Tighter padding, a 4rem thumbnail, the summary at 1rem. The text stays at 0.875rem or larger, and the 5-line clamp the owner asked for on 26 Oct is kept.
+   - The location screen header keeps the full name.
+2. **Roles:**
+   - The "Roles needed" banner row is gone. The group button shows a count badge, with the name "Group status: N roles needed".
+   - The group sheet is shorter: three compact numbers (Points, Food tokens, Missions), the role chips, and, only while a role is free, "Anyone can take a free role in the Group tab." with **Open the Group tab**.
+   - Where a free role blocks the player (the challenge's "can start after the story" note, both the choice and the water challenges), an **Open the Group tab** button now follows the note. `onOpenRoles` is passed only while a role is free; permissions are unchanged.
+3. **Profile:** only "Signed in as", "Your role" and Sign out (the group's roles were repeated there). The panel is narrower (18rem) and tighter.
+4. **Map notice:** a new opt-in `noticeToggleLabel` on `LeafletBaseMap` (the Memory Protocol is unchanged).
+   - The Shuk maps show the same approved notice in a small card at the top right, never over the zoom buttons.
+   - An "About this map" info button (3rem, `aria-expanded`) folds it away. It stays folded on later maps for the page's life.
+   - The markers still say "Approximate marker placement." to screen readers.
+
+**Draft copy (`TODO(copy)`):** "About this map", "N roles needed", the sheet's "Points" and "Missions" labels, the "1 of 3 · …" pattern, the reused "Open the Group tab".
+
+**Verified:**
+- `test:shuk` 192/192 (new: the short title rule, the stage line, the folding notice, the role count, the blocked-start link, the profile without the roster). `npm test` 63/63.
+- `tsc` passes; lint at its baseline (3 errors, 11 warnings).
+- `/game-verify shuk`: build OK, healthy, 8/8 route checks, an invitation link of the right shape (not printed), 43 MiB; `dori-shuk:test` removed afterwards.
+- **No browser or phone check.**
+
+**Phone sign-off checklist** (dev page or a later approved deploy; normal width, then 320 px, then 200% text):
+1. Tap a marker. The card is compact and readable, shows "Find the Market Mural", "1 of 3 · Finding the place" and the photo, and **Find this place** is visible above the bottom bar.
+2. At 320 px and 200% text, nothing is clipped or overlapping. Only the card body scrolls, the button stays visible, and the page has no horizontal scroll.
+3. With a role free, the group button shows a number. The sheet lists the free roles, says how to take one, and its link opens the Group tab.
+4. A player without a role, at a challenge, sees **Open the Group tab** under the "can start after the story" note, takes a free role there, and can then start.
+5. Profile: a small panel with the name, own role and **Sign out**. Close, Escape and an outside tap close it, and focus returns to the avatar.
+6. The map notice doesn't cover the zoom buttons. "About this map" folds and unfolds it, and it stays folded on the location map and back on the map.
+7. One finger scrolls the page over both maps, two fingers move them, and the gesture hint appears.
+8. The group and photo sheets close with Close, a backdrop tap and Android Back. Back closes only the sheet; one more Back goes to the previous screen; Forward doesn't reopen the sheet.
+
+## Earlier handoff - B-lite mission discovery, steps 1–5: committed and deployed, 30 Oct 2026
 
 **Committed as `0c03a61` and deployed on 30 Oct 2026 at 23:55 UTC (owner-authorised): `dori-shuk:20261030-235512-0c03a61`.**
 - Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged (byte-identical to the backup).

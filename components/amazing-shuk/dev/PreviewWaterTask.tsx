@@ -10,8 +10,10 @@ type Props = {
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (id: WaterActionView["id"]) => void; onCancelPour: () => void;
   onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  // Only while a role is free (it opens the Group tab).
+  onOpenRoles?: () => void;
 };
-export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint, onOpenRoles }: Props) {
   return <section className={styles.task} aria-labelledby="water-task-title">
     <div className={styles.taskIntro}>
       <h2 id="water-task-title">Fill your family&apos;s jar</h2>
@@ -19,6 +21,8 @@ export default function PreviewWaterTask({ view, performance, narrative, hints, 
     </div>
     {!performance.started && !view.completed ? <div className={styles.actions}>
       {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+      {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+      {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
     </div> : null}
     <div className={styles.containers}>
       {view.containers.map(container => <figure key={container.id} className={[container.id === "jar" ? styles.goal : styles.container, container.selected ? styles.selected : "", container.destinationMove ? styles.destination : ""].filter(Boolean).join(" ")}>

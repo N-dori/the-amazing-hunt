@@ -15,10 +15,12 @@ type Props = {
   // The latest reply to this device's action (e.g. a wrong answer), shown beside the submit button.
   feedback: string;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  // Only while a role is free (it opens the Group tab).
+  onOpenRoles?: () => void;
 };
 // One neutral heading over the text after an answer; evidence labels stay in the data (owner's decision, 26 Oct 2026).
 // TODO(copy): "Behind the answer" is a draft.
-export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
+export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint, onOpenRoles }: Props) {
   const playing = performance.started && !view.completed;
   return <section className={styles.task} aria-labelledby="mural-task-title">
     {lead && !view.completed ? <div className={styles.lead} role="status"><h3 className={styles.revealLabel}>Behind the answer</h3>
@@ -28,6 +30,8 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
     <h2 id="mural-task-title" className={styles.question}>{question}</h2>
     {!performance.started && !view.completed ? <div className={styles.actions}>
       {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+      {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+      {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
     </div> : null}
     <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} />
     {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">

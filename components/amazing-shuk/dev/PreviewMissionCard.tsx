@@ -3,7 +3,7 @@ import Image from "next/image";
 import ActionButton from "@/components/ui/ActionButton";
 import { Icon } from "@/components/icons";
 import { BASE_PATH } from "@/lib/base-path";
-import { destinationTitle, type MissionPresentation, type MissionProgressStage } from "@/lib/amazing-shuk/mission-arrival";
+import { previewDestinationTitle, type MissionPresentation, type MissionProgressStage } from "@/lib/amazing-shuk/mission-arrival";
 import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProgress";
 import styles from "./PreviewMissionCard.module.scss";
 
@@ -23,18 +23,19 @@ export default function PreviewMissionCard({ view, stage, onViewLocation, onClos
   const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
   return <section className={`${styles.sheet} ${view.state === "completed" ? styles.sheetDone : ""}`} id="mission-preview"
     aria-labelledby="mission-preview-title" onKeyDown={closeOnEscape}>
+    {/* The pin's number and the stage in one row with Close: the card's label, not a block of its own. */}
     <div className={styles.top}>
       <p className={`${styles.pill} ${PILL_STATE[view.marker.state]}`}>Mission {view.marker.order}{view.locked || view.state === "arrived" ? ` · ${view.status}` : ""}</p>
+      {view.locked ? null : <PreviewMissionProgress stage={stage} compact className={styles.stage} />}
       <button type="button" className={styles.close} aria-label="Close preview" onClick={onClose}><Icon name="close" className={styles.icon} /></button>
     </div>
     {/* Only this part scrolls, and only when large text makes it taller than the sheet; the action stays in view. */}
     <div className={styles.body}>
-      <h2 id="mission-preview-title" className={styles.title} tabIndex={-1} ref={title}>{destinationTitle(view.name)}</h2>
-      {/* The challenge's own name, as a promise of what waits there. */}
+      <h2 id="mission-preview-title" className={styles.title} tabIndex={-1} ref={title}>{previewDestinationTitle(view)}</h2>
+      {/* The challenge's own name, as a promise of what waits there: secondary to the destination. */}
       <p className={styles.place}><Icon name="puzzle" className={styles.placeIcon} /><span>{view.title}</span></p>
-      {view.locked ? null : <PreviewMissionProgress stage={stage} />}
       <div className={styles.teaser}>
-        {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={144} height={144} sizes="4.5rem" className={styles.thumb} />
+        {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={144} height={144} sizes="4rem" className={styles.thumb} />
           : <p className={styles.thumbGap}><Icon name="camera" className={styles.icon} /><span className="srOnly">Reference photograph not yet available.</span></p>}
         <p className={styles.summary}>{view.location.summary}</p>
       </div>

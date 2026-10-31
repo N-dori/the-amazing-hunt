@@ -286,6 +286,8 @@ export default function IndexWaterTask({ mode }: Props) {
     onChallenge: nav.area === "journey" && journeyStage === "challenge" });
   const guideTools = (part: "roles" | "timing") => <IndexGuideWaterTask part={part} participants={participants.filter(participant => participant.id !== DEV_GUIDE_ID)}
     missionId={missionId} roles={view.session.roles} busy={busy} completed={view.session.completed} timing={view.guideTiming} onAction={(action) => void act(action)} />;
+  // While a role is free, a player who can't start the challenge gets the way to the Group tab beside the note that says why.
+  const openRoles = view.session.roles.navigator && view.session.roles.answerSubmitter ? undefined : () => navigate(goToTab(nav, "group"));
   // Find this place names the destination as the task; a locked finale stays on the map, under its plain name.
   const headerTitle = nav.area !== "journey" || !openDefinition || (journeyStage !== "location" && journeyStage !== "challenge") ? "Explore the market"
     : journeyStage === "location" && !finaleLocked(openDefinition, view.missions) ? destinationTitle(openDefinition.name) : openDefinition.name;
@@ -332,7 +334,7 @@ export default function IndexWaterTask({ mode }: Props) {
       <ListChoiceTask task={choiceTask.task} challenge={choiceTask.challenge} step={view.session.step ?? 0} followUps={choiceTask.followUps} selected={view.session.selected ?? []} completed={view.session.completed} feedback={message} activeRole={activeRole ?? "follower"} busy={busy}
         performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
         onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })}
-        onReset={() => void act({ type: "reset", missionId })} />
+        onReset={() => void act({ type: "reset", missionId })} onOpenRoles={openRoles} />
       {cheer(Boolean(choiceTask.bonus && view.session.bonus && !view.session.bonus.completed))}
       {/* Optional extras after the accepted answer: they never change the mission's completion or its food tokens. */}
       {view.session.completed && choiceTask.bonus && view.session.bonus ? <ListChoiceBonus content={choiceTask.bonus.content} challenge={choiceTask.bonus.challenge}
@@ -351,7 +353,7 @@ export default function IndexWaterTask({ mode }: Props) {
       <ListWaterTask cups={view.session.cups} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
         interaction={interaction} performance={view.performance} onSelect={selectContainer} onAction={contextualAction}
         onCancelPour={() => { setInteraction(current => ({ ...current, pouring: false })); window.requestAnimationFrame(() => document.getElementById(`water-container-${interaction.selected}`)?.focus()); }}
-        onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onSubmit={() => void act({ type: "submit", missionId })} onReset={() => {
+        onStart={() => void act({ type: "start", missionId })} onHint={revealHint} onOpenRoles={openRoles} onSubmit={() => void act({ type: "submit", missionId })} onReset={() => {
           setInteraction(INITIAL_WATER_INTERACTION);
           void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />

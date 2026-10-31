@@ -1,4 +1,4 @@
-// Sticky at the top and one row tall (two only while a role is free), so the map and the destination keep most of the screen.
+// Sticky at the top and one row tall, so the map and the destination keep most of the screen.
 .header { position: sticky; inset-block-start: 0; z-index: 1040; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .5rem;
   margin-inline: -1rem; margin-block-end: 1rem; padding: .5rem 1rem; border-block-end: 1px solid var(--line-stone); background: var(--chalk); }
 .titles { min-width: 0; }

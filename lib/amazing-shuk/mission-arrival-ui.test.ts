@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 import { createElement, type ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
-import { buildMissionPresentation, destinationTitle, GAN_HATUT_MISSION, missionStage, type MissionState } from "./mission-arrival.ts";
+import { buildMissionPresentation, destinationTitle, GAN_HATUT_MISSION, missionStage, missionStageLine, previewDestinationTitle, type MissionState } from "./mission-arrival.ts";
 import { SHUK_MISSIONS } from "./missions.ts";
 import { MURAL_MISSION } from "./mural-task.ts";
 // React escapes ' and " in text; compare against the escaped form.
@@ -71,17 +71,17 @@ test("find this place reads in order for every mission: progress, strip, clue, p
   }
 });
 
-test("first tap shows the destination as a task: Find …, the challenge's name, summary, progress and Find this place, but no story or answers", () => {
+test("first tap shows the destination as a task: Find … (short form), the challenge's name, summary, one stage line and Find this place, but no story or answers", () => {
   const Card = load("components/amazing-shuk/dev/PreviewMissionCard.tsx");
   for (const [index, definition] of SHUK_MISSIONS.entries()) {
     const view = buildMissionPresentation(definition, { id: definition.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, index + 1);
     const html = renderToStaticMarkup(createElement(Card, { view, stage: "find", onViewLocation() {}, onClose() {} }));
-    assert.ok(html.includes(`>${escapeText(destinationTitle(definition.name))}</h2>`), definition.id);
+    assert.ok(html.includes(`>${escapeText(previewDestinationTitle(definition))}</h2>`), definition.id);
     assert.ok(html.includes(escapeText(definition.title)) && html.includes(escapeText(definition.location.summary)));
     assert.match(html, /Find this place/); assert.doesNotMatch(html, /View Location|Available/); assert.match(html, /aria-label="Close preview"/);
-    // The pill repeats the tapped pin's number; the progress line says where the mission stands, in words.
-    assert.match(html, new RegExp(`class="pill pillActive">Mission ${index + 1}</p>`));
-    assert.match(html, /aria-current="step"/); assert.match(html, /Finding the place/);
+    // The pill repeats the tapped pin's number; beside it, only the current stage, in words (the three steps are on the location).
+    assert.match(html, new RegExp(`class="pill pillActive">Mission ${index + 1}</p><p class="compact stage"><span class="srOnly">Mission progress: </span>1 of 3 · Finding the place</p>`));
+    assert.doesNotMatch(html, /aria-current="step"/);
     assert.doesNotMatch(html, /STORY|Start challenge|spot TWO things|air vents|plaque|treble|Here\?/i);
     // Compact by decision: no Hebrew name, no rewards and no drag notch on the first tap.
     assert.doesNotMatch(html, /lang="he"|food tokens|pts|points|notch/i);
@@ -95,7 +95,7 @@ test("the preview keeps Find this place in its own action row outside the scroll
   // Three rows in order: the pill and close button, the body (title, place, teaser), then the action.
   assert.match(html, /<div class="top">.*Close preview.*<\/div><div class="body"><h2 id="mission-preview-title".*<\/div><div class="action"><button[^>]*><span>Find this place<\/span>/);
   assert.doesNotMatch(html.slice(html.indexOf('class="body"'), html.indexOf('class="action"')), /Find this place/);
-  assert.match(html, /class="thumb"/); assert.match(html, /sizes="4.5rem"/);
+  assert.match(html, /class="thumb"/); assert.match(html, /sizes="4rem"/);
   // The map and the sheet share one stage, so the sheet can overlap the map's lower edge.
   const List = load("components/amazing-shuk/dev/ListArrivalMission.tsx");
   const missions = SHUK_MISSIONS.map(definition => ({ id: definition.id, state: "available" as const, arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }));
@@ -188,6 +188,27 @@ test("mission progress comes from shared state and the challenge screen, never f
   assert.equal(missionStage({ state: "completed", started: true, onChallenge: true }), "complete");
   assert.equal(destinationTitle("The Montefiore Gate"), "Find the Montefiore Gate");
   assert.equal(destinationTitle("Rabbi Aryeh Levin's Home"), "Find Rabbi Aryeh Levin's Home");
+  // The card's short form uses the mission's own short name only where it ends the full name; otherwise the full name.
+  assert.equal(previewDestinationTitle({ name: "The Mahane Yehuda Market Mural", shortName: "Market Mural" }), "Find the Market Mural");
+  assert.equal(previewDestinationTitle({ name: "The Montefiore Gate", shortName: "Montefiore Gate" }), "Find the Montefiore Gate");
+  assert.equal(previewDestinationTitle({ name: "Rabbi Aryeh Levin's Home", shortName: "Rabbi Aryeh Levin" }), "Find Rabbi Aryeh Levin's Home");
+  assert.equal(previewDestinationTitle({ name: "Marzipan Bakery", shortName: "Marzipan" }), "Find Marzipan Bakery");
+  assert.equal(previewDestinationTitle({ name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut" }), "Find Gan HaTut (Mulberry Garden)");
+  assert.equal(missionStageLine("find"), "1 of 3 \u00b7 Finding the place");
+  assert.equal(missionStageLine("solve"), "2 of 3 \u00b7 Challenge in progress");
+  assert.equal(missionStageLine("complete"), "3 of 3 \u00b7 Mission complete");
+});
+
+test("the map notice folds behind a named info button on the Shuk maps, and stays a plain notice elsewhere", () => {
+  // Leaflet's stylesheet has no loader here; Leaflet itself loads in an effect, which a static render never runs.
+  const Map = load("components/map/LeafletBaseMap.tsx", undefined, { "leaflet/dist/leaflet.css": () => null });
+  const base = { baseMap: { src: "/m.png", width: 10, height: 10 }, alt: "Map", markers: [], selectedId: null, memoryLayers: [], attribution: null,
+    notice: "Approximate markers.", onSelect() {}, onBackground() {} };
+  const folding = renderToStaticMarkup(createElement(Map, { ...base, noticeToggleLabel: "About this map" }));
+  assert.match(folding, /<button type="button" class="noticeToggle" aria-label="About this map" aria-expanded="true" aria-controls="[^"]+-notice">/);
+  assert.match(folding, /<p id="[^"]+-notice" class="noticeText">Approximate markers\.<\/p>/);
+  const plain = renderToStaticMarkup(createElement(Map, base));
+  assert.match(plain, /<p class="notice">Approximate markers\.<\/p>/); assert.doesNotMatch(plain, /noticeToggle/);
 });
 
 test("the progress line marks each step in words and shape, not colour alone", () => {
@@ -268,23 +289,27 @@ test("the guide sees role selects only on the Group tab and the timing review on
   assert.match(challenge, /Challenge in progress/);
 });
 
-test("group button: a visible role-needed line while a role is free, and a sheet of real shared state only", () => {
+test("group button: a count of free roles on the button (no banner row), and a short sheet of real shared state only", () => {
   const props = { participants: [{ id: "a", name: "Ari" }, { id: "b", name: "Bea" }], currentId: "b",
     missions: [{ state: "completed" }, { state: "available" }], balance: { points: 120, foodTokens: 4 }, onOpenGroupTab() {} };
   const Closed = load("components/amazing-shuk/IndexGroupSheet.tsx");
   const free = renderToStaticMarkup(createElement(Closed, { ...props, roles: { navigator: "a", answerSubmitter: null } }));
-  assert.match(free, /aria-label="Group status: roles needed" aria-haspopup="dialog"/);
-  assert.match(free, /Roles needed: Answer-submitter/);
+  assert.match(free, /aria-label="Group status: 1 role needed" aria-haspopup="dialog"><span class="count" aria-hidden="true">1<\/span>/);
+  assert.doesNotMatch(free, /Roles needed/, "no banner row under the header");
+  const none = renderToStaticMarkup(createElement(Closed, { ...props, roles: { navigator: null, answerSubmitter: null } }));
+  assert.match(none, /aria-label="Group status: 2 roles needed"/);
   assert.doesNotMatch(free, /Group points/, "the sheet's content waits until it opens");
   const filled = renderToStaticMarkup(createElement(Closed, { ...props, roles: { navigator: "a", answerSubmitter: "b" } }));
-  assert.doesNotMatch(filled, /Roles needed/); assert.match(filled, /aria-label="Group status"/);
+  assert.doesNotMatch(filled, /class="count"/); assert.match(filled, /aria-label="Group status"/);
   // Open: points, tokens and missions from the shared balance, the role chips, the way to the Group tab. Nothing invented.
   const openReact = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === false ? true : initial, () => {}] };
   const Open = load("components/amazing-shuk/IndexGroupSheet.tsx", openReact);
   const html = renderToStaticMarkup(createElement(Open, { ...props, roles: { navigator: "a", answerSubmitter: null } }));
-  assert.match(html, /<dt>Group points<\/dt><dd>120<\/dd>/); assert.match(html, /<dt>Food tokens<\/dt><dd>4<\/dd>/);
-  assert.match(html, /<dt>Missions completed<\/dt><dd>1 of 2<\/dd>/);
+  assert.match(html, /<dt>Points<\/dt><dd>120<\/dd>/); assert.match(html, /<dt>Food tokens<\/dt><dd>4<\/dd>/);
+  assert.match(html, /<dt>Missions<\/dt><dd>1 of 2<\/dd>/);
   assert.match(html, /Answer-submitter: free/); assert.match(html, /Anyone can take a free role in the Group tab\./);
   assert.match(html, /Open the Group tab/); assert.match(html, /aria-label="Close group status"/);
-  assert.doesNotMatch(html, /Team [A-Z]|deduct|penalt|synced|online|nearby|distance|minutes/i);
+  assert.doesNotMatch(html, /Team [A-Z]|deduct|penalt|synced|online|nearby|distance|minutes/i);  // Every role taken: no claim line and no link (the Group tab is in the bottom bar).
+  const full = renderToStaticMarkup(createElement(Open, { ...props, roles: { navigator: "a", answerSubmitter: "b" } }));
+  assert.doesNotMatch(full, /Anyone can take|Open the Group tab|: free/);
 });

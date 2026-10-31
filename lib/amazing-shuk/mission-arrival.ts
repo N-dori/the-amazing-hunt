@@ -130,6 +130,15 @@ export function destinationTitle(name: string): string {
   return "Find " + name.replace(/^The /, "the ");
 }
 
+/** The preview card's shorter form: "Find the Market Mural" for "The Mahane Yehuda Market Mural" (owner's brief, 31 Oct 2026).
+ * Only the mission's own short name, and only where it ends the full name, so nothing is invented and "Rabbi Aryeh Levin" never
+ * stands for his home; otherwise the full name. The location screen keeps the full name. */
+export function previewDestinationTitle(definition: Pick<MissionDefinition, "name" | "shortName">): string {
+  const { name, shortName } = definition;
+  if (name === shortName || !name.endsWith(" " + shortName)) return destinationTitle(name);
+  return "Find " + (/^The /.test(name) ? "the " : "") + shortName;
+}
+
 export type MissionProgressStage = "find" | "solve" | "complete";
 // TODO(copy): drafts from the owner's brief, 30 Oct 2026 (stage names, then the line for the current stage).
 export const MISSION_STAGES: readonly Readonly<{ id: MissionProgressStage; label: string; status: string }>[] = Object.freeze([
@@ -137,6 +146,11 @@ export const MISSION_STAGES: readonly Readonly<{ id: MissionProgressStage; label
   { id: "solve", label: "Solve the Challenge", status: "Challenge in progress" },
   { id: "complete", label: "Mission Complete", status: "Mission complete" },
 ]);
+/** One line for the preview card: "1 of 3 · Finding the place". */
+export function missionStageLine(stage: MissionProgressStage): string {
+  const index = MISSION_STAGES.findIndex(item => item.id === stage);
+  return `${index + 1} of ${MISSION_STAGES.length} \u00b7 ${MISSION_STAGES[index].status}`;
+}
 /** Where a mission stands, from shared progress and the screen on this phone. An arrival (GPS or the guide's confirmation) never
  * moves it on: finding the place is the players' judgement, and the challenge opens without it. */
 export function missionStage(mission: Readonly<{ state: MissionState; started: boolean; onChallenge: boolean }>): MissionProgressStage {

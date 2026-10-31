@@ -57,6 +57,12 @@ test("followers are invited to discuss; completion shows the shared result once"
   const before = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, hints: [], hasMoreHints: false, feedback: "" }));
   assert.doesNotMatch(before, /Submit Our Answer|Start challenge/);
   assert.match(before, /Talk it over/);
+  // A free role is why nobody here can start: the link to the Group tab sits beside the note, and only when offered.
+  assert.doesNotMatch(before, /Open the Group tab/);
+  const blocked = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, hints: [], hasMoreHints: false, feedback: "" }));
+  assert.match(blocked, /can start after the story\.<\/p><button[^>]*><span>Open the Group tab<\/span>/);
+  const starter = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(false), hints: [], hasMoreHints: false, feedback: "" }));
+  assert.match(starter, /Start challenge/); assert.doesNotMatch(starter, /Open the Group tab/);
   const done = buildChoiceTaskView(MURAL_CHALLENGE, ["air-vents", "plaque"], true, "answerSubmitter", false, true);
   const after = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: done, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question,
     performance: { started: true, hintsUsed: 1, canStart: true, reward: { points: 90, foodTokens: 2, hintsUsed: 1 } }, hints: [], hasMoreHints: false, feedback: "" }));
