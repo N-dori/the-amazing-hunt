@@ -516,12 +516,12 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
   - The host overview: each team's name, leader, participant count and readiness; nothing of other teams' answers, clues or unnecessary personal details.
   - Team-scoped points; food tokens pooled; a guide team switcher; the Marzipan lock per team.
   - Seat enforcement per team (O6), with 5 as the planned maximum.
-  - Mandatory unique team names from the fixed bank ([below](#i7a-team-names-owner-31-oct-2026-rules-approved-name-bank-pending-not-built)).
+  - Mandatory unique team names from the fixed bank ([below](#i7a-team-names-owner-31-oct-2026-rules-and-bank-shape-approved-content-pending-not-built)).
 - **Tests:** 30 sessions in 6 teams; cross-team writes rejected; concurrent submissions in every team; the host overview shows no other team's progress.
 - **Acceptance:** a multi-team test on real phones, and the 30-participant checks below before any real 30-person run.
 - **Rollback:** the previous image plus the pre-schema-7 copy.
 
-#### I7a team names (owner, 31 Oct 2026): rules approved; name bank pending; not built
+#### I7a team names (owner, 31 Oct 2026): rules and bank shape approved; content pending; not built
 
 **Approved rules (for the multi-team adventure):**
 - Every team must choose a name from the fixed, owner-approved Shuk food-name bank. No free text.
@@ -533,11 +533,35 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 - Server-side, the claim runs inside `transact`, so it is atomic. Retries are idempotent: a team that repeats its claim gets its own name back and never a second one.
 - Teams store a stable name ID, never the display text.
 - The confirmed name is shown the same way on the Group sheet, invitations, the host overview and mission screens.
+- **Changing a name:**
+  - Before Start, the team leader may change it.
+  - After Start, only the guide may authorize a change.
+  - A change releases the old name and claims the new one in the same `transact`.
+  - A released name is available to other teams at once.
 
-**Pending: the name bank** ([proposal](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md), part of O16):
-- It is a creative proposal awaiting owner approval. Its 12 featured and 24 shortlisted names are not approved configuration.
-- Its Hebrew variants need review.
-- **Falafel Fugitives** stays the leading editorial recommendation, but no team is ever given it automatically.
+**Approved bank shape:**
+- 24 English names in a fixed bank, 12 of them featured, and 6 available names shown at first ("See more names" opens the rest).
+- **Falafel Fugitives** stays the leading recommendation and comes first in the featured set. No team is ever given it automatically.
+- **Proposed featured swap:** Malawach Mischief and Amba Low-Key Legends replace Baklava No Cap and Olive Squad Goals in the featured set, because the slang may not last. The two replaced names stay in the bank of 24. The exact final featured order waits for editorial confirmation.
+- **Avatars:** a food emoji per name for now (for example 🧆 for Falafel Fugitives). Original illustrations are future work.
+
+**Draft copy, pending O16 approval** (`TODO(copy)` until approved; `{name}` is the team's name):
+
+| Where | Draft |
+|---|---|
+| Selection screen, heading | Name your team |
+| Selection screen, help line | Pick a Shuk name. Each name belongs to one team in this adventure. |
+| Buttons | Confirm name · See more names |
+| Name taken | Another team just claimed that name. Pick another! |
+| Success | You're {name}! |
+| Change after Start (guide only) | Ask your guide to change your team name. |
+
+**Unresolved content and localization (O16):**
+- The final 24 names and the final featured order.
+- **Hebrew:** every Hebrew variant needs a native speaker's approval before use. Until then the names are English only.
+- **Food claims:** specialist foods (for example kada and mufleta) must be checked before any claim that ties a name to the route or to a vendor. The bank's [own caution](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md) still applies.
+- Each name's emoji, and the original illustrations later.
+- The draft copy above.
 
 **Future work (I7a, not I3b):**
 - Mandatory naming turns on only when all three of these are true:
@@ -628,7 +652,7 @@ Team D   + Add a name      [Share invite]   Not sent
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
 | O11–O13 | English-first; "Language Explorer"; Hebrew story bodies stay out of production; other languages need approved translations | **Approved** |
 | O15 | Share and Copy only in I3b; QR approach chosen in I3c | **Approved** 31 Oct 2026 (QR itself still open for I3c) |
-| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: the rules were approved on 31 Oct 2026 ([I7a team names](#i7a-team-names-owner-31-oct-2026-rules-approved-name-bank-pending-not-built)); the [name bank](../../design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md) is still pending | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
+| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: the rules and the bank shape (24 names, 12 featured, 6 shown) were approved on 31 Oct 2026 ([I7a team names](#i7a-team-names-owner-31-oct-2026-rules-and-bank-shape-approved-content-pending-not-built)); the final names and featured order, the Hebrew, the food checks and the copy are still pending | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
 | O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |

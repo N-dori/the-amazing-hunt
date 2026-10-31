@@ -1,22 +1,46 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - S0-B Option A built, awaiting review; I3b design approved, not built: 31 Oct 2026
+## Latest handoff - S0-B Option A committed, not deployed; I3b approved, not built; team-name directions recorded: 31 Oct 2026
 
 - **Live I3a, checked read-only (31 Oct 2026, about 10:15 UTC):**
   - `dori-shuk:20261031-084833-69b4077` is up, healthy, with 0 restarts.
-  - **The live file is still schema 6**, with the adventure now active, 7 seat members and 1 session. No save since the deploy, so no `state.json.pre-schema7-<hash>` yet. `state.json.before-i3a-deploy-20261031T0848Z` is in place.
+  - **The live file was still schema 6** then, with the adventure active, 7 seat members and 1 session. There was no `state.json.pre-schema7-<hash>` yet; `state.json.before-i3a-deploy-20261031T0848Z` is in place.
   - The first save will migrate the file. The I3a rollback notes below still apply.
-- **S0-A done, S0-B steps 1–3 approved** (multiplayer plan, "S0-A results and S0-B plan"):
-  - The bench (`scripts/shuk-sync-bench.{sh,mjs}`, uncommitted) now has realistic and stress workloads, a killed-server restart, tracking of every created action, and a drain with no cap.
-  - The baseline on the unchanged image has run (`.local/shuk-bench/baseline-*-c30/`).
-  - Option A is built, local and uncommitted (`participant-store.ts` and its tests), and re-measured: busy went from 42% to 0% in stress, and realistic passes every check. The plan's "S0-B results" has the numbers. Waiting for the owner's review. Client retry (Option B) stays deferred.
+- **S0-B Option A: committed in `463e62e`, not pushed or deployed** (multiplayer plan, "S0-B results"):
+  - `transact` waits its turn in a per-file line inside the process (at most 64 writes, 10 s per turn) before taking the unchanged `mkdir` lock. It waits up to 1.5 s, with jitter, for a lock held by another process. Five new tests cover it.
+  - The bench is in `scripts/shuk-sync-bench.{sh,mjs}`; results are in `.local/shuk-bench/` (baseline-* and optionA-*).
+    - At 30 clients, stress went from 42% busy to 0%, and tap-to-confirmed p50 from 1.1 s to 28 ms. Realistic passes every check.
+    - The stress p95/p99/max thresholds still fail because the scenario keeps phones offline for 10–30 s. Measured from back-online, they are 1.0 s / 2.5 s / 4.4 s.
+  - Verified:
+    - All 205 Shuk tests and the type check pass in the one-shot container.
+    - Lint fails only on 3 older errors in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs`.
+    - `dori-shuk:test` passed its isolated smoke test.
+  - **Owner decisions still open:**
+    - Push and deploy (`deploy/deploy.sh shuk`, in tmux).
+    - Whether stress latency is measured from back-online.
+    - Whether Option B (client backoff) is still needed. It stays deferred.
+  - Not covered by a test: the 10 s turn timeout.
+  - Disk is at 83%. `dori-shuk:test` can be removed.
 - **I3b design approved by the owner** (multiplayer plan, "I3b decisions"):
   - O6 and O15 are approved.
   - Replacing the link needs explicit confirmation.
   - Remove is in I3b.
   - The team cap is enforced, with an explicit operator override.
-  - **Not built. Implementation needs its own approval, after the S0-B report.** Its dependencies are listed there.
-- **Team names, rules approved (owner, 31 Oct 2026):** mandatory and unique per adventure, chosen from a fixed bank. **This is I7a only:** I3b and the current single-team game work without names. The name bank (`design/inputs/content/Amazing_Shuk_Team_Name_Bank_Contemporary_English.md`) is still pending approval. Details are in the multiplayer plan, "I7a team names".
+  - **Not built. Implementation needs its own approval.** Its dependencies are listed there.
+- **Team names (owner, 31 Oct 2026; I7a only, not built)** (multiplayer plan, "I7a team names"):
+  - **Approved:**
+    - The rules: unique per adventure, from a fixed bank, claimed atomically by the server.
+    - Changing a name: the leader may change it before Start; after Start only the guide authorizes a change. A released name is free for other teams.
+    - The bank shape: 24 names, 12 featured, 6 shown first. Falafel Fugitives leads.
+    - Food emojis as the first avatars.
+  - **Pending (O16):**
+    - The proposed featured swap (Malawach Mischief and Amba Low-Key Legends in place of Baklava No Cap and Olive Squad Goals), and the final featured order.
+    - A native speaker's approval of the Hebrew.
+    - Checking specialist foods before any claim tied to the route.
+    - The draft copy for the selection, name-taken and success messages.
+  - I3b and today's single-team game work without names.
+- **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
+- **Next, once approved:** deploy S0-B Option A and watch the first live save migrate to schema 7, then I3b implementation.
 
 ## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
 
