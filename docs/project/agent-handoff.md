@@ -1,6 +1,27 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I3b verified for a switch-off deploy; dev reset, I4a and the corrected well plan, committed locally: 1 Nov 2026
+## Latest handoff - I3b-only release of `e113ba5` proposed, awaiting approval; I5 well decisions recorded: 1 Nov 2026
+
+- **Git:** `f16499a` (dev reset, I4a, docs) is committed and **pushed** (`origin/main` = `f16499a`); it holds only its 21 intended files. `docs/RUN_PREVIEW.md` and the untracked owner files stay untouched. From now on a plain `deploy.sh shuk` builds `main` and would ship I4a and the dev reset, which are approved for local development only.
+- **Live (read-only check, 1 Nov):** `dori-shuk:current` = `69b4077`, healthy, 0 restarts, join links off. The live file is **already schema 7** (the I3a image migrated it on a write; `state.json.pre-schema7-850ca1dfae46` exists, mode 600) and the adventure is **active**. The "still schema 6" lines below are out of date.
+- **Verification since `f16499a`:** lint rerun after the reset test fix: the 3 older errors and 11 warnings only. The 12 focused reset and I4a tests pass. The I3b end-to-end results from `e113ba5` still apply: the join and membership code is unchanged, and `deploy/`, `Dockerfile`, `.dockerignore`, `app/` and `public/` are identical in both commits.
+- **Proposed I3b-only release (not done; needs the owner's approval):** `deploy.sh` can't build an older revision without moving `main`, so the steps are run by hand in its order.
+  1. Recheck memory (at least 800 MB) and disk (at most 85%; 75% now). Remove `dori-shuk:test` (357 MB; its source can't be proven, so it's rebuilt rather than reused).
+  2. Back up `docker exec dori-shuk cat /data/state.json` to `/root/backups/amazing-shuk/live-state-before-i3b-deploy-<UTC>.json`, mode 600, and `cmp` it against the live file.
+  3. `git archive e113ba5` into the scratchpad, then in tmux build `dori-shuk:<YYYYMMDD-HHMMSS>-e113ba5` with `--build-arg DORI_APP=shuk` and a revision label. The 7 app photos are tracked, so the export is complete.
+  4. Run the `/game-verify` isolated smoke test on the new image.
+  5. `docker tag dori-shuk:current dori-shuk:previous` (then `69b4077`), tag the new image `:current`, and run `docker compose -f deploy/shuk-compose.yml up -d shuk`. The compose file sets no `SHUK_JOIN_LINKS`, so joining stays off.
+  6. Checks: healthy within 90 s with 0 restarts; the `deploy.sh` smoke routes; `GET /shuk/api/amazing-shuk/dev?join=status` answers 404 `join-links-off`; the state file still reads version 7 and is unchanged; no storage errors in the logs.
+- **Rollback:** no migration is needed (`e113ba5` only adds optional join fields, which `69b4077` reads). Rolling back to `69b4077` is the image swap and `up -d shuk`. Going back to `6ee5c96` also needs `pre-schema7-850ca1dfae46` restored and loses everything saved since.
+- **Release risks:** I4a is on `origin/main` (approve it for live, or keep deploying by exported revision); the hand-run steps have no automatic rollback (a `deploy.sh` option to build an exact revision would be a separate change); the switch briefly interrupts the active adventure; the O16 join copy is a draft (hidden while joining is off); the lock test still fails occasionally under full-suite load.
+- **I5 well decisions (owner, 1 Nov 2026), recorded in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well) and product decisions:**
+  - The large container is for distributing water in the neighbourhood, not for measuring, and has no stated capacity.
+  - Deliver stays available throughout; a wrong delivery gets feedback that doesn't reveal the solution; time stops at the successful delivery.
+  - The completion time is recorded, and the well awards fixed base points; no additional roles.
+  - **Still open:** rule A or rule B, the wrong-delivery wording (O16), and whether a wrong delivery counts for anything. The live puzzle is unchanged.
+- **Next:** the owner approves (or changes) the I3b-only release; after it, correct `current-state.md`'s live line.
+
+## Earlier handoff - I3b verified for a switch-off deploy; dev reset, I4a and the corrected well plan, committed locally: 1 Nov 2026
 
 - **Committed locally on `main` (1 Nov 2026, owner's request), not pushed or deployed; no live data touched.** Live is still `69b4077`, schema 6, join links off. The I3b security fixes were already in `9ea8056` (pushed); `origin/main` = `e113ba5`. Check `git log origin/main..HEAD`.
 - **I3b final verification, on an export of `HEAD` only** (the working tree's uncommitted work was left out):
