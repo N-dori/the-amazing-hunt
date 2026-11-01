@@ -84,9 +84,9 @@
 - It answers only on Host `doriisrael.com`; `proxy.ts` 404s every Memory Protocol page and API.
 - Access is by single-use invitation only: no password, no indexing (`X-Robots-Tag`).
 - Deploy: `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`.
-- Invitations: `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <guide|player-N> https://doriisrael.com`. Redirect them into `.local/` and never print them.
-- Progress was reset by the owner on 26 Oct 2026 (08:59 UTC): all missions empty; sign-ins, invitations, names and roles kept. Backups are in `.local/amazing-shuk/backups/` and `/data/state.before-reset-*.json`.
-- Back up with `docker exec dori-shuk cat /data/state.json > .local/amazing-shuk/backups/<name>.json`.
+- Invitations: `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-invite.ts <guide|player-N> https://doriisrael.com`. Redirect them into `.local/amazing-shuk/live-links/` (mode 600) and never print them. That folder holds only the links still valid for the real game: a new set replaces the old one, and void links are deleted.
+- Progress was reset by the owner on 26 Oct 2026 (08:59 UTC): all missions empty; sign-ins, invitations, names and roles kept. Backups are in `/data/state.before-reset-*.json`.
+- Back up with `docker exec dori-shuk cat /data/state.json > /root/backups/amazing-shuk/<name>.json` (mode 600, checked with `cmp`). Keep only the latest backup there; delete superseded ones.
 - A new web photo under `public/shuk/` needs a `!` line in `.dockerignore`, or it 404s live.
 
 **Local simulation:** the dev page and API stay development-only: `SHUK_DEV_SIMULATION=1`, a loopback Host, 404 otherwise. On this server the dev container `shuk-dev` runs in tmux `shuk-dev-server` with the host network and Next on `127.0.0.1:3300`; it uses the repo's `.next/`, so don't delete that while it runs. The host network matters: with Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404 (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). Local invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`. To repeat a test from a clean point: `shuk:dev-reset` (progress or adventure; preview first, `--confirm` to run), described in [local participant login](local-participant-login.md#development-reset-local-simulation-only). `lib/base-path.ts` is the only source of both prefixes (`/memory-protocol`, and `/shuk` in the Shuk build).

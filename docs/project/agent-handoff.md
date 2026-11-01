@@ -1,6 +1,22 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I3b release image built and verified, switch awaiting approval; I5 well clarified: 1 Nov 2026
+## Latest handoff - I3b switch approved but held (guide active); I5 delivery decided; local leftovers cleaned: 1 Nov 2026
+
+- **I3b deployment approved by the owner, not done.** The final check (1 Nov, about 00:28 UTC) found the live adventure in use: after the backup, the guide session applied 4 actions and changed the well's 5 L vessel (last write 00:29:04 UTC). The only session is the guide's (0 members), but the owner said to stop if uncertain, so nothing was switched. Live is still `69b4077`, healthy, 0 restarts, joining off. The two-minute traffic sample had looked idle just before, so traffic alone isn't proof of an idle game.
+- **To resume:** the owner confirms the guide session is finished. Then: no writes and no traffic for 15 min; recheck memory and disk; take and `cmp` a fresh backup (`live-state-before-i3b-deploy-20261101T002820Z.json` is now behind by those 4 actions); run the switch, checks and rollback in the entry below.
+- **After the switch:**
+  - Issue one fresh set of real-game links into `.local/amazing-shuk/live-links/`, replacing what's there. This writes live state, so it needs the owner's OK; the owner chooses the seats. The guide session is valid until 7 Nov.
+  - Remove the 6 old safety copies in `/data`, keeping `state.json.pre-schema7-850ca1dfae46` (needed for a rollback to `6ee5c96`).
+  - Correct `current-state.md`'s live line.
+- **I5 well (owner, 1 Nov 2026; docs only, live well unchanged):** overfilling the family's container is allowed and gives the wrong-delivery feedback and **Start over**, with no extra point penalty during the pilot. **Only the Answer Submitter confirms the final delivery.** The family's container capacity stays unspecified. **Still open:** whether any member may pour into the family's container (with the Submitter confirming at the end) or the Submitter makes every delivery; the feedback wording (O16).
+- **Cleanup (owner: "keep only one invite… remove stale files… do not collect them"):**
+  - **Links:** `.local/amazing-shuk/live-links/` is now the only link folder. It holds the 2 links that were still valid (host and player-2, expiring 1 Nov 01:44 UTC). Every void or used link was deleted (checked by hash against the live invitations, read-only): 2 dated folders, the used guide link and 5 old `.md` link lists.
+  - **Deleted from `.local/`:** the 14 `RUN_PREVIEW.md` "kept" copies and patches (identical to the working-tree file, which is untouched), the I1 rehearsal scripts, the 26 Oct `backups/` folder, `shuk-bench/` and the bench and verify logs. `.local/amazing-shuk/state.json` (the dev simulation's data) stays.
+  - **Removed by the owner:** the older backups in `/root/backups/amazing-shuk/` (only `live-state-before-i3b-deploy-20261101T002820Z.json` remains) and `dori-shuk:test`.
+  - **Remaining images:** `20261101-001310-e113ba5` (release), `69b4077` (current), `6ee5c96` (previous). Disk 76%.
+  - **Docs:** `current-state.md` points at the single link folder and the latest-backup rule; `multiplayer-plan.md` notes that the bench output was deleted.
+
+## Earlier handoff - I3b release image built and verified, switch awaiting approval; I5 well clarified: 1 Nov 2026
 
 - **Release image (not live):** `dori-shuk:20261101-001310-e113ba5` (ID `790171446a9b`), label `org.opencontainers.image.revision=e113ba5b7d6638f72c8aa7fde4db93c7d4f946b4`, built in tmux from a `git archive e113ba5` export in the scratchpad (deleted after). `main`, history and the working tree untouched; `807b012` is on `origin/main` (not pushed by Claude).
   - **Contents:** I3b present (`join-links-off`, "Only the guide may assign roles."); no I4a strings, no `resetEpoch` or dev-reset code; no reset files in the export.
