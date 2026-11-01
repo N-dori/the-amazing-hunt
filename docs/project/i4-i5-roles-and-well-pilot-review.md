@@ -1,6 +1,6 @@
 # I4/I5 review: flexible team roles and a water-well pilot
 
-**Status:** planning only (Claude, 31 Oct 2026). Awaiting the owner's decisions D1–D9 below; nothing built. Sources: [multiplayer plan](multiplayer-plan.md) (§5 Roles, §7 R1, I4, I5, I8, §10 gates), [product decisions](product-decisions.md) (29 Oct "Approved: adventure, teams, invitations and roles"), [the well record](water-task.md), the well code (`lib/amazing-shuk/water-measurement.ts`, `water-performance.ts`, `roles.ts`) and the `/experience-design` quality criteria. No web research was done.
+**Status:** planning only (Claude, 31 Oct 2026). **The owner decided D1–D9 on 31 Oct 2026**, recorded in [product decisions](product-decisions.md#approved-i4i5-direction-owner-31-oct-2026) and the [multiplayer plan](multiplayer-plan.md) (I4, I5, with the puzzle check). In short: D2 time measured without speed points, D3, D4 and D6 as recommended, D7 Spotter and Reader as draft labels, D8 the field check first, D9 teams of 1–5. Leadership transfer is outside I4. **D1 and D5 are superseded** by the owner's correction (31 Oct 2026): the well is about measuring 4 L per family with the 3 L and 5 L vessels, then delivering it; the third container is a large distribution container, not a measuring jar. The "Water-well pilot concept" below (the jar, the Jar keeper, irreversibility) is kept as history only; the current concept is in the plan's I5 section. I4a is built locally; nothing else is. Sources: [multiplayer plan](multiplayer-plan.md) (§5 Roles, §7 R1, I4, I5, I8, §10 gates), [product decisions](product-decisions.md) (29 Oct "Approved: adventure, teams, invitations and roles"), [the well record](water-task.md), the well code (`lib/amazing-shuk/water-measurement.ts`, `water-performance.ts`, `roles.ts`) and the `/experience-design` quality criteria. No web research was done.
 
 ## The proposal reviewed (owner, 31 Oct 2026)
 
@@ -46,6 +46,8 @@ The direction fits the approved design almost entirely. Approved decisions alrea
 - Acceptance as planned: a real-phone session with real participants, now covering at least two team sizes, ideally 2 and 4.
 
 ## Water-well pilot concept
+
+> **Superseded (owner, 31 Oct 2026).** The jar, the Jar keeper and irreversible storage below misread the intended puzzle and are not to be built. See the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well).
 
 **The learning outcome stays the same for every size.** The read-aloud story is unchanged. It's an attributed tradition: cleaning the cistern before the rains, a child lowered through a narrow opening, and children wanting the honour. The puzzle remains a marked game device ("Fiction · Puzzle scenario"), never presented as history. After the solve, the reveal returns to the story. What should stick: water was precious and measured carefully, and caring for the cistern was an honour.
 

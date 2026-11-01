@@ -101,7 +101,7 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 | Advisor | Everyone's default | no | Gets parts |
 | Detective / Spotter | Mission part | no | Observation stops only |
 | Storyteller / Reader | Mission part, always voluntary | no | The guide or on-screen text covers it |
-| Language Explorer | Mission part + opt-in "I can read some Hebrew" flag | no | Language stops only; never required |
+| Language Explorer | Mission part + opt-in "I can read some Hebrew" flag | no | Language stops only; never required. **Deferred** until verified language content exists (owner, 31 Oct 2026) |
 | Photographer | **Deferred** | — | No photo capture or storage |
 
 Part names other than Language Explorer are draft copy (gate O16).
@@ -237,7 +237,7 @@ The smallest secure path from the fixed seats to individually authenticated part
 - **Removal** deletes all of the member's sessions, frees their roles, and drops their records of applied actions (they can never act again).
 - **A lost phone:**
   - A player rejoins through the link with a new ID. Progress belongs to the team, and the old record can be removed.
-  - For a lost leader, the guide can still let people in. Transferring leadership is I4.
+  - For a lost leader, the guide can still let people in. Transferring leadership was planned for I4; the owner's I4 scope (31 Oct 2026) leaves it out, so it is unscheduled.
 - **Dropped connections:** leader actions go through the existing action queue with its action IDs, so replays are safe. The joining device retries its status check and exchange, which are safe to repeat.
 
 **Steps:**
@@ -325,7 +325,7 @@ The smallest secure path from the fixed seats to individually authenticated part
 2. **Remove is in I3b.**
    - The team's leader (a leader session) or the guide can remove a member.
    - Removing deletes the member from the registry, which ends every one of their sessions at once (`identity()`), frees their roles and drops their receipts.
-   - The leader can't be removed until leadership can be transferred (I4).
+   - The leader can't be removed until leadership can be transferred (unscheduled; no longer in I4).
 3. **The team cap is enforced.**
    - No join-link approval can exceed it. The check runs inside the lock and counts members plus approved requests not yet collected.
    - Operator invitations no longer bypass it silently: a seat invitation that would exceed the cap is refused, unless the operator issues it with an explicit override flag on the command line (`shuk-invite.ts`). The override is recorded on the invitation.
@@ -362,7 +362,7 @@ The smallest secure path from the fixed seats to individually authenticated part
 **Unresolved implementation dependencies:**
 - **S0-B result (Option A):** the size of the write queue and how it interacts with unauthenticated asks. Build I3b on top of whichever locking S0-B lands with.
 - **O16 copy:** every word in the join flow is a draft (`TODO(copy)`). Live use needs O16.
-- **I4:** a lost or removed leader. Until I4, the guide can still let people in, and the leader can't be removed.
+- **A lost or removed leader:** the guide can still let people in, and the leader can't be removed. Leadership transfer is no longer in I4 (owner, 31 Oct 2026) and is unscheduled.
 - **Lobby count:** the lobby's count ("how many are playing?") is separate from the real roster. Keep the start rule as it is; decide in I7a whether the roster should replace it.
 - **Live schema 7:** I3b adds only optional fields to schema 7 (no new migration). Before any I3b deploy, the live file must already be schema 7 with its pre-schema7 copy. On 31 Oct 2026 it was still schema 6 (see the handoff).
 - **Implementation approval:** after the S0-B report. Then a security review before any deploy request.
@@ -410,7 +410,7 @@ The smallest secure path from the fixed seats to individually authenticated part
   - S0-B Option A deployed first.
   - A security review.
 
-**I3c (not built):** QR (O15), rate-limit tuning, leadership transfer for a lost leader (I4).
+**I3c (not built):** QR (O15), rate-limit tuning. Leadership transfer for a lost leader was listed here as I4; it is now unscheduled (owner's I4 scope, 31 Oct 2026).
 
 #### S0-A results and S0-B plan (Claude, 31 Oct 2026): S0-B steps 1–3 approved by the owner on 31 Oct 2026
 
@@ -507,22 +507,44 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 
 ### I4. Roles per team
 
-- **Review (31 Oct 2026, awaiting owner decisions):** [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md) recommends I4 for the permanent roles only and flags the "2 and 6" acceptance below (the team cap is 5).
+- **Decided (owner, 31 Oct 2026; not built):** after the [I4/I5 review](i4-i5-roles-and-well-pilot-review.md), I4 is **Navigator and Submitter role management only**. A Team Leader may assign, reassign and release those two roles within their own team. Player self-claim, guide oversight and server-side permissions stay; no new Admin role; leaders get no guide-only permissions. Teams of 1–5 are supported, and testing prioritises 2–5. See [product decisions](product-decisions.md).
+- **I4a, built locally (owner-approved for local development only, 31 Oct 2026; not committed or deployed):**
+  - **Server:** `assign-role` is accepted from the guide or from the session that leads the actor's own team (`isLeaderSession`: `leaderTeamId` plus `team.leaderId`), only for that team's members (`setGroupRole`); a refused player gets `ROLE_CHANGE_REFUSED` (draft copy). Self-claim, step down and the guide's selects are unchanged; submitting still needs the Submitter role. No schema change.
+  - **Group tab:** for the leader, a **Change** disclosure under each role lists the team's members and **No one**; the current holder is marked and disabled (`buildRoleAssignees`, `PreviewRoleChoices`). The copy is draft (O16).
+  - **Tests:** `leader-roles.test.ts` (teams of 1–5, no guide-only powers and no submit without the role, cross-team isolation, stale sessions, concurrent changes) and the leader render test in `role-choice.test.ts`.
+  - **Left for later I4 steps:** Hand to…, the vacant-seat fallback, the cheer-card prompt and the "Submitter" label.
 - **Depends on:** I1 (I3 for leaders).
 - **Scope:**
   - **Hand to…** (a pure `handGroupRole`).
-  - Leader assign and clear within the team.
+  - Leader assign, reassign and release within the team.
   - A **vacant-seat fallback** that claims and submits (or starts) in one transaction, only while the seat is free.
   - The optional cheer-card prompt to swap roles.
   - The "Submitter" label.
+  - **Out:** optional parts and part names (I5); leadership transfer for a lost leader. This plan earlier placed that transfer in I4 (sections 3, I3b and I3c); the owner's I4 scope doesn't include it, so it is **unscheduled** until the owner places it.
 - **Files:** `roles.ts`, `participant-store.ts`, `group-action.ts`, `participant-identity.ts`, `PreviewRoleChoices.tsx`.
-- **Tests:** concurrent claims (the second is refused); hand-over to a non-member is rejected; the fallback is rejected while the seat is occupied; a leader without the role can't submit.
-- **Acceptance:** teams of 2 and of 6 finish a mission without the guide's help with roles.
+- **Tests:** concurrent claims (the second is refused); hand-over to a non-member is rejected; the fallback is rejected while the seat is occupied; a leader without the role can't submit; a leader can't assign in another team; a non-leader player can't assign.
+- **Acceptance:** teams of 1, 2, 3, 4 and 5 finish a mission without the guide's help with roles (2–5 tested first).
 - **Rollback:** the previous image (schema unchanged).
 
 ### I5. Pilot: parts on the well
 
-- **Review (31 Oct 2026, awaiting owner decisions):** [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md): the well's two-move shortcut and its speed-tiered timing need decisions (D1, D2) before the pilot runs; the proposed Jar keeper rule is D5.
+- **Decided (owner, 31 Oct 2026; not built):** after the [I4/I5 review](i4-i5-roles-and-well-pilot-review.md):
+  - Spotter, Reader and a future Language Explorer are optional, per-mission responsibilities with no permissions; one person may take several. Optional parts never gate progress. **Spotter** and **Reader** are the preferred draft labels (O16). **Language Explorer is deferred** until verified language content exists.
+  - Solo play stays through **Show all**, one tap away and with no penalty. No artificial roles are created for extra players.
+  - Completion time is measured, with no speed-based point differences during the pilot. Hints stay available until the puzzle is solved. **Start over** is always offered.
+  - No physical cistern-finding part until the location is field-checked at Gan HaTut. Leadership recovery (a lost leader) is a separate future task.
+  - The cistern story stays an attributed tradition, separate from the puzzle, which is labelled fiction ("Fiction · Puzzle scenario").
+- **The well's corrected concept (owner's clarification, 31 Oct 2026; a future pilot, not a live change):** the scenario is **distributing exactly 4 litres per family**. There are only **two measuring vessels, 3 L and 5 L**. The third container is a much larger transport or distribution container, a visual and story element whose capacity isn't specified. It **replaces the earlier 6 L jar proposal**: no jar capacity change, no irreversible storage, no Jar keeper.
+  - **Moves:** fill a vessel from the well, empty it back into the well, pour one vessel into the other (as much as fits). Nothing is poured into the distribution container.
+  - **Deliver 4 litres:** one action that ends the puzzle once the group has measured exactly 4 L. It is the group's answer, so the Submitter (or the guide) gives it, as Submit today. The server checks the vessels and refuses a delivery that isn't exactly 4 L; once delivered, the puzzle is locked.
+  - **Puzzle check (Claude, 31 Oct 2026; exhaustive search of the 16 reachable states; script not in the repo):**
+    - **Rule A, 4 L in the 5 L vessel** (recommended): shortest solution **6 moves** (fill 5 L, pour into 3 L, empty 3 L, pour 5 L into 3 L, fill 5 L, pour into 3 L), then Deliver. A second route through the 3 L vessel takes 8 moves.
+    - **Rule B, 4 L across both vessels** (3 + 1 also counts): shortest **7 moves** (two sequences), then Deliver.
+    - **Both vessels are required** under either rule: with one vessel only, or with no pours between them, 4 L is never reached.
+    - **No dead ends:** every reachable state can still reach 4 L (water can always go back to the well), so mistakes cost moves, never the puzzle. Start over is a convenience, not a rescue.
+  - **Teams of 1–5, the same puzzle:** 1: Show all. 2: one vessel each; whoever holds Submitter delivers. 3: one vessel each, and the Submitter delivers. 4–5: the same; the others advise and may read the story (Reader). No extra parts are invented. Vessel controls per phone are UI only; the server accepts every valid move from any member.
+  - **Cooperation:** every pour between vessels needs both vessel holders to agree, and delivering needs the Submitter's judgement that it really is 4 L. The pilot observes whether the advisors stay involved.
+  - **Changes this needs when I5 is built (not now):** the target moves from the jar to the vessels and the jar moves become Deliver (`water-measurement.ts`, `water-task-view.ts`, the hints check `cups.jar < 4`), `WATER_PUZZLE_REVISION` 5 → 6 (phones reload; a stored well record needs a decided reset), owner copy for the puzzle wording (today "collect exactly 4 liters in your family's jar"), the jar rule and Hint 3 ("collect that amount twice in your family's jar"), and a pilot reward setting that measures time without speed tiers (the guide's *exclude* stores no time).
 - **Depends on:** I1.
 - **Scope:** `parts` on `MissionDefinition`; `dealParts` with a stored deal; swap, hand on and Show all; a "Your part" card; vessel controls per part (UI only, so the server still accepts every valid move).
 - **Files:** `mission-arrival.ts`, `water-task.ts`, `water-task-view.ts`, `participant-store.ts`, `components/amazing-shuk/dev/IndexWaterTask.tsx`.
@@ -722,7 +744,7 @@ Team D   + Add a name      [Share invite]   Not sent
 | O7–O10, O14 | Leader role management without guide-only powers; vacant-role fallbacks; optional parts; "Submitter"; no penalty for translation help | **Approved** |
 | O11–O13 | English-first; "Language Explorer"; Hebrew story bodies stay out of production; other languages need approved translations | **Approved** |
 | O15 | Share and Copy only in I3b; QR approach chosen in I3c | **Approved** 31 Oct 2026 (QR itself still open for I3c) |
-| O16 | Team names, part names (Spotter, Reader) and all onboarding copy. Team names: **decided** on 31 Oct 2026, with copy approved ([I7a team names](#i7a-team-names-owner-31-oct-2026-decided-not-built)) | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
+| O16 | Team names, part names (Spotter and Reader preferred as draft labels, owner 31 Oct 2026; Language Explorer deferred) and all onboarding copy. Team names: **decided** on 31 Oct 2026, with copy approved ([I7a team names](#i7a-team-names-owner-31-oct-2026-decided-not-built)) | **Open**; the I2 lobby copy was approved with refinements on 29 Oct 2026 (the list and the remaining drafts are in the [handoff](agent-handoff.md)) |
 | O17 | Live data migration: rehearse on a backup first; no live migration without separate authorisation | **Open** |
 | O18, O19 | Team points compared only at the end (any competition optional and friendly); food tokens pooled across all teams | **Approved** |
 | O20 | The 29 Oct line in `.claude/agents/dori-ux-designer.md` (`7635f56`): explicit approval or revert | **Open**; the file must not be changed |

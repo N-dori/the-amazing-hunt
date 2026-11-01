@@ -131,7 +131,7 @@ test("a name is a label only: being named Guide grants nothing", () => fixture(a
   assert.deepEqual(view.adventure, { status: "active", intendedCount: 3, host: false, leader: false, canManage: false });
   assert.equal("guideTiming" in view, false);
   await assert.rejects(sessionAction(path, player, { type: "confirm-arrival", missionId: WELL }, "registry-named-arrive-1", NOW), /Only the guide/);
-  await assert.rejects(sessionAction(path, player, { type: "assign-role", role: "answerSubmitter", participantId: id }, "registry-named-assign-1", NOW), /Only the guide/);
+  await assert.rejects(sessionAction(path, player, { type: "assign-role", role: "answerSubmitter", participantId: id }, "registry-named-assign-1", NOW), /Only your team's leader or the guide/);
   await assert.rejects(sessionAction(path, player, { type: "timing", operation: "pause", missionId: WELL }, "registry-named-timing-1", NOW), /Only the guide/);
 }));
 

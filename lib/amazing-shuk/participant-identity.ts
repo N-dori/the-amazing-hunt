@@ -31,13 +31,19 @@ export function buildGroupRoster(participants: readonly ParticipantIdentity[], r
   }));
 }
 
-export type RoleChoiceView = Readonly<{ role: "navigator" | "answerSubmitter"; label: string; holder: string | null; mine: boolean; canClaim: boolean }>;
+export type RoleChoiceView = Readonly<{ role: "navigator" | "answerSubmitter"; label: string; holderId: string | null; holder: string | null; mine: boolean; canClaim: boolean }>;
 /** The two roles as the signed-in player sees them: who holds each, and whether they can take it or step down. */
 export function buildRoleChoices(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guide: boolean): readonly RoleChoiceView[] {
   return (["navigator", "answerSubmitter"] as const).map(role => {
     const holderId = roles[role];
-    return { role, label: role === "navigator" ? "Navigator" : "Answer-submitter",
+    return { role, label: role === "navigator" ? "Navigator" : "Answer-submitter", holderId,
       holder: holderId === null ? null : participants.find(participant => participant.id === holderId)?.name ?? holderId,
       mine: holderId === currentId, canClaim: !guide && holderId === null };
   });
+}
+
+export type RoleAssigneeView = Readonly<{ id: string; name: string; you: boolean }>;
+/** Who a team's leader can give a role to (I4a): the team's own members, in roster order, never the guide. */
+export function buildRoleAssignees(participants: readonly ParticipantIdentity[], currentId: string, guideId = "guide"): readonly RoleAssigneeView[] {
+  return participants.filter(participant => participant.id !== guideId).map(participant => ({ id: participant.id, name: participant.name, you: participant.id === currentId }));
 }

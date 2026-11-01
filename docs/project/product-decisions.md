@@ -52,7 +52,31 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
 - **Sensitive places:** Rabbi Aryeh Levin and Chesed VeRachamim are never competitive.
 - **Staggered team routes (owner, 29 Oct 2026): Approved direction — Deferred / Not scheduled.** In larger adventures, teams may begin at different eligible stops and move through the same overall route in a staggered sequence, all converging at **Marzipan for a shared finale**. The aims: less crowding in narrow streets and at historical places, a sense of independent exploration, the same historical content and learning for every team, and an exciting shared ending. Not designed, planned or built: the current mission order, navigation, Marzipan's finale rules and the multiplayer plan stay as they are. Revisit only after core multi-team play works and the physical route has been tested.
 - **Pilot:** validate distributed parts on the well with real participants before expanding them.
+- **I4/I5 direction:** decided on 31 Oct 2026; see the next section.
 - **Still open:** the plan's gates O16 (team names are decided; part names and the other onboarding copy remain), O17 and O25 (O6 and O15 were approved on 31 Oct 2026) (how many teams one guide can lead at once) (operational and copy choices; no live data migration without separate authorisation), and O20: the 29 Oct line in the protected `.claude/agents/dori-ux-designer.md` still awaits explicit approval or revert, and that file must not be changed meanwhile.
+
+## Approved: I4/I5 direction (owner, 31 Oct 2026)
+
+The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md) (D1–D9), with the owner's later corrections the same day. **I4a is approved for local development only** (built locally, not committed or deployed); the rest of I4 and all of I5 are not built, and the live well is unchanged (3 L / 5 L / 4 L jar). Details and the puzzle check are in the [multiplayer plan](multiplayer-plan.md) (I4, I5).
+
+**I4: permanent roles only.**
+- Only **Navigator** and **Submitter** role management. No new Admin role.
+- A Team Leader may assign, reassign and release those two roles within their own team.
+- Player self-claim, guide oversight and server-side permissions stay as they are. Leaders still get no guide-only permissions.
+- Teams of **1–5** are supported; testing prioritises 2–5. I4's acceptance is teams of 1–5 (it said "2 and 6"; the team cap is 5).
+- **I4a** (approved for local development, 31 Oct 2026): the leader's assign, reassign and free, checked on the server against the session-bound leader identity, with simple Change controls in the Group tab. No schema change.
+- Leadership recovery (a lost leader) is a separate future task.
+
+**I5: optional responsibilities and the well pilot.**
+- Spotter, Reader and a future Language Explorer stay optional, per-mission responsibilities with no permissions. One person may take several.
+- Solo play stays available through **Show all**, which is one tap away and carries no penalty.
+- Don't add roles only to give every team member something to do. Optional parts never gate progress.
+- **Spotter** and **Reader** are the preferred draft labels (still drafts under O16).
+- **Language Explorer is deferred** until verified language content is available.
+- **The well pilot (corrected by the owner, 31 Oct 2026; a future pilot, not a live change):** the scenario is distributing exactly **4 litres per family**, measured with the two vessels, **3 L and 5 L**. The third container is a much larger distribution container, a visual and story element of unspecified capacity. A single **Deliver 4 litres** action is being evaluated. This replaces the earlier proposal of a 6 L jar, irreversible storage and a Jar keeper, none of which is to be built. The move rules, shortest solution and need for both vessels were verified (plan, I5).
+- **During the pilot:** completion time is measured without speed-based point differences; hints stay available until the puzzle is solved; Start over is always offered; the puzzle locks once it is solved (delivered).
+- **No physical cistern-finding task** is designed until the location is field-checked at Gan HaTut.
+- **The historical story stays distinct from the puzzle.** The cistern story remains an attributed tradition; the water-distribution puzzle is labelled fiction.
 
 ## Other current owner directions
 
@@ -263,6 +287,8 @@ Start with six independently verified, playable tasks; ten is the ideal target i
 ## Approved water revision (24 Oct 2026)
 
 Story-first digital-only water task: 3 L / 5 L well measuring vessels fill a visually distinctive 4 L family jar using maximal pours; jar cannot be filled from well or emptied. Only exactly 4 L in the family jar solves it. Explicit submission belongs to guide/answer-submitter; no unsolved guide override. Use documented story/source limits, owner narrative/read-aloud instruction and existing Brand Book/tokens. No props, invented history or production deployment. Reward settings follow the later provisional scoring decision below. Supersedes the 300/500 ml task variant.
+
+*Pilot note (owner, 31 Oct 2026):* the I5 pilot proposes measuring 4 L with the two vessels and delivering it, without a measuring jar, and no speed-based points during the pilot (see the I4/I5 direction above). Until I5 is approved and built, the live well keeps this 4 L jar and the timing below.
 
 
 ## Approved invisible timing and provisional well rewards (24 Oct 2026)

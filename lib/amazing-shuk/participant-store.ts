@@ -66,9 +66,11 @@ type AdventureRecord = { status: "lobby" | "active"; format: "together" | "twoTe
 type Schema6Database = { version: 6; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, { teamId: string }>;
   invitations: Record<string, LegacyInvitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; names?: ParticipantNames };
 /** Schema 7: the participant registry is the only roster. Players belong to one team; the guide oversees every team and is in none.
- * `seatNames` are the operator's display names for the seats (set with scripts/shuk-name.ts); they outlive adventures, as before. */
+ * `seatNames` are the operator's display names for the seats (set with scripts/shuk-name.ts); they outlive adventures, as before.
+ * `resetEpoch` (optional) is set only by a development reset (scripts/shuk-dev-reset.ts): actions must then carry it. */
 type Database = { version: 7; adventure: AdventureRecord; teams: Record<string, TeamRecord>; participants: Record<string, ParticipantRecord>;
-  invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; seatNames?: ParticipantNames };
+  invitations: Record<string, Invitation>; sessions: Record<string, Session>; applied: Record<string, string[]>; seatNames?: ParticipantNames;
+  resetEpoch?: string };
 export const SCHEMA_VERSION = 7;
 /** O6 (owner, 31 Oct 2026): members per team, the leader included; the guide is in no team. Members plus requests let in but not
  * yet collected count. Operator invitations over it need the explicit --over-cap override. */
@@ -85,6 +87,10 @@ export const JOIN_REQUEST_GONE = TEAM_JOIN_COPY.gone;
 export const ALREADY_IN = TEAM_JOIN_COPY.alreadyIn;
 /** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
 export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
+/** A player who isn't the team's leader (or the guide) tries to change someone's role. TODO(copy): draft (O16). */
+export const ROLE_CHANGE_REFUSED = "Only your team's leader or the guide can change roles.";
+/** Development only: an action a phone queued before a development reset. Never shown live, where no reset epoch is ever set. */
+export const DEV_RESET_STALE = "This action was made before a development reset, so it was dropped.";
 /** A refusal with its HTTP status; `code` is a stable reason the app can act on (I3b join refusals only). */
 export class AccessError extends Error {
   status: number;
@@ -97,6 +103,10 @@ function emptyMission(definition: MissionDefinition): MissionRecord {
   const base = { completed: false, arrival: null, performance: createWaterPerformance(), ...(definition.bonus ? { bonus: EMPTY_BONUS } : {}) };
   return definition.challenge.kind === "water" ? { ...base, kind: "water", cups: EMPTY_WATER_CUPS } : { ...base, kind: "choice", selected: [] };
 }
+/** A team's recorded rewards across its missions. */
+const balanceOf = (records: readonly MissionRecord[]) => ({
+  points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
+  foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0) });
 const isEmptyProgress = (record: MissionRecord) => record.kind === "water" ? record.cups.small + record.cups.large + record.cups.jar === 0 : record.selected.length === 0;
 /** The single group becomes team A of an adventure that is already under way, played together, with no host yet. */
 function toSchema6({ roles, missions, ...rest }: Schema5Database): Schema6Database {
@@ -203,7 +213,8 @@ function migrate(raw: Buffer | null): { db: Database; older: boolean } {
   }
   const db = stored as Database;
   if (!isValidAdventure(db.adventure) || !db.teams || !db.teams[DEFAULT_TEAM_ID] || !db.participants || !db.invitations || !db.sessions || !db.applied
-    || (db.seatNames !== undefined && !isValidNames(db.seatNames)) || !isValidRegistry(db)) throw new Error("Unsupported Shuk storage state");
+    || (db.seatNames !== undefined && !isValidNames(db.seatNames)) || !isValidRegistry(db)
+    || (db.resetEpoch !== undefined && !(typeof db.resetEpoch === "string" && /^[A-Za-z0-9_-]{43}$/.test(db.resetEpoch)))) throw new Error("Unsupported Shuk storage state");
   if (db.adventure.hostId !== null && !Object.hasOwn(db.participants, db.adventure.hostId)) throw new Error("Unsupported Shuk storage state");
   const teams: Record<string, TeamRecord> = {};
   for (const [teamId, team] of Object.entries(db.teams)) {
@@ -617,6 +628,8 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     host, leader: isLeaderSession(db, token, teamId), canManage: guide || host };
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
+    // Only after a development reset: the phone sends it back with every action it queues from now on.
+    ...(db.resetEpoch !== undefined ? { resetEpoch: db.resetEpoch } : {}),
     adventure,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, team.missions[mission.id])),
     // Names are shown only to signed-in members of the team (this view needs a session), plus the guide.
@@ -629,8 +642,7 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
     // The team's balance covers every one of its missions' recorded rewards.
-    sharedBalance: { points: records.reduce((sum, item) => sum + (item.performance.award?.points ?? 0) + (item.arrival?.points ?? 0) + (item.bonus?.award?.points ?? 0), 0),
-      foodTokens: records.reduce((sum, item) => sum + (item.performance.award?.foodTokens ?? 0), 0), status: "Provisional local-development rewards" },
+    sharedBalance: { ...balanceOf(records), status: "Provisional local-development rewards" },
     // Membership (I3b) for the team's leader session and the guide only: requests (never their secrets), the space and the leader.
     ...(guide || adventure.leader ? { membership: { capacity: TEAM_CAPACITY, taken: placesTaken(db, teamId, now), leaderId: team.leaderId,
       hasLink: Boolean(team.joinLink), requests: liveRequests(team, now).filter(([, request]) => request.status !== "declined")
@@ -639,11 +651,14 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       stoppedElapsedMs: record.performance.solvedAt === null ? null : measuredWaterTime(record.performance, now), paused: record.performance.pausedAt !== null, excluded: record.performance.excluded } } : {}),
   };
 }
-/** `arrivalPolicy` and `choiceChallenge` override the mission's own settings; tests use them for a verified destination or answer key. */
-export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy, choiceChallenge?: ChoiceChallenge) {
+/** `arrivalPolicy` and `choiceChallenge` override the mission's own settings; tests use them for a verified destination or answer key.
+ * `resetEpoch` is the one the phone's view carried when it queued the action; it matters only after a development reset. */
+export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy, choiceChallenge?: ChoiceChallenge, resetEpoch?: string) {
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
+    // After a development reset, an action queued before it (an older epoch, or none) is refused for good, even with a new action ID.
+    if (db.resetEpoch !== undefined && resetEpoch !== db.resetEpoch) throw new AccessError(DEV_RESET_STALE, 410);
     // Every action reads and writes only the actor's own team; the team is written back once the action succeeds.
     const teamId = teamIdOf(db, participantId);
     const team = { ...db.teams[teamId] };
@@ -716,7 +731,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
         // Nothing on the journey counts until the adventure starts; roles may be settled while the group waits.
         throw new Error("The adventure hasn't started yet. Your host will start it soon.");
       } else if (action.type === "assign-role") {
-        if (!guide) throw new Error("Only the guide may assign roles.");
+        // The guide, or the session that leads this team (I4a): assign, reassign or free Navigator and Submitter, only among the
+        // team's own members. Leading grants nothing else: submitting still needs the Submitter role, and guide-only actions stay the guide's.
+        if (!guide && !isLeaderSession(db, token, teamId)) throw new Error(ROLE_CHANGE_REFUSED);
         team.roles = setGroupRole(ids, team.roles, action.role, action.participantId);
         message = "Group role updated.";
       } else if (action.type === "claim-role" || action.type === "release-role") {
@@ -862,11 +879,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
 export async function startNewAdventure(path: string, now = Date.now()) {
   const backup = `${path}.before-new-adventure-${new Date(now).toISOString().replace(/[-:]|\.\d{3}/g, "")}`;
   let kept: string | null = null;
-  await transact(path, db => {
-    const fresh = initial();
-    Object.assign(db, { ...fresh, adventure: { status: "lobby", format: "together", hostId: null, intendedCount: null },
-      applied: db.applied, ...(db.seatNames ? { seatNames: db.seatNames } : {}) });
-  }, async raw => {
+  await transact(path, db => { Object.assign(db, freshAdventure(db)); }, async raw => {
     if (!raw) return;
     try { await keepExactCopy(path, backup, raw); kept = basename(backup); } catch (error) {
       console.error("Shuk storage: the new-adventure backup could not be kept:", (error as NodeJS.ErrnoException).code ?? (error as Error).message);
@@ -874,6 +887,66 @@ export async function startNewAdventure(path: string, now = Date.now()) {
     }
   });
   return kept;
+}
+/** A fresh adventure in its lobby with no host, members, sessions, invitations, join links, roles or progress. Seat names and
+ * action receipts stay (receipts keep stale queued actions from replaying). */
+function freshAdventure(db: Database): Database {
+  return { ...initial(), adventure: { status: "lobby", format: "together", hostId: null, intendedCount: null },
+    applied: db.applied, ...(db.seatNames ? { seatNames: db.seatNames } : {}) };
+}
+
+export type DevResetMode = "progress" | "adventure";
+/** What a development reset would change: counts only, never names, tokens or IDs. */
+export type DevStateSummary = Readonly<{ storedSchema: number; adventure: AdventureRecord["status"]; host: boolean; members: number;
+  leaders: number; roles: number; sessions: number; invitations: number; joinLinks: number; joinRequests: number;
+  missionsWithProgress: number; points: number; foodTokens: number; receipts: number; resetBefore: boolean }>;
+const hasProgress = (record: MissionRecord) => record.completed || record.arrival !== null || record.performance.startedAt !== null
+  || record.performance.hintsUsed > 0 || record.performance.award !== null || !isEmptyProgress(record) || stepOf(record) > 0
+  || (record.bonus !== undefined && (record.bonus.selected.length > 0 || record.bonus.award !== null));
+function summarise(db: Database, storedSchema: number): DevStateSummary {
+  const teams = Object.values(db.teams);
+  const missions = teams.flatMap(team => Object.values(team.missions));
+  return { storedSchema, adventure: db.adventure.status, host: db.adventure.hostId !== null, members: Object.keys(db.participants).length,
+    leaders: teams.filter(team => team.leaderId !== null).length,
+    roles: teams.reduce((sum, team) => sum + [team.roles.navigator, team.roles.answerSubmitter].filter(id => id !== null).length, 0),
+    sessions: Object.keys(db.sessions).length, invitations: Object.keys(db.invitations).length,
+    joinLinks: teams.filter(team => team.joinLink).length, joinRequests: teams.reduce((sum, team) => sum + Object.keys(team.joinRequests ?? {}).length, 0),
+    missionsWithProgress: missions.filter(hasProgress).length, ...balanceOf(missions),
+    receipts: Object.values(db.applied).reduce((sum, ids) => sum + ids.length, 0), resetBefore: db.resetEpoch !== undefined };
+}
+/** Development reset preview (scripts/shuk-dev-reset.ts): reads the file without changing it. A missing file is refused. */
+export async function summariseDevState(path: string): Promise<DevStateSummary> {
+  const raw = await readStored(path);
+  if (!raw) throw new Error("No state file at the target");
+  return summarise(migrate(raw).db, (JSON.parse(raw.toString("utf8")) as { version: number }).version);
+}
+/**
+ * Development only (scripts/shuk-dev-reset.ts; the script checks the target and environment first). Keeps the file's exact bytes
+ * as `<state>.before-dev-reset-<mode>-<UTC time>`, mode 600, then, in one locked write:
+ * - "progress": every team's missions start empty (challenges, arrivals, timers, hints, points, food tokens, bonuses). Members,
+ *   teams, leaders, roles, sessions, invitations and join requests stay.
+ * - "adventure": a fresh adventure in its lobby, as `startNewAdventure` (everyone signed out, invitations and join links gone).
+ * Either way a new `resetEpoch` is set, so an action any phone queued before the reset is refused (410) instead of applying,
+ * and receipts stay, so an action that already applied never applies again. Nothing changes if the copy can't be kept or there's
+ * no file. Returns the summary after the reset and the copy's file name.
+ */
+export async function resetDevState(path: string, mode: DevResetMode, now = Date.now()) {
+  if (mode !== "progress" && mode !== "adventure") throw new Error("Unknown reset mode");
+  const backup = `${path}.before-dev-reset-${mode}-${new Date(now).toISOString().replace(/[-:]/g, "").replace(".", "")}`;
+  let kept = "";
+  const summary = await transact(path, db => {
+    if (mode === "adventure") Object.assign(db, freshAdventure(db));
+    else for (const teamId of Object.keys(db.teams)) db.teams[teamId] = { ...db.teams[teamId], missions: catalogueMissions({}) };
+    db.resetEpoch = secret();
+    return summarise(db, SCHEMA_VERSION);
+  }, async raw => {
+    if (!raw) throw new Error("No state file at the target; nothing was changed.");
+    try { await keepExactCopy(path, backup, raw); kept = basename(backup); } catch (error) {
+      console.error("Shuk storage: the reset backup could not be kept:", (error as NodeJS.ErrnoException).code ?? (error as Error).message);
+      throw new AccessError("Storage unavailable: the backup could not be kept. Nothing was changed.", 503);
+    }
+  });
+  return { summary, backup: kept };
 }
 /** Admin only (scripts/shuk-name.ts, run on the server): sets or clears a display name, for a seat (player-1…7, guide; kept
  * across adventures) or for a member by their ID. A name is a label only: it grants nothing. */

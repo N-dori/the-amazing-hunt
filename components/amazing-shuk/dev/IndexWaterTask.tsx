@@ -66,7 +66,7 @@ type Props = { mode: keyof typeof MODE_COPY };
 type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number } };
 // `participants` carries the group's display names (from the server's state, never git); older servers omit it, and `adventure` too.
 // `membership` comes only to the team's leader session and the guide, and only while join links are on (I3b).
-type ServerView = { adventure?: AdventureView; membership?: MembershipView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+type ServerView = { resetEpoch?: string; adventure?: AdventureView; membership?: MembershipView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 /** The Shuk game: the local simulation ("dev") or the protected app ("app"), which differ only in wording and the dev panel. */
 export default function IndexWaterTask({ mode }: Props) {
@@ -186,7 +186,7 @@ export default function IndexWaterTask({ mode }: Props) {
       // GPS evidence is sent once, never put in the persistent offline action queue.
       const response = await fetch(API, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "arrival", missionId,
-          reading, actionId: crypto.randomUUID(), expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION }),
+          reading, actionId: crypto.randomUUID(), expectedParticipantId: actorId, puzzleRevision: WATER_PUZZLE_REVISION, resetEpoch: view?.resetEpoch }),
       });
       const data = await response.json() as ServerView;
       if (currentActor.current !== actorId || generation !== arrivalGeneration.current) return;
@@ -231,7 +231,8 @@ export default function IndexWaterTask({ mode }: Props) {
     if (!actorId) return;
     const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
     const pending = JSON.parse(localStorage.getItem(key) ?? "[]");
-    localStorage.setItem(key, JSON.stringify([...pending, { ...action, actionId: crypto.randomUUID() }]));
+    // The reset epoch the phone was shown (development resets only) travels with the action, so a reset drops what was queued before it.
+    localStorage.setItem(key, JSON.stringify([...pending, { ...action, actionId: crypto.randomUUID(), resetEpoch: view?.resetEpoch }]));
     await flush();
   };
 
@@ -332,7 +333,8 @@ export default function IndexWaterTask({ mode }: Props) {
       {nav.area === "food" ? <PreviewFoodRewards foodTokens={view.sharedBalance.foodTokens} /> : null}
       {nav.area === "group" ? <ListGroupOverview participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
         missions={view.missions} balance={view.sharedBalance} guide={activeRole === "guide"} busy={busy}
-        onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })} /> : null}
+        onClaim={role => void act({ type: "claim-role", role })} onRelease={role => void act({ type: "release-role", role })}
+        leader={view.adventure?.leader === true} onAssign={(role, participantId) => void act({ type: "assign-role", role, participantId })} /> : null}
       {nav.area === "group" && view.membership ? <IndexTeamMembers membership={view.membership} participants={participants}
         currentId={view.session.activeActorId} busy={busy} onAction={act} /> : null}
       {/* The guide assigns roles with the group, not under the map or a mission. */}

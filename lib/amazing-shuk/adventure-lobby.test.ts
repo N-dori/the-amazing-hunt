@@ -159,7 +159,7 @@ test("being host and leader grants no guide-only permission", () => fixture(asyn
   await sessionAction(path, host, { type: "set-intended-count", count: 3 }, "host-count-three-0001", NOW);
   await sessionAction(path, host, { type: "start-adventure" }, "host-start-adventure-3", NOW);
   await assert.rejects(sessionAction(path, host, { type: "confirm-arrival", missionId: WELL }, "host-confirm-arrival-1", NOW), /Only the guide/);
-  await assert.rejects(sessionAction(path, host, { type: "assign-role", role: "navigator", participantId: "player-1" }, "host-assign-role-0001", NOW), /Only the guide/);
+  // Changing roles is the leader's too since I4a (owner, 31 Oct 2026); role-choice.test.ts covers it.
   await assert.rejects(sessionAction(path, host, { type: "timing", operation: "pause", missionId: WELL }, "host-timing-pause-0001", NOW), /Only the guide/);
   // With no role, the host can't start a challenge or submit either: gameplay powers come from roles.
   await assert.rejects(sessionAction(path, host, { type: "start", missionId: WELL }, "host-start-challenge-01", NOW), /Only the navigator/);

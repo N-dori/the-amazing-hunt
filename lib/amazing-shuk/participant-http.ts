@@ -106,7 +106,9 @@ export async function handleParticipantRequest(request: Request, path = defaultS
     if (!joinLinks && (action.type === "let-in" || action.type === "decline" || action.type === "remove-member")) return linksOff(TEAM_MEMBERS_COPY.linksOff);
     if (body.puzzleRevision !== WATER_PUZZLE_REVISION) throw new AccessError("Puzzle updated; reload before continuing", 422);
     if (typeof body.expectedParticipantId !== "string") return json({ error: "Expected participant required" }, 400);
-    const message = await sessionAction(path, token, action, body.actionId, Date.now(), body.expectedParticipantId);
+    // Only a development reset sets an epoch; then an action must carry the one its phone was shown (see sessionAction).
+    const message = await sessionAction(path, token, action, body.actionId, Date.now(), body.expectedParticipantId, undefined, undefined,
+      typeof body.resetEpoch === "string" ? body.resetEpoch : undefined);
     return json({ ...await view("missionId" in action ? action.missionId : undefined), message });
   } catch (error) {
     if (error instanceof AccessError) return json({ error: error.message, ...(error.code ? { code: error.code } : {}) }, error.status);

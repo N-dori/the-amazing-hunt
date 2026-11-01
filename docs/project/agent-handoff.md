@@ -1,5 +1,30 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Latest handoff - I3b verified for a switch-off deploy; dev reset, I4a and the corrected well plan, committed locally: 1 Nov 2026
+
+- **Committed locally on `main` (1 Nov 2026, owner's request), not pushed or deployed; no live data touched.** Live is still `69b4077`, schema 6, join links off. The I3b security fixes were already in `9ea8056` (pushed); `origin/main` = `e113ba5`. Check `git log origin/main..HEAD`.
+- **I3b final verification, on an export of `HEAD` only** (the working tree's uncommitted work was left out):
+  - One-shot container: `test:shuk` 225/225, `npm test` 63/63, tsc clean, lint at the 3 older prototype errors (11 warnings).
+  - `/game-verify shuk`: the build passed, 8/8 route checks, and the invite link has the right shape (not printed). About 51 MiB per container.
+  - End-to-end in isolated containers (no network, read-only): join links off 15/15, on 28/28. Covered: the host invite is single-use; cookie flags; cross-origin refused; forged and removed sessions get `session-ended`; identity mismatch 409; join link, ask, repeat ask, let in, replayed let in, decline, exchange once, already-in, a non-leader can't link or remove, the leader can't be removed, removal ends the session; and with the switch off, every join and membership call answers 404 `join-links-off`.
+  - **Migration and rollback rehearsal**, on a copy of `live-state-before-new-adventure-20261031T014410Z.json` in throwaway containers (deleted after):
+    - 6 → 7 with an exact pre-schema7 copy (mode 600); adventure, roles, missions, sessions, receipts and names unchanged; no second copy on the next save.
+    - `dori-shuk:current` (I3a) reads the schema-7 file, including I3b's join fields, and keeps them.
+    - `dori-shuk:previous` (I2) refuses the schema-7 file without changing it, and reads the restored copy.
+    - The backup held only the guide's session (0 members), so the case with members comes from the tests.
+  - **Lock test** ("writers in two processes share the filesystem lock"): passed 5/5 run alone and passed in both full runs today. It is still the one known intermittent failure (once, under full-suite load); no fix yet.
+  - `dori-shuk:test` (the I3b build, 357 MB) is left in place; remove it before a deploy. Disk 75%.
+  - **Deploy note:** `deploy.sh` refuses while tracked files have local changes; this work is now committed, but `docs/RUN_PREVIEW.md` (not ours) is still modified and must be set aside first. A deploy from this `HEAD` also ships the dev reset's store changes (inert live) and I4a.
+- **Development reset (local only):** `npm run shuk:dev-reset -- <progress|adventure> --file <state in .local/> [--scenario solo|pair|team] [--confirm]`, documented in [local participant login](local-participant-login.md#development-reset-local-simulation-only). It previews by default and keeps an exact backup.
+  - **Refuses:** the app environment, anything other than the dev simulation, `/data` and Docker volumes, paths outside `.local/`, links and an ambiguous `SHUK_DATA_FILE`.
+  - **Links:** a scenario's single-use links go to `.local/shuk-dev-reset/` (mode 600), never the terminal.
+  - **Queued actions:** a new optional `resetEpoch` refuses (410) actions queued before a reset. It is set only by this tool, so live behaviour is unchanged; no schema version change. The phone sends the epoch it was shown (`IndexWaterTask`).
+  - **Files:** `lib/amazing-shuk/dev-reset.ts`, `scripts/shuk-dev-reset.ts` (not copied into the image), store/HTTP/phone changes, `dev-reset.test.ts` (7 tests).
+- **I4a (approved for local development only):** described in the [plan's I4 section](multiplayer-plan.md#i4-roles-per-team). `leader-roles.test.ts` adds 5 tests; two older tests were updated for the new rule.
+- **I5 well, corrected by the owner (planning only):** measure exactly 4 L per family with the 3 L and 5 L vessels; a large distribution container (no stated capacity) for the story; one **Deliver 4 litres** action. The 6 L jar, the Jar keeper and irreversibility are superseded. The puzzle check and open points are in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well).
+- **Verified on the working tree** (one-shot container): `test:shuk` 238/238, `npm test` 63/63, tsc clean after one test-type fix, lint at the 3 older errors. Rerun before the commit: 238/238, 63/63, tsc clean, lint 3 older errors and 11 warnings (the baseline; the new warning is gone). Nothing was checked in a browser.
+- **Untracked, keep out of commits:** as below.
+
 ## Latest handoff - I3b security review closed (committed, not deployed); I4/I5 roles review awaiting decisions: 31 Oct 2026
 
 - **Live (unchanged, checked read-only):** `dori-shuk:current` = `69b4077`, healthy. The state file is **still schema 6** (adventure active, 7 members, 1 session), with no `pre-schema7` copy yet. `SHUK_JOIN_LINKS` isn't set in `deploy/shuk-compose.yml`, so it's off. Disk 81%.

@@ -30,6 +30,25 @@ Shared progress and hashed credentials live in ignored `.local/amazing-shuk/stat
 
 Player/guide actions are queued in browser localStorage per participant ID, retry on transient failure and use server-recorded IDs to prevent duplicate moves. Identity mismatch is rejected. Browser queue/reconnect behavior still needs visual/runtime verification; the receipt behavior is covered by backend tests.
 
+## Development reset (local simulation only)
+
+`scripts/shuk-dev-reset.ts` (`npm run shuk:dev-reset`) puts a **development** state file back to a known point, so a test can be repeated. On this server, run it inside the dev container, from the repo root:
+
+```sh
+# Preview (changes nothing): the target, its counts and what the reset would do.
+docker exec -w /w shuk-dev npm run -s shuk:dev-reset -- progress --file .local/amazing-shuk/state.json
+# Reset progress: challenges, arrivals, timers, hints, points, food tokens and bonuses. Members, roles and sessions stay.
+docker exec -w /w shuk-dev npm run -s shuk:dev-reset -- progress --file .local/amazing-shuk/state.json --confirm
+# Reset the adventure: a fresh lobby with no members, sessions, invitations, join links or progress; then fresh links for a scenario.
+docker exec -w /w shuk-dev npm run -s shuk:dev-reset -- adventure --file .local/amazing-shuk/state.json --scenario pair --confirm
+```
+
+- **Scenarios** (`adventure` only): `solo` (host `player-1`), `pair` (host `player-1`, `player-2`) and `team` (host `player-1`, `player-2`…`player-5`), each plus the guide. Without `--scenario`, no invitations are issued; use `shuk:invite` as usual. `--origin` defaults to `http://localhost:3300`.
+- **The links are new and single-use** every time (24 hours). They go to `.local/shuk-dev-reset/links-<UTC time>.txt` (mode 600), one `seat<TAB>link` per line, and never to the terminal. Old links and sessions stop working after an adventure reset.
+- **Backup:** before writing, the exact old file is kept beside it as `state.json.before-dev-reset-<mode>-<UTC time>` (mode 600). If the backup can't be kept, nothing changes. To undo, copy the backup over the state file while nothing else writes.
+- **Queued actions:** a reset sets a new reset epoch. An action a phone queued before the reset is refused (410) and dropped from its queue; an action that already applied never applies again. After a reset, reload each browser.
+- **Refused:** the Shuk app's environment (`SHUK_APP=1` or `NEXT_PUBLIC_DORI_APP=shuk`), anything but `NODE_ENV=development` with `SHUK_DEV_SIMULATION=1`, a missing `--file` (there is no default), `/data` or a Docker volume path, a file outside this repo's `.local/`, a link, a missing file, a different `SHUK_DATA_FILE`, and running outside the repo root. The script isn't copied into the app image. Never point it at a copy of live state that holds real names unless that copy stays in `.local/`.
+
 Checks:
 
 ```powershell
