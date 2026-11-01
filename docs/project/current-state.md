@@ -1,6 +1,10 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 31 Oct 2026 (Claude).** **Live since 30 Oct 2026, 23:55 UTC: `0c03a61`** (B-lite mission discovery: destination-first location screen, group-status sheet, mission progress), image `dori-shuk:20261030-235512-0c03a61`; before that `b84ce27` ("Find this place", 30 Oct 16:20 UTC) and `364a4f5` (I2, host invitation and lobby, 30 Oct 06:27 UTC); before that **`175548f`** from 29 Oct 21:36 UTC (I1, the Adventure and Team model, schema 6), image `dori-shuk:20261029-213559-175548f`; before that `f54f6da` from 26 Oct (live game reset that day). Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`. This summary supersedes older counts and environment notes in the [handoff history](agent-handoff.md).
+**Updated: 1 Nov 2026 (Claude).** **Live since 1 Nov 2026, 08:48 UTC: `522ecd9`** (I3b joining plus I4a leader role management; the commits after `e113ba5` change only docs, the dev reset and I4a), image `dori-shuk:20261101-084633-522ecd9`, built from a `git archive` of that commit, **join links off** since 09:50 UTC after an hour without test activity (on: the override `.local/amazing-shuk/shuk-join-links-on.override.yml`; off: `docker compose -f deploy/shuk-compose.yml up -d shuk`). A new adventure opened in its lobby at 08:48 UTC with one host invite (player-1) in `.local/amazing-shuk/live-links/`; the previous adventure is kept as `/data/state.json.before-new-adventure-20261101T084842Z` and `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`. Rollback `dori-shuk:previous` = `e113ba5`. Before that `e113ba5` (1 Nov 00:41 UTC), `69b4077` (31 Oct 08:49 UTC), `6ee5c96`, `0c03a61` (B-lite, 30 Oct 23:55 UTC), `b84ce27`, `364a4f5` (I2) and `175548f` (I1). The live file is schema 7. Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`.
+
+## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
+
+The multiplayer onboarding, team setup, invitation and security workstream is paused. Live: `522ecd9` (I1–I3b and I4a), **join links off**, a new adventure in its lobby with one unused host invite (valid until 2 Nov 2026, 08:48 UTC). The resume index (what's built, flags, decisions, open tests, the exact next step, I3c/I4/I7a and the Stitch and UX approvals) is the top entry of the [handoff](agent-handoff.md). Older "Next" lines below about I2–I4 are history.
 
 ## Implemented; automated verification passes
 
@@ -42,7 +46,7 @@
 
 ## Next
 
-- **Next session: build I3a** (the owner approved the I3 plan on 31 Oct 2026). Start at the top of the [handoff](agent-handoff.md). Fix and run S0-A alongside it.
+- **Multiplayer is paused** (owner, 1 Nov 2026): see the paused section above. (I3a, I3b and I4a have since been built and deployed.)
 - **UX is paused for the multiplayer roadmap (owner, 31 Oct 2026).** The deferred UX backlog (UX-1 full-width map, UX-2 spatial Find this place, UX-3 story then Start then the timed activity, UX-4 the completion celebration) is in [decisions](product-decisions.md#deferred-ux-backlog-owner-31-oct-2026-recorded-not-scheduled-not-approved-for-build). Not scheduled; each phase needs its own approval.
 - **Next session:** the owner's phone sign-off of the uncommitted compact-preview changes (31 Oct 2026; checklist in the handoff), then the B-lite phone check and the copy drafts. The challenge-photo preview is a separate task, not started; the ordered list is at the top of the [handoff](agent-handoff.md). B-lite steps 6–7 (finding hints), routing and any GPS-policy change are not authorised.
 - Done (`6d35b59`, 30 Oct 2026): the compact onboarding (Stitch): the one-step lobby.
@@ -53,7 +57,7 @@
 - Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 and I1 are done, and **I1 is deployed**. The live file becomes schema 6 on its first write after the deploy and keeps an automatic `pre-schema6` copy; see the [handoff](agent-handoff.md). I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
 - **I2 (host invitation, lobby, Start Adventure) is deployed (30 Oct 2026, 06:27 UTC, `364a4f5`) for the owner's phone test**; a new live adventure waits in its lobby (schema 6, no host, everyone signed out). Before that, committed as `dccaf95` and `a05c2a7`; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only: groups of 1–5 start as one team, and groups of 6–30 can't start until multi-team play exists. The corrections after the owner's review are committed too (30 Oct 2026); mobile visual acceptance is still a deployment prerequisite. See the [handoff](agent-handoff.md).
 
-- **I4/I5 direction decided (owner, 31 Oct 2026):** I4 is Navigator and Submitter management by Team Leaders, teams of 1–5. **I4a is built locally** (leader Change controls on the Group tab; not committed or deployed). I5 keeps parts optional and pilots the well as "measure 4 L with the 3 L and 5 L vessels, then Deliver" (owner's correction; no jar); not authorised for implementation. See [decisions](product-decisions.md#approved-i4i5-direction-owner-31-oct-2026).
+- **I4/I5 direction decided (owner, 31 Oct 2026):** I4 is Navigator and Submitter management by Team Leaders, teams of 1–5. **I4a is live since 1 Nov 2026** (leader Change controls on the Group tab, `522ecd9`). I5 keeps parts optional and pilots the well as "measure 4 L with the 3 L and 5 L vessels, then Deliver" (owner's correction; no jar); not authorised for implementation. See [decisions](product-decisions.md#approved-i4i5-direction-owner-31-oct-2026).
 
 ## Waiting on the owner
 

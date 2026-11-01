@@ -1,6 +1,74 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I3b switch approved but held (guide active); I5 delivery decided; local leftovers cleaned: 1 Nov 2026
+## Latest handoff - Multiplayer onboarding: PAUSED — Ready to Resume: 1 Nov 2026
+
+**The owner paused the whole multiplayer onboarding, team setup, invitation and security workstream (1 Nov 2026).** Nothing in it is built, tested live or changed until the owner resumes it. Details stay in the linked plans; this entry is the index.
+
+**1. Implemented, committed and deployed**
+- **Live since 1 Nov 2026, 08:48 UTC: `522ecd9`**, image `dori-shuk:20261101-084633-522ecd9` (from a `git archive`). `previous` = `e113ba5` (I3b without I4a); the older `69b4077` (I3a) and `6ee5c96` images were removed (owner, 1 Nov 2026). Everything is pushed (`main` = `origin/main` at `522ecd9`).
+- In it: I1 adventure and team model, I2 host invitation, lobby and Start Adventure, I3a roster foundation (schema 7), S0-B Option A (sync), I3b team join link with leader approval, I4a leader Navigator/Submitter management, and the dev-only reset CLI (`shuk:dev-reset`, never in production). Plan sections: [I1–I3](multiplayer-plan.md#8-increments), [I3b implementation](multiplayer-plan.md#i3b-implementation-claude-31-oct-2026-built-and-committed-not-deployed), [I4](multiplayer-plan.md#i4-roles-per-team).
+- Last full verification (at `f16499a`): `test:shuk` 238/238, `npm test` 63/63, tsc clean, lint at its baseline (3 errors in the isolated prototype, 11 Memory Protocol warnings).
+
+**2. Local or feature-flagged**
+- **Join links: OFF** (`SHUK_JOIN_LINKS` unset since 09:50 UTC). On: `docker compose -f deploy/shuk-compose.yml -f .local/amazing-shuk/shuk-join-links-on.override.yml up -d shuk`; off: `docker compose -f deploy/shuk-compose.yml up -d shuk` (about 8 s each). With it off, every join call answers 404 `join-links-off`; CLI invitations still work.
+- **Live state:** a new adventure in its lobby (opened 08:48 UTC): no host, 0 participants, 0 sessions (the guide is signed out). One unused **host invite for player-1** in `.local/amazing-shuk/live-links/host-player-1.txt`, **valid until 2 Nov 2026, 08:48 UTC**; after that a new one needs the owner's OK. The previous adventure: `/data/state.json.before-new-adventure-20261101T084842Z` and `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`.
+- **Committed (1 Nov 2026):** this entry, the deploy records and the Stitch reference update. The owner's untracked files stay out of git (`docs/RUN_PREVIEW.md`, `docs/design/stitch_the_amazing_shuk_ui_ux(4)/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`, the photos in `public/shuk/`).
+- **Not built:** I3c, the rest of I4, I5, I6, I7a and later.
+
+**3. Approved decisions** (not repeated here)
+- Adventure, teams of about 5 (`ceil(count / 5)`, ceiling 30, provisional), invitations and roles: [product decisions](product-decisions.md#approved-adventure-teams-invitations-and-roles-owner-29-oct-2026-future-design).
+- Join-link security (O6: 5 per team including the leader, 5 pending, 10 and 15 min expiry, confirmed replace, in-memory rate limit; O15 Share and Copy only): [I3b decisions](multiplayer-plan.md#i3b-decisions-owner-31-oct-2026-approved-design-built-and-committed-not-deployed-see-i3b-implementation-below) and the [gates table](multiplayer-plan.md#10-decision-gates).
+- The I3b security review and its fixes: [the review entry](#latest-handoff---i3b-security-review-closed-committed-not-deployed-i4i5-roles-review-awaiting-decisions-31-oct-2026) below.
+- I4/I5 (D1–D9, the leader gets no guide-only powers, no submitting without the Submitter role, teams of 1–5) and the I5 well (deliver exactly 4 L, capacity never shown, overfill gives feedback and Start over, only the Submitter confirms, fixed base points): [I4/I5 direction](product-decisions.md#approved-i4i5-direction-owner-31-oct-2026), [I5 plan](multiplayer-plan.md#i5-pilot-parts-on-the-well).
+- I7a team names and avatars: [I7a team names](multiplayer-plan.md#i7a-team-names-owner-31-oct-2026-decided-not-built).
+
+**4. Outstanding tests, risks and blockers**
+- **Never run on real phones:** the I3b join flow (Stage 1), the Team Leader flow (host link → leader → join link → let in) and I4a role changes. Mobile visual acceptance of the lobby and join screens is still a prerequisite ([current state](current-state.md#partial-provisional-or-unverified)).
+- **Stage 2, after Stage 1 and separate approval:** decline, expired requests (10 / 15 min), removal, session revocation of a removed member. Then the four-device acceptance (I3) and I4's teams of 1–5 (2–5 first).
+- **Risks:** the wrong-host 404 page carries the title "The Memory Protocol" (cosmetic cross-game leak, not a regression); the intermittent two-process lock test under full-suite load; a lost leader has no recovery path (unscheduled; the guide can still let people in); 30-participant scale is unproven ([risks](multiplayer-plan.md#11-risks)).
+- **Owner housekeeping:** the duplicate i3b backup was deleted (owner, 1 Nov 2026); the i4a backup is the only one. The old safety copies in `/data` stay (kept by instruction).
+
+**5. Exact next action to resume the live two-phone test**
+1. Owner confirms phones are ready. If past 2 Nov 08:48 UTC, issue a new host invite (owner's OK) into `.local/amazing-shuk/live-links/`, replacing the old file, without printing it.
+2. Check `free -h && df -h /`, that the state is unchanged, and take a fresh backup (keep only the latest).
+3. Turn join links on with the override; confirm healthy, `SHUK_JOIN_LINKS=1`, `?join=status` 200.
+4. Phone 1 opens the host link (becomes host and Team Leader) → Group tab → Invite players → Share/Copy the link. Phone 2 opens it → Ask to join. Both compare the check codes → phone 1 taps Let in.
+5. On the server, counts only: 2 participants, 2 sessions, 0 pending requests, phone 2 in team A with its own session. Report and stop before Stage 2.
+6. Turn join links off afterwards unless the owner approves leaving them on.
+
+**6. Remaining I3c, I4 and I7a work**
+- **I3c:** QR (O15), rate-limit tuning; regenerate and remove are already in I3b ([I3 plan](multiplayer-plan.md#i3-implementation-plan-claude-31-oct-2026-approved-by-the-owner-on-31-oct-2026-i3a-is-next-nothing-built-yet)).
+- **I4 after I4a:** Hand to…, the vacant-seat fallback, the cheer-card role-swap prompt, the "Submitter" label ([I4](multiplayer-plan.md#i4-roles-per-team)). Leadership transfer is unscheduled.
+- **I7a:** multiple teams, per-team leader invitations, the host overview (O26), team-scoped points, the guide team switcher, team names and avatars, the 30-participant checks ([I7a](multiplayer-plan.md#i7a-multiple-teams)). Open: O25 (teams per guide), O27 ([named leader invitations](multiplayer-plan.md#i7a-design-proposal-named-team-leader-invitations-draft-30-oct-2026-not-approved-nothing-built)), O17 (live migrations need separate approval).
+
+**7. Stitch designs and pending UX approvals**
+- The first export, `docs/design/stitch-reference/` (the four compact onboarding screens and `amazing-shuk-stitch-onboarding-handoff.md`, adopted as the one-step lobby in `6d35b59`), was deleted at the owner's request (1 Nov 2026); `docs/design/stitch_the_amazing_shuk_ui_ux(4)/` replaces it as the Stitch reference. Older entries below still name the old path. Stitch is a visual reference only, last in priority ([policy](product-decisions.md)).
+- `docs/design/stitch_the_amazing_shuk_ui_ux(4)/` (owner's, untracked, the current Stitch reference, **not yet reviewed**): includes `adventure_lobby_single_team_ready`, `adventure_lobby_multiple_teams_coming_soon` and `4._group_status_quick_view_sheet`, besides mission and navigation screens.
+- **Pending owner approvals:** O16, the [join-flow copy deck](../../design/output/join-flow-copy-o16-2026-10-31.md) (its six questions; all join, lobby and role-change words are `TODO(copy)` drafts); the [team avatar set](../../design/output/team-avatar-set-2026-10-31.md) and [team identity](../../design/output/team-identity-avatars-2026-10-31.md) (subjects, tile ground, illustrator and licence); part names Spotter / Reader (O16); O20 (the designer-agent line).
+
+## Earlier handoff - I4a live, new adventure, join links on for Stage 1: 1 Nov 2026
+
+- No guide-led Stage 1 happened: join links were on 01:14-02:15 UTC with no join link, request or member, then switched off. The owner then chose (1 Nov) to deploy `main` and open a new adventure for Stage 1 with a real Team Leader.
+- 08:48 UTC: `522ecd9` live as `dori-shuk:20261101-084633-522ecd9`, built from a `git archive` (deploy.sh refuses the uncommitted docs). The isolated smoke test and the live release checks passed (9/9 and 7/7), public health 200, the other services untouched. `SHUK_JOIN_LINKS=1` via the local override. Rollback: `docker tag dori-shuk:previous dori-shuk:current && docker compose -f deploy/shuk-compose.yml up -d shuk` (`e113ba5`).
+- State backed up (unchanged since 00:29 UTC) to `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`; the older backup there is an identical duplicate (its deletion was blocked; the owner may remove it). New adventure opened in the lobby: 0 participants, 0 sessions (the guide is signed out too), 1 host invite for player-1 in `.local/amazing-shuk/live-links/host-player-1.txt` (the void Oct 31 links deleted). All `/data` safety copies kept.
+- 09:50 UTC: join links switched off after an hour without activity (host invite unused, valid until 2 Nov 08:48 UTC). Switch them on again with the override when the owner is ready.
+- Next: the leader redeems the host link, creates the join link, a second phone requests, both compare codes, the leader lets them in. Check on the server (counts only), report, stop before Stage 2. Switch join links off after testing unless the owner approves leaving them on.
+
+## Earlier handoff - I3b deployed with join links off: 1 Nov 2026
+
+- **Live since 1 Nov 2026, 00:41 UTC: `dori-shuk:20261101-001310-e113ba5`** (`e113ba5`, built from a `git archive` export; no I4a, no dev reset). `previous` = `69b4077`; `6ee5c96` is still kept under its timestamp tag.
+- **Before:** the owner confirmed the guide session was finished. No writes for 12 min and 0 packets for 2 min; about 2 GB memory available, disk 76%. Backup `/root/backups/amazing-shuk/live-state-before-i3b-deploy-20261101T004134Z.json` (mode 600, `cmp`-identical) replaced the older one.
+- **Switch:** tag `current` → `previous`, release → `current`, `docker compose -f deploy/shuk-compose.yml up -d shuk` (in tmux). Only `dori-shuk` was recreated; the other containers are unchanged.
+- **Checks:**
+  - Healthy in about 8 s, 0 restarts, clean logs. `https://doriisrael.com/shuk/api/health` and `/shuk/amazing-shuk` answer 200 publicly.
+  - The 9 route checks pass, including `?join=status` 404 `join-links-off`. Only `SHUK_APP`, `SHUK_DATA_FILE` and `SHUK_PUBLIC_ORIGIN` are set.
+  - The state file is byte-identical to the backup: schema 7, adventure active, the guide session kept.
+- **Found, not a regression:** the wrong-host 404 (`Host: 127.0.0.1:3000`) has the page title "The Memory Protocol", the same as in `69b4077`. Visitors never see it, and the real host's 404 doesn't show it. It's a small cross-game leak to fix later.
+- **Rollback (no state restore):** `docker tag dori-shuk:20261031-084833-69b4077 dori-shuk:current && docker compose -f deploy/shuk-compose.yml up -d shuk`.
+- **Links:** `.local/amazing-shuk/live-links/` holds the only valid links (host and player-2, expiring 1 Nov 01:44 UTC). New links need the owner's OK and seat choice; they replace that folder's contents.
+- **Waiting for the owner:** whether to remove the 6 old safety copies in `/data` (keep `state.json.pre-schema7-850ca1dfae46`); the two-phone joining test with `SHUK_JOIN_LINKS=1` (separate approval); whether I4a goes live (a plain `deploy.sh shuk` would ship it now).
+
+## Earlier handoff - I3b switch approved but held (guide active); I5 delivery decided; local leftovers cleaned: 1 Nov 2026
 
 - **I3b deployment approved by the owner, not done.** The final check (1 Nov, about 00:28 UTC) found the live adventure in use: after the backup, the guide session applied 4 actions and changed the well's 5 L vessel (last write 00:29:04 UTC). The only session is the guide's (0 members), but the owner said to stop if uncertain, so nothing was switched. Live is still `69b4077`, healthy, 0 restarts, joining off. The two-minute traffic sample had looked idle just before, so traffic alone isn't proof of an idle game.
 - **To resume:** the owner confirms the guide session is finished. Then: no writes and no traffic for 15 min; recheck memory and disk; take and `cmp` a fresh backup (`live-state-before-i3b-deploy-20261101T002820Z.json` is now behind by those 4 actions); run the switch, checks and rollback in the entry below.

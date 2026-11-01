@@ -98,7 +98,7 @@ The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and
   - This is the "separate protected app boundary" the earlier rules waited for.
 
 - **Stitch visual direction (approved 25 Oct 2026):**
-  - The owner's Stitch mockups (`docs/design/stitch-reference/`) set the look of the Shuk screens. They are a layout reference only: their copy and features are not approved.
+  - The owner's Stitch mockups (`docs/design/stitch_the_amazing_shuk_ui_ux(4)/`) set the look of the Shuk screens. They are a layout reference only: their copy and features are not approved.
   - Where they conflict with the decisions in this file, these decisions win.
   - **Stitch reference policy (owner, 30 Oct 2026).** This covers every Stitch material, now and later: screenshots, exported HTML, CSS and JavaScript, tokens, interactions and sample text. Stitch shows how a screen might look and feel. Product decisions define what it must do, and the existing app architecture decides how it is built.
     - **Priority:**
@@ -131,7 +131,7 @@ The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and
       - "GPS mode engages automatically upon launch": GPS stays optional and tap-triggered;
       - `min-height: max(884px, 100dvh)` and `user-scalable=no`: compact screens that normally fit one viewport, but zoom, text scaling and scrolling stay possible.
     - **Failed exports:** a `screen.png` that holds only `<FIFE Image failed to fetch>` is not an image. Don't treat it as visual evidence; the HTML can still serve as a reference under these rules. Don't block work on missing screenshots when the code and other references suffice.
-    - **The collection:** `docs/design/stitch-reference/` is a reference collection. A file there, such as the untracked `3_main_screens.html`, may be inspected for context. It doesn't supersede newer designs, isn't approved behaviour, and isn't committed or changed without authorisation.
+    - **The collection:** `docs/design/stitch_the_amazing_shuk_ui_ux(4)/` is a reference collection. A file there may be inspected for context. It doesn't supersede newer designs, isn't approved behaviour, and isn't committed or changed without authorisation.
     - **In UI work:**
       1. Inspect the existing screens and components, then the Stitch reference.
       2. Pick the reusable visual patterns.
