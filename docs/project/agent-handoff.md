@@ -1,6 +1,24 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - I3b-only release of `e113ba5` proposed, awaiting approval; I5 well decisions recorded: 1 Nov 2026
+## Latest handoff - I3b release image built and verified, switch awaiting approval; I5 well clarified: 1 Nov 2026
+
+- **Release image (not live):** `dori-shuk:20261101-001310-e113ba5` (ID `790171446a9b`), label `org.opencontainers.image.revision=e113ba5b7d6638f72c8aa7fde4db93c7d4f946b4`, built in tmux from a `git archive e113ba5` export in the scratchpad (deleted after). `main`, history and the working tree untouched; `807b012` is on `origin/main` (not pushed by Claude).
+  - **Contents:** I3b present (`join-links-off`, "Only the guide may assign roles."); no I4a strings, no `resetEpoch` or dev-reset code; no reset files in the export.
+  - **`/game-verify shuk` checks on this image** (run against the release tag, so `:test` wasn't overwritten): 9/9 routes, including `?join=status` 404 `join-links-off`; invite link shape correct; about 48 MiB. `SHUK_JOIN_LINKS` set nowhere.
+- **Live (read-only, 1 Nov ~00:13 UTC):** `69b4077` healthy, 0 restarts; schema 7, adventure active, 1 unexpired session, 0 members, 0 join links, 4 missions with progress; last write 31 Oct 20:51 UTC. `state.json.pre-schema7-850ca1dfae46` is version 6 and identical to `state.json.before-i3a-deploy-20261031T0848Z`.
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-i3b-release-prep-20261101T001304Z.json`, mode 600, byte-identical. Take another right before the switch.
+- **Rehearsal on a copy of that backup** (scratchpad, deleted): the release image read and wrote it (version 7, progress kept), then `69b4077` read and wrote the result. The live file still matched the backup afterwards. Containers and volumes were identical before and after; disk 76%, about 2.15 GB available.
+- **`dori-shuk:test`** (`068744b60a62`, 357 MB, built 31 Oct 18:46) is used by no container; its source can't be proven. Remove it only after the owner confirms.
+- **Switch (awaiting approval; in a quiet moment, after checking the state file hasn't changed for 30 min):** recheck resources and back up again; `docker tag dori-shuk:current dori-shuk:previous` (then `69b4077`); `docker tag dori-shuk:20261101-001310-e113ba5 dori-shuk:current`; `docker compose -f deploy/shuk-compose.yml up -d shuk`. Then: healthy within 90 s with 0 restarts, the 9 route checks on the live container, only the 3 expected `SHUK_*` settings, the state file unchanged and version 7, no storage errors.
+- **Rollback (no state restore):** `docker tag dori-shuk:20261031-084833-69b4077 dori-shuk:current` and `up -d shuk` again.
+- **Risks:** a plain `deploy.sh shuk` would ship I4a (on `origin/main`); the hand-run switch has no automatic rollback; the O16 join copy is a draft (hidden while joining is off); the lock test still fails occasionally under full-suite load; `current-state.md`'s live line is out of date (correct it after the switch).
+- **I5 well, final clarification (owner, 1 Nov 2026), in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well) and product decisions:**
+  - The 3 L and 5 L vessels are the only measuring tools. The family's container has no capacity in the UI or rules and shows the amount delivered.
+  - Success is exactly 4 L delivered; the 4 L doesn't have to be held in the 5 L vessel first.
+  - Search of all 97 reachable states: shortest 7 moves (9 sequences); both vessels and pours between them required. Delivered water doesn't come back, so 26 reachable states have more than 4 L and need Start over.
+  - **Open:** accept an over-4 L delivery with feedback and Start over (recommended) or refuse it beforehand; who may deliver; the feedback wording (O16); whether a wrong delivery counts.
+
+## Earlier handoff - I3b-only release of `e113ba5` proposed, awaiting approval; I5 well decisions recorded: 1 Nov 2026
 
 - **Git:** `f16499a` (dev reset, I4a, docs) is committed and **pushed** (`origin/main` = `f16499a`); it holds only its 21 intended files. `docs/RUN_PREVIEW.md` and the untracked owner files stay untouched. From now on a plain `deploy.sh shuk` builds `main` and would ship I4a and the dev reset, which are approved for local development only.
 - **Live (read-only check, 1 Nov):** `dori-shuk:current` = `69b4077`, healthy, 0 restarts, join links off. The live file is **already schema 7** (the I3a image migrated it on a write; `state.json.pre-schema7-850ca1dfae46` exists, mode 600) and the adventure is **active**. The "still schema 6" lines below are out of date.
