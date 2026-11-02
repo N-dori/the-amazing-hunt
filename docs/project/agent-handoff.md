@@ -1,6 +1,19 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 2 (2a–2e) and UX-3 live: 2 Nov 2026
+## Latest handoff - UX-4 (small) built (uncommitted): 2 Nov 2026
+
+The owner's decisions are recorded under UX-4 in `product-decisions.md`.
+- **The count-up:** `lib/amazing-shuk/count-up.ts` (`countUpValue`, ease-out, 700 ms) and `rewardAmountItems` in `mission-cheer.ts` (number, unit, final label; only the points count up).
+- **`PreviewRewardDialog`:**
+  - it animates the digits with `requestAnimationFrame`; the digits are `aria-hidden`, and an `srOnly` final label is read once;
+  - reduced motion comes from `useSyncExternalStore`, whose server snapshot shows the final numbers;
+  - the pop-up is keyed per award in `IndexWaterTask`, so the count-up plays once.
+- **The challenge screen's top nav** ("Back to location", "Back to map") is removed, with its `.journey` style.
+- **Tests:** the new `count-up.test.ts`; the reward dialog test; the Index test checks there are no Back buttons.
+- **Checks:** `test:shuk` 293/293, `npm test` 63/63, lint, tsc and Sass OK.
+- **Not live:** live is still `946b531`.
+
+## Phase 2 (2a–2e) and UX-3 live: 2 Nov 2026
 
 - **Deployed:** `946b531`, with `/deploy` (full: a fresh adventure and new links).
   - Live tag: `dori-shuk:20261102-071855-946b531`; rollback: `87c1877`.

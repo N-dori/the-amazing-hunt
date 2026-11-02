@@ -169,6 +169,8 @@ test("actual selected mission renders existing story and playable challenge for 
     const Index = load("components/amazing-shuk/dev/IndexWaterTask.tsx", react);
     const html = renderToStaticMarkup(createElement(Index, { mode: "dev" }));
     assert.match(html, /THE STORY OF THE WELL/); assert.match(html, /Start challenge/);
+    // UX-4 (owner, 2 Nov 2026): no Back buttons on the challenge; the phone's Back and the Map tab lead away.
+    assert.doesNotMatch(html, /Back to location|Back to map/);
     assert.match(html, /Local development only/);
     // The protected app plays the same challenge without the development panel.
     const app = renderToStaticMarkup(createElement(Index, { mode: "app" }));

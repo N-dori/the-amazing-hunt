@@ -43,7 +43,7 @@ import ListChoiceBonus from "./ListChoiceBonus";
 import PreviewAppreciation from "./PreviewAppreciation";
 import PreviewChoicePrediction from "./PreviewChoicePrediction";
 import PreviewMissionCheer from "./PreviewMissionCheer";
-import { missionCheer, nextMission, rewardAmounts, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
+import { missionCheer, nextMission, rewardAmountItems, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
 import { pendingRewardEvent, readSeenRewards, rememberSeenRewards, rewardRecords, type RewardEvent } from "@/lib/amazing-shuk/reward-events";
 import PreviewRewardDialog from "./PreviewRewardDialog";
 import PreviewRewardToast from "./PreviewRewardToast";
@@ -334,8 +334,9 @@ export default function IndexWaterTask({ mode }: Props) {
       return <PreviewRewardToast text={rewardToastText(reward.points, reward.foodTokens, place, solo)} onDismiss={() => setReward(null)} />;
     }
     const { text, celebrate } = rewardHeadline(reward.weight, reward.missionId, solo);
-    return <PreviewRewardDialog open title={text} celebrate={celebrate && reward.weight === "full"} weight={reward.weight}
-      amounts={rewardAmounts(reward.points, reward.foodTokens)} onContinue={() => setReward(null)} />;
+    // A new award mounts a new pop-up, so its count-up plays once (UX-4).
+    return <PreviewRewardDialog key={reward.keys.join(" ")} open title={text} celebrate={celebrate && reward.weight === "full"} weight={reward.weight}
+      amounts={rewardAmountItems(reward.points, reward.foodTokens)} onContinue={() => setReward(null)} />;
   };
 
   // The header's height wraps with the role badges and the text size; the map stage uses it to fill the rest of the screen.
@@ -426,10 +427,7 @@ export default function IndexWaterTask({ mode }: Props) {
         canSelfArrive={activeRole === "guide" || activeRole === "navigator" || activeRole === "navigatorAndAnswerSubmitter"} solo={solo}
         onSelfArrive={() => void act({ type: "self-arrival", missionId })}
         onConfirm={() => void act({ type: "confirm-arrival", missionId })} /> : null}
-      {nav.area === "journey" && journeyStage === "challenge" ? <nav className={styles.journey} aria-label="Mission navigation">
-        <ActionButton variant="quiet" onClick={() => goTo("location")}>Back to location</ActionButton>
-        <ActionButton variant="quiet" onClick={() => goTo("map")}>Back to map</ActionButton>
-      </nav> : null}
+      {/* UX-4 (owner, 2 Nov 2026): no Back buttons on the challenge; the phone's Back and the Map tab lead away. */}
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId ? <PreviewMissionProgress stage={progress} /> : null}
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
       <h2>{choiceTask.task.title}</h2>

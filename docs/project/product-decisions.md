@@ -312,6 +312,13 @@ Stitch stays a visual reference only.
   - With reduced motion there is no animation.
   - The next step is one tap, and the Map tab still works.
 
+- **Decided (owner, 2 Nov 2026): UX-4 kept small.**
+  - The completion layout stays as it is ("you did well so far, leave it").
+  - The points count up **in the reward pop-up only**: once per award, about 0.7 s, none with reduced motion. The card on the page stays still.
+  - Marzipan's final action is left for now: it isn't necessarily the last stop.
+  - **Both Back buttons at the top of the challenge are removed.** The phone's Back and the Map tab lead away.
+  - Chesed VeRachamim (the synagogue) is a normal stop (D4), so it keeps its cheer.
+
 **Suggested order, after S0 and I3:**
 1. UX-3: decide hiding versus server-served content first, because it may touch the API.
 2. UX-4.

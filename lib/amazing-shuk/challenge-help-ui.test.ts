@@ -10,7 +10,7 @@ import { buildHintSheetView, choiceAnswer, waterAnswer } from "./challenge-help.
 import { MURAL_CHALLENGE, MURAL_REWARDS, MURAL_TASK } from "./mural-task.ts";
 import { buildChoiceTaskView } from "./mural-task-view.ts";
 import { buildWaterTaskView } from "./water-task-view.ts";
-import { missionCheer } from "./mission-cheer.ts";
+import { missionCheer, rewardAmountItems } from "./mission-cheer.ts";
 import { MURAL_MISSION_ID } from "./mural-task.ts";
 
 const nativeRequire = createRequire(import.meta.url);
@@ -84,11 +84,13 @@ test("a revealed well lists the intended steps in order", () => {
 const Reward = loadComponent("components/amazing-shuk/dev/PreviewRewardDialog.tsx");
 const Toast = loadComponent("components/amazing-shuk/dev/PreviewRewardToast.tsx");
 
-test("the reward pop-up: the headline, the amounts as text, the badge only when celebrating, and Continue", () => {
-  const full = renderToStaticMarkup(createElement(Reward, { open: true, title: "Woo-hoo! You rock!", celebrate: true, weight: "full", amounts: ["+85 points", "+2 food tokens"], onContinue: noop }));
-  assert.match(full, /Woo-hoo! You rock!/); assert.match(full, /\+85 points/); assert.match(full, /\+2 food tokens/);
+test("the reward pop-up: the headline, the final amounts for screen readers, the badge only when celebrating, and Continue", () => {
+  const full = renderToStaticMarkup(createElement(Reward, { open: true, title: "Woo-hoo! You rock!", celebrate: true, weight: "full", amounts: rewardAmountItems(85, 2), onContinue: noop }));
+  assert.match(full, /Woo-hoo! You rock!/); assert.match(full, /class="srOnly">\+85 points</); assert.match(full, /class="srOnly">\+2 food tokens</);
+  // Without a browser (no motion to play) the visible digits are the final ones; the moving digits are hidden from screen readers.
+  assert.match(full, /<span aria-hidden="true">\+<span class="digits">85<\/span> points<\/span>/);
   assert.match(full, /class="badge"/); assert.match(full, /Continue/);
-  const quiet = renderToStaticMarkup(createElement(Reward, { open: true, title: "Here's the answer. You can carry on.", celebrate: false, weight: "quiet", amounts: ["+2 food tokens"], onContinue: noop }));
+  const quiet = renderToStaticMarkup(createElement(Reward, { open: true, title: "Here's the answer. You can carry on.", celebrate: false, weight: "quiet", amounts: rewardAmountItems(0, 2), onContinue: noop }));
   assert.doesNotMatch(quiet, /class="badge"/); assert.doesNotMatch(quiet, /points/);
   const toast = renderToStaticMarkup(createElement(Toast, { text: "Your team earned 100 points at Market Mural.", onDismiss: noop }));
   assert.match(toast, /role="status"/); assert.match(toast, /Dismiss/);

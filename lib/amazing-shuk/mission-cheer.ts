@@ -64,9 +64,17 @@ export function rewardHeadline(weight: "full" | "light" | "quiet", missionId: st
 }
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
-/** The pop-up's amounts, as text (never a count-up). TODO(copy): drafts ("+N points", "+N food tokens"). */
+/** One amount in the pop-up: its number, its unit for that number, and the whole line ("+85 points"). Only points count up (UX-4).
+ * TODO(copy): drafts ("+N points", "+N food tokens"). */
+export type RewardAmount = Readonly<{ key: "points" | "foodTokens"; value: number; unit: string; label: string; countUp: boolean }>;
+export function rewardAmountItems(points: number, foodTokens: number): readonly RewardAmount[] {
+  const item = (key: RewardAmount["key"], value: number, one: string, many: string, countUp: boolean): RewardAmount =>
+    ({ key, value, unit: value === 1 ? one : many, label: `+${plural(value, one, many)}`, countUp });
+  return [...(points > 0 ? [item("points", points, "point", "points", true)] : []), ...(foodTokens > 0 ? [item("foodTokens", foodTokens, "food token", "food tokens", false)] : [])];
+}
+/** The pop-up's amounts as text. */
 export function rewardAmounts(points: number, foodTokens: number): readonly string[] {
-  return [...(points > 0 ? [`+${plural(points, "point", "points")}`] : []), ...(foodTokens > 0 ? [`+${plural(foodTokens, "food token", "food tokens")}`] : [])];
+  return rewardAmountItems(points, foodTokens).map(amount => amount.label);
 }
 
 /** A small note instead of the pop-up when this phone is elsewhere (another screen or stop), so it never interrupts reading.
