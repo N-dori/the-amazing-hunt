@@ -30,6 +30,7 @@ Commands (`.claude/skills/`):
 |---|---|
 | `/game-verify` | Builds the game image and smoke-tests it in an isolated container; touches nothing live |
 | `/game-deploy` | Deploys `dori-game` with `deploy/deploy.sh` (pull, build, health, smoke, rollback) |
+| `/commit` | Safe commits and pushes for this public repo: explicit staging, the owner's files left out, a scan for secrets, invite links, real names and media; `secret <NAME>` for adding keys; optional hooks for VS Code commits |
 | `/deploy` | Releases The Amazing Shuk end to end: activity check, backup, `deploy.sh shuk`, old-image cleanup, a fresh adventure and fresh invite links in `.local/` (`keep-game` skips the reset and links) |
 | `/experience-design` | Thinking process for turning historical knowledge into experiences people love: new or improved missions, group interactions, the game-wide arc. Starts from the story, picks mechanics last |
 

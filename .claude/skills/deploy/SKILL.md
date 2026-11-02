@@ -3,7 +3,7 @@ name: deploy
 description: Release The Amazing Shuk to https://doriisrael.com/shuk end to end. Back up the live game, deploy main with deploy/deploy.sh shuk in tmux, remove old images, start a fresh adventure and issue fresh invitation links into .local. Run it only when the owner types /deploy.
 argument-hint: "[keep-game] [seats…]  (default seats: host player-1, guide)"
 disable-model-invocation: true
-allowed-tools: Bash(free *) Bash(df *) Bash(git status *) Bash(git log *) Bash(git fetch *) Bash(git rev-parse *) Bash(tmux *) Bash(tail *) Bash(grep *) Bash(docker ps *) Bash(docker images *) Bash(curl *) Bash(.claude/skills/deploy/scripts/*) Bash(docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-new-adventure.ts --confirm)
+allowed-tools: Bash(free *) Bash(df *) Bash(git status *) Bash(git log *) Bash(git fetch *) Bash(git rev-parse *) Bash(git stash push -m * -- docs/RUN_PREVIEW.md) Bash(git stash pop) Bash(git stash list) Bash(tmux *) Bash(tail *) Bash(grep *) Bash(docker ps *) Bash(docker images *) Bash(curl *) Bash(.claude/skills/deploy/scripts/*) Bash(docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-new-adventure.ts --confirm)
 ---
 
 # Deploy The Amazing Shuk
@@ -37,7 +37,11 @@ Stop and tell the owner at the first failure. Never retry a failed deploy by you
 
 1. **Preflight** (stop if any fails):
    - **Resources:** at least 800 MB available memory and at most 85% disk. The box has 4 GB and live sites; a build beyond that has hung it before.
-   - **Git:** on `main`, with no uncommitted changes to tracked files (untracked files are fine). Never commit for the owner.
+   - **Git:** on `main`, with no uncommitted changes to tracked files (untracked files are fine), because `deploy.sh` refuses otherwise. Never commit for the owner.
+     - The usual exception is `docs/RUN_PREVIEW.md`: the owner's local file of invite links, almost always edited and never committed. If it is the **only** changed tracked file, ask once whether to set it aside. The owner's choice on 2 Nov 2026 was yes.
+     - Then run `git stash push -m "RUN_PREVIEW during /deploy" -- docs/RUN_PREVIEW.md` (that file only) and confirm no tracked changes remain.
+     - Restore it with `git stash pop` straight after step 4, **whether the deploy succeeded or failed**. A forgotten stash looks like lost work.
+     - Any other changed file: stop and tell the owner.
    - **What will ship:** run `git fetch origin`, then show `git log --oneline -5` and `git log --oneline origin/main..HEAD`. If local commits aren't pushed, say so. The owner usually pushes from VS Code, so ask whether to wait for the push or deploy local `HEAD`.
    - **No other deploy running:** neither `shuk-deploy` nor `dori-deploy` exists (`tmux has-session -t …` fails). Two builds at once exhaust the memory.
 
@@ -53,7 +57,8 @@ Stop and tell the owner at the first failure. Never retry a failed deploy by you
    ```
    - Wait until `tmux has-session -t shuk-deploy` fails, checking about every 30 s (the Monitor tool if available). Give a one-line update from the latest `== step` in the log.
    - **Success** ends with `game-deploy: OK, dori-shuk:<tag> is live`.
-   - **Anything else:** quote the last `game-deploy:` line, say whether it rolled back, diagnose from the log, and stop. Skip steps 5–7.
+   - **Anything else:** quote the last `game-deploy:` line, say whether it rolled back, diagnose from the log, and stop. Skip steps 5–7, but still restore `RUN_PREVIEW.md` if it was set aside.
+   - Build warnings in the log (e.g. Turbopack's note about dynamic filesystem access in `participant-store.ts`) aren't failures. Mention any new ones in the report.
 
 5. **Remove old images:** `.claude/skills/deploy/scripts/prune-images.sh`.
    - It keeps `dori-shuk:current` and `dori-shuk:previous`, with their dated tags, so the live commit stays readable and one rollback stays possible.
@@ -72,17 +77,21 @@ Stop and tell the owner at the first failure. Never retry a failed deploy by you
    - It prints file names only. **Never print, cat or paste a link or token**: the repo and this transcript aren't private, and a link is a login.
    - Links are valid for 24 h and are single-use.
 
-8. **Verify from outside:**
-   - `docker ps --filter name=dori-shuk` shows `healthy`.
-   - `curl -s -o /dev/null -w "%{http_code}" https://doriisrael.com/shuk/api/health` → 200, and `https://doriisrael.com/shuk/amazing-shuk` → 200.
-   - Run `live-activity.sh` again: after a reset, expect `adventure: lobby | members: 0`.
-   - Join links are **off** after every deploy, because compose runs without the override. Say so; turning them on is a separate owner decision.
+8. **Verify:** `.claude/skills/deploy/scripts/verify.sh` (read-only; never prints a link). Expect:
+   - the container `healthy`, and both public pages 200;
+   - after a reset, `adventure: lobby | members: 0`;
+   - `join links: off`. Compose runs without the override after every deploy, and turning them on is a separate owner decision;
+   - only the live and rollback images;
+   - each link file `-rw-------` with its expiry.
+
+   It also counts the safety copies in `/data`: report the number, and don't delete them, as that's the owner's call.
 
 9. **Report**, in a few lines:
    - the commit and tag now live, and the rollback tag;
    - the backup file;
    - the images removed and the disk now used;
    - whether the game was reset;
-   - the link files written, with their expiry: their paths, never their contents.
+   - the link files written, with their expiry: their paths, never their contents;
+   - join links off, the number of safety copies in `/data`, and whether `RUN_PREVIEW.md` was set aside and restored.
 
    Then offer to record the release in `docs/project/agent-handoff.md` and `current-state.md`, and commit only if asked. Nothing was checked visually in a browser; say so.
