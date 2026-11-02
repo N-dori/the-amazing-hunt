@@ -39,3 +39,18 @@ export function roleForParticipant(participantId: string, roles: GroupRoleAssign
   if (isAnswerSubmitter) return "answerSubmitter";
   return "follower";
 }
+
+/** A team of exactly one member (the guide is never a member) plays solo (owner, D12, 2 Nov 2026). */
+export function isSoloTeam(memberIds: readonly string[]): boolean {
+  return memberIds.length === 1;
+}
+
+/**
+ * The roles that decide what each member may do. A solo player holds both, so they never claim roles; any other team uses its
+ * stored roles unchanged. Computed on every read, never stored: when a second member joins, the stored roles apply again.
+ */
+export function effectiveRoles(memberIds: readonly string[], stored: GroupRoleAssignments): GroupRoleAssignments {
+  if (!isSoloTeam(memberIds)) return stored;
+  const [only] = memberIds;
+  return Object.freeze({ navigator: only, answerSubmitter: only });
+}

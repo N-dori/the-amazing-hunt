@@ -8,15 +8,16 @@ import { buildMemberRows, joinUrl, orderRequests, TEAM_MEMBERS_COPY, type Member
 import PreviewJoinRequests from "./PreviewJoinRequests";
 
 const API = BASE_PATH + "/api/amazing-shuk/dev";
+// `title` replaces the heading, e.g. "Playing solo" for a team of one (owner, 2 Nov 2026).
 type Props = { membership: MembershipView; participants: readonly { id: string; name: string }[]; currentId: string; busy: boolean;
-  onAction: (action: MembershipAction) => Promise<void> };
+  title?: string; onAction: (action: MembershipAction) => Promise<void> };
 
 /**
  * The team's leader (or the guide) lets people in (I3b): the join link with Share and Copy, the requests with their check codes,
  * the members with Remove, and the space left. The link is stored hashed, so the server shows it once: this phone keeps it in
  * memory only while the screen is open. Getting a new one is an explicit, confirmed step. Decisions go through the action queue.
  */
-export default function IndexTeamMembers({ membership, participants, currentId, busy, onAction }: Props) {
+export default function IndexTeamMembers({ membership, participants, currentId, busy, title, onAction }: Props) {
   const [link, setLink] = useState<string | null>(null);
   const [confirmingReplace, setConfirmingReplace] = useState(false);
   const [confirmingRemove, setConfirmingRemove] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export default function IndexTeamMembers({ membership, participants, currentId, 
     // Closing the share sheet rejects; nothing to report.
     try { await navigator.share({ title: TEAM_MEMBERS_COPY.shareTitle, url }); } catch { /* Cancelled. */ }
   };
-  return <PreviewJoinRequests copy={TEAM_MEMBERS_COPY} membership={membership} requests={orderRequests(membership.requests)} members={members}
+  return <PreviewJoinRequests copy={title ? { ...TEAM_MEMBERS_COPY, title } : TEAM_MEMBERS_COPY} membership={membership} requests={orderRequests(membership.requests)} members={members}
     holdsLink={link !== null} confirmingReplace={confirmingReplace} confirmingRemove={confirmingRemove} busy={busy} linkBusy={linkBusy} notice={notice}
     onInvite={() => void getLink(false)} onAskReplace={() => setConfirmingReplace(true)} onReplace={() => void getLink(true)}
     onCancelReplace={() => setConfirmingReplace(false)} onShare={() => void share()} onCopy={() => void copy()}

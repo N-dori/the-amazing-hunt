@@ -33,6 +33,8 @@ export const MURAL_TASK = Object.freeze({
   id: MURAL_MISSION_ID,
   title: "Is It Real or Is It Painted?",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "THE PAINTED MARKET",
     paragraphs: [
@@ -47,6 +49,8 @@ export const MURAL_TASK = Object.freeze({
   },
   // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
   question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
+  // TODO(copy): draft solo wording for owner review (2 Nov 2026).
+  questionSolo: "The artists fooled almost everyone. Can you spot TWO things that are actually real?",
   reveal: { paragraphs: [], image: null },
   // The tour's own questions for this stop, in order.
   hints: [

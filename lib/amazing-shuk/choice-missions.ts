@@ -10,6 +10,8 @@ type StoryImage = Readonly<{ src: string; width: number; height: number; alt: st
 /** What a "choose N" mission shows: its story, question and hints, then a reveal once the group's answer is accepted. */
 export type ChoiceTaskContent = Readonly<{
   title: string; instruction: string;
+  // For a solo player (owner, 2 Nov 2026: personal wording, not team instructions); the group lines stay for teams.
+  instructionSolo?: string; questionSolo?: string;
   // `source` is the evidence trail for review; it isn't shown to players. `image` sits under the story (the mural's before photo).
   story: Readonly<{ title: string; paragraphs: readonly Statement[]; source: string; image?: StoryImage }>;
   question: string;

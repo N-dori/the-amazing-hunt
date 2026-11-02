@@ -3,7 +3,8 @@ import type { JoinRequestView, MemberRow, MembershipView, TEAM_MEMBERS_COPY } fr
 import styles from "./PreviewJoinRequests.module.scss";
 
 type Props = {
-  copy: typeof TEAM_MEMBERS_COPY; membership: MembershipView; requests: readonly JoinRequestView[]; members: readonly MemberRow[];
+  // The heading may be replaced (e.g. "Playing solo"); every other line is the copy deck's.
+  copy: Omit<typeof TEAM_MEMBERS_COPY, "title"> & { title: string }; membership: MembershipView; requests: readonly JoinRequestView[]; members: readonly MemberRow[];
   holdsLink: boolean; confirmingReplace: boolean; confirmingRemove: string | null; busy: boolean; linkBusy: boolean; notice: string;
   onInvite: () => void; onAskReplace: () => void; onReplace: () => void; onCancelReplace: () => void; onShare: () => void; onCopy: () => void;
   onLetIn: (id: string) => void; onDecline: (id: string) => void; onAskRemove: (id: string) => void; onCancelRemove: () => void; onRemove: (id: string) => void;

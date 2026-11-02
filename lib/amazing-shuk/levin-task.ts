@@ -37,6 +37,8 @@ export const LEVIN_TASK = Object.freeze({
   id: LEVIN_MISSION_ID,
   title: "The Father of the Prisoners",
   instruction: "This is a serious story. Ask your guide or an adult to read it aloud, then talk about the question together.",
+  // TODO(copy): draft solo wording for owner review (2 Nov 2026).
+  instructionSolo: "This is a serious story. Take your time with it, then think about the question.",
   story: {
     title: "TWO PRISONERS AND THEIR RABBI",
     paragraphs: [

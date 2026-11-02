@@ -5,6 +5,8 @@ export const WATER_TASK = Object.freeze({
   id: WATER_TASK_ID,
   title: "How many families share the water?",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "THE STORY OF THE WELL",
     label: "Attributed tradition",

@@ -9,15 +9,23 @@ import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProg
 import styles from "./PreviewArrivalMission.module.scss";
 
 // `map`: the destination strip (ListArrivalMission), the illustrated map with this mission's marker only.
+// `canSelfArrive`: this player may say "We're here" (the navigator, a solo player or the guide; D6). `solo`: a team of one (D12).
 type Props = { view: MissionPresentation; stage: MissionProgressStage; map?: ReactNode; guide: boolean; busy: boolean; feedback: string;
-  onArrival: () => void; onConfirm: () => void; onOpenChallenge: () => void };
+  canSelfArrive: boolean; solo: boolean;
+  onArrival: () => void; onConfirm: () => void; onSelfArrive: () => void; onOpenChallenge: () => void };
 // TODO(copy): drafts for owner review (30 Oct 2026): the section title (was "Look for") and the photo's enlarge and close labels.
-const COPY = { lookFor: "What to look for", enlarge: "Enlarge the photo", closePhoto: "Close photo" };
+// "We're here" (2 Nov 2026): "You've made it!" is approved for solo; the button and confirmation lines are drafts.
+const COPY = { lookFor: "What to look for", enlarge: "Enlarge the photo", closePhoto: "Close photo",
+  weAreHere: "We're here", iAmHere: "I'm here", confirmTitle: "Confirm your arrival", closeConfirm: "Close without confirming",
+  confirmQuestion: (place: string) => `Are you at ${place}?`, confirmYesSolo: "Yes, I'm here", confirmYes: "Yes, we're here", notYet: "Not yet",
+  arrivedSolo: (points: number) => `You've made it! ${points} arrival points earned.`,
+  arrivedGroup: (points: number) => `Group arrival confirmed! ${points} arrival points earned.` };
 /** Find this place: the destination, then an outdoor recognition task. Where it is (the strip of map), what to look for (the clue, its
  * photo, the landmarks), have we found it (an optional location check: GPS is reassurance and never gates the challenge), what next
  * (Open Challenge). The Map tab and the phone's Back lead back to the map. */
-export default function PreviewArrivalMission({ view, stage, map, guide, busy, feedback, onArrival, onConfirm, onOpenChallenge }: Props) {
+export default function PreviewArrivalMission({ view, stage, map, guide, busy, feedback, canSelfArrive, solo, onArrival, onConfirm, onSelfArrive, onOpenChallenge }: Props) {
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   return <section className={styles.preview} id="mission-location" aria-labelledby="mission-location-title">
     {/* The header shows "Find …" on this screen; the place's name stays the heading for screen readers. */}
     <h2 id="mission-location-title" className="srOnly">{view.name}</h2>
@@ -54,8 +62,11 @@ export default function PreviewArrivalMission({ view, stage, map, guide, busy, f
         <p>{view.location.summary}</p>
       </details>
     </section>
-    {view.arrivedPoints > 0 ? <p className={styles.success}>Group arrival confirmed! {view.arrivedPoints} arrival points earned.</p> : null}
+    {view.arrivedPoints > 0 ? <p className={styles.success}>{solo ? COPY.arrivedSolo(view.arrivedPoints) : COPY.arrivedGroup(view.arrivedPoints)}</p> : null}
     <div className={styles.arrival}>
+      {/* "We're here" (D6): an explicit confirmation, so a missing or poor GPS reading is never taken as arrival. */}
+      {canSelfArrive && view.arrivedPoints === 0 && view.state !== "arrived" ? <ActionButton icon="check" disabled={busy} aria-haspopup="dialog"
+        onClick={() => setConfirmOpen(true)}>{solo ? COPY.iAmHere : COPY.weAreHere}</ActionButton> : null}
       <ActionButton variant="quiet" icon="compass" disabled={busy} onClick={onArrival}>Check our location</ActionButton>
       <p className={styles.note}><Icon name="info" className={styles.icon} /><span>Optional: check the area once. You can play without checking your location.</span></p>
       {guide && view.arrivedPoints === 0 ? <ActionButton variant="quiet" disabled={busy} onClick={onConfirm}>Confirm Group Arrival</ActionButton> : null}
@@ -66,6 +77,13 @@ export default function PreviewArrivalMission({ view, stage, map, guide, busy, f
       {/* Food tokens reward completion; points depend on play, so none are promised here. */}
       <p className={styles.reward}><Icon name="food" className={styles.icon} /><span>+{view.rewards.foodTokens} food tokens</span></p>
     </div>
+    <PreviewBottomSheet open={confirmOpen} title={COPY.confirmTitle} closeLabel={COPY.closeConfirm} onClose={() => setConfirmOpen(false)}>
+      <div className={styles.confirm}>
+        <p>{COPY.confirmQuestion(view.name)}</p>
+        <ActionButton block icon="check" disabled={busy} onClick={() => { setConfirmOpen(false); onSelfArrive(); }}>{solo ? COPY.confirmYesSolo : COPY.confirmYes}</ActionButton>
+        <ActionButton block variant="quiet" onClick={() => setConfirmOpen(false)}>{COPY.notYet}</ActionButton>
+      </div>
+    </PreviewBottomSheet>
     {view.photo ? <PreviewBottomSheet open={photoOpen} title={view.name} closeLabel={COPY.closePhoto} onClose={() => setPhotoOpen(false)}>
       <figure className={styles.large}>
         <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={1280} height={1280} sizes="(min-width: 40rem) 40rem, 100vw" className={styles.largePhoto} />

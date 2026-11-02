@@ -35,6 +35,8 @@ export const SYNAGOGUE_TASK = Object.freeze({
   id: SYNAGOGUE_MISSION_ID,
   title: "What Was This Building Before?",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "THE SYNAGOGUE WITH A SECRET",
     paragraphs: [

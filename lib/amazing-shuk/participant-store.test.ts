@@ -16,6 +16,11 @@ import { SYNAGOGUE_MISSION_ID } from "./synagogue-task.ts";
 import { MONTEFIORE_MISSION_ID } from "./montefiore-task.ts";
 import { LEVIN_MISSION_ID } from "./levin-task.ts";
 import { MARZIPAN_MISSION_ID } from "./marzipan-task.ts";
+import { effectiveRoles, type GroupRoleAssignments } from "./roles.ts";
+
+/** The roles a view shows: the stored ones, with a team of one holding both (D12). The guide is never a member. */
+const shownRoles = (view: { participants: readonly { id: string }[] }, stored: GroupRoleAssignments) =>
+  effectiveRoles(view.participants.map(participant => participant.id).filter(id => id !== "guide"), stored);
 const WELL = GAN_HATUT_MISSION.id;
 // The well's detail; null if the view is for a "choose N" mission.
 const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
@@ -196,7 +201,7 @@ test("legacy cup state migrates without losing login or roles; stale queued acti
   const view = await sessionView(path, token);
   assert.equal(view.puzzleRevision, WATER_PUZZLE_REVISION);
   assert.equal(view.session.activeActorId, "player-2");
-  assert.deepEqual(view.session.roles, old.group.roles);
+  assert.deepEqual(view.session.roles, shownRoles(view, old.group.roles as GroupRoleAssignments));
   assert.deepEqual(cupsOf(view), { small: 0, large: 0, jar: 0 });
   assert.equal(view.session.completed, false);
   const request = new Request("http://127.0.0.1:3000/api", {
@@ -299,7 +304,7 @@ test("schema 4 migrates into per-mission records without losing progress, reward
   await writeFile(path, JSON.stringify(schema4Snapshot(current)));
   const view = await sessionView(path, submitter);
   assert.equal(view.session.completed, true); assert.equal(view.mission.state, "completed");
-  assert.deepEqual(view.session.roles, storedTeam(current).roles);
+  assert.deepEqual(view.session.roles, shownRoles(view, storedTeam(current).roles));
   assert.equal(view.session.activeActorId, "player-2", "an old file's member keeps the seat's ID, so queued actions still match");
   assert.deepEqual(view.sharedBalance, { points: 120, foodTokens: 2, status: "Provisional local-development rewards" });
   assert.equal(JSON.parse(await readFile(path, "utf8")).version, 4);
@@ -364,6 +369,8 @@ test("a burst of writes in one process waits in line: none is busy, none is lost
 
 test("a refused or failing write hands on its turn and writes nothing", () => fixture(async path => {
   const first = await seat(path, "player-1");
+  // A second member, so player-1 isn't playing solo and the submit below is refused for lack of the Submitter role.
+  await seat(path, "player-2");
   await sessionAction(path, first, { missionId: WELL, type: "start" }, "line-start-challenge-02");
   const results = await Promise.allSettled([
     transact(path, () => { throw new Error("operation failed"); }),
@@ -481,8 +488,8 @@ test("each participant acts only on their own team: progress, roles, members and
   assert.deepEqual(cupsOf(teamB), { small: 0, large: 5, jar: 0 });
   assert.deepEqual(cupsOf(teamA), { small: 0, large: 0, jar: 0 });
   assert.equal(teamA.performance.started, false);
-  assert.deepEqual(teamB.session.roles, { navigator: otherId, answerSubmitter: null });
-  assert.deepEqual(teamA.session.roles, { navigator: navigatorId, answerSubmitter: null });
+  assert.deepEqual(teamB.session.roles, shownRoles(teamB, { navigator: otherId, answerSubmitter: null }));
+  assert.deepEqual(teamA.session.roles, shownRoles(teamA, { navigator: navigatorId, answerSubmitter: null }));
   assert.deepEqual(teamB.participants.map(participant => participant.id), [otherId, "guide"]);
   assert.ok(!teamA.participants.some(participant => participant.id === otherId));
   // The guide acts on team A, and a role can only go to a member of that team.

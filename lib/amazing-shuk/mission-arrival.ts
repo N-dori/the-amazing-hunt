@@ -9,8 +9,10 @@ export type ArrivalPolicy = Readonly<{
   destination: Readonly<{ latitude: number; longitude: number; verified: boolean }> | null;
   radiusMeters: number; maxAccuracyMeters: number; maxAgeMs: number; futureToleranceMs: number; rewardPoints: number;
 }>;
-export type MissionArrival = Readonly<{ method: "gps" | "guide"; acceptedAt: number; points: number }>;
-export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>;
+// "self" is the team's own "We're here" (D6, 2 Nov 2026): an explicit confirmation without GPS or the guide.
+export type MissionArrival = Readonly<{ method: "gps" | "guide" | "self"; acceptedAt: number; points: number }>;
+export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>
+  | Readonly<{ type: "self-arrival"; missionId: string }>;
 export type MissionState = "available" | "arrived" | "completed";
 /** `src` is a path under `public/`, without the base path. `credit` is the attribution an openly licensed photo requires. */
 export type MissionPhoto = Readonly<{ src: string; alt: string; credit?: string }>;

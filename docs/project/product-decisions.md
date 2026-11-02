@@ -104,7 +104,13 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - **D17:** the Vendor's Call. Players listen for an authentic call (or use one verified example), understand it and repeat it. The phone's own recorder is an optional personal aid. DORI never records, collects, uploads or keeps vendor audio. Players are never told to interrupt vendors, and are encouraged to ask consent before recording anyone. Fixed participation points, no AI judging or accent scoring. **Market Jury** (two consenting teams teach and understand a phrase) is a future experiment with no point values.
 - No real money, purchases or paid re-rolls.
 
-**Pending owner approval:** D1–D12 in the plan (the scoring model, a minimum reward and an optional cap, food tokens on a reveal, free hints at sensitive stops, who may press stuck, "We're here", what timing is for, on-device voice, labels, research run 08 and the field checks, the sound default, a team of one holding both roles); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
+**Solo play (owner, 2 Nov 2026):**
+- **D6:** players confirm arrival with an explicit "We're here", without GPS or a guide; it earns the stop's navigation points once.
+- **D12:** an authenticated team of exactly one automatically has the Navigator and Answer Submitter permissions.
+- **Wording and controls:** natural, personal wording (approved lines: "Take a moment to discover this story.", "What do you think?", "Nicely done!", "You've made it!", "Playing solo"); Group simplified to "Playing solo"; every well control available to a solo player.
+- **Milestones:** Phase 1 is accepted on solo completion with correct answers; finishing when stuck is Phase 2's milestone.
+
+**Pending owner approval:** D1–D5 and D7–D11 in the plan (the scoring model, a minimum reward and an optional cap, food tokens on a reveal, free hints at sensitive stops, who may press stuck, what timing is for, on-device voice, labels, research run 08 and the field checks, the sound default); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
 ## Other current owner directions
 

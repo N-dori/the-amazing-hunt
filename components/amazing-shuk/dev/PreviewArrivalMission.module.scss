@@ -42,6 +42,10 @@
 // Have we found it? A light secondary row, no card: it is optional and must never look like a step to complete.
 .arrival { display: grid; gap: .25rem; justify-items: start; padding-inline: .25rem; }
 .note { display: flex; align-items: flex-start; gap: .5rem; color: var(--ink-subdued); font-size: .9375rem; }
+// "We're here" confirmation: the question, then two full-width 3rem buttons (outdoor screens).
+.confirm { display: grid; gap: .75rem; padding-block: .5rem 1rem; font-size: 1.125rem; }
+.confirm button { min-height: 3rem; }
+.arrival > button { min-height: 3rem; }
 .note .icon { margin-block-start: .125rem; }
 .launch { display: grid; gap: .5rem; justify-items: center; padding: 1rem; border: 1.5px solid var(--line-stone); border-radius: 1rem; background: var(--surface-raised); }
 .reward { display: inline-flex; align-items: center; gap: .375rem; font-size: .9375rem; font-weight: 600; }

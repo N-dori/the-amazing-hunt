@@ -7,7 +7,8 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
-import { claimGroupRole, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { claimGroupRole, effectiveRoles, isSoloTeam, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { soloLine } from "./solo-copy.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount } from "./adventure-lobby.ts";
 import { JOIN_ERROR, TEAM_JOIN_COPY, type JoinErrorCode } from "./team-membership.ts";
@@ -87,6 +88,11 @@ export const JOIN_REQUEST_GONE = TEAM_JOIN_COPY.gone;
 export const ALREADY_IN = TEAM_JOIN_COPY.alreadyIn;
 /** Shown on the welcome screen for any invitation that can't sign in: the same words whatever the reason. TODO(copy): draft (O16). */
 export const INVITATION_UNUSABLE = "This invitation link has expired or has already been used. Ask your guide for a new one.";
+/** "We're here" (D6). TODO(copy): drafts, except "You've made it!" (approved for solo, 2 Nov 2026). */
+const SELF_ARRIVAL_REFUSED = "Only the navigator or guide can confirm arrival.";
+const SELF_ARRIVAL_SOLO = "You've made it!";
+const SELF_ARRIVAL_GROUP = "Arrival confirmed. You've made it!";
+const ARRIVAL_ALREADY = "Arrival already recorded.";
 /** A player who isn't the team's leader (or the guide) tries to change someone's role. TODO(copy): draft (O16). */
 export const ROLE_CHANGE_REFUSED = "Only your team's leader or the guide can change roles.";
 /** Development only: an action a phone queued before a development reset. Never shown live, where no reset epoch is ever set. */
@@ -153,8 +159,10 @@ function isValidRegistry(db: Database): boolean {
 const isValidAdventure = (adventure: AdventureRecord) => Boolean(adventure) && ["lobby", "active"].includes(adventure.status)
   && ["together", "twoTeams"].includes(adventure.format) && (adventure.hostId === null || typeof adventure.hostId === "string")
   && (adventure.intendedCount === null || (Number.isSafeInteger(adventure.intendedCount) && adventure.intendedCount > 0));
+const ARRIVAL_METHODS: readonly string[] = ["gps", "guide", "self"];
 function isValidMission(record: MissionRecord): boolean {
-  if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0))) return false;
+  if (!record || !(record.arrival === null || (Boolean(record.arrival) && Number.isSafeInteger(record.arrival.points) && record.arrival.points >= 0
+    && ARRIVAL_METHODS.includes(record.arrival.method)))) return false;
   if (record.bonus !== undefined && !(record.bonus && Array.isArray(record.bonus.selected) && record.bonus.selected.every(id => typeof id === "string")
     && (record.bonus.award === null || (Boolean(record.bonus.award) && Number.isSafeInteger(record.bonus.award.points) && record.bonus.award.points >= 0)))) return false;
   return record.kind === "water" ? isValidCups(record.cups) : Array.isArray(record.selected) && record.selected.every(id => typeof id === "string")
@@ -620,7 +628,11 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const team = db.teams[teamId];
   const record = team.missions[missionId];
   const guide = participantId === DEV_GUIDE_ID;
-  const role = roleForParticipant(participantId, team.roles);
+  // A team of one holds both roles (D12); computed here, never stored, so phones read the same permissions the server applies.
+  const members = memberIds(db, teamId);
+  const roles = effectiveRoles(members, team.roles);
+  const solo = isSoloTeam(members);
+  const role = roleForParticipant(participantId, roles);
   const award = record.performance.award;
   const records = Object.values(team.missions);
   const host = isHostSession(db, token);
@@ -630,12 +642,12 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     puzzleRevision: WATER_PUZZLE_REVISION,
     // Only after a development reset: the phone sends it back with every action it queues from now on.
     ...(db.resetEpoch !== undefined ? { resetEpoch: db.resetEpoch } : {}),
-    adventure,
+    adventure, solo,
     missions: SHUK_MISSIONS.map(mission => missionView(mission, team.missions[mission.id])),
     // Names are shown only to signed-in members of the team (this view needs a session), plus the guide.
-    participants: rosterParticipants(memberIds(db, teamId).map(id => ({ id, ...db.participants[id] })), db.seatNames ?? {}),
+    participants: rosterParticipants(members.map(id => ({ id, ...db.participants[id] })), db.seatNames ?? {}),
     mission: missionView(definition, record),
-    session: { roles: team.roles, completed: record.completed, activeActorId: participantId,
+    session: { roles, completed: record.completed, activeActorId: participantId,
       ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
       ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
@@ -662,15 +674,18 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     // Every action reads and writes only the actor's own team; the team is written back once the action succeeds.
     const teamId = teamIdOf(db, participantId);
     const team = { ...db.teams[teamId] };
-    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, team.roles))) throw new AccessError("Only the answer-submitter may submit");
+    // The roles that decide permissions: a team of one holds both (D12). Role changes below still write `team.roles` itself.
+    const ids = memberIds(db, teamId);
+    const roles = effectiveRoles(ids, team.roles);
+    const solo = isSoloTeam(ids);
+    if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, roles))) throw new AccessError("Only the answer-submitter may submit");
     if (action.type === "confirm-arrival" && participantId !== DEV_GUIDE_ID) throw new AccessError("Only the guide may confirm group arrival");
     if (action.type === "switch-actor") throw new AccessError("Identity comes from the authenticated session");
     if (!/^[A-Za-z0-9-]{16,80}$/.test(actionId)) throw new AccessError("Invalid action ID", 400);
     const applied = db.applied[participantId] ?? [];
     if (applied.includes(actionId)) return "Action already synced.";
     const guide = participantId === DEV_GUIDE_ID;
-    const role = roleForParticipant(participantId, team.roles);
-    const ids = memberIds(db, teamId);
+    const role = roleForParticipant(participantId, roles);
     let message = "";
     try {
       if (action.type === "set-intended-count" || action.type === "start-adventure") {
@@ -753,7 +768,18 @@ export async function sessionAction(path: string, token: string, action: GroupAc
         const definition = findMission(action.missionId);
         if (!definition) throw new Error("Unknown mission");
         const mission = { ...team.missions[action.missionId] };
-        if (action.type === "arrival" || action.type === "confirm-arrival") {
+        if (action.type === "self-arrival") {
+          // "We're here" (D6): the navigator's (a solo player's) or the guide's explicit confirmation. No reading is used, so it works
+          // where GPS is off, poor or unverified. Recorded once: an existing GPS or guide arrival is never replaced or re-awarded.
+          if (!guide && role !== "navigator" && role !== "navigatorAndAnswerSubmitter") throw new Error(SELF_ARRIVAL_REFUSED);
+          const policy = arrivalPolicy ?? definition.arrival;
+          if (mission.arrival) message = ARRIVAL_ALREADY;
+          else {
+            if (!Number.isSafeInteger(policy.rewardPoints) || policy.rewardPoints < 0) throw new Error("Arrival reward configuration is unavailable");
+            mission.arrival = { method: "self", acceptedAt: now, points: policy.rewardPoints };
+            message = solo ? SELF_ARRIVAL_SOLO : SELF_ARRIVAL_GROUP;
+          }
+        } else if (action.type === "arrival" || action.type === "confirm-arrival") {
           const policy = arrivalPolicy ?? definition.arrival;
           // Rechecking proximity still validates this reading even after the group has its bonus.
           if (action.type === "arrival") {
@@ -817,7 +843,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
         } else if (mission.kind === "water") {
           if (action.type === "toggle-choice") throw new Error("This action doesn't fit this mission");
           if ((action.type === "move" || ((action.type === "submit" || action.type === "guide-approve") && !mission.completed)) && mission.performance.startedAt === null) throw new Error("Start the challenge after reading the story");
-          const result = applyDevWaterAction({ roles: team.roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
+          const result = applyDevWaterAction({ roles, cups: mission.cups, completed: mission.completed, activeActorId: participantId }, action);
           if (action.type === "move" && isWaterPuzzleSolved(result.session.cups) && mission.performance.solvedAt === null) mission.performance = { ...mission.performance, solvedAt: now };
           if (action.type === "reset") mission.performance = { ...mission.performance, solvedAt: null };
           if (result.session.completed && !mission.completed) mission.performance = awardWaterPerformance(mission.performance, now, definition.rewards);
@@ -865,7 +891,7 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
     db.teams = { ...db.teams, [teamId]: team };
     db.applied[participantId] = [...applied, actionId];
-    return message;
+    return soloLine(message, solo);
   });
 }
 /**

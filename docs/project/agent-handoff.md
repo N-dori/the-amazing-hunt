@@ -1,6 +1,28 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Progressive challenges and Market Surprise planned: 2 Nov 2026
+## Latest handoff - Phase 1 (solo-first play) built and verified, not committed: 2 Nov 2026
+
+**Built in the working tree; not committed, pushed or deployed.** Plan: [Phase 1](progressive-challenges-plan.md#phase-1-solo-first-self-guided-play-detailed-plan-2-nov-2026-awaiting-approval-to-build).
+- **Solo roles (D12):** `effectiveRoles` / `isSoloTeam` (`roles.ts`). A team of exactly one holds both roles; this is computed in `sessionView` and `sessionAction`, never stored. The view sends `solo` and the effective `session.roles`; the well's submit uses them too. Teams of 2–5 keep their stored roles.
+- **"We're here" (D6):** a new `self-arrival` action (`method: "self"`), for the Navigator (solo included) or the guide. It's recorded once, with no second award after a GPS or guide arrival, and is refused in the lobby. Load validation now checks the arrival method. UI: a 3rem button and a confirmation sheet on the location screen (`PreviewArrivalMission.tsx`).
+- **Solo wording:** `instructionSolo` / `questionSolo` in the task data, `CHEERS_SOLO`, and `solo-copy.ts` for server and status lines. Group play keeps its wording.
+- **Group UI:** "Playing solo" in the group sheet and the Group tab, with no role section. The leader's invite panel stays, titled "Invite players".
+- **Tests:** a new `solo-play.test.ts` (8 tests), plus additions in `roles`, `mission-cheer`, `mission-arrival-ui` and `participant-avatar-ui`. Four existing tests were adjusted to the solo rule: the refused-write fixture got a second member, and the migration and isolation tests compare against `effectiveRoles`.
+- **Verified 2 Nov 2026:**
+  - Container: `test:shuk` 251/251, `npm test` 63/63, tsc clean, lint at its baseline (3 prototype errors, 11 Memory Protocol warnings).
+  - `/game-verify shuk`: built, healthy, 8/8 route checks, the invite script printed a link, 48 MiB.
+  - `git diff --check` is clean apart from `RUN_PREVIEW.md`'s own line 1.
+  - Not checked in a browser.
+- **Copy still to approve (TODO(copy) drafts):**
+  - the "We're here" button, its confirmation and the follower refusal;
+  - the solo cheers apart from "Nicely done!" (e.g. "Yes! Sharp eyes!", "Amazing work! High five!");
+  - the mural's solo question;
+  - Rabbi Levin's solo instruction;
+  - the solo server lines (e.g. "That's right. Challenge complete.", "Answer accepted.");
+  - "Your points".
+- **Next:** the owner reviews on the dev page as a solo seat (Start, "We're here" at each stop, every challenge, the finale), approves the drafts, then asks to commit. After that comes phase 2 planning.
+
+## Earlier handoff - Progressive challenges and Market Surprise planned: 2 Nov 2026
 
 **Planning only; nothing built, committed or deployed.** The owner approved recording the [progressive-challenges plan](progressive-challenges-plan.md). The multiplayer workstream below stays paused.
 

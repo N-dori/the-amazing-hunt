@@ -313,3 +313,37 @@ test("group button: a count of free roles on the button (no banner row), and a s
   const full = renderToStaticMarkup(createElement(Open, { ...props, roles: { navigator: "a", answerSubmitter: "b" } }));
   assert.doesNotMatch(full, /Anyone can take|Open the Group tab|: free/);
 });
+
+test("\"We're here\" (D6): shown only to players who may confirm, with personal wording for a solo player", () => {
+  const Location = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx");
+  // The same component with every sheet open, to read the confirmation (a closed sheet renders nothing).
+  const Opened = load("components/amazing-shuk/dev/PreviewArrivalMission.tsx", { ...nativeRequire("react"), useState: (initial: unknown) => [initial === false ? true : initial, () => {}] });
+  const view = (state: MissionState, arrivalPoints: number) => buildMissionPresentation(MURAL_MISSION,
+    { id: MURAL_MISSION.id, state, arrivalPoints, arrivalMethod: arrivalPoints ? "self" : null, gpsEnabled: true }, 1);
+  const render = (Component: ComponentType<Record<string, unknown>>, props: Record<string, unknown>) => renderToStaticMarkup(createElement(Component,
+    { view: view("available", 0), guide: false, busy: false, feedback: "", onSelfArrive() {}, ...callbacks, ...props }));
+  // A follower sees only the optional location check.
+  assert.doesNotMatch(render(Location, { canSelfArrive: false, solo: false }), />We&#x27;re here<|>I&#x27;m here</);
+  // A navigator gets "We're here", which opens a confirmation instead of recording arrival at once.
+  assert.match(render(Location, { canSelfArrive: true, solo: false }), /aria-haspopup="dialog"[^>]*>(<span[^>]*><\/span>)?(<span>)?We&#x27;re here/);
+  const confirm = render(Opened, { canSelfArrive: true, solo: false });
+  assert.ok(confirm.includes(escapeText(`Are you at ${MURAL_MISSION.name}?`)));
+  assert.match(confirm, /Yes, we&#x27;re here.*Not yet/);
+  // Solo: "I'm here" and "Yes, I'm here"; once arrived, the approved "You've made it!" and no button.
+  assert.match(render(Location, { canSelfArrive: true, solo: true }), />I&#x27;m here</);
+  assert.match(render(Opened, { canSelfArrive: true, solo: true }), /Yes, I&#x27;m here/);
+  const done = render(Location, { view: view("arrived", 20), canSelfArrive: true, solo: true });
+  assert.match(done, /You&#x27;ve made it! 20 arrival points earned\./);
+  assert.doesNotMatch(done, />I&#x27;m here</);
+  assert.match(render(Location, { view: view("arrived", 20), canSelfArrive: true, solo: false }), /Group arrival confirmed! 20 arrival points earned\./);
+});
+
+test("group sheet for a solo player: titled \"Playing solo\", balance only, no role section or count", () => {
+  const openReact = { ...nativeRequire("react"), useState: (initial: unknown) => [initial === false ? true : initial, () => {}] };
+  const Open = load("components/amazing-shuk/IndexGroupSheet.tsx", openReact);
+  const html = renderToStaticMarkup(createElement(Open, { participants: [{ id: "a", name: "Ari" }], currentId: "a", solo: true,
+    roles: { navigator: "a", answerSubmitter: "a" }, missions: [{ state: "available" }], balance: { points: 20, foodTokens: 0 }, onOpenGroupTab() {} }));
+  assert.match(html, /Playing solo/);
+  assert.match(html, /<dt>Points<\/dt><dd>20<\/dd>/);
+  assert.doesNotMatch(html, /Your group|group-sheet-roles|class="count"|Open the Group tab/);
+});

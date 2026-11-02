@@ -31,6 +31,8 @@ export const MONTEFIORE_TASK = Object.freeze({
   id: MONTEFIORE_MISSION_ID,
   title: "Three Languages, One Gate",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "A GATE FOR SIR MOSES",
     paragraphs: [

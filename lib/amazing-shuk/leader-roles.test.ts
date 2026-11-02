@@ -55,7 +55,8 @@ test("teams of 1 to 5: the leader assigns, reassigns and frees both roles among 
     // Reassigning a held role moves it; No one frees it.
     await assign(path, leader, "answerSubmitter", ids[1 % size]);
     await assign(path, leader, "navigator", null);
-    assert.deepEqual(await rolesOf(path, leader), { navigator: null, answerSubmitter: ids[1 % size] }, `size ${size}`);
+    // A team of one still holds both whatever is stored (D12); larger teams show exactly what the leader set.
+    assert.deepEqual(await rolesOf(path, leader), size === 1 ? { navigator: ids[0], answerSubmitter: ids[0] } : { navigator: null, answerSubmitter: ids[1 % size] }, `size ${size}`);
     // Players still choose for themselves; a player who isn't the leader can't change anyone's role.
     if (size > 1) {
       assert.match(await sessionAction(path, players[0], { type: "claim-role", role: "navigator" }, key("claim"), NOW), /navigator now/);

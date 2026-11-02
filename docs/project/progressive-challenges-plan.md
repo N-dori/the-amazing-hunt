@@ -482,18 +482,83 @@ Each step: `npm test` and `test:shuk` with new cases (reveal exactly once; submi
 
 This replaces the numbered build sequence above as the order of work. Each phase is planned in detail and approved before it's built, and each ships to dev first (`/memory-protocol/dev/amazing-shuk/water`), then live only with the owner's OK. The mobile-first rules of phase 5 apply inside every phase; phase 5 is the consistency pass at the end.
 
-### Phase 1: solo-first, self-guided play
-- **Goal:** one player, with no guide, can play every stop and finish the adventure.
-- **Build:**
-  - a team of one holds both roles implicitly (S1, D12);
-  - "Show all parts" by default for a team of one (S5);
-  - solo copy variants for story instructions and cheers (S4, once the copy is approved);
-  - the Group tab collapses to "Playing solo" (S7);
-  - "We're here" self-arrival (S2, D6);
-  - field-verify the remaining GPS points.
-- **Touches:** `roles.ts`, the role checks in `participant-store.ts`, `mission-cheer.ts`, each `*-task.ts` `instruction`, `IndexGroupSheet`.
-- **Needs:** D6, D12, solo copy.
-- **Accept when:** a team of one starts, navigates, solves and completes the adventure in dev with no role claiming and no guide action. One gap remains until phase 2: a stuck solo player still has no way past a hard core.
+### Phase 1: solo-first, self-guided play (detailed plan, 2 Nov 2026; awaiting approval to build)
+**Status (2 Nov 2026): built and verified in the working tree, not committed** (see the handoff). The anchor keeps its original name.
+
+**Approved (owner, 2 Nov 2026):**
+- **D6:** players confirm arrival with "We're here", without GPS or a guide. It's an explicit confirmation; nothing is inferred from a missing or poor GPS reading.
+- **D12:** an authenticated team of exactly one automatically has the Navigator and Answer Submitter permissions.
+- **Solo wording:** natural, personal language.
+- **Group:** simplified to "Playing solo".
+- **The well:** all its controls are available to a solo player.
+
+**Goal:** one player, with no guide, can complete every existing challenge with correct answers. (A stuck solo player finishing is phase 2's milestone, with "I'm completely stuck".)
+
+**What the code does today (inspected):**
+- A lone member is a `follower` unless they claim roles. `start`, `submit` and the client's permissions all derive from `team.roles` (`participant-store.ts` `sessionView`, `sessionAction`; the client reads `view.session.roles`).
+- `confirm-arrival` is guide-only. GPS arrival fails closed at unverified destinations (Gan HaTut).
+- The well's `move` has no role check, and submit needs the Submitter. The I5 parts aren't built, so there's no "Show all" to add.
+- The saved arrival's `method` (`"gps" | "guide"`) isn't validated on load.
+
+**Design:**
+1. **Solo roles, computed, never stored:**
+   - A pure `effectiveRoles(memberIds, stored)` in `roles.ts`: exactly one member (the guide never counts) → both roles are that member's; otherwise the stored roles, unchanged.
+   - The store uses it everywhere roles decide something: the start/submit checks, `canStart`, and the `session.roles` sent to phones. The view adds `solo: boolean`.
+   - Nothing is migrated or written, so multiplayer rules don't change. When a second member actually joins (collects their session), the team uses its stored roles again, and the leader and claim flows apply as today. A pending or approved-but-uncollected request doesn't change anything.
+2. **"We're here":**
+   - A new action, `self-arrival` (kept separate, so `confirm-arrival` stays guide-only).
+   - Allowed for the Navigator (including a solo player) and the guide; followers are refused as today. The vacant-seat fallback stays paused with I4.
+   - It records `arrival = { method: "self", acceptedAt: now, points: rewardPoints }` only if there's no arrival yet, so it's exactly once with GPS and guide arrivals, and receipts stop replays.
+   - Refused in the lobby. Uses no coordinates, so it works at unverified stops.
+   - Load validation gains a check that `method` is one of `gps | guide | self`.
+   - **UI:** a "We're here" button (3rem) beside "Check our location" opens a short confirmation ("Are you at [place]?", Yes / Not yet). Success: "You've made it!" (approved).
+3. **Solo wording:**
+   - The approved lines:
+     - the story instruction becomes "Take a moment to discover this story.";
+     - "What a team!" becomes "Nicely done!";
+     - the group's arrival message becomes "You've made it!";
+     - "Team members" becomes "Playing solo";
+     - the sheet title "Your group" becomes "Playing solo".
+   - A solo variant sits next to each group line in data (e.g. `instructionSolo`, `CHEERS_SOLO`) and is chosen by the server's `solo` flag. Group play keeps today's wording.
+4. **Group UI:** for a solo player, the header button and the Group tab show "Playing solo" with their avatar and balance; no role section, no "roles needed" badge. A leader keeps the optional invite entry, so a solo player can still become a team.
+5. **The well:** no change; a test confirms a team of one can move, reset and submit.
+
+**Files:**
+- `lib/amazing-shuk/roles.ts` (`effectiveRoles`, `isSoloTeam`)
+- `lib/amazing-shuk/participant-store.ts` (effective roles, the `solo` flag, the `self-arrival` branch, the arrival method validation)
+- `mission-arrival.ts` (the `"self"` method)
+- `group-action.ts` and `parse-water-action.ts` (the new action)
+- `mission-cheer.ts`
+- the six `*-task.ts` files (solo instruction and question variants)
+- `water-task-view.ts`, `team-membership.ts`
+- the components `PreviewArrivalMission.tsx`, `IndexWaterTask.tsx`, `IndexGroupSheet.tsx`, the Group tab overview and `PreviewMissionCheer.tsx`
+
+**Security and regression tests:**
+- **Solo detection is server-only.** A follower in a team of 2–5 still can't start, submit or self-arrive. The guide never counts as a member. Cross-team isolation holds.
+- **Membership changes:** a pending or approved-but-uncollected join request leaves solo status alone. The second member collecting a session ends it (stored roles apply). Removing that member makes the team solo again. A start and a join racing inside the lock behave consistently.
+- **A solo player gains no guide-only powers** (timing, guide approval, `confirm-arrival`) and no other team's access.
+- **`self-arrival`:**
+  - recorded once across two phones and a replayed action ID;
+  - never re-awarded after a GPS or guide arrival, or the reverse;
+  - refused in the lobby and for followers;
+  - works at Gan HaTut (unverified);
+  - points equal the stop's `rewardPoints`.
+- **Loading:** files with `method: "self"` load; an unknown method is refused; old files load unchanged.
+- **Regression:** the existing `leader-roles`, `role-choice`, `team-join`, `participant-store`, `mission-arrival` and UI tests pass unchanged. A new integration test: a team of one completes all six missions with correct answers (the well included), and the Marzipan finale unlocks.
+- **UI tests:** solo wording appears only for `solo: true`; "Playing solo" replaces the role section; the "We're here" confirmation is reachable by keyboard and screen reader.
+- Then lint and type-check in the one-shot container, `/game-verify shuk`, `git diff --check`, and the owner's review on the dev page.
+
+**Accept when:** in dev, a team of one starts the adventure, confirms arrival with "We're here" at every stop (Gan HaTut included), and completes every existing challenge with correct answers, with no role claiming and no guide action. Group play is unchanged.
+
+**Copy still to approve:** solo versions of the lines the approved table doesn't cover. TODO(copy) drafts:
+- "Yes! Sharp eyes, all of you!" → "Yes! Sharp eyes!"
+- "Amazing work! High fives all round!" → "Amazing work! High five!"
+- The mural's "Can your group spot TWO things…" → "Can you spot TWO things…"
+- "Submit your group answer." → "Submit your answer."
+- "The group's answer is correct. Task complete." → "That's right. Challenge complete."
+- The "We're here" confirmation: "Are you at [place]?" / "Yes, I'm here" / "Not yet".
+
+**Out of scope:** the "stuck" fallback and scoring changes (phase 2); verifying GPS coordinates (no longer needed for solo); the I4 vacant-seat fallback (paused); self-serve sign-up.
 
 ### Phase 2: progressive challenges, flexible hints, scoring and rewards
 - **Goal:** the reusable stop shape, working on the mural.
@@ -562,13 +627,13 @@ Already decided by the owner's brief (recorded, not asked): the fallback gives 0
 - **D3** Food tokens only for the core, including after a reveal (recommended)?
 - **D4** Free hints and a free reveal at Rabbi Levin and Chesed VeRachamim (recommended)?
 - **D5** Who may press "I'm completely stuck": the Submitter (or anyone while that seat is empty) and the guide (recommended), or anyone?
-- **D6** Navigation: does the team's own "We're here" count as an arrival for timing only (recommended), or for points too?
+- ~~D6~~ **Decided (owner, 2 Nov):** "We're here" is an explicit arrival confirmation without GPS or a guide; it earns the stop's navigation points once and ends navigation timing.
 - **D7** Timing for analytics only during the pilot (recommended)?
 - **D8** Voice: on-device recording and playback only, no speech recognition or AI scoring (recommended)?
 - **D9** Labels: a teaser + Main/Optional + difficulty, with "A Hidden Symbol" for the mural riddle?
 - **D10** Go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe"?
 - **D11** Is the reward sound on or off by default (off recommended: shared outdoor spaces, and phones often on silent)?
-- **D12** Should a team of one hold both roles automatically (recommended; it is also I4's vacant-seat rule, which is paused with multiplayer)?
+- ~~D12~~ **Decided (owner, 2 Nov):** an authenticated team of exactly one automatically has the Navigator and Answer Submitter permissions; solo wording is personal; Group shows "Playing solo"; the well's controls are all available to a solo player.
 - ~~D13~~ **Decided (owner, 2 Nov):** a voluntary risk may reduce the stop's earned points; the team is told plainly first.
 - ~~D14~~ **Decided:** the Balanced table (1–2 double, 3–4 −25 %, 5–6 keep), stake ≤ 200, +200 / −50, one roll per team, pilot only.
 - ~~D15~~ **Decided:** preallocated offers, at most 2 per team (A dice, B skill), an approved pool, no performance triggers.

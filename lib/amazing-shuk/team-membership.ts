@@ -64,6 +64,8 @@ export const TEAM_JOIN_COPY = {
 } as const;
 export const TEAM_MEMBERS_COPY = {
   title: "Team members",
+  // A team of one (owner-approved, 2 Nov 2026).
+  titleSolo: "Playing solo",
   space: (taken: number, capacity: number) => `Space: ${taken} of ${capacity}`,
   full: "Your team is full.",
   invite: "Invite players",

@@ -139,6 +139,19 @@ test("Group tab lists everyone with roles and marks you; progress and balance co
   assert.doesNotMatch(html, /Sign out|<select/);
 });
 
+test("Group tab for a solo player (D12): \"Playing solo\", personal points, no role choices", () => {
+  const Group = loadComponent("components/amazing-shuk/ListGroupOverview.tsx");
+  const html = text(createElement(Group, {
+    participants: [{ id: "a", name: "Ari" }], roles: { navigator: "a", answerSubmitter: "a" }, currentId: "a", solo: true,
+    missions: [{ state: "completed" }, { state: "available" }], balance: { points: 120, foodTokens: 4 }, guide: false, busy: false, onClaim() {}, onRelease() {},
+    leader: true, onAssign() {},
+  }));
+  assert.match(html, /<h2 id="group-title"[^>]*>Playing solo<\/h2>/);
+  assert.match(html, /<dt>Your points<\/dt><dd>120<\/dd>/);
+  assert.doesNotMatch(html, /Group points|Take|Step down|Change|free/);
+  assert.match(html, /You<\/span><strong>Ari<\/strong>/);
+});
+
 test("Food tab shows the shared token balance and a marked draft gap, never invented offers", () => {
   const Food = loadComponent("components/amazing-shuk/PreviewFoodRewards.tsx");
   const html = text(createElement(Food, { foodTokens: 3 }));

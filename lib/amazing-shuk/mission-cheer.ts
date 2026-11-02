@@ -11,15 +11,26 @@ const CHEERS: readonly string[] = Object.freeze([
   "Amazing work! High fives all round!",
   "You did it! Sweet success!",
 ]);
+// The same cheers for a solo player (owner, 2 Nov 2026: personal, never implying anyone is missing). "Nicely done!" is approved;
+// TODO(copy): the rest are drafts for owner review.
+const CHEERS_SOLO: readonly string[] = Object.freeze([
+  "Woo-hoo! You rock!",
+  "Nailed it! Nicely done!",
+  "Yes! Sharp eyes!",
+  "Brilliant! The market has no secrets from you!",
+  "Amazing work! High five!",
+  "You did it! Sweet success!",
+]);
 // Rabbi Aryeh Levin's stop remembers men who were sentenced to death, so it gets a quiet line instead of a cheer.
 // TODO(copy): draft for owner review.
 const QUIET: Readonly<Record<string, string>> = Object.freeze({ [LEVIN_MISSION.id]: "Thank you for listening to their story." });
 
 /** A different line for each mission, fixed by its map order so every phone in the group sees the same one. */
-export function missionCheer(missionId: string): Readonly<{ text: string; celebrate: boolean }> {
+export function missionCheer(missionId: string, solo = false): Readonly<{ text: string; celebrate: boolean }> {
   if (QUIET[missionId]) return { text: QUIET[missionId], celebrate: false };
   const index = Math.max(0, SHUK_MISSIONS.findIndex(mission => mission.id === missionId));
-  return { text: CHEERS[index % CHEERS.length], celebrate: true };
+  const cheers = solo ? CHEERS_SOLO : CHEERS;
+  return { text: cheers[index % cheers.length], celebrate: true };
 }
 
 /** The next open mission on the map after this one that the group hasn't completed, wrapping round; null when all are done. */

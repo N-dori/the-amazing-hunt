@@ -22,7 +22,8 @@ export type MissionStage = "map" | "preview" | "location";
 type Props = { missions: readonly MissionView[]; mission: MissionView; stage: MissionStage; progress: MissionProgressStage; guide: boolean; busy: boolean; feedback: string;
   mapView: MapView | null; onMapViewChange: (view: MapView) => void;
   onSelect: (id: string) => void; onDismiss: () => void; onClosePreview: () => void; onViewLocation: () => void;
-  onArrival: () => void; onConfirm: () => void; onOpenChallenge: () => void };
+  canSelfArrive: boolean; solo: boolean;
+  onArrival: () => void; onConfirm: () => void; onSelfArrive: () => void; onOpenChallenge: () => void };
 /** Pure shared-state projection: a marker per catalogue mission, and the selected mission's preview or details. The Index owns requests and GPS. */
 export default function ListArrivalMission({ missions, mission, stage, progress, mapView, onMapViewChange, ...props }: Props) {
   const markers = useMemo(() => SHUK_MISSIONS.flatMap((definition, index) => {
@@ -40,6 +41,7 @@ export default function ListArrivalMission({ missions, mission, stage, progress,
   // A locked finale never opens its location: the map shows its preview, which says what opens it.
   if (stage === "location" && !view?.locked) {
     return view ? <PreviewArrivalMission view={view} stage={progress} guide={props.guide} busy={props.busy} feedback={props.feedback}
+      canSelfArrive={props.canSelfArrive} solo={props.solo} onSelfArrive={props.onSelfArrive}
       map={<LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt={`Illustrated market map with the marker for ${view.shortName}`}
         markers={destination} selectedId={view.id} focusId={view.id} memoryLayers={NO_MEMORY_LAYERS} attribution={null} notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL}
         onSelect={noop} onBackground={noop} frameClassName={styles.strip} showLabels={false} twoFingerHint={TWO_FINGER_HINT_TEXT} />}

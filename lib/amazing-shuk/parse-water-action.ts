@@ -41,6 +41,7 @@ function parseActionBody(value: unknown): DevWaterAction | null {
   if (!isRecord(value) || typeof value.type !== "string") return null;
   switch (value.type) {
     case "confirm-arrival":
+    case "self-arrival":
       return typeof value.missionId === "string" ? { type: value.type, missionId: value.missionId } : null;
     case "arrival": {
       if (typeof value.missionId !== "string" || !validArrivalReading(value.reading)) return null;

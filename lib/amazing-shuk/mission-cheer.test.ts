@@ -37,3 +37,19 @@ test("Marzipan is the finale: locked until every other mission is done, and the 
   // With other missions left, the next stop is never the locked finale.
   assert.notEqual(nextMission(states([others[3]]), others[3])?.id, MARZIPAN_MISSION.id);
 });
+
+test("a solo player gets personal cheers; Rabbi Levin's stop keeps its quiet line either way", async () => {
+  const { soloLine } = await import("./solo-copy.ts");
+  const group = SHUK_MISSIONS.map(mission => missionCheer(mission.id).text);
+  const solo = SHUK_MISSIONS.map(mission => missionCheer(mission.id, true).text);
+  assert.equal(solo.length, group.length);
+  for (const line of solo) assert.doesNotMatch(line, /team|all of you|all round|group/i);
+  assert.ok(solo.includes("Nailed it! Nicely done!"), "the approved \"Nicely done!\"");
+  const levin = SHUK_MISSIONS.findIndex(mission => !missionCheer(mission.id).celebrate);
+  assert.equal(solo[levin], group[levin]);
+  assert.equal(missionCheer(SHUK_MISSIONS[levin].id, true).celebrate, false);
+  // Server and status lines: only a solo player sees the personal version; anything unknown passes through.
+  assert.equal(soloLine("The group's answer is correct. Task complete.", true), "That's right. Challenge complete.");
+  assert.equal(soloLine("The group's answer is correct. Task complete.", false), "The group's answer is correct. Task complete.");
+  assert.equal(soloLine("Choose 2 before submitting.", true), "Choose 2 before submitting.");
+});

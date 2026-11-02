@@ -60,6 +60,8 @@ export const MARZIPAN_TASK = Object.freeze({
   id: MARZIPAN_MISSION_ID,
   title: "The Sweet Secret of Marzipan",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "A BAKERY ON AGRIPAS STREET",
     paragraphs: [
