@@ -1,6 +1,39 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Multiplayer onboarding: PAUSED — Ready to Resume: 1 Nov 2026
+## Latest handoff - Progressive challenges and Market Surprise planned: 2 Nov 2026
+
+**Planning only; nothing built, committed or deployed.** The owner approved recording the [progressive-challenges plan](progressive-challenges-plan.md). The multiplayer workstream below stays paused.
+
+- **The plan covers:**
+  - the reusable stop shape (core + optional challenges, per-challenge hints, the "I'm completely stuck" fallback with 0 points);
+  - silent navigation and challenge timing;
+  - Montefiore's "Say it like Ohel Moshe" voice concept (on-device only);
+  - the hint sheet and challenge labels (with `dori-ux-designer`);
+  - reward pop-ups;
+  - solo play;
+  - personal achievements (rankings only in the future);
+  - Market Surprise.
+- **The biggest current gap it fixes:** there is no fallback, so an unsolved core blocks its mission, and with it the Marzipan finale.
+- **Owner decisions, 2 Nov:**
+  - D13: a voluntary risk may reduce earned stop points, disclosed first.
+  - D14: the Balanced dice table and its caps, pilot only.
+  - D15: preallocated offers, at most 2 per team, an order-free assignment rule.
+  - D16: surprise points count in the normal total.
+  - D17: the Vendor's Call is listen, understand, repeat; DORI never handles vendor audio; fixed participation points, no AI. Market Jury is a future experiment.
+  - Also from the owner's briefs: teams start at 0; optional challenges may be worth more; previews show potential points, which supersedes "never a points promise before play".
+- **Open for the owner:** D1–D12 (the scoring model, a minimum reward, food tokens on a reveal, free hints at sensitive stops, who may press stuck, "We're here", what timing is for, on-device voice, labels, research go-ahead, the sound default, a team of one holding both roles) and the Market Surprise stop pool (proposed: the Mural and Marzipan).
+- **Implementation order (owner, 2 Nov 2026; each phase planned and approved before it's built):**
+  1. Solo-first, self-guided play (needs D6, D12, solo copy).
+  2. Progressive challenges, flexible hints, scoring and rewards (needs D1–D5, D11; mural first).
+  3. Open exploration and varied answer mechanics (needs D7–D10).
+  4. Market Surprise: the dice rules and the Vendor's Call as approved (needs the stop pool and the verified example call).
+  5. Mobile-first UX and DORI design patterns (a consistency pass; its rules apply in every phase).
+
+  Details: [roadmap](progressive-challenges-plan.md#implementation-roadmap-owners-order-2-nov-2026).
+- **Next action:** the owner answers D6 and D12 (and approves the solo copy), then Claude plans phase 1 in detail.
+- **Uncommitted, keep out:** `docs/RUN_PREVIEW.md` and the owner's untracked files (the Stitch folder, `public/shuk/` photos, `trip-doriisrael-paths.md`, the deferred UX backlog).
+
+## Earlier handoff - Multiplayer onboarding: PAUSED — Ready to Resume: 1 Nov 2026
 
 **The owner paused the whole multiplayer onboarding, team setup, invitation and security workstream (1 Nov 2026).** Nothing in it is built, tested live or changed until the owner resumes it. Details stay in the linked plans; this entry is the index.
 

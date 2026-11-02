@@ -78,6 +78,34 @@ The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and
 - **No physical cistern-finding task** is designed until the location is field-checked at Gan HaTut.
 - **The historical story stays distinct from the puzzle.** The cistern story remains an attributed tradition; the water-distribution puzzle is labelled fiction.
 
+## Progressive challenges and Market Surprise (owner, 2 Nov 2026)
+
+Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Nothing here is built; each build step needs its own approval.
+
+**Approved direction:**
+- **Shape:** every stop has one approachable core challenge and zero or more optional challenges. Optional challenges never block, and may offer higher potential points. There is no requirement of three per stop.
+- **Answers and play:** varied answer mechanics (choice, matching, photo, physical discovery, puzzle, voice). No photo, recording or AI is ever required to progress. Play is self-guided by default; the guide is optional (a central Guide screen comes later).
+- **Hints:** each challenge has its own number of hints (starting pattern: two plus the fallback). A hint lowers the current challenge's *potential* points and never deducts earned points. Hint use is server-authoritative and synced across the team.
+- **Points and the fallback:** teams start at 0; there are no protective starting points. "I'm completely stuck" gives 0 challenge points and still lets the team progress. **This supersedes "no unsolved guide override" for that purpose.**
+- **Timing:** navigation and challenge times are recorded silently, separately for optional challenges. No visible clock, no automatic speed penalty. The I5 well keeps its fixed points.
+- **Previews:** they show the number of challenges, each one's difficulty and its potential points. **This supersedes "Before play, screens show only the food tokens a mission gives, never a points promise" (24 Oct).**
+- **Reward pop-ups:** one compact, dismissible pop-up per award, never stacked or repeated after reconnecting. An optional, mutable sound; reduced motion respected. Hints get a related but distinct cost confirmation.
+- **Solo:** solo play is a first-class mode: one player can finish everything without a guide or role administration.
+- **Achievements:** personal statistics first. Rankings only in the future, verified, opt-in and in fair categories; nothing is ever invented.
+- **Market Surprise:**
+  - The umbrella system: Chance, Skill, Discovery, Mishap. Optional; the risk is disclosed first; a loss never blocks progress.
+  - **D13:** a voluntary risk may reduce the stop's earned points, and the team is told plainly first. This is a narrow exception to "never deduct earned points".
+  - **D14 (pilot configuration only):** "Feeling Lucky" dice: 1–2 double, 3–4 lose 25 %, 5–6 keep; expected value +25 % of the stake. Stake at most 200 challenge points from the stop; gain at most +200, loss at most −50. One roll per team per adventure, at one ordinary market stop, no re-roll. Navigation points, food tokens and achievements are never at stake. Server-side randomness, scored exactly once.
+  - **D15:**
+    - Offers are preallocated, at most 2 per team per adventure: A, the dice roll (at most 1 risky roll); B, an educational or skill mini-challenge.
+    - Stops come from an approved pool of ordinary market stops (never sacred or sensitive), with no reliance on numbered order. Each surprise stays hidden until offered.
+    - Declining is allowed. Being faster earns no extra opportunities, and there are no performance triggers in the pilot. A skipped stop's offer moves to an eligible unvisited stop.
+  - **D16:** surprise points count in the normal total; each delta is still recorded.
+  - **D17:** the Vendor's Call. Players listen for an authentic call (or use one verified example), understand it and repeat it. The phone's own recorder is an optional personal aid. DORI never records, collects, uploads or keeps vendor audio. Players are never told to interrupt vendors, and are encouraged to ask consent before recording anyone. Fixed participation points, no AI judging or accent scoring. **Market Jury** (two consenting teams teach and understand a phrase) is a future experiment with no point values.
+- No real money, purchases or paid re-rolls.
+
+**Pending owner approval:** D1–D12 in the plan (the scoring model, a minimum reward and an optional cap, food tokens on a reveal, free hints at sensitive stops, who may press stuck, "We're here", what timing is for, on-device voice, labels, research run 08 and the field checks, the sound default, a team of one holding both roles); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
+
 ## Other current owner directions
 
 - Intended access is the owner and seven friends on the existing VPS and host behind Caddy; do not treat the app as private until the actual app and proxy gates are verified.

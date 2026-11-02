@@ -2,6 +2,13 @@
 
 **Updated: 1 Nov 2026 (Claude).** **Live since 1 Nov 2026, 08:48 UTC: `522ecd9`** (I3b joining plus I4a leader role management; the commits after `e113ba5` change only docs, the dev reset and I4a), image `dori-shuk:20261101-084633-522ecd9`, built from a `git archive` of that commit, **join links off** since 09:50 UTC after an hour without test activity (on: the override `.local/amazing-shuk/shuk-join-links-on.override.yml`; off: `docker compose -f deploy/shuk-compose.yml up -d shuk`). A new adventure opened in its lobby at 08:48 UTC with one host invite (player-1) in `.local/amazing-shuk/live-links/`; the previous adventure is kept as `/data/state.json.before-new-adventure-20261101T084842Z` and `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`. Rollback `dori-shuk:previous` = `e113ba5`. Before that `e113ba5` (1 Nov 00:41 UTC), `69b4077` (31 Oct 08:49 UTC), `6ee5c96`, `0c03a61` (B-lite, 30 Oct 23:55 UTC), `b84ce27`, `364a4f5` (I2) and `175548f` (I1). The live file is schema 7. Server checkout `/root/projects/The-Amazing-Hunt`, branch `main`.
 
+## Progressive challenges and Market Surprise: PLANNED, nothing built (owner, 2 Nov 2026)
+
+The [progressive-challenges plan](progressive-challenges-plan.md) sets out the reusable stop shape: find the place, one core challenge, optional challenges, per-challenge hints and an "I'm completely stuck" fallback. It also covers silent timing, voice answers, reward pop-ups, solo play as a first-class mode, personal achievements and Market Surprise ("Feeling Lucky" dice, the Vendor's Call), with the mural as the pilot.
+- **Decided:** D13–D17 (see [product decisions](product-decisions.md#progressive-challenges-and-market-surprise-owner-2-nov-2026)).
+- **Open:** D1–D12 and the Market Surprise stop pool.
+- **Proposed first build step:** solo support (a team of one holds both roles).
+
 ## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
 
 The multiplayer onboarding, team setup, invitation and security workstream is paused. Live: `522ecd9` (I1–I3b and I4a), **join links off**, a new adventure in its lobby with one unused host invite (valid until 2 Nov 2026, 08:48 UTC). The resume index (what's built, flags, decisions, open tests, the exact next step, I3c/I4/I7a and the Stitch and UX approvals) is the top entry of the [handoff](agent-handoff.md). Older "Next" lines below about I2–I4 are history.
