@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
+import { choiceAnswer } from "@/lib/amazing-shuk/challenge-help";
 import type { WaterSubmissionRole } from "@/lib/amazing-shuk/water-measurement";
 import type { ChoiceChallenge } from "@/lib/amazing-shuk/choice-task";
 import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
@@ -12,17 +14,16 @@ type Props = {
   selected: readonly string[]; completed: boolean; feedback: string; activeRole: WaterSubmissionRole; busy: boolean; performance: WaterPerformanceView;
   // A team of one: personal wording for the question and status lines (owner, 2 Nov 2026).
   solo?: boolean;
-  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void; onOpenRoles?: () => void;
+  // The hint sheet and "I'm completely stuck" (IndexChallengeHelp), shown during play.
+  help?: ReactNode;
+  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onOpenRoles?: () => void;
 };
-/** Any "choose N" mission (the mural, the synagogue): shared picks, revealed hints and the reveal once accepted. */
+/** Any "choose N" mission (the mural, the synagogue): shared picks, help during play, and the reveal once accepted or revealed. */
 export default function ListChoiceTask({ task, challenge, step, followUps, selected, completed, activeRole, busy, performance, solo = false, ...rest }: Props) {
   const followUp = step > 0 ? task.followUps?.[step - 1] : undefined;
   const current = step > 0 ? followUps?.[step - 1] ?? challenge : challenge;
-  const stepHints = followUp?.hints ?? task.hints;
-  const used = performance.stepHintsUsed ?? performance.hintsUsed;
-  const hints = stepHints.slice(0, Math.max(0, Math.min(stepHints.length, used)));
   const view = buildChoiceTaskView(current, selected, completed, activeRole, busy, performance.started);
   return <PreviewChoiceTask view={{ ...view, status: soloLine(view.status, solo) }}
-    question={followUp?.question ?? (solo ? task.questionSolo ?? task.question : task.question)} lead={followUp?.lead} performance={performance} reveal={task.reveal} completionTitle={task.completionTitle} hints={hints}
-    hasMoreHints={performance.started && !completed && hints.length < stepHints.length} {...rest} />;
+    question={followUp?.question ?? (solo ? task.questionSolo ?? task.question : task.question)} lead={followUp?.lead} performance={performance} reveal={task.reveal} completionTitle={task.completionTitle}
+    answer={performance.revealed ? choiceAnswer(current) : undefined} {...rest} />;
 }

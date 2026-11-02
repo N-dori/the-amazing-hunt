@@ -25,8 +25,13 @@ const CHEERS_SOLO: readonly string[] = Object.freeze([
 // TODO(copy): draft for owner review.
 const QUIET: Readonly<Record<string, string>> = Object.freeze({ [LEVIN_MISSION.id]: "Thank you for listening to their story." });
 
-/** A different line for each mission, fixed by its map order so every phone in the group sees the same one. */
-export function missionCheer(missionId: string, solo = false): Readonly<{ text: string; celebrate: boolean }> {
+// After "I'm completely stuck": never a cheer or "Well done" (plan §8a). TODO(copy): draft for owner review (Phase 2c).
+export const REVEALED_LINE = "Here's the answer. You can carry on.";
+
+/** A different line for each mission, fixed by its map order so every phone in the group sees the same one. A revealed answer gets
+ * the quiet line instead, with no celebration. */
+export function missionCheer(missionId: string, solo = false, revealed = false): Readonly<{ text: string; celebrate: boolean }> {
+  if (revealed) return { text: REVEALED_LINE, celebrate: false };
   if (QUIET[missionId]) return { text: QUIET[missionId], celebrate: false };
   const index = Math.max(0, SHUK_MISSIONS.findIndex(mission => mission.id === missionId));
   const cheers = solo ? CHEERS_SOLO : CHEERS;

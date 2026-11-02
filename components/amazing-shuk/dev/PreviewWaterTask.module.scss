@@ -31,10 +31,12 @@
 .prompt { flex-basis: 100%; font-size: 1.0625rem; line-height: 1.5; }
 .prompt:focus, .success:focus { outline: 2px solid var(--ink); outline-offset: 3px; }
 .moveButton { min-height: 3rem; border: 1px solid var(--ink); padding: .75rem 1rem; text-decoration: none; overflow-wrap: anywhere; }
-.hints { margin-block: 1.5rem; }
-.hintList { list-style: none; padding: 0; max-width: 42rem; }
-.hintList li { margin-block: 1rem; padding-inline-start: .75rem; border-inline-start: 2px solid var(--zaatar); line-height: 1.6; }
-.hintList strong { font-weight: 500; }
+.help { margin-block: 1.5rem; }
+// After "I'm completely stuck": the answer, in the result's quiet ink rather than its accent.
+.answer { margin-block: .75rem; color: var(--ink); font-weight: 400; }
+.answer h4 { font-size: 1rem; font-weight: 600; margin-block-end: .5rem; }
+.answer ul, .answer ol { margin: 0; padding-inline-start: 1.25rem; line-height: 1.6; }
+.answer li { margin-block: .25rem; }
 .actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-block: 1.5rem; }
 .reset { min-height: 3rem; }
 @media (min-width: 24rem) { .containers { grid-template-columns: repeat(3, minmax(0, 1fr)); } .goal { grid-column: auto; } }

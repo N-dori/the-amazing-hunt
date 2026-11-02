@@ -29,7 +29,7 @@ function load(path: string, reactOverride?: object, mocks: Record<string, Compon
     if (["@/components/map/LeafletBaseMap", "@/components/amazing-shuk/IndexParticipantMenu", "@/components/amazing-shuk/ListParticipantBadges", "./IndexGuideWaterTask"].includes(id)) return { __esModule: true, default: () => null };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     if (id.startsWith("@/components/")) return { __esModule: true, default: load(id.replace("@/", "") + ".tsx", reactOverride, mocks) };
-    if (id.startsWith("./")) return { __esModule: true, default: load(resolve(dirname(path), id + ".tsx"), reactOverride, mocks) };
+    if (id.startsWith("./") || id.startsWith("../")) return { __esModule: true, default: load(resolve(dirname(path), id + ".tsx"), reactOverride, mocks) };
     return nativeRequire(id);
   };
   new Function("require", "exports", output)(localRequire, exports);

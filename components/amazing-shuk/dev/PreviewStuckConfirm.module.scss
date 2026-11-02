@@ -1,0 +1,38 @@
+// A quiet text button, kept apart from the hint icon so it isn't tapped by mistake.
+.foot { margin-block: 2.5rem 1.5rem; text-align: center; }
+
+.stuck {
+  min-height: 3rem;
+  padding: .5rem 1rem;
+  border: 0;
+  background: none;
+  color: var(--ink-subdued);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+  cursor: pointer;
+
+  &:hover { color: var(--ink); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}
+
+.text { margin-block: .75rem; line-height: 1.6; }
+
+// Two equal choices, side by side from the smallest phones up.
+.choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.choices > * { width: 100%; min-height: 3rem; }
+
+.keep {
+  min-height: 3rem;
+  padding: .75rem 1rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: var(--chalk-shade); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}

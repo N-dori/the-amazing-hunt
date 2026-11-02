@@ -32,40 +32,40 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
   return exports.default;
 }
 const Preview = loadComponent("components/amazing-shuk/dev/PreviewChoiceTask.tsx");
-const callbacks = { onToggle() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
+const callbacks = { onToggle() {}, onStart() {}, onSubmit() {}, onReset() {} };
 const performance = (started: boolean) => ({ started, hintsUsed: 0, canStart: true, reward: null });
 
 test("mural options are pressed buttons; no timer or live score; only an unverified key shows the draft notice", () => {
   const view = buildChoiceTaskView(MURAL_CHALLENGE, ["plaque"], false, "answerSubmitter", false, true);
-  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true), hints: [], hasMoreHints: true, feedback: "" }));
+  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true), feedback: "", help: createElement("p", null, "help-slot") }));
   assert.match(html, /Can your group spot TWO things that are actually real\?/);
   // Native checkboxes inside label cards: one checked, the rest unchecked, all named by their visible label.
   assert.equal((html.match(/type="checkbox"/g) ?? []).length, MURAL_CHALLENGE.options.length);
   assert.equal((html.match(/checked=""/g) ?? []).length, 1);
   assert.equal((html.match(/<label/g) ?? []).length, MURAL_CHALLENGE.options.length);
   assert.match(html, /<fieldset/); assert.match(html, /<legend class="srOnly">/);
-  assert.match(html, /1 of 2 selected/); assert.match(html, /Submit Our Answer/); assert.match(html, /Need a hint\?/);
+  assert.match(html, /1 of 2 selected/); assert.match(html, /Submit Our Answer/); assert.match(html, /help-slot/);
   assert.doesNotMatch(html, /aria-pressed/);
   assert.doesNotMatch(html, /answer key still needs a field check/);
   assert.doesNotMatch(html, /countdown|role="timer"|Points earned|seconds|elapsed|<img|mural-before/i);
   const draft = buildChoiceTaskView({ ...MURAL_CHALLENGE, answerKeyVerified: false }, [], false, "answerSubmitter", false, true);
-  assert.match(renderToStaticMarkup(createElement(Preview, { ...callbacks, view: draft, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true), hints: [], hasMoreHints: true, feedback: "" })), /answer key still needs a field check/);
+  assert.match(renderToStaticMarkup(createElement(Preview, { ...callbacks, view: draft, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true), feedback: "" })), /answer key still needs a field check/);
 });
 
 test("followers are invited to discuss; completion shows the shared result once", () => {
   const follower = buildChoiceTaskView(MURAL_CHALLENGE, [], false, "follower", false, false);
-  const before = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, hints: [], hasMoreHints: false, feedback: "" }));
+  const before = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, feedback: "" }));
   assert.doesNotMatch(before, /Submit Our Answer|Start challenge/);
   assert.match(before, /Talk it over/);
   // A free role is why nobody here can start: the link to the Group tab sits beside the note, and only when offered.
   assert.doesNotMatch(before, /Open the Group tab/);
-  const blocked = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, hints: [], hasMoreHints: false, feedback: "" }));
+  const blocked = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, feedback: "" }));
   assert.match(blocked, /can start after the story\.<\/p><button[^>]*><span>Open the Group tab<\/span>/);
-  const starter = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(false), hints: [], hasMoreHints: false, feedback: "" }));
+  const starter = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(false), feedback: "" }));
   assert.match(starter, /Start challenge/); assert.doesNotMatch(starter, /Open the Group tab/);
   const done = buildChoiceTaskView(MURAL_CHALLENGE, ["air-vents", "plaque"], true, "answerSubmitter", false, true);
   const after = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: done, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question,
-    performance: { started: true, hintsUsed: 1, canStart: true, reward: { points: 90, foodTokens: 2, hintsUsed: 1 } }, hints: [], hasMoreHints: false, feedback: "" }));
+    performance: { started: true, hintsUsed: 1, canStart: true, reward: { points: 90, foodTokens: 2, hintsUsed: 1 } }, feedback: "" }));
   assert.match(after, /Challenge completed!/); assert.match(after, /<dt>Points earned<\/dt><dd>90<\/dd>/);
   assert.doesNotMatch(after, /Submit Our Answer|field check|1 of 2|2 of 2/);
 });
@@ -81,7 +81,7 @@ test("the story renders its text and the before photo, without labels, a source 
 
 test("a wrong answer shows its reply beside the submit button and keeps the picks; followers never get the submit button", () => {
   const view = buildChoiceTaskView(MURAL_CHALLENGE, ["plaque", "tile-103"], false, "answerSubmitter", false, true);
-  const props = { ...callbacks, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true), hints: [], hasMoreHints: true };
+  const props = { ...callbacks, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: performance(true) };
   const html = renderToStaticMarkup(createElement(Preview, { ...props, view, feedback: "Not quite. Look again and talk it over." }));
   assert.match(html, /Not quite\. Look again and talk it over\./); assert.match(html, /2 of 2 selected/);
   assert.equal((html.match(/checked=""/g) ?? []).length, 2);
@@ -95,7 +95,7 @@ test("a wrong answer shows its reply beside the submit button and keeps the pick
 });
 
 test("synagogue: the reveal (blue sign, Armoza) appears only after the accepted answer, one neutral heading, no labels, no image", () => {
-  const props = { ...callbacks, reveal: SYNAGOGUE_TASK.reveal, question: SYNAGOGUE_TASK.question, hints: [], hasMoreHints: false, feedback: "" };
+  const props = { ...callbacks, reveal: SYNAGOGUE_TASK.reveal, question: SYNAGOGUE_TASK.question, feedback: "" };
   const playing = buildChoiceTaskView(SYNAGOGUE_CHALLENGE, ["tavern"], false, "answerSubmitter", false, true);
   const before = renderToStaticMarkup(createElement(Preview, { ...props, view: playing, performance: performance(true) }));
   assert.match(before, /what surprising business operated here\?/); assert.match(before, /1 of 1 selected/);
@@ -141,7 +141,7 @@ test("Montefiore bonus: the letters and verse read right to left, and the Hebrew
 test("Levin: no hint button, and the accepted answer gets a quiet title instead of a celebration", () => {
   const view = buildChoiceTaskView(LEVIN_CHALLENGE, ["spare-rabbi"], true, "answerSubmitter", false, true);
   const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, reveal: LEVIN_TASK.reveal, question: LEVIN_TASK.question, completionTitle: LEVIN_TASK.completionTitle,
-    performance: { started: true, hintsUsed: 0, canStart: true, reward: { points: 100, foodTokens: 2, hintsUsed: 0 } }, hints: [], hasMoreHints: false, feedback: "" }));
+    performance: { started: true, hintsUsed: 0, canStart: true, reward: { points: 100, foodTokens: 2, hintsUsed: 0 } }, feedback: "" }));
   assert.match(html, /<h3>Answer received<\/h3>/); assert.doesNotMatch(html, /Challenge completed!|Need a hint\?/);
   assert.match(html, /It&#x27;s told that they embraced/); assert.match(html, /Sources differ/); assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
 });

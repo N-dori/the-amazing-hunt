@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId, useRef, type MouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, type MouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject } from "react";
 import { Icon } from "@/components/icons";
 import { createSheetHistory, type SheetHistory } from "@/lib/amazing-shuk/sheet-history";
 import styles from "./PreviewBottomSheet.module.scss";
@@ -20,13 +20,17 @@ const SWIPE_CLOSE = 80;
 type Props = { open: boolean; title: string; closeLabel: string; onClose: () => void; children: ReactNode;
   // Read when the sheet closes, then run once history is back on the screen's own entry (e.g. a tab change from inside the
   // sheet, which would otherwise be undone by the step back over the sheet's marker). The owner clears it.
-  afterClose?: { current: (() => void) | null } };
+  afterClose?: { current: (() => void) | null };
+  // Stays visible under the scrolling body (a confirm button, say), so it never scrolls out of reach.
+  footer?: ReactNode;
+  // Takes focus when the sheet opens, instead of the browser's first focusable element (the Close button).
+  initialFocus?: RefObject<HTMLElement | null> };
 /**
  * A temporary sheet over the current screen, on the native modal `<dialog>`: the page behind is inert and dimmed but stays as it
  * was. It closes with its Close button, Escape, a tap on the dimmed backdrop, a downward swipe on its top, or the phone's Back,
  * and focus returns to whatever opened it.
  */
-export default function PreviewBottomSheet({ open, title, closeLabel, onClose, children, afterClose }: Props) {
+export default function PreviewBottomSheet({ open, title, closeLabel, onClose, children, afterClose, footer, initialFocus }: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const latestClose = useRef(onClose);
@@ -38,6 +42,7 @@ export default function PreviewBottomSheet({ open, title, closeLabel, onClose, c
     if (!open || !d) return;
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (!d.open) d.showModal();
+    initialFocus?.current?.focus();
     const history = sheets();
     const token = history.open(() => latestClose.current());
     // Escape, and Android's Back where the browser routes it to the dialog: close through React state, not natively.
@@ -56,6 +61,8 @@ export default function PreviewBottomSheet({ open, title, closeLabel, onClose, c
       history.close(token, afterClose?.current ?? undefined);
       opener?.focus({ preventScroll: true });
     };
+    // `initialFocus` is read once, as the sheet opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, afterClose]);
 
   // A tap on the backdrop lands on the dialog element itself; its content fills the rest.
@@ -86,6 +93,7 @@ export default function PreviewBottomSheet({ open, title, closeLabel, onClose, c
         <button type="button" className={styles.close} aria-label={closeLabel} onClick={onClose}><Icon name="close" className={styles.icon} /></button>
       </div>
       <div className={styles.body}>{open ? children : null}</div>
+      {open && footer ? <div className={styles.footer}>{footer}</div> : null}
     </div>
   </dialog>;
 }

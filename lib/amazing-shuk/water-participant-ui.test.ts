@@ -28,22 +28,22 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
   return exports.default;
 }
 const Preview = loadComponent("components/amazing-shuk/dev/PreviewWaterTask.tsx");
-const callbacks = { onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
+const callbacks = { onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {} };
 
 test("participant rendering has explicit start but no timer/countdown or live score", () => {
   for (const started of [false, true]) {
     const view = buildWaterTaskView(EMPTY_WATER_CUPS, false, "answerSubmitter", false, INITIAL_WATER_INTERACTION, started);
-    const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, performance: { started, hintsUsed: 0, canStart: true, reward: null }, narrative: ["Fill the family jar."], hints: [], hasMoreHints: started }));
+    const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, performance: { started, hintsUsed: 0, canStart: true, reward: null }, narrative: ["Fill the family jar."], help: started ? createElement("p", null, "help-slot") : undefined }));
     assert.doesNotMatch(html, /countdown|role="timer"|Points earned|Recorded duration|seconds|elapsed/i);
     assert.equal(html.includes("Start challenge"), !started);
-    assert.equal(html.includes("Need a hint?"), started);
+    assert.equal(html.includes("help-slot"), started);
   }
 });
 
 test("participant sees earned achievements only after official completion", () => {
   const cups = { small: 3, large: 0, jar: 4 };
   const reward = { points: 75, foodTokens: 2, hintsUsed: 2 };
-  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: buildWaterTaskView(cups, true, "answerSubmitter", false), performance: { started: true, hintsUsed: 2, canStart: true, reward }, narrative: [], hints: [], hasMoreHints: false }));
+  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: buildWaterTaskView(cups, true, "answerSubmitter", false), performance: { started: true, hintsUsed: 2, canStart: true, reward }, narrative: [] }));
   assert.match(html, /Challenge completed!/);
   assert.match(html, /<dt>Points earned<\/dt><dd>75<\/dd>/);
   assert.match(html, /<dt>Food tokens earned<\/dt><dd>2<\/dd>/);

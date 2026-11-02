@@ -1,0 +1,48 @@
+// The hint icon: a 3rem outdoor touch target with its count, quiet so it never competes with the answer.
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 3rem;
+  padding: .5rem 1rem;
+  border: 1.5px solid var(--line-stone);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover { background: var(--chalk-shade); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}
+
+.icon { width: 1.25rem; height: 1.25rem; }
+
+.badge {
+  display: grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding-inline: .375rem;
+  border-radius: 9999px;
+  background: var(--zaatar);
+  color: var(--chalk);
+  font-size: .875rem;
+  font-weight: 600;
+}
+
+.list { list-style: none; padding: 0; margin: 0; }
+.list li { margin-block: 1rem; padding-inline-start: .75rem; border-inline-start: 2px solid var(--zaatar); line-height: 1.6; }
+
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+
+  &:focus { outline: none; }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}
+
+.cost, .note { margin-block: 1rem; line-height: 1.5; }
+.note { color: var(--ink-subdued); }
+
+@media (forced-colors: active) { .badge { border: 1px solid CanvasText; } }

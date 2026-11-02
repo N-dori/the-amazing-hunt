@@ -29,24 +29,23 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
 }
 const List = loadComponent("components/amazing-shuk/dev/ListChoiceTask.tsx");
 const Prediction = loadComponent("components/amazing-shuk/dev/PreviewChoicePrediction.tsx");
-const callbacks = { onToggle() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
+const callbacks = { onToggle() {}, onStart() {}, onSubmit() {}, onReset() {} };
 const base = { ...callbacks, task: MARZIPAN_TASK, challenge: MARZIPAN_CHALLENGE, followUps: [MARZIPAN_HORNS_CHALLENGE], selected: [], completed: false, feedback: "", activeRole: "answerSubmitter", busy: false };
 
-test("question 1 shows the syrup choices and its own first hint, with no answer to a previous question", () => {
-  const html = renderToStaticMarkup(createElement(List, { ...base, step: 0, performance: { started: true, hintsUsed: 1, stepHintsUsed: 1, canStart: true, reward: null } }));
+test("question 1 shows the syrup choices and the help slot, with no answer to a previous question", () => {
+  const html = renderToStaticMarkup(createElement(List, { ...base, step: 0, help: createElement("p", null, "help-slot"), performance: { started: true, hintsUsed: 1, stepHintsUsed: 1, canStart: true, reward: null } }));
   assert.match(html, /When do you think the sweet syrup goes onto Marzipan&#x27;s rugelach\?/);
   assert.match(html, /While the pastries are still warm\./); assert.doesNotMatch(html, /Little horns/);
-  assert.match(html, /Hint 1 — Gentle/); assert.match(html, /Another hint\?/);
+  assert.match(html, /help-slot/);
   assert.doesNotMatch(html, /still warm, they&#x27;re brushed/);
 });
 
-test("question 2 opens under the answer to question 1, with its own hints counted from 1", () => {
+test("question 2 opens under the answer to question 1", () => {
   // Two hints were used on question 1; none yet on question 2.
   const html = renderToStaticMarkup(createElement(List, { ...base, step: 1, performance: { started: true, hintsUsed: 2, stepHintsUsed: 0, canStart: true, reward: null } }));
   assert.ok(html.indexOf("still warm, they&#x27;re brushed") < html.indexOf("What does the name rugelach refer to?"));
   assert.match(html, /Behind the answer/); assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/); assert.match(html, /Little horns/);
   assert.doesNotMatch(html, /While the pastries are still warm\./);
-  assert.doesNotMatch(html, /<li>/); assert.match(html, /Need a hint\?/);
   assert.doesNotMatch(html, /Look at the trays\. Is the syrup/);
 });
 

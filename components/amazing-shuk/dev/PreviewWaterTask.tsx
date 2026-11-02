@@ -1,19 +1,23 @@
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import ActionButton from "@/components/ui/ActionButton";
 import type { WaterTaskView, WaterActionView, WaterContainerId } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterMove } from "@/lib/amazing-shuk/water-measurement";
 import styles from "./PreviewWaterTask.module.scss";
 type Props = {
   view: WaterTaskView; performance: WaterPerformanceView; narrative: readonly string[];
-  hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
+  // The hint sheet and "I'm completely stuck", during play (IndexChallengeHelp).
+  help?: ReactNode;
+  // After "I'm completely stuck": the intended solution, one step per line.
+  answer?: readonly string[];
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (id: WaterActionView["id"]) => void; onCancelPour: () => void;
-  onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  onStart: () => void; onSubmit: () => void; onReset: () => void;
   // Only while a role is free (it opens the Group tab).
   onOpenRoles?: () => void;
 };
-export default function PreviewWaterTask({ view, performance, narrative, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint, onOpenRoles }: Props) {
+// TODO(copy): "Here's the answer" and "One way to do it" are drafts (Phase 2c).
+export default function PreviewWaterTask({ view, performance, narrative, help, answer, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onOpenRoles }: Props) {
   return <section className={styles.task} aria-labelledby="water-task-title">
     <div className={styles.taskIntro}>
       <h2 id="water-task-title">Fill your family&apos;s jar</h2>
@@ -48,7 +52,11 @@ export default function PreviewWaterTask({ view, performance, narrative, hints, 
       </figure>)}
     </div>
     {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
-      <h3>Challenge completed!</h3>
+      <h3>{performance.revealed ? "Here's the answer" : "Challenge completed!"}</h3>
+      {performance.revealed && answer?.length ? <div className={styles.answer}>
+        <h4>One way to do it</h4>
+        <ol>{answer.map(step => <li key={step}>{step}</li>)}</ol>
+      </div> : null}
       {performance.reward ? <dl className={styles.reward}>
         <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
         <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
@@ -65,11 +73,6 @@ export default function PreviewWaterTask({ view, performance, narrative, hints, 
       {view.canSubmit && view.solved && !view.completed ? <ActionButton disabled={view.submitDisabled} onClick={onSubmit}>Submit Group Answer</ActionButton> : view.solved && !view.completed ? <p>Your answer-submitter or guide can submit.</p> : null}
       <ActionButton variant="quiet" className={styles.reset} disabled={!view.canReset} onClick={onReset}>Reset puzzle</ActionButton>
     </div>
-    <aside className={styles.hints} aria-label="Optional puzzle hints">
-      {hasMoreHints ? <ActionButton variant="quiet" className={styles.reset} disabled={view.busy} onClick={onHint}>{hints.length ? "Another hint?" : "Need a hint?"}</ActionButton> : null}
-      <ol aria-live="polite" aria-relevant="additions" className={styles.hintList}>
-        {hints.map(hint => <li key={hint.title}><strong>{hint.title}</strong><p>{hint.text}</p></li>)}
-      </ol>
-    </aside>
+    {help ? <div className={styles.help}>{help}</div> : null}
   </section>;
 }

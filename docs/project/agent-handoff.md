@@ -1,6 +1,30 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 2 steps 2a and 2b built and verified (uncommitted): 2 Nov 2026
+## Latest handoff - Phase 2 step 2c built and verified (uncommitted): 2 Nov 2026
+
+2a and 2b are committed (`17a1549`, not pushed). **2c (the hint sheet and "I'm completely stuck" on screen) is uncommitted.** The live game is unchanged (`87c1877`).
+
+- **New:**
+  - `lib/amazing-shuk/challenge-help.ts`: `buildHintSheetView`, `choiceAnswer`, `waterAnswer` and `WATER_INTENDED_SOLUTION`.
+  - `components/amazing-shuk/dev/IndexChallengeHelp.tsx`: which sheet is open, and the hint this phone asked for.
+  - `PreviewHintSheet`: the hint icon with its count badge, the hints so far, and the next hint's cost stated as the most the challenge can still earn ("from 85 to 60 points"). One "Show hint N" button in a footer that stays visible, busy while sending, and an offline note.
+  - `PreviewStuckConfirm`: the quiet "I'm completely stuck" button at the foot of the challenge, and the "Show the answer?" sheet: 0 points, food tokens kept, "Keep trying" focused first.
+  - `PreviewBottomSheet` gained a `footer` slot and an `initialFocus` ref.
+- **Changed:**
+  - `PreviewChoiceTask` and `PreviewWaterTask` replace their inline hint lists with a `help` slot.
+  - A revealed challenge shows "Here's the answer" with the right options, or the well's steps.
+  - `missionCheer(…, revealed)` returns a quiet line with no badge.
+- **The well's reveal** shows the intended 7-move solution, not the two-move shortcut (pour a full 5 L into the 4 L jar). A breadth-first search found the shortcut first. A test replays the intended moves against the rules.
+- **Copy:** every new visible line is a `TODO(copy)` draft, including "Hints", "Show hint N", the cost line, "Opening hint…", the offline note, "I'm completely stuck", the confirmation, "Here's the answer", "The answer", "One way to do it", the quiet line and the well's step labels.
+- **Not built in 2c:** the quiet line naming which teammate opened a hint. It needs the server to record who used each hint; teammates see the badge count drop.
+- **Checks** (clean `node:22-alpine` container):
+  - `test:shuk` 274/274, after fixing the `../` import in `mission-arrival-ui.test.ts`'s loader;
+  - `npm test` 63/63; ESLint on the Shuk folders clean; `tsc` passes;
+  - each changed Sass module compiles; `git diff --check` passes.
+  - Not checked visually: no browser or phone review yet.
+- **Next:** 2d (`RewardDialog`), then 2e (timing record), then `/game-verify shuk` and the owner's browser review on the dev page.
+
+## Earlier handoff - Phase 2 steps 2a and 2b built and verified (uncommitted): 2 Nov 2026
 
 **Start here** for Phase 2. The approved plan is "Phase 2 detailed plan" in the [progressive-challenges plan](progressive-challenges-plan.md). The owner's answers (D1–D5, D11, P2-1 to P2-5) are recorded there and in [decisions](product-decisions.md). Nothing is committed or deployed; the live game is unchanged (`87c1877`).
 
