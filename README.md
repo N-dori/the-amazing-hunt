@@ -26,7 +26,7 @@ The app pins the same Next and React versions as the DORI platform. It used to l
 
 ## Local preview
 
-`dori-game-preview` on `127.0.0.1:3200`, not live. How to build, start and open it: `docs/RUN_PREVIEW.md`.
+`dori-game-preview` on `127.0.0.1:3200`, not live. How to build, start and open it: `docs/RUN_PREVIEW.md` (the owner's local file, git-ignored since 2 Nov 2026; it holds local invite links).
 
 ## Deploy
 

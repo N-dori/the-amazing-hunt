@@ -1,6 +1,37 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 1 (solo-first play) built and verified, not committed: 2 Nov 2026
+## Latest handoff - Ready for the next session: Phase 1 live, tooling added: 2 Nov 2026
+
+**Start here.** Read `CLAUDE.md`, `AGENTS.md`, this entry, [current state](current-state.md) and the [progressive-challenges plan](progressive-challenges-plan.md) (its roadmap and decisions). Multiplayer onboarding stays paused.
+
+- **Live:**
+  - `87c1877` (Phase 1, solo-first play) as `dori-shuk:20261102-020120-87c1877`, deployed 2 Nov 02:01 UTC with `/deploy`; rollback `previous` = `522ecd9`.
+  - A fresh adventure in its lobby; join links off.
+  - Links in `.local/amazing-shuk/live-links/` (`host-player-1.txt`, `guide.txt`), valid until about 3 Nov 02:02 UTC. After that, new ones need the owner's OK (`/deploy keep-game` doesn't make links; `.claude/skills/deploy/scripts/fresh-links.sh` does).
+- **Git:** `main` at `eec9c0c` locally, and **not pushed** (the owner pushes from VS Code). The ignore-rule commit below is **staged, not committed**.
+- **Staged:**
+  - `.gitignore` now ignores the owner's local files: the Stitch exports, `docs/RUN_PREVIEW.md`, the trip paths, the deferred UX backlog, and new photos in `public/shuk/`. The 7 tracked photos are unaffected; add an app photo with `git add -f` plus its `.dockerignore` line.
+  - `docs/RUN_PREVIEW.md` is removed from git (kept on disk).
+  - `README.md` and `docs/HANDOFF.md` note it's local.
+  - `/deploy` no longer stashes it.
+  - The owner commits with `/commit`.
+- **New commands (in `CLAUDE.md`):**
+  - `/deploy`: the full Shuk release (activity check, backup, `deploy.sh shuk`, image cleanup, fresh adventure, fresh links; `keep-game` skips the reset), with read-only `verify.sh`. Its first run went cleanly.
+  - `/commit`: safe commits and pushes for the public repo: explicit staging, owner files kept out, a scan for secrets, invite links, real names and media; `secret <NAME>` for adding keys; optional hooks.
+- **Not done yet:**
+  - the scan hooks aren't installed (`/commit install-hooks`, so VS Code commits are checked too);
+  - the push;
+  - the owner's browser review of solo play on the dev page;
+  - approval of the solo copy drafts (listed in the entry below);
+  - D1–D5, D7–D11 and the Market Surprise stop pool.
+- **Known, not urgent:** Turbopack warns that `defaultStorePath` in `participant-store.ts` makes the build trace the whole project. It predates this session.
+- **Next action:**
+  1. The owner commits the staged batch and pushes.
+  2. The owner reviews solo play live or on the dev page.
+  3. The owner answers D1–D5 and D11.
+  4. Claude plans Phase 2 in detail (mural first) and stops for approval.
+
+## Earlier handoff - Phase 1 (solo-first play) built and verified: 2 Nov 2026 (committed as `3d61fde`, live since 02:01 UTC)
 
 **Built in the working tree; not committed, pushed or deployed.** Plan: [Phase 1](progressive-challenges-plan.md#phase-1-solo-first-self-guided-play-detailed-plan-2-nov-2026-awaiting-approval-to-build).
 - **Solo roles (D12):** `effectiveRoles` / `isSoloTeam` (`roles.ts`). A team of exactly one holds both roles; this is computed in `sessionView` and `sessionAction`, never stored. The view sends `solo` and the effective `session.roles`; the well's submit uses them too. Teams of 2–5 keep their stored roles.
