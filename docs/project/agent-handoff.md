@@ -1,6 +1,28 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - UX-4 (small) built (uncommitted): 2 Nov 2026
+## Latest handoff - a pasted sign-in link now works in an open tab (uncommitted): 2 Nov 2026
+
+**Why:** the owner couldn't sign in on the PC. The page read `#invite=…` only when it first opened. A link pasted into a tab already on `/shuk/amazing-shuk` changes only the part after `#`, which reloads nothing, so the link was ignored.
+- **The fix:**
+  - `lib/amazing-shuk/link-fragment.ts` (`readLinkFragment`) reads an invitation or join link from the fragment; an invitation wins over a join link.
+  - `IndexWaterTask` reads the link when the page opens and on every `hashchange`, wipes it from the address bar as before, and clears an old error message when an invitation arrives.
+  - Signing in still needs the tap on the welcome screen. The server, the stored state and the link rules are unchanged.
+- **Tests:** the new `link-fragment.test.ts` (4 tests, including a source check that the page watches `hashchange`).
+- **Checks:** `test:shuk` 297/297, `npm test` 63/63, lint and tsc OK, `git diff --check` clean. Not checked in a browser.
+- **The two-device test (phone and PC), as agreed with the owner:**
+  - Ship this with `/deploy host player-1 guide player-2` (the owner runs it; it can't be started by an agent). Disk was at 85%, the limit, so the preflight may stop it.
+  - The phone opens the host link while the adventure is in its lobby; the PC pastes the player-2 link into any tab. Start the adventure on the phone only after the PC has joined. A host link never works after Start; that rule is deliberate.
+  - This also covers the open check 13 (a non-submitter doesn't see the stuck button).
+- **Next:** commit on request (`link-fragment.ts`, its test, `IndexWaterTask.tsx` and these two docs), the owner pushes, then `/deploy` as above.
+
+## UX-4 (small) committed and live: 2 Nov 2026
+
+- **Committed** `fe1df94`; **deployed** with a full `/deploy` (a fresh adventure and new links).
+  - Live tag: `dori-shuk:20261102-082004-fe1df94`; rollback: `946b531`.
+  - Backup: `live-state-before-deploy-20261102T082003Z.json`. The pruning removed `87c1877` and the build cache.
+  - Links: `host-player-1.txt` and `guide.txt`, written 08:21 UTC and valid about 24 h. Join links off. Nine safety copies in `/data`. Disk 85%.
+
+### What UX-4 built
 
 The owner's decisions are recorded under UX-4 in `product-decisions.md`.
 - **The count-up:** `lib/amazing-shuk/count-up.ts` (`countUpValue`, ease-out, 700 ms) and `rewardAmountItems` in `mission-cheer.ts` (number, unit, final label; only the points count up).
@@ -11,7 +33,6 @@ The owner's decisions are recorded under UX-4 in `product-decisions.md`.
 - **The challenge screen's top nav** ("Back to location", "Back to map") is removed, with its `.journey` style.
 - **Tests:** the new `count-up.test.ts`; the reward dialog test; the Index test checks there are no Back buttons.
 - **Checks:** `test:shuk` 293/293, `npm test` 63/63, lint, tsc and Sass OK.
-- **Not live:** live is still `946b531`.
 
 ## Phase 2 (2a–2e) and UX-3 live: 2 Nov 2026
 

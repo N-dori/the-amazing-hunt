@@ -45,6 +45,7 @@ import PreviewChoicePrediction from "./PreviewChoicePrediction";
 import PreviewMissionCheer from "./PreviewMissionCheer";
 import { missionCheer, nextMission, rewardAmountItems, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
 import { pendingRewardEvent, readSeenRewards, rememberSeenRewards, rewardRecords, type RewardEvent } from "@/lib/amazing-shuk/reward-events";
+import { readLinkFragment } from "@/lib/amazing-shuk/link-fragment";
 import PreviewRewardDialog from "./PreviewRewardDialog";
 import PreviewRewardToast from "./PreviewRewardToast";
 import styles from "./IndexWaterTask.module.scss";
@@ -151,16 +152,19 @@ export default function IndexWaterTask({ mode }: Props) {
   const [signedOut, setSignedOut] = useState(false);
   // Signed out because the server no longer knows this phone's session (removed from the team, a new adventure): said plainly.
   const [sessionEnded, setSessionEnded] = useState(false);
+  // The link is read when the page opens and on every `hashchange` (a link pasted into a tab already on this page reloads
+  // nothing). It is wiped from the address bar at once; that wipe fires no `hashchange`, so this never loops.
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const fragment = new URLSearchParams(window.location.hash.slice(1));
-      const token = fragment.get("invite");
-      const join = fragment.get("join");
-      if (token || join) window.history.replaceState(null, "", window.location.pathname);
-      if (token) setInvitation(token);
-      else if (join) { joinLinkRef.current = join; setJoinLink(join); }
-    }, 0);
-    return () => window.clearTimeout(timer);
+    const take = () => {
+      const link = readLinkFragment(window.location.hash);
+      if (!link) return;
+      window.history.replaceState(null, "", window.location.pathname);
+      if (link.kind === "invite") { setMessage(""); setInvitation(link.value); }
+      else { joinLinkRef.current = link.value; setJoinLink(link.value); }
+    };
+    const timer = window.setTimeout(take, 0);
+    window.addEventListener("hashchange", take);
+    return () => { window.clearTimeout(timer); window.removeEventListener("hashchange", take); };
   }, []);
   const login = async () => {
     setBusy(true);
