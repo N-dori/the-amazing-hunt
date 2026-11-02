@@ -24,7 +24,9 @@ export type WaterPerformance = Readonly<{
 // `stepHintsUsed` counts the current question's hints in a mission with follow-up questions; it equals `hintsUsed` otherwise.
 // `canReveal`: this phone may press "I'm completely stuck" now; `revealed`: the award came from a reveal (0 points).
 export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; stepHintsUsed?: number; canStart: boolean; reward: WaterReward | null;
-  canReveal?: boolean; revealed?: boolean }>;
+  canReveal?: boolean; revealed?: boolean;
+  // When the challenge's award was recorded (Phase 2d): the reward pop-up's key.
+  awardedAt?: number }>;
 export type GuideTimingView = Readonly<{ startedAt: number | null; solvedAt: number | null; stoppedElapsedMs: number | null; paused: boolean; excluded: boolean }>;
 export function createWaterPerformance(): WaterPerformance {
   return { startedAt: null, clockStartedAt: null, solvedAt: null, pausedAt: null, pausedMs: 0, excluded: false, hintsUsed: 0, award: null, adjustments: [] };

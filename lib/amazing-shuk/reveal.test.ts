@@ -54,6 +54,8 @@ test("the Submitter reveals once: 0 points, the core's food tokens, hints kept; 
   assert.equal(shown.session.completed, true); assert.equal(shown.mission.state, "completed");
   assert.deepEqual(shown.performance.reward, { points: 0, foodTokens: 2, hintsUsed: 1 });
   assert.equal(shown.performance.revealed, true); assert.equal(shown.performance.canReveal, false);
+  // The award's own time travels in the view, so each phone can tell a new award from an old one (Phase 2d).
+  assert.equal(shown.performance.awardedAt, NOW + 1);
   assert.deepEqual(shown.sharedBalance, { points: 0, foodTokens: 2, status: "Provisional local-development rewards" });
   const award = storedTeam(JSON.parse(await readFile(path, "utf8"))).missions[MURAL].performance.award;
   assert.equal(award.outcome, "revealed"); assert.equal(award.endedAt, NOW + 1); assert.equal(award.awardedAt, NOW + 1);

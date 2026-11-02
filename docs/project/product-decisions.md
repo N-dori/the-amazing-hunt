@@ -283,6 +283,13 @@ Stitch stays a visual reference only.
   - A refresh or a second phone stays on the same side of Start.
   - The story never changes the timing.
 
+- **Decided (owner, 2 Nov 2026): UX-3 is the first UX item.**
+  - Option A: screen-only hiding, on one page.
+  - No Ready step: Start is the only gate.
+  - Marzipan is left as is until its rework, including the name guess before Start.
+  - The plan was approved on 2 Nov 2026.
+- **No video support for now (owner, 2 Nov 2026):** nothing in UX-3 or Phase 2 adds video.
+
 **UX-4. Completion: celebrate, then a user-chosen next step.**
 - **Direction:**
   - After the server accepts the answer: a clear success state, "Challenge completed" or similar, and points counting up.

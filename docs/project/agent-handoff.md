@@ -1,6 +1,34 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 2 step 2c built and verified (uncommitted): 2 Nov 2026
+## Latest handoff - Phase 2 step 2d built and verified (uncommitted): 2 Nov 2026
+
+2a–2c are committed (`17a1549`, `6b61124`). **2d (the reward pop-up) is uncommitted.** The live game is unchanged (`87c1877`).
+
+- **Server:** the view now carries award times:
+  - `performance.awardedAt`;
+  - `mission.arrivalAt` (on every mission view);
+  - `session.bonus.awardedAt`.
+  These are additive, with no schema change.
+- **`lib/amazing-shuk/reward-events.ts`:**
+  - `rewardRecords` lists a view's awards under stable keys (`mission:part:awardedAt`).
+  - `pendingRewardEvent` decides the one pop-up. An award counts only if this phone already knew the mission and the award is new to it (a page load or a newly opened mission announces nothing), it isn't in this device's seen list (`localStorage`, try/catch, capped at 100), and it is under 5 minutes old.
+  - Awards that land together merge into one pop-up with both amounts.
+  - Weights: full for a solve or bonus, light for navigation only, quiet after a reveal.
+  - `REWARD_SOUND_SRC = null` (D11 off; no asset, no toggle).
+- **`mission-cheer.ts`:** `rewardHeadline`, `rewardAmounts`, `rewardToastText`, and `NAVIGATION_LINE`, the owner's own line.
+- **New components:**
+  - `PreviewRewardDialog`: on the shared bottom sheet; the badge only for a celebrating solve (Rabbi Levin stays quiet); amounts as text; focus on the amounts; a Continue footer; Escape, Back and backdrop close it.
+  - `PreviewRewardToast`: non-modal, `role="status"`, gone after 6 s.
+- **`IndexWaterTask`:** every fresh view (poll, queued action, GPS check) passes through `noticeRewards`. The pop-up shows only on that stop's location or challenge screen; elsewhere it's a toast. The inline cheer stays as the permanent record.
+- **Copy:** `TODO(copy)` drafts: "Continue", "Close", "Dismiss", "+N points", "+N food tokens", and the toast line.
+- **Not built:**
+  - the sound and its toggle (P2-4);
+  - the Marzipan follow-up-step toast (Marzipan waits for its rework);
+  - awards on other missions while this phone polls a different one. A phone only learns of them when it opens that mission, and that first look announces nothing.
+- **Checks** (clean container): `test:shuk` 281/281, `npm test` 63/63, ESLint clean, `tsc` passes, both new Sass modules compile, `git diff --check` passes. Not checked visually.
+- **Next:** `/game-verify shuk` (the plan's gate after 2d), then the owner's browser review on the dev page (solo and two phones), then 2e (the silent timing record).
+
+## Earlier handoff - Phase 2 step 2c built and verified (uncommitted): 2 Nov 2026
 
 2a and 2b are committed (`17a1549`, not pushed). **2c (the hint sheet and "I'm completely stuck" on screen) is uncommitted.** The live game is unchanged (`87c1877`).
 

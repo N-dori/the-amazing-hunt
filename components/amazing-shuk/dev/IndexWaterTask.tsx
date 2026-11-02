@@ -42,7 +42,10 @@ import ListChoiceBonus from "./ListChoiceBonus";
 import PreviewAppreciation from "./PreviewAppreciation";
 import PreviewChoicePrediction from "./PreviewChoicePrediction";
 import PreviewMissionCheer from "./PreviewMissionCheer";
-import { missionCheer, nextMission } from "@/lib/amazing-shuk/mission-cheer";
+import { missionCheer, nextMission, rewardAmounts, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
+import { pendingRewardEvent, readSeenRewards, rememberSeenRewards, rewardRecords, type RewardEvent } from "@/lib/amazing-shuk/reward-events";
+import PreviewRewardDialog from "./PreviewRewardDialog";
+import PreviewRewardToast from "./PreviewRewardToast";
 import styles from "./IndexWaterTask.module.scss";
 
 // The roster always comes from the server (its participant registry); before a view arrives there is only the guide.
@@ -65,7 +68,7 @@ const MODE_COPY = {
 type Props = { mode: keyof typeof MODE_COPY };
 
 // The server returns the detail of the requested mission: cups for the well, picks for a "choose N" challenge.
-type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number } };
+type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: string[]; step?: number; bonus?: { selected: string[]; completed: boolean; points: number; awardedAt?: number } };
 // `participants` carries the group's display names (from the server's state, never git); older servers omit it, and `adventure` too.
 // `membership` comes only to the team's leader session and the guide, and only while join links are on (I3b).
 // `solo`: a team of one (D12), computed by the server; it holds both roles and reads personal wording.
@@ -112,6 +115,27 @@ export default function IndexWaterTask({ mode }: Props) {
     return () => { window.clearTimeout(timer); window.removeEventListener("popstate", back); };
   }, []);
   const [busy, setBusy] = useState(false);
+  // Reward pop-ups (Phase 2d): the award keys this phone already knew, per mission, and the one pop-up waiting to show.
+  const knownRewards = useRef(new Map<string, Set<string>>());
+  const [reward, setReward] = useState<RewardEvent | null>(null);
+  // Every fresh server view passes through here: a new, unseen, recent award becomes the one pop-up (pure rules in reward-events).
+  const noticeRewards = useCallback((next: ServerView) => {
+    const records = rewardRecords(next);
+    const known = knownRewards.current.get(next.mission.id) ?? null;
+    let storage: Storage | null = null;
+    try { storage = window.localStorage; } catch { /* Blocked storage: nothing is remembered. */ }
+    const event = pendingRewardEvent(records, known, readSeenRewards(storage), Date.now());
+    knownRewards.current.set(next.mission.id, new Set([...(known ?? []), ...records.map(record => record.key)]));
+    if (event) { rememberSeenRewards(storage, event.keys); setReward(event); }
+  }, []);
+  // The pop-up shows only on the award's own stop (its location or challenge screen); anywhere else a small toast says it instead,
+  // so it never interrupts reading. A toast leaves by itself after a few seconds; a pop-up waits for Continue.
+  const rewardInline = reward !== null && nav.area === "journey" && reward.missionId === missionId && (stage === "location" || stage === "challenge");
+  useEffect(() => {
+    if (!reward || rewardInline) return;
+    const timer = window.setTimeout(() => setReward(current => current === reward ? null : current), 6000);
+    return () => window.clearTimeout(timer);
+  }, [reward, rewardInline]);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
   const [storyOpen, setStoryOpen] = useState(true);
   const [invitation, setInvitation] = useState("");
@@ -157,11 +181,13 @@ export default function IndexWaterTask({ mode }: Props) {
         setSessionEnded(refusal.code === JOIN_ERROR.sessionEnded);
       } else setSessionEnded(false);
       if (!response.ok) throw new Error(response.status === 401 ? "Open your single-use invitation link to sign in." : copy.unavailable);
-      setView(await response.json() as ServerView);
+      const fresh = await response.json() as ServerView;
+      noticeRewards(fresh);
+      setView(fresh);
       setMessage(joinLinkRef.current ? TEAM_JOIN_COPY.alreadyIn : "");
       if (joinLinkRef.current) { joinLinkRef.current = ""; setJoinLink(""); }
     } catch (error) { setMessage(error instanceof Error ? error.message : copy.loadFailed); }
-  }, [missionId, copy]);
+  }, [missionId, copy, noticeRewards]);
   useEffect(() => {
     void refresh();
     const timer = window.setInterval(() => { void refresh(); }, 1500);
@@ -194,7 +220,7 @@ export default function IndexWaterTask({ mode }: Props) {
       const data = await response.json() as ServerView;
       if (currentActor.current !== actorId || generation !== arrivalGeneration.current) return;
       if (!response.ok) throw new Error(data.error ?? "Arrival could not be checked. Please retry or ask the guide.");
-      setView(data); setArrivalFeedback(data.message ?? "You're very close! You're in the right area. Look around for Gan HaTut.");
+      noticeRewards(data); setView(data); setArrivalFeedback(data.message ?? "You're very close! You're in the right area. Look around for Gan HaTut.");
     } catch (error) {
       if (currentActor.current === actorId && generation === arrivalGeneration.current) setArrivalFeedback(error instanceof Error ? error.message : "Please retry or ask the guide.");
     } finally { checkingArrival.current = false; setArrivalBusy(false); }
@@ -219,12 +245,12 @@ export default function IndexWaterTask({ mode }: Props) {
         if (outcome === "retry" || (outcome === "applied" && body === null)) throw new Error(data.error ?? "Action saved; waiting to reconnect.");
         const remaining = JSON.parse(localStorage.getItem(key) ?? "[]") as { actionId: string }[];
         localStorage.setItem(key, JSON.stringify(remaining.filter(item => item.actionId !== action.actionId)));
-        if (outcome === "applied") { setView(data as ServerView); setMessage(action.type === "move" ? "" : data.message ?? ""); }
+        if (outcome === "applied") { noticeRewards(data as ServerView); setView(data as ServerView); setMessage(action.type === "move" ? "" : data.message ?? ""); }
         else setMessage(data.error ?? "Action rejected.");
       }
     } catch (error) { setMessage(error instanceof Error ? error.message : "Action saved; waiting to reconnect."); }
     finally { flushing.current = false; setBusy(false); }
-  }, [actorId]);
+  }, [actorId, noticeRewards]);
   useEffect(() => {
     const timer = window.setInterval(() => { void flush(); }, 2000);
     return () => window.clearInterval(timer);
@@ -283,6 +309,19 @@ export default function IndexWaterTask({ mode }: Props) {
       totalUsed={view.performance.hintsUsed} performance={view.performance} completed={view.session.completed}
       solved={view.session.kind === "water" && view.session.cups ? isWaterPuzzleSolved(view.session.cups) : false}
       rewards={definition.rewards} busy={busy} onHint={revealHint} onReveal={() => void act({ type: "reveal", missionId })} />;
+  };
+
+  // The one waiting award: a pop-up on its own stop, a toast elsewhere (Phase 2d).
+  const rewardPopUp = () => {
+    if (!reward || !view) return null;
+    const solo = view.solo === true;
+    if (!rewardInline) {
+      const place = findMission(reward.missionId)?.shortName ?? "";
+      return <PreviewRewardToast text={rewardToastText(reward.points, reward.foodTokens, place, solo)} onDismiss={() => setReward(null)} />;
+    }
+    const { text, celebrate } = rewardHeadline(reward.weight, reward.missionId, solo);
+    return <PreviewRewardDialog open title={text} celebrate={celebrate && reward.weight === "full"} weight={reward.weight}
+      amounts={rewardAmounts(reward.points, reward.foodTokens)} onContinue={() => setReward(null)} />;
   };
 
   // The header's height wraps with the role badges and the text size; the map stage uses it to fill the rest of the screen.
@@ -419,6 +458,7 @@ export default function IndexWaterTask({ mode }: Props) {
         <aside className={styles.safety}>Local development only. Invitation sessions and shared progress use local JSON storage. Do not expose this development server to the network.</aside>
         <button className={styles.refresh} type="button" onClick={() => void refresh()} disabled={busy}>Refresh shared state</button>
       </details> : null}
+      {rewardPopUp()}
       <PreviewShukNav active={activeTab(nav)} onSelect={tab => navigate(goToTab(nav, tab))} />
     </main>
   );

@@ -51,3 +51,27 @@ export function nextMission(missions: readonly Pick<MissionView, "id" | "state">
   }
   return null;
 }
+
+// The owner's own line for navigation (plan §8a, 2 Nov 2026).
+export const NAVIGATION_LINE = "Amazing navigation! You rock!";
+
+/** The reward pop-up's headline: the mission's cheer for a solve (Rabbi Levin's stays quiet), the owner's navigation line, or the
+ * quiet line after "I'm completely stuck". `celebrate` decides the badge. */
+export function rewardHeadline(weight: "full" | "light" | "quiet", missionId: string, solo = false): Readonly<{ text: string; celebrate: boolean }> {
+  if (weight === "quiet") return { text: REVEALED_LINE, celebrate: false };
+  if (weight === "light") return { text: NAVIGATION_LINE, celebrate: false };
+  return missionCheer(missionId, solo);
+}
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+/** The pop-up's amounts, as text (never a count-up). TODO(copy): drafts ("+N points", "+N food tokens"). */
+export function rewardAmounts(points: number, foodTokens: number): readonly string[] {
+  return [...(points > 0 ? [`+${plural(points, "point", "points")}`] : []), ...(foodTokens > 0 ? [`+${plural(foodTokens, "food token", "food tokens")}`] : [])];
+}
+
+/** A small note instead of the pop-up when this phone is elsewhere (another screen or stop), so it never interrupts reading.
+ * TODO(copy): draft. */
+export function rewardToastText(points: number, foodTokens: number, place: string, solo = false): string {
+  const what = points > 0 ? plural(points, "point", "points") : plural(foodTokens, "food token", "food tokens");
+  return `${solo ? "You" : "Your team"} earned ${what} at ${place}.`;
+}

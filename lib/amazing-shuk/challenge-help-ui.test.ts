@@ -80,3 +80,16 @@ test("a revealed well lists the intended steps in order", () => {
   assert.match(html, /Here&#x27;s the answer/); assert.match(html, /<ol>/);
   assert.equal((html.match(/<li>/g) ?? []).length, waterAnswer().length);
 });
+
+const Reward = loadComponent("components/amazing-shuk/dev/PreviewRewardDialog.tsx");
+const Toast = loadComponent("components/amazing-shuk/dev/PreviewRewardToast.tsx");
+
+test("the reward pop-up: the headline, the amounts as text, the badge only when celebrating, and Continue", () => {
+  const full = renderToStaticMarkup(createElement(Reward, { open: true, title: "Woo-hoo! You rock!", celebrate: true, weight: "full", amounts: ["+85 points", "+2 food tokens"], onContinue: noop }));
+  assert.match(full, /Woo-hoo! You rock!/); assert.match(full, /\+85 points/); assert.match(full, /\+2 food tokens/);
+  assert.match(full, /class="badge"/); assert.match(full, /Continue/);
+  const quiet = renderToStaticMarkup(createElement(Reward, { open: true, title: "Here's the answer. You can carry on.", celebrate: false, weight: "quiet", amounts: ["+2 food tokens"], onContinue: noop }));
+  assert.doesNotMatch(quiet, /class="badge"/); assert.doesNotMatch(quiet, /points/);
+  const toast = renderToStaticMarkup(createElement(Toast, { text: "Your team earned 100 points at Market Mural.", onDismiss: noop }));
+  assert.match(toast, /role="status"/); assert.match(toast, /Dismiss/);
+});

@@ -108,7 +108,8 @@ export function missionState(arrival: MissionArrival | null, completed: boolean)
   return completed ? "completed" : arrival ? "arrived" : "available";
 }
 
-export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean }>;
+// `arrivalAt`: when the navigation points were recorded, so each phone can tell a new award from an old one (Phase 2d).
+export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean; arrivalAt?: number }>;
 /** A finale stays locked while any other mission in the group's list is unfinished. `alsoDone` counts one as done early
  * (a mission whose answer was just accepted, before the next refresh). */
 export function finaleLocked(definition: Pick<MissionDefinition, "id" | "finale">, missions: readonly Pick<MissionView, "id" | "state">[], alsoDone?: string): boolean {

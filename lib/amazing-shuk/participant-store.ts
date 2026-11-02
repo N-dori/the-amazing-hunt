@@ -617,7 +617,7 @@ export async function exchangeJoin(path: string, joinSecret: string, now = Date.
 function missionView(definition: MissionDefinition, record: MissionRecord): MissionView {
   return { id: definition.id, state: missionState(record.arrival, record.completed),
     arrivalPoints: record.arrival?.points ?? 0, arrivalMethod: record.arrival?.method ?? null,
-    gpsEnabled: Boolean(definition.arrival.destination?.verified) };
+    gpsEnabled: Boolean(definition.arrival.destination?.verified), ...(record.arrival ? { arrivalAt: record.arrival.acceptedAt } : {}) };
 }
 /** Polling reads take no lock and never write, so they cannot block or delay group actions.
  * `missionId` selects the mission whose challenge detail is returned; every mission appears in `missions`.
@@ -654,12 +654,13 @@ export async function sessionView(path: string, token: string, now = Date.now(),
     mission: missionView(definition, record),
     session: { roles, completed: record.completed, activeActorId: participantId,
       ...(record.kind === "water" ? { kind: record.kind, cups: record.cups } : { kind: record.kind, selected: record.selected, step: stepOf(record) }),
-      ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
+      ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0,
+        ...(record.bonus.award ? { awardedAt: record.bonus.award.awardedAt } : {}) } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null,
       canReveal: definition.reveal !== false && !record.completed && record.performance.startedAt !== null && mayReveal(participantId, roles, guide),
-      revealed: award?.outcome === "revealed" },
+      revealed: award?.outcome === "revealed", ...(award ? { awardedAt: award.awardedAt } : {}) },
     // The team's balance covers every one of its missions' recorded rewards.
     sharedBalance: { ...balanceOf(records), status: "Provisional local-development rewards" },
     // Membership (I3b) for the team's leader session and the guide only: requests (never their secrets), the space and the leader.

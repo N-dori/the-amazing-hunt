@@ -138,7 +138,10 @@ test("server: the bonus opens after the main answer, allows retries, adds its po
   assert.match(await act("player-2", bonus("submit"), "bonus-repeat-submit-1", 60_008), /already complete/);
   await assert.rejects(act("player-3", bonus("toggle-choice", "beauty-queen"), "bonus-pick-after-0001", 60_009));
   const done = await sessionView(path, tokens.guide, now + 60_010, SYN);
-  assert.deepEqual("bonus" in done.session ? done.session.bonus : null, { selected: ["beauty-queen"], completed: true, points: SYNAGOGUE_MISSION.bonus.points });
+  // The bonus's own award time comes too (Phase 2d), so phones can announce it once.
+  const doneBonus = "bonus" in done.session ? done.session.bonus : null;
+  assert.equal(typeof doneBonus?.awardedAt, "number");
+  assert.deepEqual({ ...doneBonus, awardedAt: 0 }, { selected: ["beauty-queen"], completed: true, points: SYNAGOGUE_MISSION.bonus.points, awardedAt: 0 });
   assert.deepEqual(done.sharedBalance, { points: 100 + SYNAGOGUE_MISSION.bonus.points, foodTokens: 2, status: "Provisional local-development rewards" });
   assert.deepEqual(done.performance.reward, main.performance.reward);
   // A mission without a bonus refuses bonus actions.
