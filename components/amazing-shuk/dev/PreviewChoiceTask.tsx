@@ -21,23 +21,29 @@ type Props = {
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void;
   // Only while a role is free (it opens the Group tab).
   onOpenRoles?: () => void;
+  // UX-3: before the server's accepted Start, only the Start area shows; the question and options come after. `false` keeps
+  // the old screen (Marzipan, until its rework).
+  storyFirst?: boolean;
 };
 // One neutral heading over the text after an answer; evidence labels stay in the data (owner's decision, 26 Oct 2026).
 // TODO(copy): "Behind the answer" is a draft.
 // TODO(copy): "Here's the answer" and "The answer" are drafts (Phase 2c).
-export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", help, answer, feedback, onToggle, onStart, onSubmit, onReset, onOpenRoles }: Props) {
+export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", help, answer, feedback, onToggle, onStart, onSubmit, onReset, onOpenRoles, storyFirst = true }: Props) {
   const playing = performance.started && !view.completed;
+  const startArea = <div className={styles.actions}>
+    {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+    {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+    {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
+  </div>;
+  if (storyFirst && !performance.started && !view.completed) return <section className={styles.task}>{startArea}</section>;
   return <section className={styles.task} aria-labelledby="mural-task-title">
     {lead && !view.completed ? <div className={styles.lead} role="status"><h3 className={styles.revealLabel}>Behind the answer</h3>
       {lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
       <p>{paragraph.text}</p>
     </div>)}</div> : null}
-    <h2 id="mural-task-title" className={styles.question}>{question}</h2>
-    {!performance.started && !view.completed ? <div className={styles.actions}>
-      {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
-      {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
-      {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
-    </div> : null}
+    {/* Focusable so the phone that pressed Start lands on the question (UX-3). */}
+    <h2 id="mural-task-title" tabIndex={-1} className={styles.question}>{question}</h2>
+    {!performance.started && !view.completed ? startArea : null}
     <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} />
     {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
       <h3>{performance.revealed ? "Here's the answer" : completionTitle}</h3>

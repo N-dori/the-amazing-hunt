@@ -40,6 +40,8 @@ export type MissionDefinition = Readonly<{
   finale?: true;
   // `false`: no "I'm completely stuck" on this challenge (Marzipan, owner, 2 Nov 2026: set when Marzipan is reworked).
   reveal?: false;
+  // `false`: the question shows before Start, as before UX-3 (Marzipan, owner, 2 Nov 2026: left as is until its rework).
+  storyFirst?: false;
 }>;
 /** The question a "choose N" mission is on: step 0 is its challenge, then its follow-ups. Null past the last step. */
 export function choiceStep(definition: MissionDefinition, step: number): Readonly<{ challenge: ChoiceChallenge; hintCount: number }> | null {

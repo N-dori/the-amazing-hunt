@@ -29,6 +29,7 @@ import { LOCATION_UNAVAILABLE_MESSAGE, requestArrivalLocation } from "@/lib/amaz
 import ListWaterTask from "./ListWaterTask";
 import PreviewWellStory from "./PreviewWellStory";
 import { WATER_TASK } from "@/lib/amazing-shuk/water-task";
+import { challengePhase, storyDefaultOpen, storyKey } from "@/lib/amazing-shuk/challenge-phase";
 import { INITIAL_WATER_INTERACTION, type WaterInteraction, type WaterContainerId, type WaterActionView } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterPerformanceView, GuideTimingView } from "@/lib/amazing-shuk/water-performance";
 import { isWaterPuzzleSolved, WATER_PUZZLE_REVISION, type WaterMove } from "@/lib/amazing-shuk/water-measurement";
@@ -137,7 +138,8 @@ export default function IndexWaterTask({ mode }: Props) {
     return () => window.clearTimeout(timer);
   }, [reward, rewardInline]);
   const [interaction, setInteraction] = useState<WaterInteraction>(INITIAL_WATER_INTERACTION);
-  const [storyOpen, setStoryOpen] = useState(true);
+  // Per mission and phase: the story's fold, where the player changed it (UX-3).
+  const [storyFolds, setStoryFolds] = useState<Readonly<Record<string, boolean>>>({});
   const [invitation, setInvitation] = useState("");
   // A team's join link from `#join=` (I3b). A phone that turns out to be signed in already just says so.
   const [joinLink, setJoinLink] = useState("");
@@ -148,7 +150,6 @@ export default function IndexWaterTask({ mode }: Props) {
   const [sessionEnded, setSessionEnded] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      try { setStoryOpen(localStorage.getItem("shuk:well-story-collapsed") !== "1"); } catch { /* Reading remains available without local preferences. */ }
       const fragment = new URLSearchParams(window.location.hash.slice(1));
       const token = fragment.get("invite");
       const join = fragment.get("join");
@@ -196,6 +197,12 @@ export default function IndexWaterTask({ mode }: Props) {
   // The mural, the synagogue and any other "choose N" mission share one challenge screen; this is its content.
   const choiceTask = findChoiceTask(missionId);
   const activeRole = useMemo(() => view ? getDevWaterActorRole(view.session) : null, [view]);
+  // UX-3: the story, then Start, then the challenge. The server's accepted start decides the side, so every phone agrees.
+  const storyFirst = findMission(missionId)?.storyFirst !== false;
+  const phase = view ? challengePhase(view.performance.started, view.session.completed, storyFirst) : "story";
+  const foldKey = storyKey(missionId, phase);
+  const storyOpen = storyFolds[foldKey] ?? storyDefaultOpen(phase, storyFirst);
+  const toggleStory = () => setStoryFolds(current => ({ ...current, [foldKey]: !storyOpen }));
 
   const actorId = view?.session.activeActorId;
   useEffect(() => {
@@ -275,6 +282,9 @@ export default function IndexWaterTask({ mode }: Props) {
     finally { setBusy(false); }
   };
 
+  // The phone that pressed Start lands on the question or puzzle once the server accepts; a queued start moves nothing yet.
+  const startChallenge = () => void act({ type: "start", missionId }).then(() => window.requestAnimationFrame(() =>
+    document.getElementById(view?.session.kind === "choice" ? "mural-task-title" : "water-task-title")?.focus()));
   const focusPuzzle = () => window.requestAnimationFrame(() => {
     const target = document.getElementById("water-puzzle-status") ?? document.getElementById("water-controls-heading");
     target?.focus();
@@ -419,11 +429,11 @@ export default function IndexWaterTask({ mode }: Props) {
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId ? <PreviewMissionProgress stage={progress} /> : null}
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
       <h2>{choiceTask.task.title}</h2>
-      <PreviewChoiceStory {...choiceTask.task.story} instruction={solo ? choiceTask.task.instructionSolo ?? choiceTask.task.instruction : choiceTask.task.instruction} open={storyOpen} onToggle={() => setStoryOpen(!storyOpen)} />
+      <PreviewChoiceStory {...choiceTask.task.story} instruction={solo ? choiceTask.task.instructionSolo ?? choiceTask.task.instruction : choiceTask.task.instruction} open={storyOpen} onToggle={toggleStory} collapsible={phase !== "story"} />
       {choiceTask.task.prediction && !view.session.completed ? <PreviewChoicePrediction {...choiceTask.task.prediction} /> : null}
       <ListChoiceTask solo={solo} task={choiceTask.task} challenge={choiceTask.challenge} step={view.session.step ?? 0} followUps={choiceTask.followUps} selected={view.session.selected ?? []} completed={view.session.completed} feedback={message} activeRole={activeRole ?? "follower"} busy={busy}
         performance={view.performance} onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId })}
-        onStart={() => void act({ type: "start", missionId })} help={challengeHelp()} onSubmit={() => void act({ type: "submit", missionId })}
+        onStart={startChallenge} storyFirst={storyFirst} help={challengeHelp()} onSubmit={() => void act({ type: "submit", missionId })}
         onReset={() => void act({ type: "reset", missionId })} onOpenRoles={openRoles} />
       {cheer(Boolean(choiceTask.bonus && view.session.bonus && !view.session.bonus.completed))}
       {/* Optional extras after the accepted answer: they never change the mission's completion or its food tokens. */}
@@ -436,14 +446,11 @@ export default function IndexWaterTask({ mode }: Props) {
       {view.session.completed && choiceTask.task.foodAction ? <ActionButton icon="arrowForward" onClick={() => navigate(goToTab(nav, "food"))}>{choiceTask.task.foodAction}</ActionButton> : null}
       </> : nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind !== "choice" ? <>
       <h2>{WATER_TASK.title}</h2>
-      <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={solo ? WATER_TASK.instructionSolo : WATER_TASK.instruction} open={storyOpen} onToggle={() => {
-        setStoryOpen(!storyOpen);
-        try { localStorage.setItem("shuk:well-story-collapsed", storyOpen ? "1" : "0"); } catch { /* Preference storage is optional. */ }
-      }} />
+      <PreviewWellStory {...WATER_TASK.story} showOriginalHebrew={process.env.NODE_ENV === "development"} instruction={solo ? WATER_TASK.instructionSolo : WATER_TASK.instruction} open={storyOpen} onToggle={toggleStory} collapsible={phase !== "story"} />
       <ListWaterTask solo={solo} cups={view.session.cups} completed={view.session.completed} activeRole={activeRole ?? "follower"} busy={busy}
         interaction={interaction} performance={view.performance} onSelect={selectContainer} onAction={contextualAction}
         onCancelPour={() => { setInteraction(current => ({ ...current, pouring: false })); window.requestAnimationFrame(() => document.getElementById(`water-container-${interaction.selected}`)?.focus()); }}
-        onStart={() => void act({ type: "start", missionId })} help={challengeHelp()} onOpenRoles={openRoles} onSubmit={() => void act({ type: "submit", missionId })} onReset={() => {
+        onStart={startChallenge} storyFirst={storyFirst} help={challengeHelp()} onOpenRoles={openRoles} onSubmit={() => void act({ type: "submit", missionId })} onReset={() => {
           setInteraction(INITIAL_WATER_INTERACTION);
           void act({ type: "reset", missionId }).then(focusPuzzle);
         }} />

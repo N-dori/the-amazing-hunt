@@ -173,7 +173,8 @@ test("actual selected mission renders existing story and playable challenge for 
     // The protected app plays the same challenge without the development panel.
     const app = renderToStaticMarkup(createElement(Index, { mode: "app" }));
     assert.match(app, /THE STORY OF THE WELL/); assert.doesNotMatch(app, /Local development|local simulation/i);
-    assert.match(html, /3 L/); assert.match(html, /5 L/); assert.match(html, /4 L/);
+    // UX-3: before the accepted Start the story and Start show, not the puzzle or its containers.
+    assert.doesNotMatch(html, /3 L \/|5 L \/|Fill your family/);
     assert.doesNotMatch(html, /Here!|role="timer"/);
   }
 });

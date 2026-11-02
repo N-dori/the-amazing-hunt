@@ -14,6 +14,8 @@ type Props = {
   onStart: () => void; onSubmit: () => void; onReset: () => void; onOpenRoles?: () => void;
   // The hint sheet and "I'm completely stuck" (IndexChallengeHelp), shown during play.
   help?: ReactNode;
+  // UX-3: the challenge only after the server's accepted Start (default); `false` keeps the old screen.
+  storyFirst?: boolean;
 };
 export default function ListWaterTask({ cups, completed, activeRole, busy, interaction, performance, solo = false, ...callbacks }: Props) {
   const view = buildWaterTaskView(cups, completed, activeRole, busy, interaction, performance.started);

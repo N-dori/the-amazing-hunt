@@ -1,8 +1,28 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 2 step 2d built and verified (uncommitted): 2 Nov 2026
+## Latest handoff - UX-3 (story, then Start, then the challenge) built (uncommitted): 2 Nov 2026
 
-2a–2c are committed (`17a1549`, `6b61124`). **2d (the reward pop-up) is uncommitted.** The live game is unchanged (`87c1877`).
+2d is committed (`aa2cc2d`). **UX-3 is uncommitted.** The owner approved it on 2 Nov 2026: option A (screen-only hiding, one page), Start as the only gate, Marzipan left as is until its rework, and no video for now. See `product-decisions.md` under UX-3.
+
+- **`lib/amazing-shuk/challenge-phase.ts`:**
+  - `challengePhase(started, completed, storyFirst)` returns story, play or done, taken from the server's `performance.started`, so a refresh and a second phone agree;
+  - `storyDefaultOpen`: open before Start, folded after;
+  - `storyKey`: the fold is kept per mission and phase.
+- **`MissionDefinition.storyFirst?: false`:** only Marzipan sets it (a test checks this), so it keeps the question and its name guess before Start.
+- **`PreviewChoiceTask` and `PreviewWaterTask`:** a `storyFirst` prop (default true). Before Start they render only the Start area: Start, or the "can start after the story" line plus "Open the Group tab". The question, the options, the well's puzzle statement and its containers come after Start. The headings are focusable, and `IndexWaterTask.startChallenge` focuses them once the server accepts.
+- **`PreviewChoiceStory` and `PreviewWellStory`:** a `collapsible` prop. Before Start the story is open, with no fold; after, it has the existing "Read story" and "Hide story" toggle.
+- **Removed:** the well's `shuk:well-story-collapsed` key and the shared `storyOpen` flag.
+- **No new copy.**
+- **The server is unchanged:** it already refused moves, choices and submits before Start.
+- **Tests:**
+  - new `challenge-phase.test.ts`;
+  - UX-3 render tests in `challenge-help-ui.test.ts`;
+  - `mural-task-ui` and `mission-arrival-ui` updated, because the question and containers no longer show before Start.
+- **Next:** `/game-verify shuk`, then the owner's browser review (solo and two phones; 2d and UX-3 together), then 2e.
+
+## Phase 2 step 2d built and verified: 2 Nov 2026
+
+2a–2c are committed (`17a1549`, `6b61124`). **2d (the reward pop-up) was committed afterwards as `aa2cc2d`.** The live game is unchanged (`87c1877`).
 
 - **Server:** the view now carries award times:
   - `performance.awardedAt`;

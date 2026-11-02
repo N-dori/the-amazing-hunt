@@ -17,6 +17,8 @@ type Props = {
   // The hint sheet and "I'm completely stuck" (IndexChallengeHelp), shown during play.
   help?: ReactNode;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onOpenRoles?: () => void;
+  // UX-3: the challenge only after the server's accepted Start (default); `false` keeps the old screen.
+  storyFirst?: boolean;
 };
 /** Any "choose N" mission (the mural, the synagogue): shared picks, help during play, and the reveal once accepted or revealed. */
 export default function ListChoiceTask({ task, challenge, step, followUps, selected, completed, activeRole, busy, performance, solo = false, ...rest }: Props) {

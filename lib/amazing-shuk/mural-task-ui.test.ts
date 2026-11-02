@@ -56,7 +56,9 @@ test("followers are invited to discuss; completion shows the shared result once"
   const follower = buildChoiceTaskView(MURAL_CHALLENGE, [], false, "follower", false, false);
   const before = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, feedback: "" }));
   assert.doesNotMatch(before, /Submit Our Answer|Start challenge/);
-  assert.match(before, /Talk it over/);
+  // UX-3: before Start only the start area shows; the invitation to talk it over comes with the question.
+  assert.doesNotMatch(before, /Talk it over|type="checkbox"/);
+  assert.match(before, /can start after the story/);
   // A free role is why nobody here can start: the link to the Group tab sits beside the note, and only when offered.
   assert.doesNotMatch(before, /Open the Group tab/);
   const blocked = renderToStaticMarkup(createElement(Preview, { ...callbacks, onOpenRoles() {}, view: follower, reveal: MURAL_TASK.reveal, question: MURAL_TASK.question, performance: { ...performance(false), canStart: false }, feedback: "" }));

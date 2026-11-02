@@ -15,19 +15,24 @@ type Props = {
   onStart: () => void; onSubmit: () => void; onReset: () => void;
   // Only while a role is free (it opens the Group tab).
   onOpenRoles?: () => void;
+  // UX-3: before the server's accepted Start, only the Start area shows; the puzzle (its statement included) comes after.
+  storyFirst?: boolean;
 };
 // TODO(copy): "Here's the answer" and "One way to do it" are drafts (Phase 2c).
-export default function PreviewWaterTask({ view, performance, narrative, help, answer, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onOpenRoles }: Props) {
+export default function PreviewWaterTask({ view, performance, narrative, help, answer, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onOpenRoles, storyFirst = true }: Props) {
+  const startArea = <div className={styles.actions}>
+    {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+    {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+    {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
+  </div>;
+  if (storyFirst && !performance.started && !view.completed) return <section className={styles.task}>{startArea}</section>;
   return <section className={styles.task} aria-labelledby="water-task-title">
     <div className={styles.taskIntro}>
-      <h2 id="water-task-title">Fill your family&apos;s jar</h2>
+      {/* Focusable so the phone that pressed Start lands on the puzzle (UX-3). */}
+      <h2 id="water-task-title" tabIndex={-1}>Fill your family&apos;s jar</h2>
       {narrative.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
     </div>
-    {!performance.started && !view.completed ? <div className={styles.actions}>
-      {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
-      {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
-      {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
-    </div> : null}
+    {!performance.started && !view.completed ? startArea : null}
     <div className={styles.containers}>
       {view.containers.map(container => <figure key={container.id} className={[container.id === "jar" ? styles.goal : styles.container, container.selected ? styles.selected : "", container.destinationMove ? styles.destination : ""].filter(Boolean).join(" ")}>
         <button type="button" id={`water-container-${container.id}`} className={styles.containerButton}

@@ -179,6 +179,8 @@ export const MARZIPAN_MISSION = Object.freeze({
   challenge: MARZIPAN_CHALLENGE,
   // No "I'm completely stuck" yet: its rule is set when Marzipan is reworked (owner, 2 Nov 2026).
   reveal: false,
+  // UX-3 leaves Marzipan's screen as it is, its unscored name guess included, until the rework (owner, 2 Nov 2026).
+  storyFirst: false,
   rewards: MARZIPAN_REWARDS, hintCount: MARZIPAN_TASK.hints.length,
   followUps: Object.freeze([{ challenge: MARZIPAN_HORNS_CHALLENGE, hintCount: MARZIPAN_TASK.followUps[0].hints.length }]),
   bonus: Object.freeze({ challenge: MARZIPAN_BONUS_CHALLENGE, points: MARZIPAN_BONUS_POINTS }),

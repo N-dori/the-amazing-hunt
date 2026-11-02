@@ -8,7 +8,7 @@ The [progressive-challenges plan](progressive-challenges-plan.md) sets out the r
 - **Decided:** D13–D17 (see [product decisions](product-decisions.md#progressive-challenges-and-market-surprise-owner-2-nov-2026)).
 - **Decided and live:** D6 ("We're here") and D12 (solo roles), as Phase 1.
 - **Open:** D1–D5, D7–D11, the Market Surprise stop pool, and the solo copy drafts marked TODO(copy).
-- **Phase 2 approved (owner, 2 Nov 2026) and in progress:** 2a (model B scoring on the mural) and 2b (the server's "I'm completely stuck") are committed (`17a1549`); 2c (the hint sheet and the stuck button on screen) is committed (`6b61124`); 2d (the reward pop-up) is built and verified, uncommitted; next are `/game-verify shuk`, the owner's browser review and 2e. See the top of the [handoff](agent-handoff.md).
+- **Phase 2 approved (owner, 2 Nov 2026) and in progress:** 2a (model B scoring on the mural) and 2b (the server's "I'm completely stuck") are committed (`17a1549`); 2c (the hint sheet and the stuck button on screen) is committed (`6b61124`); 2d (the reward pop-up) is committed (`aa2cc2d`). **UX-3** (the story, then Start, then the challenge; Marzipan unchanged) is built, uncommitted. Next: `/game-verify shuk`, the owner's browser review of 2d and UX-3, then 2e. See the top of the [handoff](agent-handoff.md).
 
 ## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
 

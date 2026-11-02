@@ -2,6 +2,8 @@
 .instruction { font-size: 1.125rem; font-weight: 500; line-height: 1.6; margin-block-end: 1rem; max-width: 42rem; }
 .story summary { min-height: 3rem; padding-block: .75rem; cursor: pointer; font-size: 1.125rem; }
 .story summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+// The unfolded story before Start (UX-3): the summary's size, without the toggle.
+.title { margin: 0; padding-block: .75rem; font-size: 1.125rem; font-weight: inherit; }
 .toggle { margin-inline-start: 1rem; font-size: .875rem; text-decoration: underline; }
 .label { color: var(--sumac); margin-block: .5rem; font-size: .875rem; }
 .prose { max-width: 42rem; font-size: 1.125rem; line-height: 1.75; }
