@@ -44,7 +44,7 @@ test("story is short, labels each statement and has no Hebrew; the street photo 
   assert.ok(words <= 40, `${words} words`);
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
   assert.ok(!/[֐-׿]/.test(JSON.stringify(MURAL_TASK)));
-  assert.equal(MURAL_TASK.hints.length, 3);
+  assert.equal(MURAL_TASK.hints.length, 2);
   // The before photo sits with the story (owner's request, 26 Oct 2026), not in the reveal.
   assert.ok(MURAL_TASK.story.image.alt && MURAL_TASK.story.image.caption);
   assert.equal(MURAL_TASK.reveal.image, null);

@@ -49,7 +49,7 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
 - **Language:** English-first. "Language Explorer" is the optional player-facing part. Translation help never costs a hint penalty. Verified Hebrew only; Hebrew story bodies stay out of production; other languages need approved translations.
 - **Teams:** each team has its own leader, members, roles, mission progress and points. Any competition between teams is optional and friendly, and points are compared only at the end; food tokens may be earned per team but are pooled for the whole adventure. All teams share the same content and approved route with the guide; no independent routes.
 - **Team names (owner, 31 Oct 2026, decided):** in the multi-team adventure (I7a), a team types its own name or picks one of 4–6 suggestions (Falafel Fugitives always among them). Names are at most 20 characters, in Latin script, with no emoji, and unique within one adventure, checked atomically by the server. Each team gets one of about 8 original Shuk-themed avatars automatically, kept by team ID through renames (owner direction, 31 Oct 2026; artwork pending, see the plan). The guide can correct an inappropriate name. This replaces the earlier fixed-bank and per-name emoji decisions. Copy, validation and normalization are in the [multiplayer plan](multiplayer-plan.md#i7a-team-names-owner-31-oct-2026-decided-not-built). The single-team game and I3b don't depend on naming.
-- **Sensitive places:** Rabbi Aryeh Levin and Chesed VeRachamim are never competitive.
+- **Sensitive places:** Rabbi Aryeh Levin and Chesed VeRachamim are never competitive. **Superseded (owner, 2 Nov 2026, D4):** both are normal stops; see [Progressive challenges](#progressive-challenges-and-market-surprise-owner-2-nov-2026).
 - **Staggered team routes (owner, 29 Oct 2026): Approved direction — Deferred / Not scheduled.** In larger adventures, teams may begin at different eligible stops and move through the same overall route in a staggered sequence, all converging at **Marzipan for a shared finale**. The aims: less crowding in narrow streets and at historical places, a sense of independent exploration, the same historical content and learning for every team, and an exciting shared ending. Not designed, planned or built: the current mission order, navigation, Marzipan's finale rules and the multiplayer plan stay as they are. Revisit only after core multi-team play works and the physical route has been tested.
 - **Pilot:** validate distributed parts on the well with real participants before expanding them.
 - **I4/I5 direction:** decided on 31 Oct 2026; see the next section.
@@ -110,7 +110,19 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
 - **Wording and controls:** natural, personal wording (approved lines: "Take a moment to discover this story.", "What do you think?", "Nicely done!", "You've made it!", "Playing solo"); Group simplified to "Playing solo"; every well control available to a solo player.
 - **Milestones:** Phase 1 is accepted on solo completion with correct answers; finishing when stuck is Phase 2's milestone.
 
-**Pending owner approval:** D1–D5 and D7–D11 in the plan (the scoring model, a minimum reward and an optional cap, food tokens on a reveal, free hints at sensitive stops, who may press stuck, what timing is for, on-device voice, labels, research run 08 and the field checks, the sound default); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
+**Scoring, help and rewards (owner, 2 Nov 2026):**
+- **D1:** scoring model B. All of a challenge's hints together can take at most a set share of its maximum, later hints cost more (weights 1 : 2 : 3 …), and a correct solve keeps the rest. Values are still to be approved.
+- **D2:** a correct solve always earns a minimum reward (model B's floor). An optional challenge is worth at most 2× its stop's core challenge.
+- **D3:** food tokens come only from the core challenge, and a team that reveals the core answer ("I'm completely stuck") still gets them.
+- **D5:** "I'm completely stuck" may be pressed by the Submitter, by anyone while the Submitter seat is empty, and by the guide. A solo player holds the Submitter role (D12).
+- **D11:** the reward sound is off by default; each device can turn it on.
+
+**Rabbi Levin (owner, 2 Nov 2026, D4):**
+- Rabbi Aryeh Levin's stop is a **normal stop**: the same scoring, hints, "I'm completely stuck" and rewards as any other stop, with no free help and no special quiet treatment decided in advance. This replaces the plan's recommendation of free hints and a free reveal there, and the "never competitive" rule for this stop.
+- There is more knowledge about Rabbi Levin that the game can use. Explore it through `/experience-design` before deciding his challenges; don't settle his stop's content or treatment early.
+- **Chesed VeRachamim (owner, 2 Nov 2026):** also a normal stop.
+
+**Pending owner approval:** D7–D10 in the plan (what timing is for, on-device voice, labels, research run 08 and the field checks); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
 ## Other current owner directions
 

@@ -2,12 +2,12 @@ import { ARRIVAL_NEARBY, GAN_HATUT_MISSION, checkMissionArrival, choiceStep, mis
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
-import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, type WaterPerformance } from "./water-performance.ts";
+import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, revealWaterPerformance, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
-import { claimGroupRole, effectiveRoles, isSoloTeam, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { claimGroupRole, effectiveRoles, isSoloTeam, mayReveal, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { soloLine } from "./solo-copy.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount } from "./adventure-lobby.ts";
@@ -283,6 +283,11 @@ function catalogueMissions(stored: Record<string, MissionRecord>): Record<string
     // A bonus added to an existing mission starts empty; the main record is kept as it is.
     else if (mission.bonus && !record.bonus) missions = { ...missions, [mission.id]: { ...record, bonus: EMPTY_BONUS } };
     else if (mission.bonus && record.bonus && !isValidChoiceSelection(mission.bonus.challenge, record.bonus.selected)) throw new Error("Unsupported Shuk storage state");
+    // A challenge whose hints were cut (the mural, 3 → 2 on 2 Nov 2026): an unfinished record keeps every current hint as used and
+    // drops the ones that no longer exist, so its award can still be scored. Finished awards are never touched.
+    const current = missions[mission.id];
+    if (!mission.followUps && current.performance.award === null && current.performance.hintsUsed > mission.hintCount)
+      missions = { ...missions, [mission.id]: { ...current, performance: { ...current.performance, hintsUsed: mission.hintCount } } };
   }
   return missions;
 }
@@ -652,7 +657,9 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       ...(record.bonus ? { bonus: { selected: record.bonus.selected, completed: record.bonus.award !== null, points: record.bonus.award?.points ?? 0 } } : {}) },
     performance: { started: record.performance.startedAt !== null, hintsUsed: record.performance.hintsUsed,
       stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
-      canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null },
+      canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null,
+      canReveal: definition.reveal !== false && !record.completed && record.performance.startedAt !== null && mayReveal(participantId, roles, guide),
+      revealed: award?.outcome === "revealed" },
     // The team's balance covers every one of its missions' recorded rewards.
     sharedBalance: { ...balanceOf(records), status: "Provisional local-development rewards" },
     // Membership (I3b) for the team's leader session and the guide only: requests (never their secrets), the space and the leader.
@@ -815,6 +822,18 @@ export async function sessionAction(path: string, token: string, action: GroupAc
             if (mission.performance.startedAt === null || mission.performance.solvedAt !== null || mission.completed) throw new Error("Hints are available during the challenge");
             if (action.hint !== used + 1) throw new Error("Reveal hints in order");
             mission.performance = { ...mission.performance, hintsUsed: mission.performance.hintsUsed + 1 };
+          }
+        } else if (action.type === "reveal") {
+          // "I'm completely stuck" (Phase 2): the core challenge completes with 0 points and its food tokens (D3), so the team carries
+          // on without a guide. It shares the store lock with submit: whichever lands first records the one award; the other is a no-op.
+          if (definition.reveal === false) throw new Error("This challenge has no answer to show.");
+          if (!mayReveal(participantId, roles, guide)) throw new Error("Only the answer-submitter or guide may show the answer.");
+          if (mission.completed) message = "This challenge is already complete.";
+          else {
+            mission.performance = revealWaterPerformance(mission.performance, now, definition.rewards);
+            mission.completed = true;
+            // TODO(copy): draft (plan §8a), pending the owner's approval.
+            message = "Here's the answer. You can carry on.";
           }
         } else if ("part" in action && action.part === "bonus") {
           // The optional bonus: shared picks like the main challenge, retries allowed, points recorded once. No timing or hints.

@@ -131,7 +131,7 @@ Nothing is ever shown as a running clock or countdown, and nothing is penalised 
 
 - **Minimum reward for solving:** recommended (model B's floor), so a team that solves with every hint still clearly beats a team that reveals (0).
 - **Optional challenges worth more than the core** (owner direction): balanced by (1) food tokens only for the core, so the shorter route loses no food; (2) points compared only at the end, as approved; and (3) a cap on how much more an optional challenge can be worth (e.g. ≤ 2 × the core), to be set with the values.
-- **Sensitive stops** (Rabbi Levin, Chesed VeRachamim, never competitive, O23): free hints and a free reveal recommended.
+- ~~Sensitive stops~~ **Rabbi Levin and Chesed VeRachamim are normal stops (owner, D4, 2 Nov 2026).**
 - **Implementation fit:** model B maps onto the existing `hintPenalties` list (one entry per hint, computed from the budget) and `minimumPoints`, so `calculateWaterReward` needs no new logic. Setting `timed: false` removes the speed bands.
 
 ## 5. Hint sheet (mobile)
@@ -576,6 +576,78 @@ This replaces the numbered build sequence above as the order of work. Each phase
   - Old state files load.
   - No pop-up repeats after reconnecting.
 
+### Phase 2 detailed plan (Claude, 2 Nov 2026; **approved by the owner, 2 Nov 2026**)
+
+Built on D1 (model B), D2 (minimum, optional ≤ 2× core), D3 (core food tokens, also after a reveal), D4 (Rabbi Levin and Chesed VeRachamim are normal stops), D5 (Submitter, anyone while that seat is empty, guide) and D11 (sound off by default). **Planning only; nothing below is built.** Every number is a proposal and every visitor line is `TODO(copy)` unless marked [Owner].
+
+**Milestone (from the Phase 1 decisions):** a solo player can finish every stop even when stuck, and the mural shows the full stop shape: 2 hints with a points ladder, "I'm completely stuck", a reward pop-up.
+
+#### 2a. Scoring engine (pure code, tests; no visible change except the mural's numbers)
+- New pure helper in `lib/amazing-shuk/challenge-scoring.ts`: `hintLadder(maxPoints, hintCount, budgetShare)` → the per-hint costs. Budget = `maxPoints × budgetShare`, rounded to 5; weights 1 : 2 : 3 …; each cost rounded to 5, the last absorbing the remainder, so the costs always add up to the budget and never fall. Floor (D2) = `maxPoints − budget`.
+  - Example, max 100, budget 40 % (proposed): floor 60. 2 hints: 15, 25. 3 hints: 5, 15, 20. 4 hints: 5, 10, 10, 15.
+- A challenge declares `scoring: { model: "budget", maxPoints, budgetShare, foodTokens }`; a helper turns it into the existing `WaterRewardConfig` (`hintPenalties` from the ladder, `minimumPoints` = floor, the speed bands neutral). `calculateWaterReward` is unchanged. Missions without `scoring` keep today's values.
+- The mural gets `timed: false`, `scoring` (proposed: max 100, budget 40 %, 2 food tokens) and 2 hints instead of 3.
+- A catalogue test enforces D2: every optional challenge's max ≤ 2 × its stop's core max; every challenge's hint count fits its ladder.
+- **Other stops:** they keep their current scoring in Phase 2, including Rabbi Levin's untimed, no-hint setup and quiet completion (P2-1).
+
+#### 2b. "I'm completely stuck" (server action, every core challenge except Marzipan)
+- New action `{ type: "reveal", missionId, part: "core" }`, idempotent like the others (action receipts; a second reveal or a reveal after the award does nothing).
+- Allowed only after Start and before the award. Who (D5): the guide; the Submitter (a solo player holds it, D12); **anyone while the team's Submitter seat is empty**. That seat fallback is new: today only the Submitter may submit, and the I4 vacant-seat fallback isn't built. It applies to reveal only, not to submit (P2-2, default taken).
+- Effect: the mission completes with an award of **0 challenge points**, the stop's core **food tokens** (D3), the hints used, and new optional fields `outcome: "revealed"` and `endedAt`. Navigation points are untouched. A completed mission counts towards the Marzipan finale, so a reveal unlocks it.
+- Race: submit and reveal go through the same store lock. Whichever lands first writes the immutable award; the other becomes a no-op with a plain message.
+- What "the answer" shows:
+  - choice challenges: the correct options, from the data that already exists, then "Behind the answer";
+  - the well: the move sequence, generated from the puzzle data (labels `TODO(copy)`); the I5 rework later replaces it;
+  - Marzipan: **no reveal in Phase 2** (owner, P2-3); its stuck rule is set when Marzipan is reworked.
+- **Data:** no schema bump. `outcome` and `endedAt` are optional; absent means solved. The store validator doesn't check award keys, so the rollback image (`522ecd9`) still loads a file with a reveal (it shows a completed mission with 0 points). To be confirmed by a test that loads such a file with the old validator rules.
+
+#### 2c. Hint sheet (client)
+- `PreviewBottomSheet` gets a sticky footer and handle-only swipe-to-close (§5).
+- A new `PreviewHintSheet` (under `components/amazing-shuk/dev/`): the hint icon with its count badge after Start; revealed hints numbered; the next one locked with its cost stated as a lower potential ("lowers this challenge's points from 100 to 85"); one "Show hint N" button; busy until the server accepts; an `aria-live` region; offline queued.
+- Teammates: the badge drops and one quiet line names who opened it; no sheet opens on their phones.
+- "I'm completely stuck": a quiet text button at the foot of the challenge, and in the sheet once every hint is used. Its confirmation has two equal 3rem buttons, with "Keep trying" focused first.
+- The choice task and the well both use it; today's inline hint list goes.
+
+#### 2d. Reward pop-up (client)
+- A shared `RewardDialog` on the `<dialog>` shell with three weights (full, light, quiet) plus a toast, as §8a. The trigger is only a new server award, with the device "seen" list (`localStorage`, try/catch) and the 5-minute recency rule. One dialog at a time; arrival and solve together merge into one.
+- The navigation line is the owner's [Owner]: "Amazing navigation! You rock!". The rest are drafts.
+- **Sound (D11 off):** Phase 2 ships **without a sound asset**. The code reads a per-device preference that defaults to off, and the menu toggle appears only once a licensed sound is chosen (P2-4, default taken). That means no asset blocks Phase 2.
+- The inline cheer card stays as the permanent record under the pop-up.
+
+#### 2e. Silent challenge timing record
+- On every award: `endedAt` and `outcome`. Queued actions carry the phone's `queuedAt`; the server stores `queuedMs = now − queuedAt` (clamped at 0) and marks `uncertain` when it exceeds 60 s or the phone's clock is implausible. It is analytics only and never touches points (D7's recommendation, already implied by "timing is silent and never penalises").
+- Guide timing controls stay as they are.
+
+#### Not in Phase 2
+- The optional-challenge engine (waits for D10, owner P2-5) and the Marzipan reveal (P2-3).
+- Navigation timing and the `set-out` event (step 5 of §10), labels and preview points (D9), voice, Market Surprise, the I5 well rework, Rabbi Levin's new content (through `/experience-design` first), and the challenge-screen restyle.
+
+#### Tests (new `*.test.ts` cases)
+- The ladder: sum equals the budget, costs never fall, the floor holds, for 0–6 hints and several maxima; invalid input throws.
+- The catalogue: D2's 2× cap; hint counts match each challenge's hints.
+- Reveal: who may press it (Submitter, empty seat, guide, solo; a follower refused while the seat is held); exactly once across two phones and a replayed queue; submit/reveal races; 0 points with core food tokens; the finale unlocks after a reveal; Marzipan's per-step rule.
+- Old state files (schema 7 without the new fields) load; a file with a reveal loads under the old rules.
+- The pop-up "seen" rule: a pure function deciding what to show from the previous view, the new view, the seen list and the time.
+- Timing: `queuedMs` and `uncertain`.
+
+#### Order, verification and deploy
+1. 2a → 2b → 2c → 2d → 2e, one at a time, each with `npm test`, `test:shuk`, lint and type-check in the one-shot container, `git diff --check`.
+2. `/game-verify shuk` after 2d, then the owner's review on the dev page (`/memory-protocol/dev/amazing-shuk/water`), solo and two phones.
+3. Commit and deploy only when the owner asks (`/deploy`: backup, fresh adventure, fresh links with the owner's OK).
+
+#### Copy and values needed from the owner (drafts will be marked `TODO(copy)`)
+- The mural's two hints (drafts in §4) and its reveal text from research run 07 (S1: the real blinds and railings painted to match; the IEC's thank-you workers). These are research claims and need the owner's approval.
+- The hint sheet, the stuck confirmation, the quiet reveal line, the pop-up lines and the toast.
+- The values: the mural's max points, the budget share (40 % proposed) and its food tokens (2).
+
+#### Decisions for this plan (answered, 2 Nov 2026)
+- **P2-1** The stuck button on every core challenge; model B and two hints on the mural only. Other stops keep their scoring.
+- **P2-2** (default) The empty-seat fallback is for reveal only.
+- **P2-3** Marzipan: no reveal now; set when Marzipan is reworked.
+- **P2-4** (default) No sound file in Phase 2; the preference defaults to off.
+- **P2-5** The optional-challenge engine waits for D10.
+- **D4** Chesed VeRachamim is a normal stop.
+
 ### Phase 3: open exploration and varied answer mechanics
 - **Goal:** any route, any order, and more ways to answer than "choose N".
 - **Build:**
@@ -622,17 +694,17 @@ This replaces the numbered build sequence above as the order of work. Each phase
 
 Already decided by the owner's brief (recorded, not asked): the fallback gives 0 challenge points and lets the team progress, which supersedes "no unsolved guide override" for this purpose; teams start at 0; optional challenges may offer more potential points; previews show potential points; timing is silent and never penalises.
 
-- **D1** The scoring model: A, B (recommended) or C. Values come after the choice.
-- **D2** A minimum reward for a correct solve (recommended), and a cap on how much more an optional challenge can be worth than the core?
-- **D3** Food tokens only for the core, including after a reveal (recommended)?
-- **D4** Free hints and a free reveal at Rabbi Levin and Chesed VeRachamim (recommended)?
-- **D5** Who may press "I'm completely stuck": the Submitter (or anyone while that seat is empty) and the guide (recommended), or anyone?
+- ~~D1~~ **Decided (owner, 2 Nov): model B**, a capped hint budget with rising cost. Values come after the choice.
+- ~~D2~~ **Decided (owner, 2 Nov):** yes, a minimum reward for a correct solve; an optional challenge is worth at most **2×** the core.
+- ~~D3~~ **Decided (owner, 2 Nov):** food tokens only for the core, including after a reveal.
+- **D4** ~~Free hints and a free reveal at Rabbi Levin and Chesed VeRachamim?~~ **Decided (owner, 2 Nov): Rabbi Levin and Chesed VeRachamim are normal stops**, with no special treatment decided in advance; there is more knowledge about Rabbi Levin to use, explored through `/experience-design` first.
+- ~~D5~~ **Decided (owner, 2 Nov):** the Submitter, anyone while that seat is empty, and the guide (a solo player holds the Submitter role, D12).
 - ~~D6~~ **Decided (owner, 2 Nov):** "We're here" is an explicit arrival confirmation without GPS or a guide; it earns the stop's navigation points once and ends navigation timing.
 - **D7** Timing for analytics only during the pilot (recommended)?
 - **D8** Voice: on-device recording and playback only, no speech recognition or AI scoring (recommended)?
 - **D9** Labels: a teaser + Main/Optional + difficulty, with "A Hidden Symbol" for the mural riddle?
 - **D10** Go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe"?
-- **D11** Is the reward sound on or off by default (off recommended: shared outdoor spaces, and phones often on silent)?
+- ~~D11~~ **Decided (owner, 2 Nov):** the reward sound is **off** by default.
 - ~~D12~~ **Decided (owner, 2 Nov):** an authenticated team of exactly one automatically has the Navigator and Answer Submitter permissions; solo wording is personal; Group shows "Playing solo"; the well's controls are all available to a solo player.
 - ~~D13~~ **Decided (owner, 2 Nov):** a voluntary risk may reduce the stop's earned points; the team is told plainly first.
 - ~~D14~~ **Decided:** the Balanced table (1–2 double, 3–4 −25 %, 5–6 keep), stake ≤ 200, +200 / −50, one roll per team, pilot only.

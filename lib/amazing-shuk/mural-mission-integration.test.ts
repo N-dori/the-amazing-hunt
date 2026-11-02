@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { issueInvitation, redeemInvitation, sessionAction, sessionView } from "./participant-store.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
@@ -67,11 +67,11 @@ test("only the submitter or guide submits; an unverified key scores nothing", ()
   assert.deepEqual(view.sharedBalance, { points: 0, foodTokens: 0, status: "Provisional local-development rewards" });
 }));
 
-test("the field-checked key: wrong picks don't complete; the right pair completes once with hints counted", () => fixture(async (path, tokens, now) => {
+test("the field-checked key: wrong picks don't complete; the right pair completes once with model-B hint costs; time never scores", () => fixture(async (path, tokens, now) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset);
   await act("player-2", { missionId: MURAL, type: "start" }, "verified-mural-start-1", 0);
   await act("player-3", { missionId: MURAL, type: "hint", hint: 1 }, "verified-mural-hint-01", 1);
-  await assert.rejects(act("player-3", { missionId: MURAL, type: "hint", hint: 4 }, "verified-mural-hint-04", 1));
+  await assert.rejects(act("player-3", { missionId: MURAL, type: "hint", hint: 3 }, "verified-mural-hint-03", 1));
   await act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "air-vents" }, "verified-pick-vents-01", 2);
   await act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "tile-103" }, "verified-pick-tile-001", 3);
   assert.match(await act("player-2", { missionId: MURAL, type: "submit" }, "verified-wrong-submit1", 4), /Not quite/);
@@ -81,16 +81,17 @@ test("the field-checked key: wrong picks don't complete; the right pair complete
   assert.match(await act("player-2", { missionId: MURAL, type: "submit" }, "verified-right-submit1", 60_000), /correct/);
   const done = await sessionView(path, tokens["player-1"], now + 70_000, MURAL);
   assert.equal(done.session.completed, true); assert.equal(done.mission.state, "completed");
-  assert.deepEqual(done.performance.reward, { points: 90, foodTokens: 2, hintsUsed: 1 });
+  // A minute in, and speed doesn't count: 100 less the first hint's 15.
+  assert.deepEqual(done.performance.reward, { points: 85, foodTokens: 2, hintsUsed: 1 });
   await act("player-2", { missionId: MURAL, type: "submit" }, "verified-repeat-submit", 80_000);
   await act("guide", { missionId: MURAL, type: "guide-approve" }, "verified-guide-approve", 80_000);
   await assert.rejects(act("player-3", { missionId: MURAL, type: "reset" }, "verified-reset-after-1", 80_000));
   await assert.rejects(act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "plaque" }, "verified-pick-after-01", 80_000));
   const disk = storedTeam(JSON.parse(await readFile(path, "utf8")));
-  assert.equal(disk.missions[MURAL].performance.award.points, 90);
+  assert.equal(disk.missions[MURAL].performance.award.points, 85);
   assert.equal(disk.missions[WELL].kind, "water"); assert.equal(disk.missions[WELL].completed, false);
   assert.deepEqual((await sessionView(path, tokens["player-1"], now + 90_000, WELL)).sharedBalance, done.sharedBalance);
-  assert.deepEqual(done.sharedBalance, { points: 90, foodTokens: 2, status: "Provisional local-development rewards" });
+  assert.deepEqual(done.sharedBalance, { points: 85, foodTokens: 2, status: "Provisional local-development rewards" });
 }));
 
 test("browsers send toggle-choice over HTTP with the mission ID; the GET returns the mural's picks", () => fixture(async (path, tokens) => {
@@ -120,4 +121,17 @@ test("Check our location uses the mural's confirmed corner: near earns the bonus
   assert.equal(view.mission.gpsEnabled, true); assert.equal(view.mission.arrivalPoints, 20); assert.equal(view.mission.arrivalMethod, "gps");
   assert.equal((await sessionView(path, tokens["player-3"], now, WELL)).mission.arrivalPoints, 0);
   assert.doesNotMatch(await readFile(path, "utf8"), /latitude|longitude|accuracy/);
+}));
+
+test("a saved mural that had opened the old third hint loads with two, and its solve still scores the floor", () => fixture(async (path, tokens, now) => {
+  const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset);
+  await act("player-2", { missionId: MURAL, type: "start" }, "cut-hints-mural-start1", 0);
+  const db = JSON.parse(await readFile(path, "utf8"));
+  storedTeam(db).missions[MURAL].performance.hintsUsed = 3;
+  await writeFile(path, JSON.stringify(db));
+  assert.equal((await sessionView(path, tokens["player-3"], now + 1, MURAL)).performance.hintsUsed, 2);
+  await act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "air-vents" }, "cut-hints-pick-vents01", 2);
+  await act("player-3", { missionId: MURAL, type: "toggle-choice", optionId: "plaque" }, "cut-hints-pick-plaque1", 3);
+  assert.match(await act("player-2", { missionId: MURAL, type: "submit" }, "cut-hints-right-submit", 4), /correct/);
+  assert.deepEqual((await sessionView(path, tokens["player-1"], now + 5, MURAL)).performance.reward, { points: 60, foodTokens: 2, hintsUsed: 2 });
 }));

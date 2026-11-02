@@ -54,3 +54,9 @@ export function effectiveRoles(memberIds: readonly string[], stored: GroupRoleAs
   const [only] = memberIds;
   return Object.freeze({ navigator: only, answerSubmitter: only });
 }
+
+/** Who may press "I'm completely stuck" (owner, D5, 2 Nov 2026): the guide, the Submitter (a solo player holds it, D12), or anyone
+ * while the team's Submitter seat is empty, so a missing Submitter never strands the team. Submitting itself keeps its own rule. */
+export function mayReveal(participantId: string, roles: GroupRoleAssignments, guide: boolean): boolean {
+  return guide || roles.answerSubmitter === null || roles.answerSubmitter === participantId;
+}

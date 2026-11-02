@@ -177,6 +177,8 @@ export const MARZIPAN_MISSION = Object.freeze({
   // The last stop: it opens once the other five missions are done.
   finale: true,
   challenge: MARZIPAN_CHALLENGE,
+  // No "I'm completely stuck" yet: its rule is set when Marzipan is reworked (owner, 2 Nov 2026).
+  reveal: false,
   rewards: MARZIPAN_REWARDS, hintCount: MARZIPAN_TASK.hints.length,
   followUps: Object.freeze([{ challenge: MARZIPAN_HORNS_CHALLENGE, hintCount: MARZIPAN_TASK.followUps[0].hints.length }]),
   bonus: Object.freeze({ challenge: MARZIPAN_BONUS_CHALLENGE, points: MARZIPAN_BONUS_POINTS }),

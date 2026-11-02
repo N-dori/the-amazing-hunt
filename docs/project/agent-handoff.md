@@ -1,6 +1,27 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Ready for the next session: Phase 1 live, tooling added: 2 Nov 2026
+## Latest handoff - Phase 2 steps 2a and 2b built and verified (uncommitted): 2 Nov 2026
+
+**Start here** for Phase 2. The approved plan is "Phase 2 detailed plan" in the [progressive-challenges plan](progressive-challenges-plan.md). The owner's answers (D1–D5, D11, P2-1 to P2-5) are recorded there and in [decisions](product-decisions.md). Nothing is committed or deployed; the live game is unchanged (`87c1877`).
+
+- **2a, model B scoring:**
+  - `lib/amazing-shuk/challenge-scoring.ts`: `hintLadder`, `hintBudget`, `budgetRewards` and the D2 cap.
+  - The mural uses it: max 100, a 40 % budget and 2 food tokens, all `TODO(values)`. Two hints (`TODO(copy)` drafts) score 100 → 85 → 60.
+  - Speed never scores, but the mural is **not** `timed: false`: that flag marks the time as excluded, and 2e needs the time recorded. The model-B speed bands are neutral instead.
+  - A saved, unfinished mural with more hints than exist now loads with them clamped to 2.
+- **2b, "I'm completely stuck" (server only):**
+  - New `reveal` action on every core challenge except Marzipan (`reveal: false`).
+  - It gives 0 points and the core's food tokens, with `outcome: "revealed"` and `endedAt` on the award. It is exactly once, shares the lock with submit, and completed missions unlock the finale.
+  - Permission is `mayReveal` in `roles.ts`: the guide, the Submitter (solo included), or anyone while the Submitter seat is empty. Submitting keeps its own rule.
+  - The view adds `performance.canReveal` and `performance.revealed`.
+  - No schema bump: the new award keys are optional, and the validator ignores them.
+  - The reveal message is a `TODO(copy)` draft.
+- **Checks** (clean `node:22-alpine` container): `test:shuk` 265/265, `npm test` 63/63, ESLint on the Shuk folders clean, `tsc` passes, `git diff --check` passes.
+- **Not checked:** nothing visual; there's no UI for the reveal yet, so players can't press it.
+- **Next:** 2c, the hint sheet and the stuck button with its confirmation (client), then 2d (`RewardDialog`) and 2e (timing record). After 2d: `/game-verify shuk` and the owner's browser review.
+- **The owner's earlier steps still stand:** commit the staged batch with `/commit` and push; links expire around 3 Nov 02:02 UTC.
+
+## Earlier handoff - Ready for the next session: Phase 1 live, tooling added: 2 Nov 2026
 
 **Start here.** Read `CLAUDE.md`, `AGENTS.md`, this entry, [current state](current-state.md) and the [progressive-challenges plan](progressive-challenges-plan.md) (its roadmap and decisions). Multiplayer onboarding stays paused.
 

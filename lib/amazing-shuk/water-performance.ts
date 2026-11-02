@@ -10,16 +10,21 @@ export const WELL_REWARDS: WaterRewardConfig = Object.freeze({
   hintPenalties: Object.freeze([10, 15, 20]),
 });
 export type TimingOperation = "pause" | "resume" | "reset" | "exclude";
-export type WaterPerformanceAction = Readonly<{ type: "start" }> | Readonly<{ type: "hint"; hint: number; step?: number }> | Readonly<{ type: "timing"; operation: TimingOperation }>;
+// `reveal` is "I'm completely stuck" (Phase 2): the answer is shown, the challenge earns 0 points, and the team carries on.
+export type WaterPerformanceAction = Readonly<{ type: "start" }> | Readonly<{ type: "hint"; hint: number; step?: number }> | Readonly<{ type: "timing"; operation: TimingOperation }>
+  | Readonly<{ type: "reveal" }>;
 export type WaterReward = Readonly<{ points: number; foodTokens: number; hintsUsed: number }>;
 export type WaterPerformance = Readonly<{
   startedAt: number | null; clockStartedAt: number | null; solvedAt: number | null;
   pausedAt: number | null; pausedMs: number; excluded: boolean; hintsUsed: number;
-  award: (WaterReward & { awardedAt: number; elapsedMs: number | null }) | null;
+  // `outcome` is absent for a solve (every award before Phase 2), "revealed" after "I'm completely stuck".
+  award: (WaterReward & { awardedAt: number; elapsedMs: number | null; outcome?: "revealed"; endedAt?: number }) | null;
   adjustments: readonly { operation: TimingOperation; at: number; actorId: string }[];
 }>;
 // `stepHintsUsed` counts the current question's hints in a mission with follow-up questions; it equals `hintsUsed` otherwise.
-export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; stepHintsUsed?: number; canStart: boolean; reward: WaterReward | null }>;
+// `canReveal`: this phone may press "I'm completely stuck" now; `revealed`: the award came from a reveal (0 points).
+export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; stepHintsUsed?: number; canStart: boolean; reward: WaterReward | null;
+  canReveal?: boolean; revealed?: boolean }>;
 export type GuideTimingView = Readonly<{ startedAt: number | null; solvedAt: number | null; stoppedElapsedMs: number | null; paused: boolean; excluded: boolean }>;
 export function createWaterPerformance(): WaterPerformance {
   return { startedAt: null, clockStartedAt: null, solvedAt: null, pausedAt: null, pausedMs: 0, excluded: false, hintsUsed: 0, award: null, adjustments: [] };
@@ -53,4 +58,13 @@ export function awardWaterPerformance(state: WaterPerformance, now: number, conf
   if (state.startedAt === null || state.solvedAt === null) throw new Error("Start and solve the challenge before submitting");
   const elapsedMs = state.excluded ? null : measuredWaterTime(state, now);
   return { ...state, award: { ...calculateWaterReward(elapsedMs, state.hintsUsed, config), awardedAt: now, elapsedMs } };
+}
+/** "I'm completely stuck" (owner, 2 Nov 2026): 0 challenge points, the challenge's food tokens (D3: a core challenge keeps them),
+ * recorded once like any award. An existing award is never replaced, so a reveal after a solve, or a second reveal, changes nothing. */
+export function revealWaterPerformance(state: WaterPerformance, now: number, config = WELL_REWARDS): WaterPerformance {
+  if (state.award) return state;
+  if (state.startedAt === null) throw new Error("Start the challenge after reading the story");
+  if (!Number.isSafeInteger(config.foodTokens) || config.foodTokens < 0) throw new Error("Reward configuration is unavailable");
+  const elapsedMs = state.excluded ? null : measuredWaterTime(state, now);
+  return { ...state, award: { points: 0, foodTokens: config.foodTokens, hintsUsed: state.hintsUsed, awardedAt: now, elapsedMs, outcome: "revealed", endedAt: now } };
 }

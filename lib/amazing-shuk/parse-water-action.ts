@@ -3,7 +3,7 @@ import type { DevWaterAction } from "./dev-water-session.ts";
 import type { GroupAction, MissionAction } from "./group-action.ts";
 import { WATER_MOVES } from "./water-measurement.ts";
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
-const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice"]);
+const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice", "reveal"]);
 
 const BONUS_ACTIONS: ReadonlySet<string> = new Set(["toggle-choice", "reset", "submit"]);
 
@@ -72,6 +72,7 @@ function parseActionBody(value: unknown): DevWaterAction | null {
     case "submit":
     case "guide-approve":
     case "reset":
+    case "reveal":
       return { type: value.type };
     default:
       return null;

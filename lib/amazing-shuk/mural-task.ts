@@ -1,6 +1,7 @@
 import type { ChoiceChallenge } from "./choice-task.ts";
 import type { MissionDefinition } from "./mission-arrival.ts";
-import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
+import type { WaterRewardConfig } from "./water-performance.ts";
+import { budgetRewards, type BudgetScoring } from "./challenge-scoring.ts";
 
 export const MURAL_MISSION_ID = "mural-real-or-painted";
 
@@ -25,8 +26,9 @@ export const MURAL_CHALLENGE: ChoiceChallenge = Object.freeze({
   ]),
 });
 
-// Provisional copy of the well's local-testing values; mural rewards are not approved yet.
-export const MURAL_REWARDS: WaterRewardConfig = WELL_REWARDS;
+// Model B (owner, D1, 2 Nov 2026); speed never changes the points. TODO(values): max 100, a 40 % hint budget and 2 food tokens are proposals pending the
+// owner's approval. With two hints: 100, then 85, then 60 (the floor).
+export const MURAL_SCORING: BudgetScoring = Object.freeze({ maxPoints: 100, budgetShare: 0.4, foodTokens: 2 });
 
 /** Story and question text: source-backed, for owner review. Each paragraph carries its own evidence label. */
 export const MURAL_TASK = Object.freeze({
@@ -52,13 +54,15 @@ export const MURAL_TASK = Object.freeze({
   // TODO(copy): draft solo wording for owner review (2 Nov 2026).
   questionSolo: "The artists fooled almost everyone. Can you spot TWO things that are actually real?",
   reveal: { paragraphs: [], image: null },
-  // The tour's own questions for this stop, in order.
+  // Two hints, each more helpful than the last (plan §4, 2 Nov 2026). They replace the tour's three open questions.
+  // TODO(copy): both are drafts for the owner's approval.
   hints: [
-    { title: "Hint 1 — Gentle", text: "Which lines belong to actual architecture?" },
-    { title: "Hint 2 — More specific", text: "Which stalls or objects are flat paint?" },
-    { title: "Hint 3 — Almost there", text: "Where did the artists use shadows to fool your eye?" },
+    { title: "Hint 1 — Gentle", text: "Look closely at the shop on the ground floor and its awning." },
+    { title: "Hint 2 — More specific", text: "One real thing helps the building breathe." },
   ],
 });
+
+export const MURAL_REWARDS: WaterRewardConfig = budgetRewards(MURAL_SCORING, MURAL_TASK.hints.length);
 
 export const MURAL_MISSION = Object.freeze({
   id: MURAL_MISSION_ID, title: MURAL_TASK.title, name: "The Mahane Yehuda Market Mural", shortName: "Market Mural",
@@ -88,5 +92,6 @@ export const MURAL_MISSION = Object.freeze({
     radiusMeters: 100, maxAccuracyMeters: 50, maxAgeMs: 60_000, futureToleranceMs: 5_000, rewardPoints: 20,
   }),
   challenge: MURAL_CHALLENGE,
+  // Not `timed: false`: the time is still measured silently (analytics only); model B's rewards never score speed.
   rewards: MURAL_REWARDS, hintCount: MURAL_TASK.hints.length,
 }) satisfies MissionDefinition;

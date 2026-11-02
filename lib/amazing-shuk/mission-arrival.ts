@@ -38,6 +38,8 @@ export type MissionDefinition = Readonly<{
   followUps?: readonly Readonly<{ challenge: ChoiceChallenge; hintCount: number }>[];
   // The last stop: locked until the group has completed every other mission (Marzipan, the owner's request, 26 Oct 2026).
   finale?: true;
+  // `false`: no "I'm completely stuck" on this challenge (Marzipan, owner, 2 Nov 2026: set when Marzipan is reworked).
+  reveal?: false;
 }>;
 /** The question a "choose N" mission is on: step 0 is its challenge, then its follow-ups. Null past the last step. */
 export function choiceStep(definition: MissionDefinition, step: number): Readonly<{ challenge: ChoiceChallenge; hintCount: number }> | null {
