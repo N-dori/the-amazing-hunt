@@ -122,7 +122,9 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
 - There is more knowledge about Rabbi Levin that the game can use. Explore it through `/experience-design` before deciding his challenges; don't settle his stop's content or treatment early.
 - **Chesed VeRachamim (owner, 2 Nov 2026):** also a normal stop.
 
-**Pending owner approval:** D7–D10 in the plan (what timing is for, on-device voice, labels, research run 08 and the field checks); the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
+**Decided (owner, 2 Nov 2026): D7–D10, all as recommended.** D7: timing is for analytics only during the pilot. D8: voice is on-device recording and playback only, no speech recognition or AI scoring. D9: labels are a teaser + Main/Optional + difficulty ("A Hidden Symbol" for the mural riddle). D10: go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe"; the optional-challenge engine is unblocked.
+
+**Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
 ## Other current owner directions
 

@@ -700,10 +700,10 @@ Already decided by the owner's brief (recorded, not asked): the fallback gives 0
 - **D4** ~~Free hints and a free reveal at Rabbi Levin and Chesed VeRachamim?~~ **Decided (owner, 2 Nov): Rabbi Levin and Chesed VeRachamim are normal stops**, with no special treatment decided in advance; there is more knowledge about Rabbi Levin to use, explored through `/experience-design` first.
 - ~~D5~~ **Decided (owner, 2 Nov):** the Submitter, anyone while that seat is empty, and the guide (a solo player holds the Submitter role, D12).
 - ~~D6~~ **Decided (owner, 2 Nov):** "We're here" is an explicit arrival confirmation without GPS or a guide; it earns the stop's navigation points once and ends navigation timing.
-- **D7** Timing for analytics only during the pilot (recommended)?
-- **D8** Voice: on-device recording and playback only, no speech recognition or AI scoring (recommended)?
-- **D9** Labels: a teaser + Main/Optional + difficulty, with "A Hidden Symbol" for the mural riddle?
-- **D10** Go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe"?
+- ~~D7~~ **Decided (owner, 2 Nov):** timing is for analytics only during the pilot.
+- ~~D8~~ **Decided (owner, 2 Nov):** voice is on-device recording and playback only, with no speech recognition or AI scoring.
+- ~~D9~~ **Decided (owner, 2 Nov):** labels are a teaser + Main/Optional + difficulty, with "A Hidden Symbol" for the mural riddle.
+- ~~D10~~ **Decided (owner, 2 Nov):** go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe". This also unblocks the optional-challenge engine (P2-5).
 - ~~D11~~ **Decided (owner, 2 Nov):** the reward sound is **off** by default.
 - ~~D12~~ **Decided (owner, 2 Nov):** an authenticated team of exactly one automatically has the Navigator and Answer Submitter permissions; solo wording is personal; Group shows "Playing solo"; the well's controls are all available to a solo player.
 - ~~D13~~ **Decided (owner, 2 Nov):** a voluntary risk may reduce the stop's earned points; the team is told plainly first.

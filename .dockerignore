@@ -4,6 +4,7 @@ deploy
 docs
 research
 .env*
+**/.env*
 README.md
 .claude
 CLAUDE.md
