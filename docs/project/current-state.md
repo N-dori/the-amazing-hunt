@@ -1,6 +1,11 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 2 Nov 2026 (Claude).** **Live since 2 Nov 2026, 02:01 UTC: `87c1877`** (Phase 1, solo-first play: a team of one holds both roles; "We're here" arrival), image `dori-shuk:20261102-020120-87c1877`, deployed with `/deploy`; rollback `previous` = `522ecd9` (I3b + I4a). A fresh adventure waits in its lobby (0 members). Fresh single-use links for `host player-1` and `guide` are in `.local/amazing-shuk/live-links/`, valid until about 3 Nov 02:02 UTC. **Join links off.** Backup: `/root/backups/amazing-shuk/live-state-before-deploy-20261102T020110Z.json` (the only one). Seven safety copies sit in `/data`, kept until the owner decides. Disk 78%.
+**Updated: 2 Nov 2026 (Claude).** **Live since 2 Nov 2026, 07:19 UTC: `946b531`** (Phase 2, 2a–2e, plus UX-3), image `dori-shuk:20261102-071855-946b531`, deployed with `/deploy`, and the game was reset. Rollback: `previous` = `87c1877` (Phase 1).
+- **The new adventure** was opened at 07:20 UTC. The owner's phone signed in as the **guide** and started the adventure, so `host-player-1.txt` can no longer be used: a host link works only in the lobby.
+- **Links:** one guide link was reissued at 08:09 UTC, valid until about 3 Nov 08:09 UTC. Links are in `.local/amazing-shuk/live-links/`. **Join links are off.**
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261102T071847Z.json`, the only one.
+- **Safety copies:** eight in `/data`, kept until the owner decides.
+- **Disk:** 82%.
 
 ## Progressive challenges and Market Surprise: Phase 1 LIVE, phases 2–5 planned (owner, 2 Nov 2026)
 
@@ -8,7 +13,7 @@ The [progressive-challenges plan](progressive-challenges-plan.md) sets out the r
 - **Decided:** D13–D17 (see [product decisions](product-decisions.md#progressive-challenges-and-market-surprise-owner-2-nov-2026)).
 - **Decided and live:** D6 ("We're here") and D12 (solo roles), as Phase 1.
 - **Open:** D1–D5, D7–D11, the Market Surprise stop pool, and the solo copy drafts marked TODO(copy).
-- **Phase 2 approved (owner, 2 Nov 2026) and in progress:** 2a (model B scoring on the mural) and 2b (the server's "I'm completely stuck") are committed (`17a1549`); 2c (the hint sheet and the stuck button on screen) is committed (`6b61124`); 2d (the reward pop-up) is committed (`aa2cc2d`). **UX-3** (the story, then Start, then the challenge; Marzipan unchanged) is committed (`fbd67d0`, pushed) and passed `/game-verify shuk`. **2e** (the silent timing record, analytics only) is built, uncommitted. The owner is reviewing 2d and UX-3 in the browser. See the top of the [handoff](agent-handoff.md).
+- **Phase 2 approved (owner, 2 Nov 2026) and in progress:** 2a (model B scoring on the mural) and 2b (the server's "I'm completely stuck") are committed (`17a1549`); 2c (the hint sheet and the stuck button on screen) is committed (`6b61124`); 2d (the reward pop-up) is committed (`aa2cc2d`). **UX-3** (the story, then Start, then the challenge; Marzipan unchanged) and **2e** (the silent timing record, analytics only) are committed (`fbd67d0`, `946b531`), and **all are live** (`946b531`). The owner's live review passed checks 1–12. Check 13 (who sees the stuck button) is covered by tests only, because there's no second player. Checks 14–15 (tap sizes and the draft wording) are still open. See the top of the [handoff](agent-handoff.md).
 
 ## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
 

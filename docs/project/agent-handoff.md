@@ -1,8 +1,30 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - Phase 2 step 2e (silent timing record) built (uncommitted): 2 Nov 2026
+## Latest handoff - Phase 2 (2a–2e) and UX-3 live: 2 Nov 2026
 
-UX-3 is committed (`fbd67d0`) and pushed by the owner; `/game-verify shuk` passed on it. The owner is reviewing 2d and UX-3 in the browser. **2e is uncommitted.**
+- **Deployed:** `946b531`, with `/deploy` (full: a fresh adventure and new links).
+  - Live tag: `dori-shuk:20261102-071855-946b531`; rollback: `87c1877`.
+  - Backup: `live-state-before-deploy-20261102T071847Z.json`.
+  - The pruning removed `:test` and `522ecd9`.
+- **The owner's live review (solo):** checks 1–10 passed:
+  - arrival pop-up, story-first screens, hint costs, solve pop-up;
+  - no repeat after a reload;
+  - the well's puzzle hidden before Start, the stuck flow, Marzipan unchanged.
+- **Two screens (phone and PC):** 11 passed (the second screen switches to the challenge after Start) and 12 passed (the bottom note away from the stop).
+- **Not checked live:** 13 (a non-submitter doesn't see the stuck button) needs a second ordinary player; it's covered by `reveal.test.ts`. 14–15 (tap sizes and the draft wording) are still open.
+- **Sign-in note:**
+  - The owner's phone used the guide link, and the guide started the adventure. So the host link can't be redeemed any more, because host links work only in the lobby.
+  - A new guide link was written at 08:09 UTC. A `player-2` link was offered for check 13; not written.
+- **Not pushed:** `946b531` (the owner pushes from VS Code).
+- **Untracked:** a screenshot at `public/image.png`, the owner's; never commit it.
+- **Next:**
+  - the owner's 14–15 and the copy approvals;
+  - then the remaining Phase 2 items (the optional-challenge engine waits for D10; the Marzipan rework);
+  - or UX-4.
+
+## Phase 2 step 2e (silent timing record): 2 Nov 2026
+
+UX-3 is committed (`fbd67d0`) and pushed by the owner; `/game-verify shuk` passed on it. **2e was committed as `946b531` and deployed.**
 
 - **The phone:** each queued action carries `queuedAt` (`queueEntry` in `IndexWaterTask.tsx`, outside the component so the clock is read only in an event handler).
 - **The HTTP layer** passes a finite `body.queuedAt` to `sessionAction` as its new last argument.
