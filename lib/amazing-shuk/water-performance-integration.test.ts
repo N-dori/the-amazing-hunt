@@ -52,7 +52,8 @@ test("server clock survives devices and stops on solution; rewards issue only on
   await assert.rejects(act("player-1", { missionId: WELL, type: "submit" }, "unauthorized-submit-001", 700002));
   await act("player-2", { missionId: WELL, type: "submit" }, "authorized-submit-001", 800000);
   const awarded = (await snapshot(path)).missions[WELL].performance.award;
-  assert.deepEqual(awarded, { points: 75, foodTokens: 2, hintsUsed: 2, elapsedMs: 119999, awardedAt: base + 800000 });
+  // Phase 2e adds the silent record: a named solve and its end (this test sends no queue time, so no delay is recorded).
+  assert.deepEqual(awarded, { points: 75, foodTokens: 2, hintsUsed: 2, elapsedMs: 119999, awardedAt: base + 800000, outcome: "solved", endedAt: base + 800000 });
   await act("player-2", { missionId: WELL, type: "submit" }, "authorized-submit-001", 900000);
   await act("guide", { missionId: WELL, type: "submit" }, "guide-duplicate-submit-001", 1000000);
   assert.deepEqual((await snapshot(path)).missions[WELL].performance.award, awarded);

@@ -18,7 +18,10 @@ export type WaterPerformance = Readonly<{
   startedAt: number | null; clockStartedAt: number | null; solvedAt: number | null;
   pausedAt: number | null; pausedMs: number; excluded: boolean; hintsUsed: number;
   // `outcome` is absent for a solve (every award before Phase 2), "revealed" after "I'm completely stuck".
-  award: (WaterReward & { awardedAt: number; elapsedMs: number | null; outcome?: "revealed"; endedAt?: number }) | null;
+  // Phase 2e adds a silent record for analytics only (never points): `outcome` "solved" or "revealed" (absent on older awards
+  // means solved), `endedAt` (the server's time), and, when the phone's action carried when it was queued, `queuedMs` (the delay
+  // before it reached the server) with `uncertain` when that delay or the phone's clock can't be trusted.
+  award: (WaterReward & { awardedAt: number; elapsedMs: number | null; outcome?: "solved" | "revealed"; endedAt?: number; queuedMs?: number; uncertain?: true }) | null;
   adjustments: readonly { operation: TimingOperation; at: number; actorId: string }[];
 }>;
 // `stepHintsUsed` counts the current question's hints in a mission with follow-up questions; it equals `hintsUsed` otherwise.
@@ -69,4 +72,21 @@ export function revealWaterPerformance(state: WaterPerformance, now: number, con
   if (!Number.isSafeInteger(config.foodTokens) || config.foodTokens < 0) throw new Error("Reward configuration is unavailable");
   const elapsedMs = state.excluded ? null : measuredWaterTime(state, now);
   return { ...state, award: { points: 0, foodTokens: config.foodTokens, hintsUsed: state.hintsUsed, awardedAt: now, elapsedMs, outcome: "revealed", endedAt: now } };
+}
+
+/** Phase 2e: longer than this between the phone queueing an action and the server applying it, the timing is uncertain. */
+export const SYNC_UNCERTAIN_MS = 60_000;
+/** A phone clock this far ahead of the server's is implausible. */
+export const CLOCK_AHEAD_TOLERANCE_MS = 5_000;
+type Award = NonNullable<WaterPerformance["award"]>;
+/** The delay a queued action spent on the phone, clamped at 0; nothing when the phone didn't say (an older app). */
+export function syncTiming(queuedAt: number | undefined, now: number): Readonly<{ queuedMs?: number; uncertain?: true }> {
+  if (queuedAt === undefined || !Number.isFinite(queuedAt)) return {};
+  const delay = now - queuedAt;
+  const uncertain = delay > SYNC_UNCERTAIN_MS || delay < -CLOCK_AHEAD_TOLERANCE_MS;
+  return { queuedMs: Math.max(0, Math.round(delay)), ...(uncertain ? { uncertain: true as const } : {}) };
+}
+/** Adds the silent timing record to an award made just now. Points, food tokens and `elapsedMs` are never changed. */
+export function recordAwardTiming(award: Award, now: number, queuedAt?: number): Award {
+  return { ...award, outcome: award.outcome ?? "solved", endedAt: award.endedAt ?? now, ...syncTiming(queuedAt, now) };
 }

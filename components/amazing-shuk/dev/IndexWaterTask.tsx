@@ -56,6 +56,9 @@ const INITIAL_NAV = initialNavState(SHUK_MISSIONS[0].id);
 // Where the player is survives a refresh in this tab; shared progress always comes from the server.
 const NAV_STORAGE_KEY = "shuk:navigation";
 const isMission = (id: string) => Boolean(findMission(id));
+// One queued action: its receipt ID, the reset epoch the phone was shown, and when it was queued (Phase 2e, the silent timing
+// record only). Outside the component: it reads the clock, which only ever happens in an event handler.
+const queueEntry = (action: GroupAction, resetEpoch: string | undefined) => ({ ...action, actionId: crypto.randomUUID(), resetEpoch, queuedAt: Date.now() });
 // The Shuk API, under the app's base path. Its route name dates from the development simulation.
 const API = BASE_PATH + "/api/amazing-shuk/dev";
 // The local simulation says it is one; the protected app speaks to players.
@@ -268,7 +271,8 @@ export default function IndexWaterTask({ mode }: Props) {
     const key = `shuk-pending:v${WATER_PUZZLE_REVISION}:` + actorId;
     const pending = JSON.parse(localStorage.getItem(key) ?? "[]");
     // The reset epoch the phone was shown (development resets only) travels with the action, so a reset drops what was queued before it.
-    localStorage.setItem(key, JSON.stringify([...pending, { ...action, actionId: crypto.randomUUID(), resetEpoch: view?.resetEpoch }]));
+    // `queuedAt` (Phase 2e) tells the server how long the action waited here, for the silent timing record only.
+    localStorage.setItem(key, JSON.stringify([...pending, queueEntry(action, view?.resetEpoch)]));
     await flush();
   };
 

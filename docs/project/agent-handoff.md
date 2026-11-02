@@ -1,8 +1,25 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - UX-3 (story, then Start, then the challenge) built (uncommitted): 2 Nov 2026
+## Latest handoff - Phase 2 step 2e (silent timing record) built (uncommitted): 2 Nov 2026
 
-2d is committed (`aa2cc2d`). **UX-3 is uncommitted.** The owner approved it on 2 Nov 2026: option A (screen-only hiding, one page), Start as the only gate, Marzipan left as is until its rework, and no video for now. See `product-decisions.md` under UX-3.
+UX-3 is committed (`fbd67d0`) and pushed by the owner; `/game-verify shuk` passed on it. The owner is reviewing 2d and UX-3 in the browser. **2e is uncommitted.**
+
+- **The phone:** each queued action carries `queuedAt` (`queueEntry` in `IndexWaterTask.tsx`, outside the component so the clock is read only in an event handler).
+- **The HTTP layer** passes a finite `body.queuedAt` to `sessionAction` as its new last argument.
+- **The award record:** when an action makes a mission's award, the store adds `recordAwardTiming` (`water-performance.ts`), with these fields:
+  - `outcome`: "solved" or "revealed" (absent on older awards still means solved);
+  - `endedAt`: the server's time;
+  - `queuedMs`: the delay before the action reached the server, clamped at 0;
+  - `uncertain: true` when that delay is over 60 s (`SYNC_UNCERTAIN_MS`), or the phone's clock is more than 5 s ahead (`CLOCK_AHEAD_TOLERANCE_MS`).
+  - An action from an older phone, with no `queuedAt`, records no delay.
+- **Analytics only:** points, food tokens, `elapsedMs` and the players' view are unchanged, and the guide's timing controls are untouched. The state validator ignores award keys, so older images load these files.
+- **Tests:** the new `timing-record.test.ts`; `water-performance-integration.test.ts` now expects `outcome` and `endedAt`.
+- **Checks:** `test:shuk` 291/291, `npm test` 63/63, lint OK, `tsc` OK.
+- **Next:** the owner's browser review (2d and UX-3), then commit 2e on request, then `/game-verify shuk` before any deploy.
+
+## UX-3 (story, then Start, then the challenge): 2 Nov 2026
+
+2d is committed (`aa2cc2d`). **UX-3 was committed afterwards as `fbd67d0`.** The owner approved it on 2 Nov 2026: option A (screen-only hiding, one page), Start as the only gate, Marzipan left as is until its rework, and no video for now. See `product-decisions.md` under UX-3.
 
 - **`lib/amazing-shuk/challenge-phase.ts`:**
   - `challengePhase(started, completed, storyFirst)` returns story, play or done, taken from the server's `performance.started`, so a refresh and a second phone agree;

@@ -108,7 +108,9 @@ export async function handleParticipantRequest(request: Request, path = defaultS
     if (typeof body.expectedParticipantId !== "string") return json({ error: "Expected participant required" }, 400);
     // Only a development reset sets an epoch; then an action must carry the one its phone was shown (see sessionAction).
     const message = await sessionAction(path, token, action, body.actionId, Date.now(), body.expectedParticipantId, undefined, undefined,
-      typeof body.resetEpoch === "string" ? body.resetEpoch : undefined);
+      typeof body.resetEpoch === "string" ? body.resetEpoch : undefined,
+      // When the phone queued it (Phase 2e): analytics only, never trusted for points.
+      typeof body.queuedAt === "number" && Number.isFinite(body.queuedAt) ? body.queuedAt : undefined);
     return json({ ...await view("missionId" in action ? action.missionId : undefined), message });
   } catch (error) {
     if (error instanceof AccessError) return json({ error: error.message, ...(error.code ? { code: error.code } : {}) }, error.status);

@@ -2,7 +2,7 @@ import { ARRIVAL_NEARBY, GAN_HATUT_MISSION, checkMissionArrival, choiceStep, mis
 import { findMission, SHUK_MISSIONS } from "./missions.ts";
 import type { GroupAction } from "./group-action.ts";
 import { evaluateChoice, isValidChoiceSelection, toggleChoice, type ChoiceChallenge } from "./choice-task.ts";
-import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, revealWaterPerformance, type WaterPerformance } from "./water-performance.ts";
+import { createWaterPerformance, adjustWaterTiming, awardWaterPerformance, measuredWaterTime, recordAwardTiming, revealWaterPerformance, type WaterPerformance } from "./water-performance.ts";
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
@@ -673,7 +673,7 @@ export async function sessionView(path: string, token: string, now = Date.now(),
 }
 /** `arrivalPolicy` and `choiceChallenge` override the mission's own settings; tests use them for a verified destination or answer key.
  * `resetEpoch` is the one the phone's view carried when it queued the action; it matters only after a development reset. */
-export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy, choiceChallenge?: ChoiceChallenge, resetEpoch?: string) {
+export async function sessionAction(path: string, token: string, action: GroupAction, actionId: string, now = Date.now(), expectedParticipantId?: string, arrivalPolicy?: ArrivalPolicy, choiceChallenge?: ChoiceChallenge, resetEpoch?: string, queuedAt?: number) {
   return transact(path, db => {
     const participantId = identity(db, token, now);
     if (expectedParticipantId !== undefined && expectedParticipantId !== participantId) throw new AccessError("Browser identity changed; reload before syncing actions", 409);
@@ -906,6 +906,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
               : "Not quite. Look again and talk it over.";
           }
         }
+        // Phase 2e: the action that made the award also records, silently, when it ended and how long it waited on the phone.
+        if (!team.missions[action.missionId]?.performance.award && mission.performance.award)
+          mission.performance = { ...mission.performance, award: recordAwardTiming(mission.performance.award, now, queuedAt) };
         team.missions = { ...team.missions, [action.missionId]: mission };
       }
     } catch (error) { throw new AccessError(error instanceof Error ? error.message : "Action rejected"); }
