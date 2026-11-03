@@ -1,6 +1,30 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Research run 08 done (uncommitted): 3 Nov 2026
+## Mural rework direction, new top-level rules, runs 09 and prompt 10: 3 Nov 2026
+
+Documentation and research only; no code. Everything below is in `product-decisions.md` (3 Nov entries) and plan §7.
+- **The lion riddle's reveal, kept simple (owner):** four points: *Jew* (*Yehudi*) points back to Judah; the lion was the tribe of Judah's symbol; it is also the Jerusalem municipality's emblem (since 1949); the mural's artists took their lion from the Lions' Gate. The rest of run 08 stays out.
+- **The mural stop review (owner):**
+  - look first: a short "Phones down, look up" screen, **no countdown**, then the list;
+  - working together over screen time; the reveal from run 07; rewards follow difficulty;
+  - **the aha:** why CitéCréation paints (overlooked places, drawing people into the street). [Run 09](../../research/results/09_mural_purpose_and_stamp.md) sources the Jerusalem purpose (tourism) and the social-housing approach; **the property-value rise has no source**;
+  - ideas: the name "Trompe-l'œil"; "Who painted it?" from the silver plaque; "What's real?" against CitéCréation's photos (the Researcher opens the URL, so no rights needed); the stamp (real, issue 1171, face value 15 NIS from a catalogue; souvenir sheet ₪20), and the 15/20 confusion as a reading question.
+- **New top-level rules (owner), in `content.md`, `CLAUDE.md`, `AGENTS.md` (and `coding.md`):**
+  - **The knowledge folder:** `docs/knowledge/` is where the games get useful facts from; a piece belongs there because it can serve a challenge; written, then locked (changes only with the owner's approval); research that can serve a challenge is imported into it with its source and label.
+  - **Ways to answer and ways to verify:** answer forms vary and should be unexpected; a photo is one form, not for all; each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API), chosen with the owner; points are still computed by code.
+  - **Roles:** Navigator, Answer Submitter and a new **Researcher**; the group leader assigns them during onboarding; a player can hold more than one. Not built.
+  - **Mobile data is required**; web challenges aren't filtered out. The offline queue stays.
+- **Open, to decide when the first photo challenge is built:**
+  - the "camera never the only way" rule in `content.md` (its reasons: failures and bystanders' privacy);
+  - the `.env.example` note that the OpenAI key never reaches the live container: the agreed shape is a separate verify service holding the key, with rate limits and a spend cap.
+- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. The owner runs it; the result goes to `research/results/10_…`.
+- **Next:**
+  - the owner runs prompt 10;
+  - the field checks (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
+  - import the challenge-serving parts of runs 07–09 into `docs/knowledge/`;
+  - then rework the mural stop through `/experience-design`.
+
+## Research run 08: 3 Nov 2026 (committed `5c7e971`, pushed)
 
 **Why:** D10 (owner, 2 Nov) opened research run 08 for the lion riddle and "Say it like Ohel Moshe". Done as run 07 was: web search and page reads by Claude Code. The result is [run 08](../../research/results/08_lion_riddle_and_avnei_zikaron.md); research, not approved content.
 - **The reveal's chain holds, with one fix:** *Yehud* is not a step between Judah and *Yehudi*. *Yehudim* already names Judah's people in 2 Kings 16:6, before the exile. Write Judah → *Yehudi* → *Ioudaios* → *Iudaeus* → *Jew*; Esther 2:5 (Mordecai the Benjaminite) as planned.
@@ -10,7 +34,6 @@
 - ***Avnei zikaron*** is Exodus 28:12 and 39:7 (the ephod's stones); the gate's next words quote Psalm 112:6. Hebrew Wikipedia transcribes the whole inscription (in the run).
 - **Discrepancies for the stone:** זיכרון or זכרון; "Montifiori" or "Montefiore".
 - **Still needed before any build:** the field checks (the keystone lion, a יהודה sign in sight of the mural, the gate's lines and Arabic panel), the native speaker's clip, and the owner's approval of the claims and draft copy.
-- **Next:** the owner reads run 08; the field checks; then draft copy and the optional-challenge engine.
 
 ## Earlier handoff - a pasted sign-in link now works in an open tab (uncommitted): 2 Nov 2026
 

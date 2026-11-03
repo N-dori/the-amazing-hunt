@@ -22,7 +22,11 @@ Follow the rules in `.claude/rules/`:
 
 `docs/coding-rules.md`, `docs/content/methodology.md` and `docs/design/` are copies of the platform's documents, kept here for reference; the platform repo holds the originals.
 
-The story and tour texts (the Memory Protocol story and plan, the guide's recorded Hebrew tour, the Mahane Yehuda tours) are in `docs/knowledge/`. For designing or improving a mission, an interaction or the whole game's arc, use `/experience-design`; its `references/project-context.md` lists every document it draws on.
+**`docs/knowledge/` is where the games get their useful facts from (top-level rule, owner, 3 Nov 2026).** A piece belongs there because it can serve a purpose for a challenge. Once written it is locked: change it only with the owner's approval. Research results that can serve a challenge are imported into it with their sources and evidence labels. See "The knowledge folder" in `.claude/rules/content.md`. It holds the story and tour texts (the Memory Protocol story and plan, the guide's recorded Hebrew tour, the Mahane Yehuda tours). For designing or improving a mission, an interaction or the whole game's arc, use `/experience-design`; its `references/project-context.md` lists every document it draws on.
+
+**Ways to answer and ways to verify (top-level rule, owner, 3 Nov 2026).** How a group answers should be unexpected, never always the same; taking a photo is one form among many. Each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API for a photo), chosen with the owner. See `.claude/rules/content.md`.
+
+**Group roles and data (owner, 3 Nov 2026).** The roles are Navigator, Answer Submitter and Researcher (who goes online from a URL the app gives). The group leader assigns them during onboarding, and a player can hold more than one. The game requires mobile data; challenges that need the web are not filtered out.
 
 Commands (`.claude/skills/`):
 

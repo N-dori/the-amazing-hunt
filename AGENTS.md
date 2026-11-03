@@ -32,6 +32,10 @@ Add or update `*.test.ts` coverage for game logic, especially scoring, unlocks a
 
 ### Sources of Truth
 
+**Ways to answer and ways to verify (top-level rule, owner, 3 Nov 2026):** how a group answers should be unexpected, never always the same; taking a photo is one form among many. Each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API for a photo), chosen with the owner; points and unlocks are still computed by code. Group roles: Navigator, Answer Submitter and Researcher, assigned by the group leader during onboarding; a player can hold more than one. The game requires mobile data.
+
+**The knowledge folder (top-level rule, owner, 3 Nov 2026):** docs/knowledge/ is where the games get their useful facts from. A piece of knowledge belongs there because it can serve a purpose for a challenge. Once written it is locked: do not rewrite or delete it without explicit owner approval. Research in research/results/ that can serve a challenge is imported into docs/knowledge/ with its source and evidence label. Being there does not make a claim a fact; every piece keeps its evidence label. See .claude/rules/content.md.
+
 The repository contains two separate games with separate sources. For **The Memory Protocol**, docs/knowledge/The_Memory_Protocol_Story_V1(1).md is locked: do not rewrite it, rename the Israelianes or HARMONY, or change its premise without explicit user approval. Use docs/knowledge/Memory_Protocol_New_Chat_Handoff_v02.md for gameplay, scoring proposals, evidence boundaries and open questions.
 
 For **The Amazing Shuk** (Nahlaot and Mahane Yehuda), use Part 2 of research/prompts/DORI_UXUI_Designer_Agent_Prompt(1).md, plus mission/task ideas and the photo index in design/inputs/content/. Do not use the Memory Protocol story as a source: this game has no HARMONY, Israelianes, parallel Earth, library act or crisis layer. Map idea tags DOC and FIELD to **Historical fact**; map ORAL and FOLK to **Attributed tradition**.

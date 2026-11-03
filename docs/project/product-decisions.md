@@ -124,6 +124,27 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
 
 **Decided (owner, 2 Nov 2026): D7–D10, all as recommended.** D7: timing is for analytics only during the pilot. D8: voice is on-device recording and playback only, no speech recognition or AI scoring. D9: labels are a teaser + Main/Optional + difficulty ("A Hidden Symbol" for the mural riddle). D10: go ahead with research run 08, the field checks and draft copy for the lion riddle and "Say it like Ohel Moshe"; the optional-challenge engine is unblocked.
 
+**Decided (owner, 3 Nov 2026): the lion riddle's reveal stays simple.** Four points: the word *Jew* (*Yehudi*) points back to Judah; the lion was the symbol of the biblical tribe of Judah; it is also the Jerusalem municipality's emblem (since 1949); the mural's artists took their lion from the Lions' Gate. Run 08's other material (*Yehud*, the Greek and Latin forms, Mordecai, Baybars' leopards, the market's name) stays out of the reveal. The wording is still a draft (`TODO(copy)`).
+
+**Decided (owner, 3 Nov 2026): the mural stop's rework direction.**
+- **Look first:** the challenge opens with a short "Phones down, look up" screen, **with no countdown** (owner, 3 Nov 2026: a timer would pull their eyes back to the phone). The group looks at the wall, points and argues about what is real. Only then does the list appear.
+- **Working together is the goal:** less time on the phone, more solving as a group.
+- **The reveal:** fill it from run 07 (the real blinds and railings painted to match, the IEC's thank-you workers). The owner's reading of the mural's purpose: bring people to a low-key, poor corner and help them discover it. That needs a source before it becomes a claim.
+- **Research first:** research on the web and import the results into the project before content and build decisions. The "real people in the mural" angle is to be researched again, not treated as blocked.
+- **The aha moment (owner, 3 Nov 2026):** why CitéCréation paints: it picks overlooked, poor places to draw people into the street, and (the owner's reading) property values rose where it painted. Run 09 sources the Jerusalem purpose (tourism) and the social-housing approach; **the property-value rise has no source yet**, so it can't be stated as fact.
+- **Ideas to explore (owner, 3 Nov 2026):** the name "Trompe-l'œil (trick of the eye)"; "Who painted it?" and "What technique?" as typed answers; "What's real?" checked against CitéCréation's photos; the Israel Post souvenir sheet (₪20, run 09) as a number to find, a spot-the-difference or the key to the next piece.
+- **The owner's answers on those ideas (3 Nov 2026):**
+  - The ₪20 / 15-stamps mix-up may itself become a question (read the page carefully: which number is the price?).
+  - "Trompe-l'œil" (French: "deceive the eye") is the technique. Not a question of its own; it's used inside the "What's real?" challenge.
+  - "Who painted it?": the group finds the silver plaque on the wall. The owner proposed a photo read by GPT through the API. **Open:** that conflicts with the rules (answers are checked by deterministic code, never a model; the OpenAI key is never used for scoring; the camera is never the only path). The proposed alternative: the photo is kept for the group only, and the answer is typed or chosen and checked by code. What the plaque says is a field check.
+  - The group's **Researcher** goes online; the app gives only the URL (e.g. CitéCréation's Jerusalem page), so no photo rights are needed. There is no Researcher role in the code yet (today: Navigator and Answer Submitter).
+- **Rules changed (owner, 3 Nov 2026):**
+  - **Ways to answer** vary and should be unexpected; a photo is one form, not for all. **Ways to verify:** the cheapest solution that works, per challenge, possibly an image-analysis API. Written into `content.md`, `coding.md`, `CLAUDE.md` and `AGENTS.md`. This replaces "Never let a model decide" for photo answers. Still to decide when a photo challenge is built: the no-device path rule in `content.md`, and the OpenAI key's "never used for scoring, never in the live container" note in `.env.example`.
+  - **Roles:** a new **Researcher** role (goes online from a URL the app gives). The group leader assigns roles during onboarding; a player can hold more than one. A solo player holds them all (as D12).
+  - **Mobile data is required.** Web challenges are not filtered out for lack of signal. The offline queue for dropped connections stays.
+- **The stamp:** it is real (issue 1171, Sept 2024); its face value is 15 NIS (catalogue), and the souvenir sheet costs ₪20 (run 09). The owner's 15 was right.
+- **Rewards follow difficulty:** the harder the task, the more it rewards. The mural's values are to be set again.
+
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
 ## Other current owner directions

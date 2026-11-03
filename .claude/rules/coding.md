@@ -28,7 +28,7 @@ The guide dashboard is its own feature (`IndexGuide…`) and never shares a comp
 
 ## Game state
 
-- Scores, unlocks and validation of objective answers (puzzles, catalog identifiers, observation answers) are deterministic code with tests. Never let a model or free text decide them.
+- Scores and unlocks are deterministic code with tests. Objective answers (puzzles, catalog identifiers, observation answers) are validated by code. A photo answer may be verified by the cheapest method that works, including an image-analysis API, when the owner has chosen it for that challenge ("Ways to answer and ways to verify" in `content.md`); the score is still computed by code from that result. Free text never decides a score.
 - Crisis answers are scored by the guide's rubric. The app records the guide's marks and never computes them.
 - Every player action that changes shared state must survive a dropped connection: queue it locally, then sync it. Design that in from the first feature, not later.
 

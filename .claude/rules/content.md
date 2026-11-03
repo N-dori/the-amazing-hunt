@@ -1,5 +1,19 @@
 # Content rules (game)
 
+## The knowledge folder (top-level rule, owner, 3 Nov 2026)
+
+`docs/knowledge/` is where the games get their useful facts from. **A piece of knowledge belongs there because it can serve a purpose for a challenge**: a story to tell, a detail to find, a question to ask or a reveal to give.
+- **Write it, then lock it.** Once a piece is in `docs/knowledge/`, don't rewrite or delete it without the owner's explicit approval; add to it instead.
+- **Research feeds it.** Web research goes to `research/results/` first. The parts that can serve a challenge are imported into `docs/knowledge/` with their source and their evidence label, so a challenge never has to dig them out of a research run.
+- **Being there doesn't make it a fact.** Every piece keeps its evidence label (below): a guide's story stays an attributed tradition, and a claim marked "verification required" stays unverified.
+- Challenges draw their content from `docs/knowledge/` first.
+
+## Ways to answer and ways to verify (top-level rule, owner, 3 Nov 2026)
+
+- **Ways to answer:** the way a group answers should be unexpected, never always the same. Choosing, typing, matching, finding, saying aloud, and **taking a photo** are all forms. A photo is one form among many, not for every challenge.
+- **Ways to verify:** pick the **cheapest solution that works** for each challenge: code checking a typed or chosen answer, the group's own confirmation, the guide, or an image-analysis API for a photo. The method is decided per challenge with the owner. Points and unlocks are still computed by code from the verification's result.
+- This opens the door to more answer ideas; propose them.
+
 ## Sources of truth
 
 The repo holds two separate games, each with its own sources.
