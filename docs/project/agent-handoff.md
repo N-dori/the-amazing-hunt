@@ -1,6 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Latest handoff - a pasted sign-in link now works in an open tab (uncommitted): 2 Nov 2026
+## Research run 08 done (uncommitted): 3 Nov 2026
+
+**Why:** D10 (owner, 2 Nov) opened research run 08 for the lion riddle and "Say it like Ohel Moshe". Done as run 07 was: web search and page reads by Claude Code. The result is [run 08](../../research/results/08_lion_riddle_and_avnei_zikaron.md); research, not approved content.
+- **The reveal's chain holds, with one fix:** *Yehud* is not a step between Judah and *Yehudi*. *Yehudim* already names Judah's people in 2 Kings 16:6, before the exile. Write Judah → *Yehudi* → *Ioudaios* → *Iudaeus* → *Jew*; Esther 2:5 (Mordecai the Benjaminite) as planned.
+- **Dan is "a lion's whelp" too** (Deut. 33:22), in the same words as Judah: never a "which tribe is the lion?" question.
+- **The Lions' Gate cats** are probably Baybars' leopards (Sharon, about 1273); the Selim dream is a legend.
+- **No market-name link:** Mahane Yehuda is named after Yehuda Navon, Yosef Navon's brother.
+- ***Avnei zikaron*** is Exodus 28:12 and 39:7 (the ephod's stones); the gate's next words quote Psalm 112:6. Hebrew Wikipedia transcribes the whole inscription (in the run).
+- **Discrepancies for the stone:** זיכרון or זכרון; "Montifiori" or "Montefiore".
+- **Still needed before any build:** the field checks (the keystone lion, a יהודה sign in sight of the mural, the gate's lines and Arabic panel), the native speaker's clip, and the owner's approval of the claims and draft copy.
+- **Next:** the owner reads run 08; the field checks; then draft copy and the optional-challenge engine.
+
+## Earlier handoff - a pasted sign-in link now works in an open tab (uncommitted): 2 Nov 2026
 
 **Why:** the owner couldn't sign in on the PC. The page read `#invite=…` only when it first opened. A link pasted into a tab already on `/shuk/amazing-shuk` changes only the part after `#`, which reloads nothing, so the link was ignored.
 - **The fix:**

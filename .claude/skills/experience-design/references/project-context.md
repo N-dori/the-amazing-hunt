@@ -59,6 +59,7 @@ Content sources, not approved copy. Check each claim's evidence status before us
 | [Guiding stories](../../../../design/inputs/content/DORI_Machane_Yehouda__Guiding_Stories.md) and [Five stories review](../../../../design/inputs/content/DORI_Five_Stories_Editorial_Research_Review.md) | Five refined guiding scripts with research notes; the review's rule: keep the oral telling intact, and keep transcript, researched notes and performance script apart |
 | [Site verification, run 06](../../../../design/inputs/content/06_nahlaot_market_sites_verification.md) | Which places are visible and documented, and which claims to avoid |
 | [Mural research, run 07](../../../../research/results/07_citecreation_market_mural.md) | The market mural's artists and year |
+| [Lion riddle and gate research, run 08](../../../../research/results/08_lion_riddle_and_avnei_zikaron.md) | The lion riddle's reveal chain, the Lions' Gate cats, the market's name, and *avnei zikaron* at the Ohel Moshe gate |
 | [The Armoza family](../../../../docs/armoza/Armoza_fam.md) | Background for Chesed VeRachamim (family consent first) |
 | [Photo index](../../../../design/inputs/content/photo_index_ALL.csv) | What each owner photo shows, faces and consent, rights; photos stay on disk |
 | [Map audit](../../../../docs/map/nahlaot-map-audit.md) | How the illustrated map lines up with the real streets |
