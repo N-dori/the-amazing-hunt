@@ -1,6 +1,6 @@
 # Nahlaot & Mahane Yehuda — Mission & Task Ideas
 
-Oct 23, 2026 · @Nadav
+Oct 23, 2026 · the owner
 
 A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game, built from the field photos, the story index and the engagement research. Ideas here are raw material, not approved missions.
 
@@ -16,7 +16,7 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 
 ## Game start: name and onboarding
 
-**Name (Nadav, 24 Oct 2026): The Amazing Shuk.** It nods to the TV show without copying the format name. Check the trademark before printing or selling it; "The Amazing Race" is a CBS format.
+**Name (owner, 24 Oct 2026): The Amazing Shuk.** It nods to the TV show without copying the format name. Check the trademark before printing or selling it; "The Amazing Race" is a CBS format.
 
 **Start sequence (about 3 minutes, before the opening mural)**
 
@@ -35,7 +35,7 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 
 ## Opening task: the painted market
 
-**Chosen (Nadav, 24 Oct 2026): the game opens at the giant trompe-l'oeil mural on Agrippas St, next to HaRav Shmuel Baruch St.** It shows the market the players are about to enter, so the first task is to look closely before the real thing begins. Field photos: three, taken 24 Oct 2026 (to add to the photo index as #103–105).
+**Chosen (owner, 24 Oct 2026): the game opens at the giant trompe-l'oeil mural on Agrippas St, next to HaRav Shmuel Baruch St.** It shows the market the players are about to enter, so the first task is to look closely before the real thing begins. Field photos: three, taken 24 Oct 2026 (to add to the photo index as #103–105).
 
 **What the mural shows (from the photos)**
 
@@ -54,11 +54,11 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 
 **Bonus rounds (pick one or two, depending on time)**
 
-- **Date the painting (Nadav).** Look at the man behind the counter: his phone has an antenna, it isn't a smartphone. When was this painted? Before smartphones, roughly the 2000s. Fits the 2007 lead; the plaque will confirm.
-- **Name the food (Nadav).** Name as many Israeli foods as you can on the painted counter and in the market scene: stacked pita or laffa, salad bowls (purple cabbage, orange and green salads, olives), round pastries in the display case, garlic strings, sacks of spices, watermelons, pomegranates. One point per food the guide accepts. Reveal: "You'll taste some of these today; earn the tokens first." Ties the opener to the food tokens.
-- **What day is it? (Nadav, upper mural).** The mural shows a typical day of the week; which one? Clues: laundry on the balcony, flowers on the railings, a man reaching up at his window, a packed market below. Reveal, the old Jerusalem household week: Wednesday is cleaning day (laundry, washing, watering the flowers), Thursday is shopping day, Friday you cook until Shabbat begins. Both answers can be argued (laundry says Wednesday, the crowded market says Thursday), so teams defend their pick. Tag: ORAL; the Thursday and Friday shopping peak is documented (05a §5.8).
+- **Date the painting (owner).** Look at the man behind the counter: his phone has an antenna, it isn't a smartphone. When was this painted? Before smartphones, roughly the 2000s. Fits the 2007 lead; the plaque will confirm.
+- **Name the food (owner).** Name as many Israeli foods as you can on the painted counter and in the market scene: stacked pita or laffa, salad bowls (purple cabbage, orange and green salads, olives), round pastries in the display case, garlic strings, sacks of spices, watermelons, pomegranates. One point per food the guide accepts. Reveal: "You'll taste some of these today; earn the tokens first." Ties the opener to the food tokens.
+- **What day is it? (owner, upper mural).** The mural shows a typical day of the week; which one? Clues: laundry on the balcony, flowers on the railings, a man reaching up at his window, a packed market below. Reveal, the old Jerusalem household week: Wednesday is cleaning day (laundry, washing, watering the flowers), Thursday is shopping day, Friday you cook until Shabbat begins. Both answers can be argued (laundry says Wednesday, the crowded market says Thursday), so teams defend their pick. Tag: ORAL; the Thursday and Friday shopping peak is documented (05a §5.8).
 
-* **What's missing? (Nadav).** The app shows a photo of the mural with several elements digitally removed (e.g. the bicycle, the laundry, the man on the phone, a watermelon). Teams compare it with the real wall and name every missing piece. One point per item found. Build the altered image from your own photo.
+* **What's missing? (owner).** The app shows a photo of the mural with several elements digitally removed (e.g. the bicycle, the laundry, the man on the phone, a watermelon). Teams compare it with the real wall and name every missing piece. One point per item found. Build the altered image from your own photo.
 
 **Why it works as an opener:** no reading, instant success for all ages, it teaches the "find the detail" mechanic, and "real or painted?" sets up the whole game's theme (true story or retold one?).
 
@@ -71,7 +71,7 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 
 ## Game structure: earn tokens, spend when hungry
 
-**Decided (Nadav, 23 Oct 2026): two separate counts, team points and shared food tokens.** Every solved task earns the team **points** (for the competition, kept per team and revealed at the end) and **food tokens**. Food tokens buy tastings for **the whole family**, not just the team that earned them; the earning team decides what everyone tastes and when. Since the guide pays on the spot, food never depends on which team is winning: everyone eats together, and the competition lives in the points.
+**Decided (owner, 23 Oct 2026): two separate counts, team points and shared food tokens.** Every solved task earns the team **points** (for the competition, kept per team and revealed at the end) and **food tokens**. Food tokens buy tastings for **the whole family**, not just the team that earned them; the earning team decides what everyone tastes and when. Since the guide pays on the spot, food never depends on which team is winning: everyone eats together, and the competition lives in the points.
 
 1. **Earn.** Tasks in Ohel Moshe, Mazkeret Moshe and Batei Goral pay the team points (base for finishing, bonus for the optional puzzle) and food tokens for the family. Hints cost a point.
 2. **Check the menu.** The phone shows the tasting menu: each stall near Agrippas St, the dish, its story in one line, and its price in tokens.
@@ -79,7 +79,7 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 4. **Spend.** Walk to the stall, claim the tasting; the guide pays on the spot and deducts the tokens. Some claims include a counter task (e.g. name the kubbeh, guess where the sesame comes from).
 5. **Repeat** until time is up. Unspent tokens can buy one final shared dish at the closing table, where the family question (idea 30) ends the game.
 
-**Route zone (Nadav, 23 Oct 2026):** most tasks sit in **Ohel Moshe, Mazkeret Moshe and Batei Goral**; tastings are at stalls **close to Agrippas St**, so the crossing leads straight to food.
+**Route zone (owner, 23 Oct 2026):** most tasks sit in **Ohel Moshe, Mazkeret Moshe and Batei Goral**; tastings are at stalls **close to Agrippas St**, so the crossing leads straight to food.
 
 | Zone | Ideas that fit | Notes |
 | --- | --- | --- |
@@ -114,7 +114,7 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 
 ## Rachmo: menu and wall
 
-**Rachmo's chalkboard menu, translated from Nadav's photo (24 Oct 2026), is the first entry for the app's tasting list.** Prices are in shekels as written on the board; a few words were hard to read and are marked "?". Confirm with the restaurant before pricing tokens.
+**Rachmo's chalkboard menu, translated from the owner's photo (24 Oct 2026), is the first entry for the app's tasting list.** Prices are in shekels as written on the board; a few words were hard to read and are marked "?". Confirm with the restaurant before pricing tokens.
 
 | Section | Hebrew on the board | English for the app | ₪ |
 | --- | --- | --- | --- |
@@ -146,11 +146,11 @@ A working bank of mission and task ideas for the Nahlaot and Mahane Yehuda game,
 | Drinks | טובורג / קרלסברג | Beer: Tuborg or Carlsberg | 20 |
 | Drinks | גינס / ויינשטפן | Beer: Guinness or Weihenstephan | 30 |
 
-**Best picks for a tasting token:** hummus only (Nadav). Rachmo doesn't let groups sit inside unless it's a booked sit-down meal, so the group usually buys hummus to take away and eats it on the go. The rest of the menu stays in the table for a sit-down version of the tour. Sign by the counter: "התור מתחיל מכאן", "the queue starts here": a tray line, order at the counter.
+**Best picks for a tasting token:** hummus only (owner). Rachmo doesn't let groups sit inside unless it's a booked sit-down meal, so the group usually buys hummus to take away and eats it on the go. The rest of the menu stays in the table for a sit-down version of the tour. Sign by the counter: "התור מתחיל מכאן", "the queue starts here": a tray line, order at the counter.
 
-### What's on the wall (from Nadav's photos)
+### What's on the wall (from the owner's photos)
 
-The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a kippah and plaid shirt, and **Rivka**, in a red hat holding red roses (identified by Nadav). Both have passed away, and the portraits honour them, so tell their story in the past tense and gently. The smaller photos on the side wall, as far as the photo shows them:
+The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a kippah and plaid shirt, and **Rivka**, in a red hat holding red roses (identified by the owner). Both have passed away, and the portraits honour them, so tell their story in the past tense and gently. The smaller photos on the side wall, as far as the photo shows them:
 
 - **A framed newspaper clipping:** a shopfront photo, a portrait of an older man, and a Hebrew headline that starts with "רחמו" (only partly legible). Likely a press story about the restaurant; worth reading on site.
 - **A man among tins and pots in the market:** an older vendor or cook surrounded by containers, possibly an early picture of the business.
@@ -163,7 +163,7 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 
 **Task ideas from the wall**
 
-- **Spot Rivka's roses:** count the roses she holds, or find her red hat. Then the story: she refused to let Rachmo close the place. Chosen (Nadav). Frame it as a tribute, since both have passed away.
+- **Spot Rivka's roses:** count the roses she holds, or find her red hat. Then the story: she refused to let Rachmo close the place. Chosen (owner). Frame it as a tribute, since both have passed away.
 - **Then and now:** find the old photo of a vendor among tins, and compare it with the counter in front of you.
 - **Ask one question:** each team asks the staff about one photo on the wall and brings back its story (counts as a find).
 
@@ -177,7 +177,7 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | **Read the sun** | Zohorei Chama sundial, Jaffa Rd 92 | Observation + estimation | Read the hour from the shadow (#84) | Enter your reading; compare with phone clock; why do they differ? | Race | DOC + FIELD | 4 | Files |
 | 2 | **Free tea, 1908** | Mishkan Shmuel, below the sundial | Prediction | Find today's free cold-water tap (#75) | "What did this hostel promise every guest in 1908?" Pick one of three; reveal: free tea. Story: Rav Shmuel Levy founded the building in 1908, with American donors, as an immigrants' hostel plus a synagogue and a public soup kitchen ("Tiferet Zion"); each guest was promised tea morning and evening, as much as he liked. Sources: the facade signs (#70, #85); the tea promise comes from one source only (Jerusalem Design Week 2023, via 05a §6.6), so check it before use | Race | DOC + FIELD | 3 | Files |
-| 3 | **Oldest shop wins** | Market alleys | Find + sequencing | Find three dated shop signs: Atliz HaTeumim 1950, Hamsa 1957, bakery 1967 (#74, #71, #86). Too hard as written (Nadav): use the simpler "find the detail" format, idea 34 | Photograph each; drag into age order | Race | FIELD | 8 | Files |
+| 3 | **Oldest shop wins** | Market alleys | Find + sequencing | Find three dated shop signs: Atliz HaTeumim 1950, Hamsa 1957, bakery 1967 (#74, #71, #86). Too hard as written (owner): use the simpler "find the detail" format, idea 34 | Photograph each; drag into age order | Race | FIELD | 8 | Files |
 | 4 | **The secret name** | Market edge | Sequencing | Stand at a market entrance | Order three names: Valero's lot, Loan & Savings Market (1930), Mahane Yehuda | Split | DOC (snippet) | 6 | Files |
 | 5 | **Count an alley** | One quiet alley | Estimation | Count stalls in one alley | Guess the whole market's total; reveal Amedi's census: 450 | Race | DOC | 6 | Committee |
 | 6 | **Close to save it?** | Under the market roof | Vote | Look at the paving and roof | Close the market for months to renovate, phase it, or don't? Reveal what traders accepted | Vote | DOC | 6 | Committee |
@@ -229,7 +229,7 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 
 **Physical version:** bring two cups marked 300 ml and 500 ml and a bottle of water; target 400 ml. Same logic, light to carry, and nobody pours into a real cistern. Teams race; the guide checks the level. **Hint ladder:** (1) "What if you fill the big one first?" (2) "What's left in the 5 after you fill the 3?" Each hint costs a token.
 
-### Nadav's ideas (added 23 Oct 2026)
+### The owner's ideas (added 23 Oct 2026)
 
 | # | Idea | Place | Mechanic | Physical action | On the phone | Team | Evidence | Min | Fit |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -247,7 +247,7 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 
 **From the engagement research, 14 mechanics suit a walking phone game in these streets, 6 need care, and 7 groups should be avoided.** Numbers refer to the mechanics list in *audience\_engagement\_and\_interactive\_digital\_experiences.md*; idea numbers refer to the bank above.
 
-**Play modes (Nadav, 23 Oct 2026): every task must work with 1, 2 or 3 teams.** The guide sets the number at the start: three teams (e.g. three pairs), two teams, or one group when a family wants to play all together. With three teams: Race is three-way; Split clues come in three parts, so all three must trade; Vote is by majority; points are kept per team, and each team spends its food tokens on food for everyone.
+**Play modes (owner, 23 Oct 2026): every task must work with 1, 2 or 3 teams.** The guide sets the number at the start: three teams (e.g. three pairs), two teams, or one group when a family wants to play all together. With three teams: Race is three-way; Split clues come in three parts, so all three must trade; Vote is by majority; points are kept per team, and each team spends its food tokens on food for everyone.
 
 | Team format in the bank | Two teams (default) | One group (whole family) |
 | --- | --- | --- |
@@ -298,15 +298,15 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 
 - **Then and now at the market:** a 1930s market photo from NLI or GPO held up at the same spot. Needs image rights and an exact location.
 - **The Kurdish mosaic decode:** read the community story in the HaYarkon St mosaic. Verify it still exists first.
-- **Who protects the neighbourhood?** The abaday folk tale as a protector-or-bully vote. Anchor found (Nadav, oral): Rachmo (Rahamim Ben Yosef) and Morduch (Mordechai Agai) were among the neighbourhood's abadays, so the vote can happen at their restaurants during the market claim phase. Source (Nadav): the book כשג'ימי ביקש שיקברו אותו בעמידה (Carmel Publishing); author, year and page still to record, e.g. from the NLI catalogue. Single source so far; Morduch's name was also his Irgun code name (05a §5.4).
+- **Who protects the neighbourhood?** The abaday folk tale as a protector-or-bully vote. Anchor found (owner, oral): Rachmo (Rahamim Ben Yosef) and Morduch (Mordechai Agai) were among the neighbourhood's abadays, so the vote can happen at their restaurants during the market claim phase. Source (owner): the book כשג'ימי ביקש שיקברו אותו בעמידה (Carmel Publishing); author, year and page still to record, e.g. from the NLI catalogue. Single source so far; Morduch's name was also his Irgun code name (05a §5.4).
 - **Whose pot is it? (oven mural):** find the Ohel Moshe oven mural in the Lev Ha'ir community centre courtyard. Location to verify.
-- **Batei Goral lottery:** teams draw lots for which family gets the house, as residents did every two years. Street: Abulafia St (רחוב אבולעפיה), confirmed by Nadav; matches the Reshit route (05a §7.3). House number for the hidden HaGoral synagogue (31?) still to check on site.
+- **Batei Goral lottery:** teams draw lots for which family gets the house, as residents did every two years. Street: Abulafia St (רחוב אבולעפיה), confirmed by the owner; matches the Reshit route (05a §7.3). House number for the hidden HaGoral synagogue (31?) still to check on site.
 - **Cistern-boy:** who in your family would be lowered into the cistern to clean it? A light role-play from a single source.
 - **Rami Levy's 38 m²:** pace out 38 m² on the pavement at HaShikma St. Shop location to verify.
 - **Banknotes standing up:** use the banknote joke as a measuring puzzle (how many notes to cover a stall?).
 - **Selichot lantern:** make a punched tin-can lantern like Ades children did. Daytime craft only.
-- **Kestrel on the roof:** look for gaps under old roof tiles where kestrels used to nest. No Nahlaot source yet. Hook (Nadav): residents valued them for getting rid of rats and mice. Check before telling: lesser kestrels eat mainly large insects and take small rodents only sometimes, so frame it as "neighbours welcomed them as pest control".
-- **Hakmat HaBorekas tasting:** on Etz Hayim St (רחוב עץ חיים), confirmed by Nadav; a candidate stall for the token claim phase. Opening hours and a tasting arrangement still to confirm.
+- **Kestrel on the roof:** look for gaps under old roof tiles where kestrels used to nest. No Nahlaot source yet. Hook (owner): residents valued them for getting rid of rats and mice. Check before telling: lesser kestrels eat mainly large insects and take small rodents only sometimes, so frame it as "neighbours welcomed them as pest control".
+- **Hakmat HaBorekas tasting:** on Etz Hayim St (רחוב עץ חיים), confirmed by the owner; a candidate stall for the token claim phase. Opening hours and a tasting arrangement still to confirm.
 
 ### Ruled out
 

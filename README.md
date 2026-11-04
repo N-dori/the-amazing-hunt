@@ -3,7 +3,7 @@
 The scavenger-hunt game, as its own Next.js app in its own Docker image (`dori-game`), deployed separately from the DORI platform. It is served at the path `/memory-protocol` on an existing DORI domain.
 
 - **Story and plan:** `docs/knowledge/` (Story V1 is locked). The product scope is `docs/DORI_Memory_Protocol_Approved_Build_Spec_v1.md` here, as amended on 16 Oct 2026. Current state and open items are in `docs/HANDOFF.md`.
-- **Research:** dated Perplexity results in `research/results/`, from the prompts in `research/prompts/`, run with `research/perplexity/`.
+- **Research:** dated research runs in `research/results/`, filed by subject (`shuk-places/`, `app-tech/`, `memory-protocol/`, `competitors/`) and indexed in its [README](research/results/README.md), from the prompts in `research/prompts/`; runs 01–06 were made with `research/perplexity/`.
 - **Source material** (the owner's photos and references, not served by the app): `docs/National_library/` (Library displays and artworks), `docs/Nahlaot_Map/` (map references), `docs/armoza/` (Armoza family archive), `docs/map/` (map audit). `docs/archive/` holds the pre-amendment spec. `docs/STATUS.md` is the game's status log.
 - **Platform references:** `docs/coding-rules.md`, `docs/content/methodology.md` and `docs/design/` are copies of the DORI platform's documents that `.claude/rules/` cite.
 - **Status:** a clickable visual prototype on local state.

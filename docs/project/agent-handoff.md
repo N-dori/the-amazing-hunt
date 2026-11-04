@@ -1,5 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Research folder sorted; competitor research added: 4 Nov 2026
+
+Documentation only; no behaviour change.
+- **`research/results/` is filed by subject** and indexed in its [README](../../research/results/README.md): `shuk-places/` (runs 06–09), `app-tech/` (01–03, 10), `memory-protocol/` (04, 05), `competitors/`. Every link to a moved file was updated, including the source string in `lib/amazing-shuk/mural-task.ts`. The Perplexity runner still writes to the folder's root: file new runs and add them to the index.
+- **Competitor research on city-quest games** (owner's, 3–4 Nov): an [executive memo](../../research/results/competitors/DORI_Executive_Strategy_Memo.md), the [Phase 4 synthesis](../../research/results/competitors/DORI_Phase4_Synthesis.md), a [plain-language synthesis](../../research/results/competitors/DORI_Competitive_Research_Strategy_Synthesis.md) and the research library (`.xlsx`). Research, not decisions; strategy and market evidence, no challenge facts for `docs/knowledge/`.
+  - **What it can support:** framing tests, not product decisions. 84% vendor documentation, nothing played; Mifrasim and BeeTravel (Mahane Yehuda) are the least documented.
+  - **Points that bear on the Shuk:** tasks that need the place are the clearest way to stand apart (C-01); no competitor visibly labels fact, legend and fiction (C-02); a self-guided game needs a way to continue when stuck, and failing must not skip the explanation (C-03); place-based clues decay as the market changes (C-06); food appears only as a theme, coupon or bundle (C-08).
+  - **Decisions it asks of the owner:** the hypothesis priorities and thresholds (H-01 to H-12); whether destination-funded routes in Israel are in scope (H-08); the playthrough budget (Mifrasim and Questo Jaffa, about ₪200 + €23); and OQ-015, the status of Market Surprise and Tasting.
+  - **OQ-015 against this repo:** `product-decisions.md` already has Market Surprise as approved direction (2 Nov; the stop pool still pending). Tasting appears in no decision, so it stays a research idea until the owner says otherwise.
+- **Photo answers, runs 10b and 11 (owner's runs, 4 Nov):** [run 10b](../../research/results/app-tech/10b_photo_answer_verification.md) re-ran prompt 10 (a check, fallback and unsure path per challenge type; current model prices and deprecations; Amendment 13; memory effects). [Run 11](../../research/results/app-tech/11_image_analysis_challenge_ideas.md) is the challenge-ideas report, cut by Claude Code to findings (its player prompts and photo tips were invented copy). The two downloaded copies were deleted.
+- **Owner, 4 Nov, recorded in `product-decisions.md`:** start photo checks with a cheap vision API (Claude or GPT, because it needs almost no computing power from our small server; an in-house model later, as it needs more setup; price is not a problem; run 10b: Claude Haiku 5.5 about $0.14 per 1,000); the historical-photo souvenir direction. **Open:** which checks the model covers (the owner's sentence "and GPT for…" was cut off) and which provider first.
+- **Challenge ideas have a folder:** `design/inputs/content/challenge-ideas/` holds `Mission_Task_Ideas.md` (moved; every link updated, including the agent brief and `mural-task.ts`) and `image-analysis/image-analysis-ideas.md`, which collects the owner's photo ideas (the heart, Souza, the keystone, the plaque, the souvenir) and run 11's five best. Ideas are collected; not every one will be used.
+
 ## Mural rework direction, new top-level rules, runs 09 and prompt 10: 3 Nov 2026
 
 Documentation and research only; no code. Everything below is in `product-decisions.md` (3 Nov entries) and plan §7.
@@ -7,7 +20,7 @@ Documentation and research only; no code. Everything below is in `product-decisi
 - **The mural stop review (owner):**
   - look first: a short "Phones down, look up" screen, **no countdown**, then the list;
   - working together over screen time; the reveal from run 07; rewards follow difficulty;
-  - **the aha:** why CitéCréation paints (overlooked places, drawing people into the street). [Run 09](../../research/results/09_mural_purpose_and_stamp.md) sources the Jerusalem purpose (tourism) and the social-housing approach; **the property-value rise has no source**;
+  - **the aha:** why CitéCréation paints (overlooked places, drawing people into the street). [Run 09](../../research/results/shuk-places/09_mural_purpose_and_stamp.md) sources the Jerusalem purpose (tourism) and the social-housing approach; **the property-value rise has no source**;
   - ideas: the name "Trompe-l'œil"; "Who painted it?" from the silver plaque; "What's real?" against CitéCréation's photos (the Researcher opens the URL, so no rights needed); the stamp (real, issue 1171, face value 15 NIS from a catalogue; souvenir sheet ₪20), and the 15/20 confusion as a reading question.
 - **New top-level rules (owner), in `content.md`, `CLAUDE.md`, `AGENTS.md` (and `coding.md`):**
   - **The knowledge folder:** `docs/knowledge/` is where the games get useful facts from; a piece belongs there because it can serve a challenge; written, then locked (changes only with the owner's approval); research that can serve a challenge is imported into it with its source and label.
@@ -17,7 +30,7 @@ Documentation and research only; no code. Everything below is in `product-decisi
 - **Open, to decide when the first photo challenge is built:**
   - the "camera never the only way" rule in `content.md` (its reasons: failures and bystanders' privacy);
   - the `.env.example` note that the OpenAI key never reaches the live container: the agreed shape is a separate verify service holding the key, with rate limits and a spend cap.
-- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. Run by the owner; the cleaned result is [run 10](../../research/results/10_photo_answer_verification.md): ORB + RANSAC as the primary check, Google Vision OCR for text plaques, about $0–$1.50 per 1,000 checks, no LLM in the main path; none of it proves presence (a phone screen can pass), so the photo should lead to a question about the object. Research, not a decision; it has no challenge facts for `docs/knowledge/`.
+- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. Run by the owner; the cleaned result is [run 10](../../research/results/app-tech/10_photo_answer_verification.md): ORB + RANSAC as the primary check, Google Vision OCR for text plaques, about $0–$1.50 per 1,000 checks, no LLM in the main path; none of it proves presence (a phone screen can pass), so the photo should lead to a question about the object. Research, not a decision; it has no challenge facts for `docs/knowledge/`.
 - **Next:**
   - the owner picks a verify method per photo challenge from run 10 (its field test: 30 photos per object plus wrong-object negatives);
   - the field checks (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
@@ -26,7 +39,7 @@ Documentation and research only; no code. Everything below is in `product-decisi
 
 ## Research run 08: 3 Nov 2026 (committed `5c7e971`, pushed)
 
-**Why:** D10 (owner, 2 Nov) opened research run 08 for the lion riddle and "Say it like Ohel Moshe". Done as run 07 was: web search and page reads by Claude Code. The result is [run 08](../../research/results/08_lion_riddle_and_avnei_zikaron.md); research, not approved content.
+**Why:** D10 (owner, 2 Nov) opened research run 08 for the lion riddle and "Say it like Ohel Moshe". Done as run 07 was: web search and page reads by Claude Code. The result is [run 08](../../research/results/shuk-places/08_lion_riddle_and_avnei_zikaron.md); research, not approved content.
 - **The reveal's chain holds, with one fix:** *Yehud* is not a step between Judah and *Yehudi*. *Yehudim* already names Judah's people in 2 Kings 16:6, before the exile. Write Judah → *Yehudi* → *Ioudaios* → *Iudaeus* → *Jew*; Esther 2:5 (Mordecai the Benjaminite) as planned.
 - **Dan is "a lion's whelp" too** (Deut. 33:22), in the same words as Judah: never a "which tribe is the lion?" question.
 - **The Lions' Gate cats** are probably Baybars' leopards (Sharon, about 1273); the Selim dream is a legend.

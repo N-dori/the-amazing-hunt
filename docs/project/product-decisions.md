@@ -142,17 +142,23 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - **Ways to answer** vary and should be unexpected; a photo is one form, not for all. **Ways to verify:** the cheapest solution that works, per challenge, possibly an image-analysis API. Written into `content.md`, `coding.md`, `CLAUDE.md` and `AGENTS.md`. This replaces "Never let a model decide" for photo answers. Still to decide when a photo challenge is built: the no-device path rule in `content.md`, and the OpenAI key's "never used for scoring, never in the live container" note in `.env.example`.
   - **Roles:** a new **Researcher** role (goes online from a URL the app gives). The group leader assigns roles during onboarding; a player can hold more than one. A solo player holds them all (as D12).
   - **Mobile data is required.** Web challenges are not filtered out for lack of signal. The offline queue for dropped connections stays.
-- **The stamp:** it is real (issue 1171, Sept 2024); its face value is 15 NIS (catalogue), and the souvenir sheet costs ₪20 (run 09). The owner's 15 was right.
+- **The stamp:** it is real (issue 1171, Sept 2024); its face value is 15 NIS (catalogue), and the souvenir sheet costs ₪20 ([run 09](../../research/results/shuk-places/09_mural_purpose_and_stamp.md)). The owner's 15 was right.
 - **Rewards follow difficulty:** the harder the task, the more it rewards. The mural's values are to be set again.
-- **Photo answers and image analysis (owner, 3 Nov 2026, after [run 10](../../research/results/10_photo_answer_verification.md)):**
+- **Photo answers and image analysis (owner, 3 Nov 2026, after [run 10](../../research/results/app-tech/10_photo_answer_verification.md)):**
   - **Presence is the geolocation's job** (the existing "Check our location"), not the photo check's. The photo check only answers "is this the right thing?"
-  - **Fixed, textured objects** (e.g. the market mural): compare with a model trained in-house on our saved reference photos, run on a **separate instance or VPS**, not on the production server.
+  - **Fixed, textured objects** (e.g. the market mural): compare with a model trained in-house on our saved reference photos, run on a **separate instance or VPS**, not on the production server. *(4 Nov: the start is a cheap vision API, below; an in-house model is a later option, because it needs more setup.)*
   - **The group chooses** between a typed answer and a photo where both work.
   - **On error, the fallback is a typed answer.**
   - **Creative answers:** e.g. after the Lev Ha'Ir ("heart of the city") answer, a follow-up challenge: frame someone you love inside a heart made with your hands. Solomon Souza's graffiti is another candidate. Idea only; copy is `TODO(copy)`.
   - **Something high up and hard to see** (e.g. a keystone): the photo becomes the way to look at it, and image analysis checks it. Idea to explore.
-  - More ideas: [prompt 11](../../research/prompts/11_image_analysis_challenge_ideas.md).
-  - **Still open:** which model and provider, where the separate instance runs, and whether photos of the group itself (the heart challenge) are sent at all or kept on the phone. The no-device-path rule in `content.md` now reads as "a typed answer is always available".
+  - More ideas: [run 11](../../research/results/app-tech/11_image_analysis_challenge_ideas.md), collected with the owner's in the [image-analysis ideas](../../design/inputs/content/challenge-ideas/image-analysis/image-analysis-ideas.md).
+  - **Still open:** where the separate instance runs, and whether photos of the group itself (the heart challenge) are sent at all or kept on the phone. The no-device-path rule in `content.md` now reads as "a typed answer is always available".
+- **Start photo checks with a cheap vision API (owner, 4 Nov 2026, after [run 10b](../../research/results/app-tech/10b_photo_answer_verification.md)):**
+  - The owner approved this at the start: a cheap Claude or GPT model through the API. **Price is not a problem**, and it stays a low price for the end user.
+  - **Why an API:** it needs almost no computing power from our small server, which the live sites share. Training and running our own model needs more setup, so it comes later, if at all.
+  - Run 10b's figures (4 Nov 2026): **Claude Haiku 5.5** about **$0.14 per 1,000 checks**; GPT-5.6 Terra about $2.90 (its image tokens unmeasured); GPT-4.1 mini and GPT-5 mini are deprecated.
+  - **Open:** which checks the model covers (the owner's note "and GPT for…" was cut off); which provider first; the key and service shape (today `.env.example` keeps the OpenAI key for research tools only; the agreed shape is a separate verify service holding the key, with rate limits and a spend cap).
+- **Historical-photo souvenir (owner direction, 4 Nov 2026, not approved; [run 10b §10](../../research/results/app-tech/10b_photo_answer_verification.md#10-historical-photo-souvenir-owner-direction-4-nov-2026-not-approved)):** if rights allow commercial use with credit, use and credit the photo; otherwise redraw with AI and say so openly. The value is the souvenir: the family composited into the historical scene, or a ~5-second morph from the old view to today. Run 10b: the Library of Congress Matson photographs are in the public domain (except the colour lantern slides); coverage of the route is unknown.
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 

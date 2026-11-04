@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Date** | 3 Nov 2026 |
-| **Method** | Claude on the web, web search on, run by the owner from [prompt 10](../prompts/10_photo_answer_verification.md); cleaned and cut by Claude Code |
-| **Status** | Research result, **not approved content** and not a decision ([content.md](../../.claude/rules/content.md)). The verify method is chosen per challenge with the owner |
+| **Method** | Claude on the web, web search on, run by the owner from [prompt 10](../../prompts/10_photo_answer_verification.md); cleaned and cut by Claude Code |
+| **Status** | Research result, **not approved content** and not a decision ([content.md](../../../.claude/rules/content.md)). The verify method is chosen per challenge with the owner |
 | **Labels** | OBSERVED (a cited source says it), INFERRED (the run's reasoning), UNKNOWN |
 
-**What was cut:** web-page leftovers (citation chips, an interactive checklist, a broken diagram), repetition, and the run's player-facing text (photo tips, error messages, a 📸 screen). That text was invented copy and can't go into the app ([content.md](../../.claude/rules/content.md), "Copy"). What it found about framing is kept as findings in §7.
+**What was cut:** web-page leftovers (citation chips, an interactive checklist, a broken diagram), repetition, and the run's player-facing text (photo tips, error messages, a 📸 screen). That text was invented copy and can't go into the app ([content.md](../../../.claude/rules/content.md), "Copy"). What it found about framing is kept as findings in §7.
 
 **Caveats on the run itself:**
 - The pasted answer lost most source URLs. The register (§9) gives publishers and dates only; nothing below was re-checked by Claude Code.

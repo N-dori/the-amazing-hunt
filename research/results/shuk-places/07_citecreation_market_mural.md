@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 23 Oct 2026 |
 | **Method** | Web search and page reads by Claude Code, at the user's request ("look up the artists, CitéCréation") |
-| **Status** | Research result, **not approved content**. A claim moves into the game only after the user approves it ([content.md](../../.claude/rules/content.md)) |
+| **Status** | Research result, **not approved content**. A claim moves into the game only after the user approves it ([content.md](../../../.claude/rules/content.md)) |
 | **Answers** | Discovery A1 (the mural's address and year), the artist and rights questions behind R-01 and A5, and part of A8 |
 
 ## Summary

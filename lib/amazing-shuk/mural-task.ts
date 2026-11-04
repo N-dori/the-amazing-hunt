@@ -5,8 +5,8 @@ import { budgetRewards, type BudgetScoring } from "./challenge-scoring.ts";
 
 export const MURAL_MISSION_ID = "mural-real-or-painted";
 
-const IDEAS = "Owner's field notes from photos #103-105, design/inputs/content/Mission_Task_Ideas.md, \"Opening task: the painted market\"";
-const POST = "Israel Post stamp flyer, issue 1171 (S1 in research/results/07_citecreation_market_mural.md)";
+const IDEAS = "Owner's field notes from photos #103-105, design/inputs/content/challenge-ideas/Mission_Task_Ideas.md, \"Opening task: the painted market\"";
+const POST = "Israel Post stamp flyer, issue 1171 (S1 in research/results/shuk-places/07_citecreation_market_mural.md)";
 const TOUR = "English tour, Stop 8 (docs/knowledge/Machane_Yehuda_Tour_EN.md)";
 const FIELD = "Owner's field check, 24 Oct 2026";
 

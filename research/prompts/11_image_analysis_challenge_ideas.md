@@ -1,6 +1,6 @@
 # Research prompt 11: challenge ideas where image analysis adds something
 
-Written 3 Nov 2026 for Claude on the web (web search on). Short run. The answer goes to `research/results/11_image_analysis_challenge_ideas.md`. Follows [run 10](../results/10_photo_answer_verification.md) (how to verify a photo).
+Written 3 Nov 2026 for Claude on the web (web search on). Short run. The answer goes to `research/results/app-tech/11_image_analysis_challenge_ideas.md`. Follows [run 10](../results/app-tech/10_photo_answer_verification.md) (how to verify a photo).
 
 ---
 

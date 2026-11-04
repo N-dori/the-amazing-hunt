@@ -4,8 +4,8 @@
 |---|---|
 | **Date** | 3 Nov 2026 |
 | **Method** | Web search and page reads by Claude Code, at the owner's request ("do run 8"), as in run 07. Verse texts were read from Sefaria's API (Miqra according to the Masorah; JPS English) |
-| **Status** | Research result, **not approved content**. A claim moves into the game only after the owner approves it ([content.md](../../.claude/rules/content.md)) |
-| **Answers** | D10's research gate in the [progressive-challenges plan](../../docs/project/progressive-challenges-plan.md): §7 (the lion riddle, "A Hidden Symbol") and §2 (*avnei zikaron* at the Montefiore gate) |
+| **Status** | Research result, **not approved content**. A claim moves into the game only after the owner approves it ([content.md](../../../.claude/rules/content.md)) |
+| **Answers** | D10's research gate in the [progressive-challenges plan](../../../docs/project/progressive-challenges-plan.md): §7 (the lion riddle, "A Hidden Symbol") and §2 (*avnei zikaron* at the Montefiore gate) |
 | **Not done** | The field checks. Nobody has looked at the mural's keystone or the gate for this run; see "Field checks still needed" |
 
 ## Summary

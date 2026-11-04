@@ -1,6 +1,6 @@
 # Research prompt 10: verifying a photo answer, cheapest first
 
-Written 3 Nov 2026 for Claude on the web (web search on). The answer goes to `research/results/10_photo_answer_verification.md`; the parts that can serve a challenge are then imported into `docs/knowledge/`.
+Written 3 Nov 2026 for Claude on the web (web search on). The answer goes to `research/results/app-tech/10_photo_answer_verification.md`; the parts that can serve a challenge are then imported into `docs/knowledge/`.
 
 ---
 

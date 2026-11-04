@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 3 Nov 2026 |
 | **Method** | Web search and page reads by Claude Code, at the owner's request (the mural's "aha": CitéCréation picks poor places to draw people into the street, and property values rise) |
-| **Status** | Research result, **not approved content** ([content.md](../../.claude/rules/content.md)) |
+| **Status** | Research result, **not approved content** ([content.md](../../../.claude/rules/content.md)) |
 | **Builds on** | [Run 07](07_citecreation_market_mural.md) (the stamp flyer, S1 there) |
 
 ## Summary

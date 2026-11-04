@@ -52,14 +52,14 @@ Content sources, not approved copy. Check each claim's evidence status before us
 
 | Source | What it holds |
 |---|---|
-| [Mission and task ideas](../../../../design/inputs/content/Mission_Task_Ideas.md) | The owner's bank of 35 stop and task ideas tagged DOC, FIELD, ORAL or FOLK, the food-token loop, a mechanics menu and the parking lot |
+| [Mission and task ideas](../../../../design/inputs/content/challenge-ideas/Mission_Task_Ideas.md) | The owner's bank of 35 stop and task ideas tagged DOC, FIELD, ORAL or FOLK, the food-token loop, a mechanics menu and the parking lot |
 | [Guide's recorded tour, Hebrew](../../../../docs/knowledge/HE_trans.txt) | The owner's spoken tour, the original of several stories (the well, Marzipan). Read the full section before adapting |
 | [Culinary tour, English](../../../../docs/knowledge/Machane_Yehuda_Tour_EN.md) and [Hebrew](../../../../docs/knowledge/Machane_Yehuda_Tour_HE.md) | The 22-stop Nahlaot and market tour (10 Oct 2026) the missions draw on |
 | [Place stories](../../../../design/inputs/content/machane-yehuda-nachlaot-stories.md) | Stories and anecdotes from the owner's Drive, each tagged with its source file |
 | [Guiding stories](../../../../design/inputs/content/DORI_Machane_Yehouda__Guiding_Stories.md) and [Five stories review](../../../../design/inputs/content/DORI_Five_Stories_Editorial_Research_Review.md) | Five refined guiding scripts with research notes; the review's rule: keep the oral telling intact, and keep transcript, researched notes and performance script apart |
 | [Site verification, run 06](../../../../design/inputs/content/06_nahlaot_market_sites_verification.md) | Which places are visible and documented, and which claims to avoid |
-| [Mural research, run 07](../../../../research/results/07_citecreation_market_mural.md) | The market mural's artists and year |
-| [Lion riddle and gate research, run 08](../../../../research/results/08_lion_riddle_and_avnei_zikaron.md) | The lion riddle's reveal chain, the Lions' Gate cats, the market's name, and *avnei zikaron* at the Ohel Moshe gate |
+| [Mural research, run 07](../../../../research/results/shuk-places/07_citecreation_market_mural.md) | The market mural's artists and year |
+| [Lion riddle and gate research, run 08](../../../../research/results/shuk-places/08_lion_riddle_and_avnei_zikaron.md) | The lion riddle's reveal chain, the Lions' Gate cats, the market's name, and *avnei zikaron* at the Ohel Moshe gate |
 | [The Armoza family](../../../../docs/armoza/Armoza_fam.md) | Background for Chesed VeRachamim (family consent first) |
 | [Photo index](../../../../design/inputs/content/photo_index_ALL.csv) | What each owner photo shows, faces and consent, rights; photos stay on disk |
 | [Map audit](../../../../docs/map/nahlaot-map-audit.md) | How the illustrated map lines up with the real streets |
@@ -68,13 +68,13 @@ Content sources, not approved copy. Check each claim's evidence status before us
 
 Written for the Memory Protocol on 16 Oct 2026; the technical findings transfer, the story parts don't.
 
-- [Camera and microphone](../../../../research/results/01_camera_microphone_pwa.md): optional photos and short audio, with a typed account or guide confirmation always an equal path.
-- [Media, audio and offline](../../../../research/results/03_media_formats_audio_offline.md): text-complete and offline-capable first; short, optional human-recorded audio.
-- [Puzzle rendering](../../../../research/results/02_puzzle_animation_tech.md): ordinary DOM controls, small SVGs and CSS transitions, no game engine.
+- [Camera and microphone](../../../../research/results/app-tech/01_camera_microphone_pwa.md): optional photos and short audio, with a typed account or guide confirmation always an equal path.
+- [Media, audio and offline](../../../../research/results/app-tech/03_media_formats_audio_offline.md): text-complete and offline-capable first; short, optional human-recorded audio.
+- [Puzzle rendering](../../../../research/results/app-tech/02_puzzle_animation_tech.md): ordinary DOM controls, small SVGs and CSS transitions, no game engine.
 
 ## Not sources for the Shuk
 
-The Memory Protocol's [story](../../../../docs/knowledge/The_Memory_Protocol_Story_V1%281%29.md), [working plan](../../../../docs/knowledge/Memory_Protocol_New_Chat_Handoff_v02.md), [library tour](../../../../docs/knowledge/National_Library_of_Israel_Formatted_Tour.md) and the HARMONY research (`research/results/04_*`, `05_*`) belong to the other game. Use the skill's process for the Memory Protocol too, with those as its sources, but never mix the two games' content.
+The Memory Protocol's [story](../../../../docs/knowledge/The_Memory_Protocol_Story_V1%281%29.md), [working plan](../../../../docs/knowledge/Memory_Protocol_New_Chat_Handoff_v02.md), [library tour](../../../../docs/knowledge/National_Library_of_Israel_Formatted_Tour.md) and the HARMONY research (`research/results/memory-protocol/04_*`, `05_*`) belong to the other game. Use the skill's process for the Memory Protocol too, with those as its sources, but never mix the two games' content.
 
 ## Where the output goes
 
