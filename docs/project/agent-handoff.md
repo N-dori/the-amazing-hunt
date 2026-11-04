@@ -1,5 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## The owner's new research filed into the project: 4 Nov 2026
+
+Documentation only; no commit. The owner's uncommitted research was read and placed. The owner's files stay where they are.
+- **Already in the project:** five files in `research/content/` are exact copies of `design/inputs/content/` files. They are 02, 03, `Cognitive_Load.md`, the audience-engagement file (= `Audience_Engagement_Mechanics.md`) and `Endowment_Effect_Creatively.md`. Nothing new; the owner may delete the copies.
+- **New and used:**
+  - **The Answer Formats pack** (`research/content/Answer_Formats_Pack/`, 11 files) and the raw GPT run it merges (`research/Learning_Memory_Engagement.md`). Cite the pack: it corrects or flags several of the raw run's claims (its file 08).
+  - **Linked from:**
+    - the `/experience-design` sources (`project-context.md`);
+    - three new anti-patterns in `quality-criteria.md` ("The bare tick", "The legend last", "Photograph this");
+    - the research index;
+    - the ideas bank's parking lot (the collection across the route, and the window to the past).
+  - **Applied to the mural:** a new "Checked against the answer-format research" table in v3. It proposes three options instead of four, tap-the-spot for The Stamp, "point together", a fact last in reveals, and an unscored vote before the AHA. The drafts themselves are unchanged until the owner agrees.
+
 ## Mural v3 additions: the fridge, the boxes, the real people: 4 Nov 2026
 
 Documentation only; no code, no commit. At the owner's request, through `/experience-design`.
@@ -9,18 +22,25 @@ Documentation only; no code, no commit. At the owner's request, through `/experi
     - the angry calls about the painted boxes the day after the unveiling.
     - Both are uncorroborated, so both are Attributed tradition.
   - **The Yad Ben-Zvi wall-art survey** (M18) tells the same joke about the car-for-sale note (Esther Saad).
-  - **Israel Post's flyer, read in full:** one stamp per sheet. It names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son, but no source places any of them in the mural.
-  - **The building:** reported as dangerous in 2020 (search results only).
+  - **Israel Post's flyer, read in full:** it names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son, but no source places any of them in the mural.
 - **[The rework, v3](mural-rework.md):**
   - **Something's Missing** (the fridge) replaces Then and Now.
   - **The boxes** go into The Trick of the Eye's reveal, plus an unscored "Look closer" find with the car-for-sale note.
   - **The real people** are an unscored story line only, never a figure to find.
-  - **The AHA's closing line** is labelled Interpretation (DORI's).
+  - **The AHA's closing line** is labelled Interpretation (DORI's), internally only.
   - The mural maximum is 270; everything takes about 16–22 min.
 - **Corrections appended** (nothing rewritten): the knowledge file (M18–M21) and run 12 now say the fridge was painted, not real.
-- **The owner decides:**
-  - whether to name the painted people;
-  - the new field checks (the cabinet, the carton's place, the note, the north side, the building's state).
+- **The owner's answers (4 Nov, recorded in `product-decisions.md`):**
+  - **Two findings removed** from the knowledge file, run 12's correction and this entry: "one stamp per sheet" and the building's 2020 condition. What was there before is unchanged, and run 13 keeps them as raw research.
+  - **Labels are internal:** "Interpretation (DORI's)" is never shown to players.
+  - **Groups choose their route:** every optional challenge is offered, with no per-stop cap. Only the required path must stay about 7–8 min.
+  - **The painted people are named,** from reliable sources (M1, M18). The owner remembers Benny Dagim "on the corner".
+- **Field checks:**
+  - the fridge's cabinet;
+  - the carton's place;
+  - the car-for-sale note;
+  - the north side;
+  - Benny Dagim's corner.
 
 ## Mural rework v2 and the real-or-painted correction: 4 Nov 2026
 

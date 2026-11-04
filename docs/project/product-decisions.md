@@ -185,6 +185,12 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - Ambiguous objects are **FIELD CHECK REQUIRED** and stay out of scored answers until they're verified.
   - The vents, the treble-clef sign, the plaque, and the railings and blinds are FIELD CHECK REQUIRED; the live key in `mural-task.ts` still scores the first three as real.
   - The table is in the [market mural](../knowledge/market-mural-agrippas.md) knowledge file.
+- **The mural, v3 answers (owner, 4 Nov 2026):**
+  - **Evidence labels are internal only.** "Interpretation (DORI's)" on the AHA's closing line, like every label, stays in the data and is never shown to players (as the 26 Oct "no labels" decision).
+  - **Groups choose their route.** Every optional challenge is offered; a group that chooses to spend a long time at one stop to earn every point may do so. There is no per-stop cap on optional points. The required part of a stop stays about 7–8 min.
+  - **The painted people are named** (Eli Mizrahi, Benny Dagim, the tea distributor, Moti's son), because the names come from reliable sources (Israel Post, the Yad Ben-Zvi survey). This supersedes v2's "never name the painted people". No figure is pointed at without a source or a field check.
+  - **Benny Dagim:** the owner remembers him "on the corner"; a field check confirms whether that's his figure on the mural or his shop.
+  - **Removed from the content documents:** run 13's "one stamp per sheet" and the building's 2020 condition. What was recorded before stays unchanged.
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 

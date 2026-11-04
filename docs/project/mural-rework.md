@@ -47,7 +47,7 @@ These additions build on v2 (below), which they change only where marked. Worked
 | Why Paint a Market Here? (AHA) | required, unscored | predict, then the owner's text | — | — | — | 2 (1 / 1) |
 
 - **Duration:** the required path is unchanged, about 7–8 min. Everything takes about 16–22 min (v2: 18–24).
-- **Points:** the mural maximum is 270, still subject to the owner's per-stop cap decision.
+- **Points:** the mural maximum is 270. **No per-stop cap** (owner, 4 Nov 2026): every optional challenge is offered, and a group that chooses to stay longer to earn every point may do so. The route is theirs. Only the required path must stay about 7–8 min.
 - **Interactions:** no step needs a resident or vendor. Solo play works throughout; every Researcher step works on one phone.
 
 ### Draft copy (`TODO(copy)`)
@@ -86,12 +86,13 @@ Then:
 > Some faces up there are real market people. Israel Post's stamp notes name Eli Mizrahi, "Benny Dagim", the tea man and Moti's son. Which figure is which? The records don't say.
 
 - **Facts:** M1, Historical fact (that Israel Post names them).
+- **Naming approved** (owner, 4 Nov 2026): the names come from reliable sources.
 - **Never:** pointing at a figure, matching faces, or adding biographies.
-- **The owner decides** whether to name anyone at all (see the conflicts).
+- **The owner remembers Benny Dagim "on the corner".** If a field check confirms where, the card can say so (`TODO(copy)`); until then, it doesn't.
 
 **The AHA:**
 - The owner's text, verbatim (v2).
-- **Its closing line,** "The painting doesn't create the community's identity. It asks us to notice what was already there.", is labelled **Interpretation (DORI's)**, not a historical quotation.
+- **Its closing line,** "The painting doesn't create the community's identity. It asks us to notice what was already there.", is labelled **Interpretation (DORI's)** in the data, not a historical quotation. **Internal only, never shown to players** (owner, 4 Nov 2026; the Shuk shows no labels).
 - "Residents helped choose…" stays Historical fact (M1: "They wished to hear what the residents wanted to see on the wall… and acted accordingly").
 
 ### The real people: what the sources support
@@ -99,7 +100,7 @@ Then:
 | Name in M1 | What's known | Place in the mural | Status |
 |---|---|---|---|
 | Eli Mizrahi (אלי מזרחי) | "The restaurateur" (M18). Probably the founder of Café Mizrahi (2002) and a former head of the merchants' association; said to have died (M21, search results only) | Unknown | Named; link to the café owner **probable, unverified** |
-| Benny Dagim (בני דגים) | A name in M1's English; in Hebrew it may be a nickname ("Benny of the fish") | Unknown (never assume the fish shop) | Named, **unidentified** |
+| Benny Dagim (בני דגים) | A name in M1's English; in Hebrew it may be a nickname ("Benny of the fish") | **The owner remembers him "on the corner"** (4 Nov 2026). Field check: his figure on the mural, or his shop? | Named; place **to confirm** |
 | The tea distributor (מחלק התה) | A role | Unknown | **Unidentified** |
 | Moti's son (הבן של מוטי) | A relationship | Unknown | **Unidentified** |
 | A child with a juice; a smoking Beitar Jerusalem fan | Described (M2) | Described only | Unnamed figures |
@@ -123,7 +124,7 @@ Then:
 ### Conflicts
 
 1. **v2 and run 12 called the fridge "a real drinks fridge".** It was painted on a cabinet door (M19, the owner's rule). Corrected by appending to the knowledge file and run 12.
-2. **v2's "Never: names of the painted people"** vs the owner's new research ask. v3 names them only as Israel Post's list, never pointing at a figure. **The owner decides.** Consent is still Unknown, and one may have died.
+2. **v2's "Never: names of the painted people" is superseded** (owner, 4 Nov 2026). They are named, because the names come from reliable sources (M1, M18). No figure is pointed at without a source or a field check.
 3. **"Never write 'A guide tells that…'"** (29 Oct): the reveals use "The story goes…" and "It's told that…".
 4. **v2's "Then and Now" is replaced** by Something's Missing. Its other changes (the tree, the fading) can go in Something's Missing's reveal, or be dropped.
 
@@ -133,7 +134,24 @@ Then:
 2. Where the painted carton is (the transcript says "here below, on the left"; #7 shows one on the ledge above the awning).
 3. Whether the car-for-sale note is still there and readable.
 4. The north side: the juice counter and the electric company's workers.
-5. The building's condition: the 2020 danger report (M21) and the peeling (M18).
+5. Benny Dagim "on the corner" (the owner's memory): his figure on the mural, or his shop?
+
+### Checked against the answer-format research (4 Nov 2026)
+
+The owner's [Answer Formats pack](../../research/content/Answer_Formats_Pack/DORI_AF_00_Index.md) (rule numbers from its index) holds proposals, not decisions. Applied to v3, it suggests the changes below. **Nothing in the drafts above is changed until the owner agrees.**
+
+| Part | What the research says | Proposed change |
+|---|---|---|
+| Who Painted It? (typed) | Typing fits when the word is visible on site (rule 5; files 03, 07) | Fits as it is. Check with the tiered checker's code tiers (normalise, then near-miss): accept a near-miss, and show the right spelling in the reveal |
+| Something's Missing (choose 1 of 4) | 3 plausible options; more options plant more wrong answers (rule 3) | Drop "a bicycle" (it's painted on the balcony, so it could confuse). Options: a drinks fridge ✔, a falafel stand, a street lamp |
+| The Stamp (choose 1 of 4) | Tap-the-spot suits non-readers and young children and makes the group look together (files 06, 07: `ANS-HOTSPOT`) | Either 3 options (drop "the shop"), or tap the spot on the owner's own photo of the wall. The photo's rights are settled later (owner, 4 Nov) |
+| The Trick of the Eye, step 1 | Families talk most when they look at one thing together; point first (rule 8) | Add `TODO(copy)`: "Point to it together, then choose." |
+| The Trick of the Eye, step 2 (choose 1 of 4) | 3 options (rule 3) | Trompe-l'œil ✔, Mosaic, Graffiti |
+| Reveals | Short, tied to what's visible (rule 1, file 01). Never end on a legend or a wrong option (file 02) | Something's Missing: end on the plain grey door they can see. The Trick of the Eye: put the traditions (the boxes, the drivers) before the fact line (the electric company's thank-you), so a fact comes last |
+| AHA predict | Votes are for perspective, not scoring; they start talk before a reveal (rule 9) | An unscored group vote on "Who chose what to paint here?": the city, the artists, or the people who live here. Then the owner's text |
+| Look closer cards | "We found it" (`ANS-SELF`) fits exploration when nothing is scored (file 07) | Fits as it is |
+| Later: then and now in the app | A then/now fade or a tilt-to-look view, standing still, paired with "what's gone?" (rule 12, file 10) | A later version of Something's Missing, once an image with rights is available. Until then, the Researcher's link |
+| Later: the lions | A route-long collection: introduce once, one new fact per find, compare at the end (rule 11, file 09) | The keystone lion (parked) could be the first find of a lion strand. A competitor already sells a lion hunt nearby, so lions stay a strand, not the game |
 
 ---
 
@@ -346,7 +364,7 @@ The Researcher is an **optional activity responsibility**: a suggestion of who o
 
 ### The owner's open choices
 
-- Points: a per-stop cap on options, or the mural as the heavy stop.
+- ~~Points: a per-stop cap on options, or the mural as the heavy stop.~~ Decided in v3: no cap; groups choose their route.
 - The AHA's length and screens.
 - The intro picture.
 - Then and Now's link.

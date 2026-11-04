@@ -149,14 +149,13 @@ Imported from [run 13](../../research/results/shuk-places/13_mural_fridge_boxes_
 | A painted note offers a used Susita car for sale, with tear-off phone tabs | Historical fact | M1 ("מודעת מכירה"); M18 | "Look closer" find |
 | At the unveiling, the municipal official in charge of the murals took the note for real: "What nerve, they've already stuck a note on the wall!" | **Attributed tradition** (another guide, Esther Saad, as published by M18) | M18 | Paired with the boxes: two tellings of one joke |
 | Some of the residents and business owners the artists met are painted in the mural | Historical fact | M1 | The AHA; "Real people on the wall" |
-| Israel Post names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son among the "images from the market" | Historical fact (that M1 names them) | M1; M18 (calls Mizrahi "the restaurateur") | Story line only. **No source places any of them; never match faces** |
+| Israel Post names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son among the "images from the market" | Historical fact (that M1 names them) | M1; M18 (calls Mizrahi "the restaurateur") | Named in the game (owner, 4 Nov 2026). **No source places any of them; never match faces** |
+| The owner remembers Benny Dagim "on the corner" | Owner's recollection (4 Nov 2026); **field check**: is it his figure on the mural's corner, or his shop on the corner? | Owner | Not a claim until confirmed |
 | Eli Mizrahi of the mural is probably the founder of Café Mizrahi (2002) and a former head of the merchants' association, who has since died | **Unknown** (probable; from search results only) | M21 | Not a claim until read in full |
 | The electric company's two painted workers are on the north-facing side, peeking out left of a painted juice counter | Historical fact | M18 | Where to look |
-| Israel Post's sheet holds **one** stamp (30 × 120 mm) | Historical fact | M1 (full flyer) | Settles the shop page's "15 stamps" (wrong) |
-| The building was reported as dangerous in 2020, with a dispute over repairs and a warning that the mural could be erased; the survey describes peeling and fading | Historical fact (reported; Kol Ha'ir read in search results only) | M21; M18 | A risk: check the state before each season |
 | The address | **Sources differ**: 70, 82, 84 or 88 Agripas | run 06; M18; search results | Never a question |
 
-**The AHA's closing line**, "The painting doesn't create the community's identity. It asks us to notice what was already there.", is **Interpretation (DORI's)**, not a historical quotation (owner, 4 Nov 2026).
+**The AHA's closing line**, "The painting doesn't create the community's identity. It asks us to notice what was already there.", is labelled **Interpretation (DORI's)** in the data, not a historical quotation. The label is internal only and is never shown to players (owner, 4 Nov 2026).
 
 New sources:
 
@@ -165,7 +164,7 @@ New sources:
 | M18 | Smadar Barak, "מאחזים עיניים", סקר אמנות הקיר בישראל, Yad Yitzhak Ben-Zvi. https://www.wallart.org.il/מאחזים-עיניים/ (read 4 Nov 2026) | Survey (academic institute) |
 | M19 | The guide's recorded tour, Hebrew transcript, `docs/knowledge/HE_trans.txt` lines 84–92 | Oral (guide) |
 | M20 | Baruch Guian, "אמנות בירושלים: האיש שבקיר", *Masa Acher*, 25 Jan 2007 (12 French artists; 5 Israeli trainees; which wall is unconfirmed) | Press |
-| M21 | Search results only, pages not read: Mynet Jerusalem (Eli Mizrahi tribute), Israel Hayom ("קפה של תקווה"), JPost (merchants' association), Kol Ha'ir 2020 (building) | Press, unread |
+| M21 | Search results only, pages not read: Mynet Jerusalem (Eli Mizrahi tribute), Israel Hayom ("קפה של תקווה"), JPost (merchants' association) | Press, unread |
 
 ## Field checks still needed
 

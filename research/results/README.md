@@ -51,3 +51,8 @@ Not a source for The Amazing Shuk.
 ## Other
 
 - `run.log`: the Perplexity runner's output for runs 01–06 (16 Oct 2026). Its paths are from before the folders.
+- **Content-design research outside this folder** (the owner's, 4 Nov 2026):
+  - [Answer Formats pack](../content/Answer_Formats_Pack/DORI_AF_00_Index.md): how each answer form helps learning, with sources re-checked.
+  - The raw GPT run it merges: [Learning, Memory, Engagement](../Learning_Memory_Engagement.md).
+
+  Both are linked from the `/experience-design` sources.

@@ -307,6 +307,15 @@ The two large portraits above the menu are **Rachmo (Rahamim Ben Yosef)**, in a 
 - **Selichot lantern:** make a punched tin-can lantern like Ades children did. Daytime craft only.
 - **Kestrel on the roof:** look for gaps under old roof tiles where kestrels used to nest. No Nahlaot source yet. Hook (owner): residents valued them for getting rid of rats and mice. Check before telling: lesser kestrels eat mainly large insects and take small rodents only sometimes, so frame it as "neighbours welcomed them as pest control".
 - **Hakmat HaBorekas tasting:** on Etz Hayim St (רחוב עץ חיים), confirmed by the owner; a candidate stall for the token claim phase. Opening hours and a tasting arrangement still to confirm.
+- **A collection across the route** (owner direction, 4 Nov 2026; [Answer Formats pack, file 09](../../../../research/content/Answer_Formats_Pack/DORI_AF_09_Collections_Across_the_Route.md)): one thing seen again and again in different forms (lions, tzedakah boxes, Hanukkah menorahs), one new fact per find, and a compare step at the end.
+  - **Lions:** a strand inside a larger story, not the whole game, because a Hebrew family game ("There's a Lion Here!") already sells a lion hunt from the market along Jaffa Road. The mural's keystone lion would be a natural first find.
+  - **Tzedakah boxes:** only once a scouting walk counts enough visible boxes.
+  - **Menorahs:** a Hanukkah edition.
+- **Window to the past** (owner idea, 4 Nov 2026; [pack, file 10](../../../../research/content/Answer_Formats_Pack/DORI_AF_10_Window_to_the_Past.md)): an archival photo the phone looks around by tilting.
+  - Stand still at a marked spot, 10–30 seconds, then "what's gone, what's still here?".
+  - Anything invented is labelled.
+  - A then/now fade is the honest first version.
+  - Needs an archival photo with rights.
 
 ### Ruled out
 
