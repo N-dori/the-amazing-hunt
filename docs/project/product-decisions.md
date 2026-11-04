@@ -159,6 +159,7 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - Run 10b's figures (4 Nov 2026): **Claude Haiku 5.5** about **$0.14 per 1,000 checks**; GPT-5.6 Terra about $2.90 (its image tokens unmeasured); GPT-4.1 mini and GPT-5 mini are deprecated.
   - **Open:** which checks the model covers (the owner's note "and GPT for…" was cut off); which provider first; the key and service shape (today `.env.example` keeps the OpenAI key for research tools only; the agreed shape is a separate verify service holding the key, with rate limits and a spend cap).
 - **Historical-photo souvenir (owner direction, 4 Nov 2026, not approved; [run 10b §10](../../research/results/app-tech/10b_photo_answer_verification.md#10-historical-photo-souvenir-owner-direction-4-nov-2026-not-approved)):** if rights allow commercial use with credit, use and credit the photo; otherwise redraw with AI and say so openly. The value is the souvenir: the family composited into the historical scene, or a ~5-second morph from the old view to today. Run 10b: the Library of Congress Matson photographs are in the public domain (except the colour lantern slides); coverage of the route is unknown.
+- **Crops and altered images are a general idea (owner, 4 Nov 2026):** a crop of an artwork, or an altered image such as the mural's "what's missing?", is a design tool to use wherever it works. The right to use the image is a separate question, settled later, as with the deferred photo rights audit. Note which images still need their rights settled.
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
@@ -172,7 +173,7 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
 
 - Do not display the Rachmo photos in the game; the group can see the place from outside.
 
-- Mural reuse and alteration rights remain unresolved; do not build a mural image task until cleared.
+- Mural reuse and alteration rights remain unresolved; do not build a mural image task until cleared. *(4 Nov 2026: superseded. Crops and altered images are a general idea; the right to use them is settled later. See "Crops and altered images" above.)*
 
 - **Protected Shuk app (approved 25 Oct 2026):**
   - Address: `https://doriisrael.com/shuk`, with no DNS change.

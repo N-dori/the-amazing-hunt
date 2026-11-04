@@ -135,7 +135,7 @@ Tasks that send eyes to the real place ("find the detail", "real or painted?", "
 - Look at the actual field photos and read the research before deciding what counts as an answer. Field-verify every answer the app will check; where sources disagree, ask rather than choose.
 - Keep the number of interactions small and meaningful, and let the group discuss before the submitter answers.
 - Don't reveal the answer through the preview photo, a crop or a hint.
-- Image rights come first: don't show, crop or alter an artwork in the app until its rights are cleared (`product-decisions.md`); a text-only task at the real wall is the fallback.
+- Crops and altered images of an artwork are a general design tool: use them where they work. The right to use an image is a separate question, settled later (`product-decisions.md`, 4 Nov 2026); note which images still need it.
 
 ### Working in Claude Code
 - **Read what you need to design**, in the order `design/inputs/content/README.md` gives:

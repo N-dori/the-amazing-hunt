@@ -3,7 +3,7 @@
 ## Research folder sorted; competitor research added: 4 Nov 2026
 
 Documentation only; no behaviour change.
-- **`research/results/` is filed by subject** and indexed in its [README](../../research/results/README.md): `shuk-places/` (runs 06–09), `app-tech/` (01–03, 10), `memory-protocol/` (04, 05), `competitors/`. Every link to a moved file was updated, including the source string in `lib/amazing-shuk/mural-task.ts`. The Perplexity runner still writes to the folder's root: file new runs and add them to the index.
+- **`research/results/` is filed by subject** and indexed in its [README](../../research/results/README.md): `shuk-places/` (runs 06–09), `app-tech/` (01–03, 10, 10b, 11), `memory-protocol/` (04, 05), `competitors/`. Every link to a moved file was updated, including the source string in `lib/amazing-shuk/mural-task.ts`. The Perplexity runner still writes to the folder's root: file new runs and add them to the index.
 - **Competitor research on city-quest games** (owner's, 3–4 Nov): an [executive memo](../../research/results/competitors/DORI_Executive_Strategy_Memo.md), the [Phase 4 synthesis](../../research/results/competitors/DORI_Phase4_Synthesis.md), a [plain-language synthesis](../../research/results/competitors/DORI_Competitive_Research_Strategy_Synthesis.md) and the research library (`.xlsx`). Research, not decisions; strategy and market evidence, no challenge facts for `docs/knowledge/`.
   - **What it can support:** framing tests, not product decisions. 84% vendor documentation, nothing played; Mifrasim and BeeTravel (Mahane Yehuda) are the least documented.
   - **Points that bear on the Shuk:** tasks that need the place are the clearest way to stand apart (C-01); no competitor visibly labels fact, legend and fiction (C-02); a self-guided game needs a way to continue when stuck, and failing must not skip the explanation (C-03); place-based clues decay as the market changes (C-06); food appears only as a theme, coupon or bundle (C-08).
@@ -11,7 +11,14 @@ Documentation only; no behaviour change.
   - **OQ-015 against this repo:** `product-decisions.md` already has Market Surprise as approved direction (2 Nov; the stop pool still pending). Tasting appears in no decision, so it stays a research idea until the owner says otherwise.
 - **Photo answers, runs 10b and 11 (owner's runs, 4 Nov):** [run 10b](../../research/results/app-tech/10b_photo_answer_verification.md) re-ran prompt 10 (a check, fallback and unsure path per challenge type; current model prices and deprecations; Amendment 13; memory effects). [Run 11](../../research/results/app-tech/11_image_analysis_challenge_ideas.md) is the challenge-ideas report, cut by Claude Code to findings (its player prompts and photo tips were invented copy). The two downloaded copies were deleted.
 - **Owner, 4 Nov, recorded in `product-decisions.md`:** start photo checks with a cheap vision API (Claude or GPT, because it needs almost no computing power from our small server; an in-house model later, as it needs more setup; price is not a problem; run 10b: Claude Haiku 5.5 about $0.14 per 1,000); the historical-photo souvenir direction. **Open:** which checks the model covers (the owner's sentence "and GPT for…" was cut off) and which provider first.
+- **Crops are a general idea (owner, 4 Nov):** crops and altered images of an artwork are used wherever they work; the right to use an image is settled later. This supersedes "do not build a mural image task until cleared" (`product-decisions.md`) and the UX agent's "image rights come first".
 - **Challenge ideas have a folder:** `design/inputs/content/challenge-ideas/` holds `Mission_Task_Ideas.md` (moved; every link updated, including the agent brief and `mural-task.ts`) and `image-analysis/image-analysis-ideas.md`, which collects the owner's photo ideas (the heart, Souza, the keystone, the plaque, the souvenir) and run 11's five best. Ideas are collected; not every one will be used.
+- **Next:**
+  - the owner answers the open photo items: which checks GPT covers, which provider first, and the key and service shape (a separate verify service, as agreed on 3 Nov);
+  - the owner's decisions from the competitor research (H priorities and thresholds, H-08, the playthrough budget);
+  - the field checks from 3 Nov (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
+  - import the challenge-serving parts of runs 07–09 into `docs/knowledge/`;
+  - then rework the mural stop through `/experience-design`, now free to use crops and altered images (mark which still need their rights settled).
 
 ## Mural rework direction, new top-level rules, runs 09 and prompt 10: 3 Nov 2026
 
