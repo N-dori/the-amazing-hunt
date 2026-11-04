@@ -1,5 +1,25 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Mural rework: content drafted for the owner: 4 Nov 2026
+
+Documentation only; no code, no commit. Following the owner's order for the stop (recorded in `product-decisions.md`, 4 Nov), worked through `/experience-design`.
+- **[The mural rework](mural-rework.md):**
+  - the intro, then "Phones down, look up";
+  - 1 "Who painted it?" (typed, Easy);
+  - 2 "Then and now" (the Researcher describes CitéCréation's photo, the group checks the wall, choose 3, Tricky);
+  - 3 the stamp's price (typed number, ₪20, Tricky);
+  - 4 the trick of the eye (real or painted, then the technique's name, Medium);
+  - 5 the AHA (spoken prediction, then the reveal).
+  - Two hints each; points proposed at 40 / 60 / 80; all copy `TODO(copy)`.
+- **[Run 12](../../research/results/shuk-places/12_mural_rework_checks.md):**
+  - **CitéCréation's four photos of the wall** are saved locally in `design/inputs/photos/citecreation-agripas/` (ignored by git).
+  - **Then and now:** a tree, the drinks fridge gone, faded colours. The vents, the plaque and "103" were there from the start.
+  - **The shop page:** it shows ₪20.00, "15 stamps" and ₪99. "15 stamps" doesn't fit a 15 NIS face value, so no "15" is stated.
+  - **The before photo:** CitéCréation's is a different photo from the game's `mural-before.jpg`.
+  - Appended as a new dated section to `docs/knowledge/market-mural-agrippas.md`; nothing earlier was changed.
+- **Not checked on site:** the plaque's text, the then-and-now items, the repainted railings and blinds, and the electric company's workers. These are the owner's field checks in the rework document.
+- **Next:** the owner's decisions and field checks (listed at the end of the rework), then a build plan: a typed-answer kind, several scored challenges per stop, difficulty labels, the Researcher role and link screen, and the look-up screen. Photo checks after that.
+
 ## Runs 07–09 imported into `docs/knowledge/`: 4 Nov 2026
 
 Documentation only; no code. At the owner's request, the parts of runs 07–09 that can serve a challenge are now in `docs/knowledge/`, each claim with its label and source. They are locked: add to them, change them only with the owner's approval.

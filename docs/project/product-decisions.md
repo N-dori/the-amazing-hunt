@@ -160,6 +160,17 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - **Open:** which checks the model covers (the owner's note "and GPT for…" was cut off); which provider first; the key and service shape (today `.env.example` keeps the OpenAI key for research tools only; the agreed shape is a separate verify service holding the key, with rate limits and a spend cap).
 - **Historical-photo souvenir (owner direction, 4 Nov 2026, not approved; [run 10b §10](../../research/results/app-tech/10b_photo_answer_verification.md#10-historical-photo-souvenir-owner-direction-4-nov-2026-not-approved)):** if rights allow commercial use with credit, use and credit the photo; otherwise redraw with AI and say so openly. The value is the souvenir: the family composited into the historical scene, or a ~5-second morph from the old view to today. Run 10b: the Library of Congress Matson photographs are in the public domain (except the colour lantern slides); coverage of the route is unknown.
 - **Crops and altered images are a general idea (owner, 4 Nov 2026):** a crop of an artwork, or an altered image such as the mural's "what's missing?", is a design tool to use wherever it works. The right to use the image is a separate question, settled later, as with the deferred photo rights audit. Note which images still need their rights settled.
+- **The mural stop's order (owner, 4 Nov 2026):**
+  - The parts, in order:
+    1. A short intro that gives no detail away but shows the old and the new and the market's character.
+    2. "Who painted it?": find the plaque and the artists' name.
+    3. Spot the difference: the Researcher gets the URL of the mural's photo on CitéCréation's official site.
+    4. The stamp's tricky price question.
+    5. The technique question, with "Real or painted?" (trick the eye) as part of it.
+    6. The AHA at the end.
+  - **Two hints and a difficulty level for every challenge.**
+  - The lion riddle isn't in this round.
+  - The drafts, answer keys and open choices are in the [mural rework](mural-rework.md). Not approved and not built.
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 

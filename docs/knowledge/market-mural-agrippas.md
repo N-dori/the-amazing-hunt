@@ -85,6 +85,23 @@ The owner's 3 Nov decision keeps the reveal to four points (marked ★). The res
 
 **Never a claim about anyone's ancestry** (progressive-challenges plan).
 
+## Added 4 Nov 2026: then and now, and the shop page (run 12)
+
+Imported from [run 12](../../research/results/shuk-places/12_mural_rework_checks.md) for the mural rework. It is added after the original sections, which are unchanged. Comparing photos is not a field check: every "changed" or "same" below waits for the owner's check at the wall.
+
+| Claim | Label | Source | Can serve |
+|---|---|---|---|
+| CitéCréation's page shows four photos of this mural: before, work in progress, the whole wall, and the shop close up | Historical fact | M3 (gallery #5–8) | The Researcher's "then" picture; the before photo for the intro |
+| In the artists' photo of the whole wall there is no tree; today a tree covers the right of the painted market | Historical fact (photos compared; on-site check pending) | M3 #7; owner's #103 | Spot the difference |
+| In the artists' photo a real drinks fridge stands right of the painted shop; today grey utility cabinets stand there | Historical fact (photos compared; on-site check pending) | M3 #7; owner's #104 | Spot the difference |
+| The colours have faded since the artists' photo | Historical fact (photos compared) | M3 #7; owner's #103–104 | Spot the difference (an easy one) |
+| The air vents, the "103" tile, the warning triangle and the plaque beside it are all in the artists' photo: the painting was made around the vents | Historical fact (photos compared) | M3 #7, #8 | A false "difference"; a link to "real or painted?" |
+| The souvenir sheet costs ₪20.00 (4 Nov 2026); the page also shows "15 stamps" on the sheet and free shipping over ₪99 | Historical fact (the page's text; the price can change) | M10 | The price question: which number is the price? |
+| "15 stamps on the sheet" (M10) and "face value 15 NIS" (M9) don't fit together | **Sources differ** | M9, M10 | Neither 15 is an answer or a stated fact until Israel Post's issue page confirms it |
+| The shop page names CitéCréation, 2001, the "אחיזת עיניים" technique and the lion of the Lions' Gate | Historical fact (the page's text) | M10 | The page itself confirms other answers. Order the challenges with this in mind |
+
+Field check 1 (the keystone lion) is more doubtful now: in the artists' photo, the fish shop's arch is on the right of the upper scene, where the tree now stands.
+
 ## Field checks still needed
 
 These decide whether a claim above can be a question:
