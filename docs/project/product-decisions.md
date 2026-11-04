@@ -144,6 +144,15 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - **Mobile data is required.** Web challenges are not filtered out for lack of signal. The offline queue for dropped connections stays.
 - **The stamp:** it is real (issue 1171, Sept 2024); its face value is 15 NIS (catalogue), and the souvenir sheet costs ₪20 (run 09). The owner's 15 was right.
 - **Rewards follow difficulty:** the harder the task, the more it rewards. The mural's values are to be set again.
+- **Photo answers and image analysis (owner, 3 Nov 2026, after [run 10](../../research/results/10_photo_answer_verification.md)):**
+  - **Presence is the geolocation's job** (the existing "Check our location"), not the photo check's. The photo check only answers "is this the right thing?"
+  - **Fixed, textured objects** (e.g. the market mural): compare with a model trained in-house on our saved reference photos, run on a **separate instance or VPS**, not on the production server.
+  - **The group chooses** between a typed answer and a photo where both work.
+  - **On error, the fallback is a typed answer.**
+  - **Creative answers:** e.g. after the Lev Ha'Ir ("heart of the city") answer, a follow-up challenge: frame someone you love inside a heart made with your hands. Solomon Souza's graffiti is another candidate. Idea only; copy is `TODO(copy)`.
+  - **Something high up and hard to see** (e.g. a keystone): the photo becomes the way to look at it, and image analysis checks it. Idea to explore.
+  - More ideas: [prompt 11](../../research/prompts/11_image_analysis_challenge_ideas.md).
+  - **Still open:** which model and provider, where the separate instance runs, and whether photos of the group itself (the heart challenge) are sent at all or kept on the phone. The no-device-path rule in `content.md` now reads as "a typed answer is always available".
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 

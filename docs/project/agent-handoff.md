@@ -17,9 +17,9 @@ Documentation and research only; no code. Everything below is in `product-decisi
 - **Open, to decide when the first photo challenge is built:**
   - the "camera never the only way" rule in `content.md` (its reasons: failures and bystanders' privacy);
   - the `.env.example` note that the OpenAI key never reaches the live container: the agreed shape is a separate verify service holding the key, with rate limits and a spend cap.
-- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. The owner runs it; the result goes to `research/results/10_…`.
+- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. Run by the owner; the cleaned result is [run 10](../../research/results/10_photo_answer_verification.md): ORB + RANSAC as the primary check, Google Vision OCR for text plaques, about $0–$1.50 per 1,000 checks, no LLM in the main path; none of it proves presence (a phone screen can pass), so the photo should lead to a question about the object. Research, not a decision; it has no challenge facts for `docs/knowledge/`.
 - **Next:**
-  - the owner runs prompt 10;
+  - the owner picks a verify method per photo challenge from run 10 (its field test: 30 photos per object plus wrong-object negatives);
   - the field checks (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
   - import the challenge-serving parts of runs 07–09 into `docs/knowledge/`;
   - then rework the mural stop through `/experience-design`.
