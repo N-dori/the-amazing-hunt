@@ -62,6 +62,32 @@ Page: https://shop.israelpost.co.il/אומנות-קיר-השוק-ירושלים/
 - **The page gives answers away:** CitéCréation, 2001, "אחיזת עיניים" and the lion of the Lions' Gate. In the stop's order, the stamp comes after "Who painted it?" and before the technique question. So either the technique question comes before the stamp, or the stamp page is accepted as a way to the technique. See the rework document.
 - The price can change. Check it before each deploy.
 
+## 4. The souvenir sheet's image (added 4 Nov 2026)
+
+The shop page's product image, `https://cdn.istores.co.il/image/upload/c_limit,w_1200,h_630/clients/131882/3ad0065822c597242910cb4c10bb23de06303e33.png` (318 × 530 px). It is saved locally as `design/inputs/photos/citecreation-agripas/israelpost_souvenir-sheet_1171_shop-image.png` (ignored by git).
+
+What it shows:
+- **One stamp**, marked **15** and "ISRAEL ישראל", cut from the upper-left scene: the market alley under the big arch, with the hills.
+- Around it, the rest of the mural's upper part: the painted balconies (laundry, the bicycle) and the fish shop's arch, with **the keystone lion clearly visible**.
+- In the margins: "CitéCréation", the title in Hebrew, English and Arabic, and what reads as "PRICE ₪20 / מחיר".
+
+**Consequences:**
+- The page's "15 stamps on the sheet" looks wrong; the sheet holds one stamp.
+- Face value 15 is what the stamp shows.
+- ₪20 may be printed on the sheet itself, not only a shop price.
+- All of this is read from a small image, so **confirm at full resolution** (or with the M1 flyer) before any answer key uses it.
+
+## 5. Real or painted: method and limit (owner's correction, 4 Nov 2026)
+
+**The owner's rule:** everything depicted as part of the original painted artwork in CitéCréation's photograph (#7) is painted; ambiguous objects are FIELD CHECK REQUIRED.
+
+Comparing photos shows **presence**: whether an object was on the wall when the artists photographed it. It doesn't show **material**: whether it was painted, or a physical fixture the artists painted around. Three groups result:
+1. **Painted**, by a source or the 24 Oct field check: the "103", the carton, the antenna phone, the bicycle, the laundry, the electric company's workers.
+2. **In the photo, material unknown:** the vents, the treble-clef sign, the plaque, the railings and blinds at the right edge. FIELD CHECK REQUIRED.
+3. **Added since:** the tree, the grey cabinets, the mesh fence. Real.
+
+The table is in the [knowledge file](../../../docs/knowledge/market-mural-agrippas.md).
+
 ## Sources
 
 - CitéCréation, "Painted mural circuit JERUSALEM" (M3 in `docs/knowledge/market-mural-agrippas.md`), its gallery photos #5–8. Read 4 Nov 2026.

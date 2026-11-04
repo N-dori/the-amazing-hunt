@@ -1,5 +1,29 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Mural rework v2 and the real-or-painted correction: 4 Nov 2026
+
+Documentation only; no code, no commit. This follows the owner's review of v1, recorded in `product-decisions.md` (4 Nov).
+- **[The mural rework](mural-rework.md), v2** is at the top; v1 is kept below for comparison.
+  - **Core:** "Who Painted It?" (typed, Easy, 1 hint).
+  - **Options:** Then and Now (Tricky), The Stamp (which part of the wall is the stamp; no scored price) and The Trick of the Eye (recommended).
+  - **The AHA:** in the owner's own words, unscored.
+  - **Points:** reviewed across the adventure. v2's mural maximum would be 290 of about 740, so the owner chooses a per-stop cap or accepts it.
+  - **Duration:** required path about 7–8 min (about 70% at the wall); everything about 18–24 min.
+- **The owner's correction:** what's painted in the artists' photo is painted; ambiguous objects are FIELD CHECK REQUIRED.
+  - The vents, the treble-clef sign, the plaque, and the railings and blinds are now FIELD CHECK REQUIRED, so no "real" item is confirmed for scoring.
+  - **The live game's key** (`lib/amazing-shuk/mural-task.ts`) still scores the vents, the plaque and the sign as real. Not changed; the owner's call after the field check.
+- **The souvenir sheet's image** (run 12 §4):
+  - one stamp, marked 15;
+  - "CitéCréation" and what reads as "PRICE ₪20" in the margin;
+  - the keystone lion clearly visible on the sheet.
+
+  Read from a 318 × 530 px image, so it needs confirming at full resolution.
+- **Knowledge:** a new dated section in `docs/knowledge/market-mural-agrippas.md`; nothing earlier was changed.
+- **Next:**
+  - the owner's field checks and open choices (the end of v2);
+  - a full-resolution check of the sheet;
+  - then a build plan.
+
 ## Mural rework: content drafted for the owner: 4 Nov 2026
 
 Documentation only; no code, no commit. Following the owner's order for the stop (recorded in `product-decisions.md`, 4 Nov), worked through `/experience-design`.

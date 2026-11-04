@@ -102,6 +102,37 @@ Imported from [run 12](../../research/results/shuk-places/12_mural_rework_checks
 
 Field check 1 (the keystone lion) is more doubtful now: in the artists' photo, the fish shop's arch is on the right of the upper scene, where the tree now stands.
 
+## Owner's correction, 4 Nov 2026: real or painted
+
+**The rule (owner, 4 Nov 2026):** everything depicted as part of the original painted artwork in CitéCréation's official photograph (M3, gallery #7) is **painted**, not real. Don't assume something is real because it looks real or sounds architectural. An object that stays ambiguous is **FIELD CHECK REQUIRED** and kept out of scored answers until it's verified.
+
+**The limit of the photo** ([run 12](../../research/results/shuk-places/12_mural_rework_checks.md) §5): an object in #7 was there when the mural was finished. The photo can't show whether it was painted, or a physical fixture the artists painted around. So the objects recorded as real on 24 Oct are now FIELD CHECK REQUIRED.
+
+| Object | In #7 | Status | Source |
+|---|---|---|---|
+| The "103" tile | yes | Painted | M1 ("103 call centre"); owner's field check, 24 Oct |
+| The cardboard boxes / carton | yes | Painted | M1 ("a painted carton"); 24 Oct |
+| The vendor's phone with an antenna | yes | Painted | 24 Oct |
+| The bicycle on the balcony | yes | Painted | M1; 24 Oct |
+| The laundry on the balcony | yes | Painted | 24 Oct |
+| The electric company's workers | yes | Painted | M1, M2 |
+| The air vents in the awning and the shop | yes | **FIELD CHECK REQUIRED** (recorded as real 24 Oct) | M3 #7; owner's correction |
+| The blue sign with a treble clef | yes (large and bright in #7; smaller today) | **FIELD CHECK REQUIRED** (recorded as real 24 Oct) | M3 #7; owner's correction |
+| The small plaque left of the shop | yes | **FIELD CHECK REQUIRED** (recorded as real 24 Oct) | M3 #7; owner's correction |
+| The railings and blinds on the real balconies at the right edge | the balconies are | **FIELD CHECK REQUIRED.** M1 says real, repainted to match, but doesn't say which | M1; owner's correction |
+| The tree, the grey utility cabinets, the mesh fence | no: added since | Real, not part of the artwork (photos compared; on-site check pending) | M3 #7; owner's #103–104 |
+
+The table "Real or painted?" above (from run 07) is kept as written. Where it differs, this correction governs the game's answer keys.
+
+### The souvenir sheet, from the shop's product image (4 Nov 2026)
+
+| Claim | Label | Source | Can serve |
+|---|---|---|---|
+| The sheet holds **one** stamp, marked 15, cut from the mural's upper left: the market alley under the big arch, with the hills | Historical fact (a 318 × 530 px image; confirm at full resolution) | M10 (product image) | "Which part of the wall is on the stamp?" |
+| The sheet's margin prints "CitéCréation" and what reads as "PRICE ₪20 / מחיר" | Historical fact for the name; the price **to confirm** at full resolution | M10 (product image) | A fallback for "Who painted it?"; the unscored 15/20 "Look closer" |
+| The sheet shows the fish shop's arch with the keystone lion clearly visible | Historical fact (image) | M10 (product image) | The parked lion riddle: a way to see the keystone the tree now hides |
+| The shop page's "15 stamps on the sheet" doesn't match the image's one stamp | Sources differ | M10 | Never an answer |
+
 ## Field checks still needed
 
 These decide whether a claim above can be a question:

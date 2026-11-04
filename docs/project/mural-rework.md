@@ -1,4 +1,230 @@
-# The market mural: content rework (draft for the owner, 4 Nov 2026)
+# The market mural: content rework
+
+**Status:** content only, awaiting the owner's approval. Nothing is built. Every visitor-facing line is a draft (`TODO(copy)`) unless it's marked as the owner's wording.
+
+This document has two versions:
+- **v2, recommended** (4 Nov 2026, after the owner's review): below.
+- **[The author's original (v1)](#the-authors-original-v1-for-comparison)**: kept intact for comparison.
+
+## v2: recommended (4 Nov 2026, after the owner's review)
+
+**The owner's review (4 Nov):**
+- the six-part direction is approved;
+- **"Who Painted It?"** is the easy, required core;
+- Then and Now, The Stamp and **The Trick of the Eye** (recommended) are optional;
+- "Why Paint a Market Here?" is the unscored AHA at the end, in the owner's own words;
+- **the correction:** everything depicted as part of the original painted artwork in CitéCréation's official photograph is **painted**. An ambiguous object is **FIELD CHECK REQUIRED** and stays out of scored answers.
+
+Worked through `/experience-design`. The facts come from [the market mural](../knowledge/market-mural-agrippas.md) (M-sources) and [run 12](../../research/results/shuk-places/12_mural_rework_checks.md).
+
+### The stop at a glance
+
+Order (the owner's six parts):
+
+1. Intro
+2. **Core: Who Painted It?**
+3. *(optional)* Then and Now
+4. *(optional)* The Stamp
+5. *(optional, recommended)* The Trick of the Eye
+6. AHA
+
+An option is skipped with "Skip" and never blocks. The AHA always plays.
+
+| Part | Status | Form, check | Difficulty | Hints | Points (provisional) | Time (wall / phone) |
+|---|---|---|---|---|---|---|
+| Intro + "Phones down, look up" | required | read aloud, then look | none | none | none | 3 min (2 / 1) |
+| **Who Painted It?** | **core, required**; the stop's food tokens (D3) | typed, code | Easy | 1 | 100 | 2–3 min (2 / 0.5) |
+| Then and Now | optional | choose 3 of 7, code | Tricky | 2 | 80 | 5–7 min (3 / 3) |
+| The Stamp | optional | choose 1 of 4, code | Easy | 1 | 30 | 2–3 min (1 / 1.5) |
+| **The Trick of the Eye** | **optional, recommended** | choose N, then choose 1 of 4, code | Medium | 2 + 2 | 80 | 4–6 min (4 / 1) |
+| Why Paint a Market Here? (AHA) | required, unscored | predict out loud, then the reveal | none | none | none | 2 min (1 / 1) |
+
+**Hint counts vary** (1, 2, 2 + 2), as plan §4 allows. Two is not a rule. Scoring is model B (D1).
+
+**Duration and the phone:**
+- **Required path** (intro, core, AHA): about 7–8 min, about 70% of it looking at the wall. The old stop was about 8 min.
+- **Everything:** about 18–24 min, about 60% at the wall.
+- Then and Now is the most phone-heavy, which is one reason it's optional.
+
+**The viewing area: unknown, a field check.** Agripas St is a busy road. Where can 6–8 people stand to see the whole wall, and where at the shop to read the plaque?
+
+### Points across the adventure
+
+- **Today:** each of the six stops' cores is worth 100 (floor 40, 2 food tokens), plus arrival (20 × 6) and two bonuses of 10. The adventure's maximum is about 740.
+- **v1's 40 / 60 / 80 ladder is withdrawn.** It priced this core at 40 while every other core is 100.
+- **v2's mural maximum:** 100 + 80 + 30 + 80 = **290**, about a third of the adventure. Each option is within D2 (≤ 2× the core), but together they make the mural the heaviest stop.
+- **The owner's choice:**
+  - a rule for every stop that gains options, e.g. a stop's options together ≤ 1× its core (the mural's would then total 100, e.g. 40 / 15 / 45);
+  - or accept the mural as the heavy opening stop.
+
+### Real or painted: the owner's correction applied
+
+Three groups, comparing CitéCréation's photo of the finished wall (gallery #7) with the owner's #103 and #104:
+
+| Object | In the artists' photo? | Classification | In scored answers? |
+|---|---|---|---|
+| The "103" tile | yes | **Painted** (M1 "103 call centre"; field check 24 Oct) | yes |
+| The cardboard boxes / carton | yes | **Painted** (M1 "a painted carton"; 24 Oct) | yes |
+| The vendor's phone with an antenna | yes | **Painted** (24 Oct) | yes |
+| The bicycle on the balcony | yes | **Painted** (M1; 24 Oct) | yes |
+| The laundry on the balcony | yes | **Painted** (24 Oct) | yes |
+| The electric company's workers | yes | **Painted** (M1, M2) | only once seen from the viewing point |
+| The air vents in the awning and the shop | yes | **FIELD CHECK REQUIRED** | **no** |
+| The blue sign with a treble clef | yes (large and bright in #7; looks smaller today) | **FIELD CHECK REQUIRED** | **no** |
+| The small plaque left of the shop | yes | **FIELD CHECK REQUIRED** | **no** (it's the core's source instead) |
+| The railings and blinds on the real balconies at the right edge | the balconies are in #7 | **FIELD CHECK REQUIRED.** M1 says real and repainted to match; which ones isn't identified | **no** |
+| The tree, the grey utility cabinets, the mesh fence | **no**: added since | **Real**, not part of the artwork (photos compared; on-site check pending) | possible, but obvious |
+
+**What the photo can and can't tell:**
+- An object in the artists' photo was there when the mural was finished. The photo can't show whether it was painted, or a physical fixture the artists painted around.
+- The vents, the sign and the plaque were recorded as real on 24 Oct, so under the correction they're FIELD CHECK REQUIRED until someone looks closely at the wall.
+
+**The consequences:**
+- **No "real" item is confirmed for scoring today.**
+- v1's key (two asked, three marked real) is withdrawn.
+- **The live game** (`lib/amazing-shuk/mural-task.ts`, `answerKeyVerified: true`) still scores the vents, the plaque and the sign as real. It may disagree with the correction. No code change is made here; the owner decides after the field check.
+
+### Draft copy
+
+**Intro** (`TODO(copy)`, read aloud; M1):
+> Until 2001, this corner was a bare wall and sheets of tin.
+> Look up at it now.
+> A whole market lives up there: crowds, stalls, a shop, people on their balconies.
+> But not everything here is what it seems.
+
+> Phones down. Look up. Take a minute together: what's going on up there?
+
+No countdown (3 Nov). The before photo is the owner's choice: keep it (source unknown, possibly altered), drop it, or link to CitéCréation's own before photo (gallery #5).
+
+**Core, Who Painted It?** (Easy, 1 hint, typed):
+> The painters left their name on this wall. Find it. Who painted the market?
+
+- **Accept:** CitéCréation, "Cite Creation", "citecreation" and עיר היצירה. Normalise case, accents, spaces and hyphens. Never ask for a person: M3 names no individual artist.
+- **Hint:**
+  > Look low, near the painted shop.
+- **Reveal** (M1, M2):
+  > A cooperative of mural painters from near Lyon, France. Twelve of them painted this wall, unveiled at Hanukkah 2001.
+- **Gate: the plaque's text** (field check). A required core needs its answer on the wall. If the plaque doesn't name CitéCréation, the core needs another source on the wall before it can be built. The stamp sheet prints "CitéCréation" in its margin, but that moves the answer off the wall.
+
+**Then and Now** (optional, Tricky, 2 hints):
+> Researcher: open the artists' photo of their finished wall. Describe it; everyone else checks the wall. What has changed? Choose 3.
+
+- **Link:** CitéCréation's Jerusalem page, gallery #7, or the image's own URL (the owner's choice).
+- **Options:**
+  - ✔ a tree now hides part of the market
+  - ✔ the drinks fridge beside the shop is gone
+  - ✔ the colours have faded
+  - the "103" tile was added later
+  - the air vents were added later
+  - the man on the phone has been painted over
+  - the red awning has been taken down
+
+  All are to be confirmed on site. None depends on whether anything is real or painted.
+- **Hints:**
+  1. > Look beside the shop, at street level.
+  2. > One change is alive and still growing.
+- **Reveal:**
+  > Time changed this wall: a tree grew, the sun faded the colours, and grey cabinets stand where a drinks fridge was.
+- **Lasting:** the fading and the fridge gone are lasting; the tree and the cabinets are semi-lasting. Re-check each season (C-06).
+
+**The Stamp** (optional, Easy, 1 hint). **No scored retail price:** ₪20 is a shop fact that changes, not a discovery. The official-stamp discovery stays.
+> Israel Post put this wall on a stamp. Open the sheet; the stamp is the piece marked 15. Which part of this wall did it take?
+
+- **Options:**
+  - ✔ the market alley under the big arch
+  - the balconies
+  - the shop
+  - the fish shop's arch
+- **Hint:**
+  > It's tall and narrow, like an archway.
+- **Reveal** (M1):
+  > Issue 1171, September 2024, designed by Pini Hamou.
+- **"Look closer"** (unscored, the owner's 15/20 idea), only if a sharp copy confirms the price printed on the sheet:
+  > The stamp says 15. What does the sheet say it costs?
+- **Basis:** the shop's product image (run 12 §4), 318 × 530 px. **To confirm at full resolution** before building.
+
+**The Trick of the Eye** (optional, **recommended**, Medium):
+- **Step 1** keeps the owner's approved question:
+  > The artists fooled almost everyone. Can your group spot TWO things that are actually real?
+  - **Its "real" key is on hold** until the field check confirms at least two physical fixtures.
+  - **Painted options available now:** the "103", the boxes, the antenna phone, the bicycle, the laundry.
+  - **No unverified object is added.**
+  - **If fewer than two are confirmed,** the owner chooses: change "TWO" to the confirmed number, or ask "Which of these are painted?". Either is a wording change.
+  - **Hints:** the 24 Oct drafts are on hold. "One real thing helps the building breathe" points at the vents, which are now FIELD CHECK REQUIRED. They are rewritten once the key is known.
+- **Step 2:**
+  > You've just been fooled. What's this kind of painting called?
+  - **Options:** ✔ Trompe-l'œil, Mosaic, Graffiti, Stencil art. No "Fresco": CitéCréation calls its own murals *fresques*.
+  - **Hints that guide, not give away:**
+    1. > Think about what this wall just did to you.
+    2. > The painters came from France, and so does the name.
+- **Reveal:**
+  > This is trompe-l'œil, French for "deceive the eye". The workers on the side of the building are painted too: the electric company's thank-you for its wall. It's said drivers on Agripas can't tell the painted balconies from the real ones.
+  - **Labels:** M1, Historical fact; M2, Attributed tradition.
+  - The "real blinds and railings" line returns only after the field check.
+
+**Why Paint a Market Here? (AHA)**, unscored.
+- **Predict first** (`TODO(copy)`, spoken):
+  > Who do you think chose what to paint here?
+- **The reveal, the owner's own wording (4 Nov 2026), verbatim:**
+  > **A community doesn't lose its identity simply because the world stops noticing it.**
+  > In modern cities, everyday lives, neighborhood memories and local traditions can become almost invisible.
+  > The artists of CitéCréation wanted to bring those stories back into view. Here in Jerusalem, residents helped choose what belonged on their wall: the market, its people and the life surrounding them.
+  > The painting doesn't create the community's identity. **It asks us to notice what was already there.**
+
+| Line | Label | Source |
+|---|---|---|
+| The first two sentences and the last | Interpretation (the stop's big idea) | — |
+| "wanted to bring those stories back into view" | Interpretation | M6, M7: CitéCréation works in overlooked and social-housing districts, with the residents |
+| "residents helped choose… the market, its people…" | Historical fact | M1: the residents chose the subject; the artists met residents and business owners; some of them are painted in it |
+
+- **Length:** about 85 words, over the 60-word reveal guideline. **The owner's call:**
+  - one screen;
+  - two screens (the first two sentences, then the rest);
+  - or read aloud by a player.
+
+  It isn't shortened without the owner.
+- **Never:** names of the painted people, property values, or Bensaïd's "pride" quote as if about this wall (it was about Lyon).
+- **Bridge** (`TODO(copy)`):
+  > Now walk into the real market. Keep asking: real, or painted?
+
+### The Researcher
+
+The Researcher is an **optional activity responsibility**: a suggestion of who opens a link.
+- It is not a server permission. `lib/amazing-shuk/roles.ts` stays Navigator and Answer Submitter.
+- Anyone can open a link, and every Researcher step works on one shared phone.
+- Solo play is unaffected (D12, solo as a first-class mode).
+
+### Conflicts with approved decisions
+
+1. **The live key** in `mural-task.ts` (the vents, sign and plaque as real) vs the owner's correction. Owner's call after the field check.
+2. **Plan §7, "No third mural challenge" (2 Nov):** superseded by the owner's 4 Nov direction.
+3. **The core moves** from "Is It Real or Is It Painted?" (the approved core candidate) to "Who Painted It?", by the owner's choice. Its question, options and hints live on in The Trick of the Eye.
+4. **The Researcher:** from the 3 Nov "role assigned in onboarding" to an optional responsibility.
+5. **Food tokens** stay with the core (D3), so they now come from "Who Painted It?".
+6. **The cardboard-box tradition** in today's approved story isn't in the new intro. Keep it in the story, or move it to The Trick of the Eye's reveal.
+
+### The owner's field checks (before any build)
+
+1. **The plaque:** its text, and whether it names CitéCréation (the core's gate).
+2. **Physical fixture or painted:** the vents, the treble-clef sign, the plaque, and the railings and blinds at the right edge.
+3. **The electric company's workers:** visible from the viewing point.
+4. **Then and Now's items:** at the wall.
+5. **The viewing area:** where a group of 6–8 can safely stand.
+
+**At a desk:** a full-resolution copy of the souvenir sheet (or the M1 flyer), for the stamp's crop and the printed price.
+
+### The owner's open choices
+
+- Points: a per-stop cap on options, or the mural as the heavy stop.
+- The AHA's length and screens.
+- The intro picture.
+- Then and Now's link.
+- The Trick of the Eye's wording, if fewer than two real items are confirmed.
+- All `TODO(copy)` lines.
+
+---
+
+## The author's original (v1), for comparison
 
 **Status:** content only, awaiting the owner's approval. Nothing here is built. Every visitor-facing line is a draft (`TODO(copy)`).
 
@@ -6,7 +232,7 @@
 
 **Replaces:** the single challenge in `lib/amazing-shuk/mural-task.ts` ("pick 2 real things of 8", empty reveal). Image analysis comes later (owner, 4 Nov). The lion riddle ("A Hidden Symbol") is parked for this round.
 
-## The stop at a glance
+### The stop at a glance
 
 | # | Part | What the group does | Answer form | Check | Difficulty | Proposed points |
 |---|---|---|---|---|---|---|
@@ -23,7 +249,7 @@
 
 **Length: about 20–25 minutes** (the old stop was about 8). That's long for the opening stop in the sun. **Owner's call:** keep all four as Main, or mark parts 2 and 3 **Optional** (plan §6 labels), so a tired group can go from 1 to 4 to the AHA.
 
-## 0. The painted market (intro)
+### 0. The painted market (intro)
 
 **The moment:** they arrive at a corner and someone reads five short lines aloud. It shows the old and the new, and the market's character, and gives no detail away: no names, no technique, nothing about what's real, no residents (those are kept for the AHA).
 
@@ -50,7 +276,7 @@
 
 A "We've looked" button opens part 1.
 
-## 1. Who painted it? · Easy
+### 1. Who painted it? · Easy
 
 - **What they do:** walk along the wall and find the plaque. It's low and easy to reach, so a good job for a child. The Answer Submitter types the name.
 - **Question:**
@@ -70,7 +296,7 @@ A "We've looked" button opens part 1.
   - **What it says is unknown.** If it doesn't name CitéCréation, this challenge needs another source on the wall, or it can't stand as it is.
 - **The no-device path:** the guide confirms, or the stuck path ("I'm completely stuck").
 
-## 2. Then and now · Tricky
+### 2. Then and now · Tricky
 
 - **What they do:** the Researcher opens the artists' photo of the finished wall. It's on CitéCréation's own site, so the app shows no copy and no rights are needed. The Researcher **describes** it, and the others check the wall.
   - The information is split: the photo is on one phone, the wall is in front of everyone, so they have to talk.
@@ -99,7 +325,7 @@ A "We've looked" button opens part 1.
   - It must not say the vents are real: that's part 4's answer.
 - **Risk:** the tree grows and the cabinets may change (C-06). Re-check before each season.
 
-## 3. The stamp · Tricky
+### 3. The stamp · Tricky
 
 - **What they do:** the Researcher opens Israel Post's shop page. The page is in Hebrew, but the price needs none.
 - **Link:** `https://shop.israelpost.co.il/אומנות-קיר-השוק-ירושלים/`
@@ -121,11 +347,11 @@ A "We've looked" button opens part 1.
   - **Recommendation:** keep the owner's order.
 - **The hotel-room test:** this part could be played anywhere. It earns its place by the surprise that this wall is on a stamp, and it's short. Mark it Optional if the stop runs long.
 
-## 4. The trick of the eye · Medium
+### 4. The trick of the eye · Medium
 
 Part 4 has two steps and one award. "Real or painted?" is part of the technique question (owner, 4 Nov): first they're fooled, then they learn the name of what fooled them. Discovery comes before explanation.
 
-### 4a. Real or painted?
+#### 4a. Real or painted?
 
 - **What they do:** stand at the wall and argue about each item. The list only appears after they've looked.
 - **Question** (the owner's wording, 24 Oct):
@@ -149,7 +375,7 @@ Part 4 has two steps and one award. "Real or painted?" is part of the technique 
   1. Look closely at the shop on the ground floor and its awning.
   2. `TODO(copy)`: One real thing helps the building breathe.
 
-### 4b. What's it called?
+#### 4b. What's it called?
 
 - **Question:**
   > `TODO(copy)`: You've just been fooled by a technique. What's it called?
@@ -160,7 +386,7 @@ Part 4 has two steps and one award. "Real or painted?" is part of the technique 
   1. `TODO(copy)`: The name is French.
   2. `TODO(copy)`: It means "deceive the eye".
 
-### Reveal (both steps)
+#### Reveal (both steps)
 
 > `TODO(copy)`: Trompe-l'œil: French for "deceive the eye". The building's real blinds and railings were even repainted to match the picture. The workers on the side are painted: the electric company's thank-you for its wall. It's said that drivers on Agripas can't tell the painted balconies from the real ones.
 
@@ -173,7 +399,7 @@ Part 4 has two steps and one award. "Real or painted?" is part of the technique 
 
 Every claim is hedged in the wording where it needs to be.
 
-## 5. Why paint a market here? (AHA)
+### 5. Why paint a market here? (AHA)
 
 - **The moment:** the answer they reach together is the one they'll take home. Artists came from France to paint the market *with* the people who live beside it, in a place few people looked at.
 - **Predict first** (unscored; spoken, nothing typed or stored):
@@ -193,7 +419,7 @@ Every claim is hedged in the wording where it needs to be.
   > Now walk into the real market. Some of what you'll hear today is fact, some is told, and some is painted over. Keep looking.
   - Mission_Task_Ideas' opener hook, reworded.
 
-## Group roles
+### Group roles
 
 | Role | Holds | Does |
 |---|---|---|
@@ -205,7 +431,7 @@ Every claim is hedged in the wording where it needs to be.
 
 A solo player holds every role (D12). A group without a Researcher: the leader gives the role to someone; the role can be combined with another.
 
-## Critique (`/experience-design` step 8)
+### Critique (`/experience-design` step 8)
 
 - **Better than the old stop:**
   - one mechanic becomes five forms;
@@ -218,7 +444,7 @@ A solo player holds every role (D12). A group without a Researcher: the leader g
 - **Length:** see "The stop at a glance"; the owner decides Main or Optional.
 - **The lion riddle** stays parked. The tree now hides the area where the keystone was in the artists' photo, which makes field check 1 more doubtful (run 12).
 
-## The owner's field checks (before any build)
+### The owner's field checks (before any build)
 
 1. **The plaque:** its exact text, and whether it names CitéCréation (part 1).
 2. **Then and now:** the three changes and the four "already there" items, at the wall (part 2).
@@ -226,7 +452,7 @@ A solo player holds every role (D12). A group without a Researcher: the leader g
 4. **The electric company's workers:** visible from the viewing point (part 4a).
 5. **The price on Israel Post's page,** just before any deploy (part 3).
 
-## The owner's decisions
+### The owner's decisions
 
 - Approve the order, the forms and the difficulty of each part.
 - Point values (40 / 60 / 80 proposed).
@@ -235,7 +461,7 @@ A solo player holds every role (D12). A group without a Researcher: the leader g
 - Part 2's link: the gallery page or the image's own URL.
 - All `TODO(copy)` lines (or polish them, with GPT or by hand).
 
-## What the build will need (a separate plan, after approval)
+### What the build will need (a separate plan, after approval)
 
 - **A typed-answer challenge kind**, with a normaliser and tests. Only `choice` and the well exist today.
 - **Several scored challenges in one stop,** each with its own difficulty and award. Today `followUps` (Marzipan) gives one award at the end.

@@ -171,6 +171,20 @@ Full plan: [progressive-challenges-plan.md](progressive-challenges-plan.md). Not
   - **Two hints and a difficulty level for every challenge.**
   - The lion riddle isn't in this round.
   - The drafts, answer keys and open choices are in the [mural rework](mural-rework.md). Not approved and not built.
+- **The mural review (owner, 4 Nov 2026, after the v1 draft):**
+  - **"Who Painted It?"** is the easy, required core, and carries the stop's food tokens (D3).
+  - **Then and Now, The Stamp and The Trick of the Eye** are optional; The Trick of the Eye is recommended.
+  - **"Why Paint a Market Here?"** is the unscored AHA at the end, in the owner's own wording (kept verbatim in the [mural rework](mural-rework.md), v2).
+  - **No scored retail price:** the stamp's discovery stays; the shop price isn't a scored answer.
+  - **The Researcher** is an optional responsibility, never a required permission or an obstacle to solo play.
+  - **Points** are to be reviewed across the whole adventure before any values are approved.
+  - This supersedes plan §7's "No third mural challenge" (2 Nov), and moves "Is It Real or Is It Painted?" from the core into The Trick of the Eye.
+- **Real or painted, the owner's correction (4 Nov 2026):**
+  - Everything depicted as part of the original painted artwork in CitéCréation's official photograph is **painted**.
+  - Don't assume something is real because it looks real or sounds architectural.
+  - Ambiguous objects are **FIELD CHECK REQUIRED** and stay out of scored answers until they're verified.
+  - The vents, the treble-clef sign, the plaque, and the railings and blinds are FIELD CHECK REQUIRED; the live key in `mural-task.ts` still scores the first three as real.
+  - The table is in the [market mural](../knowledge/market-mural-agrippas.md) knowledge file.
 
 **Pending owner approval:** the Market Surprise stop pool (proposed: the Market Mural and Marzipan); all point values and copy.
 
