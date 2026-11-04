@@ -1,5 +1,15 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Runs 07–09 imported into `docs/knowledge/`: 4 Nov 2026
+
+Documentation only; no code. At the owner's request, the parts of runs 07–09 that can serve a challenge are now in `docs/knowledge/`, each claim with its label and source. They are locked: add to them, change them only with the owner's approval.
+- **[The market mural](../knowledge/market-mural-agrippas.md):** what's in the mural, real or painted, why it was painted (tourism; overlooked districts, with residents), the stamp (15 NIS face value, ₪20 sheet), and the lion riddle. The owner's four reveal points are marked ★; the rest is kept for other challenges. **Never as answers:** the property-value claim (Unknown), the house number, Dan as an option, a link from the market's name to the lion, any claim about ancestry.
+- **[The Ohel Moshe gate](../knowledge/ohel-moshe-gate.md):** the inscription as transcribed, *avnei zikaron* (Ex. 28:12), Psalm 112:6, and how to say it. The spellings on the stone and the Arabic panel are Unknown until the field check.
+- **Left in the runs:** the rights contacts and questions (rights are settled later, 4 Nov), the method and the unreliable sources.
+- **New:** `docs/knowledge/README.md`, an index of the folder. Links added in the research index and the `/experience-design` sources.
+- **Not imported:** run 06 (the site verification; its copy is in `design/inputs/content/`).
+- **Next session (owner, 4 Nov):** work on the mural stop's content, **without image analysis first**. Only once the content fits do we add the photo checks. Start from [the market mural](../knowledge/market-mural-agrippas.md) and the 3 Nov mural decisions in `product-decisions.md`, through `/experience-design`.
+
 ## Research folder sorted; competitor research added: 4 Nov 2026
 
 Documentation only; no behaviour change.
@@ -17,8 +27,7 @@ Documentation only; no behaviour change.
   - the owner answers the open photo items: which checks GPT covers, which provider first, and the key and service shape (a separate verify service, as agreed on 3 Nov);
   - the owner's decisions from the competitor research (H priorities and thresholds, H-08, the playthrough budget);
   - the field checks from 3 Nov (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
-  - import the challenge-serving parts of runs 07–09 into `docs/knowledge/`;
-  - then rework the mural stop through `/experience-design`, now free to use crops and altered images (mark which still need their rights settled).
+  - then rework the mural stop through `/experience-design`, drawing on the new knowledge files, now free to use crops and altered images (mark which still need their rights settled).
 
 ## Mural rework direction, new top-level rules, runs 09 and prompt 10: 3 Nov 2026
 
