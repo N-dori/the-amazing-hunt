@@ -88,6 +88,10 @@ Comparing photos shows **presence**: whether an object was on the wall when the 
 
 The table is in the [knowledge file](../../../docs/knowledge/market-mural-agrippas.md).
 
+## 6. Correction (4 Nov 2026, run 13)
+
+The "drinks fridge" in §2 was not real. It was **painted on a utility cabinet's door**, according to the guide's account ([run 13](13_mural_fridge_boxes_people.md) §1) and the owner's 4 Nov rule. The change since the artists' photo is a cabinet door replaced by a plain one. §4's "15 stamps on the sheet" is settled: Israel Post's flyer says one stamp per sheet.
+
 ## Sources
 
 - CitéCréation, "Painted mural circuit JERUSALEM" (M3 in `docs/knowledge/market-mural-agrippas.md`), its gallery photos #5–8. Read 4 Nov 2026.

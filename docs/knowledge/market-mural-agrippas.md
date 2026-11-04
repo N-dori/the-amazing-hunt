@@ -133,6 +133,40 @@ The table "Real or painted?" above (from run 07) is kept as written. Where it di
 | The sheet shows the fish shop's arch with the keystone lion clearly visible | Historical fact (image) | M10 (product image) | The parked lion riddle: a way to see the keystone the tree now hides |
 | The shop page's "15 stamps on the sheet" doesn't match the image's one stamp | Sources differ | M10 | Never an answer |
 
+## Added 4 Nov 2026: the fridge, the painted boxes and the real people (run 13)
+
+Imported from [run 13](../../research/results/shuk-places/13_mural_fridge_boxes_people.md). Nothing earlier in this file is rewritten.
+
+**Correction:** the "drinks fridge" in CitéCréation's photo (run 12, and the "then and now" table above) was **painted on a utility cabinet's door**. It was not a real fridge. The sources are the guide's account and the owner's 4 Nov rule; this section governs.
+
+| Claim | Label | Source | Can serve |
+|---|---|---|---|
+| A drinks fridge was painted on the door of a utility cabinet beside the painted shop; today a plain cabinet stands there | Historical fact (photos compared; which cabinet is a field check) | M3 #7; owner's #104; M19 | "Something's Missing" |
+| The painters painted prices on it. The prices stayed while the market's rose; shoppers haggled with the real kiosk next door; the kiosk man had technicians swap the door for a plain one | **Attributed tradition** (the guide; no independent source) | M19 | The reveal: "The story goes…" |
+| One painted drinks fridge still remains | Attributed tradition (the guide; the transcript is garbled) | M19 | Field check before use |
+| The day after the unveiling, with the mayor, a stage and speeches, the municipality had angry calls: "Such a beautiful project, why didn't you finish?" People took the painted cartons for leftovers. The artists were delighted | **Attributed tradition** (the guide; no independent source found in Hebrew, French or English) | M19 | The Trick of the Eye's reveal; "Look closer" |
+| A painted carton is in the mural | Historical fact | M1 ("קרטון מצויר") | The find |
+| A painted note offers a used Susita car for sale, with tear-off phone tabs | Historical fact | M1 ("מודעת מכירה"); M18 | "Look closer" find |
+| At the unveiling, the municipal official in charge of the murals took the note for real: "What nerve, they've already stuck a note on the wall!" | **Attributed tradition** (another guide, Esther Saad, as published by M18) | M18 | Paired with the boxes: two tellings of one joke |
+| Some of the residents and business owners the artists met are painted in the mural | Historical fact | M1 | The AHA; "Real people on the wall" |
+| Israel Post names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son among the "images from the market" | Historical fact (that M1 names them) | M1; M18 (calls Mizrahi "the restaurateur") | Story line only. **No source places any of them; never match faces** |
+| Eli Mizrahi of the mural is probably the founder of Café Mizrahi (2002) and a former head of the merchants' association, who has since died | **Unknown** (probable; from search results only) | M21 | Not a claim until read in full |
+| The electric company's two painted workers are on the north-facing side, peeking out left of a painted juice counter | Historical fact | M18 | Where to look |
+| Israel Post's sheet holds **one** stamp (30 × 120 mm) | Historical fact | M1 (full flyer) | Settles the shop page's "15 stamps" (wrong) |
+| The building was reported as dangerous in 2020, with a dispute over repairs and a warning that the mural could be erased; the survey describes peeling and fading | Historical fact (reported; Kol Ha'ir read in search results only) | M21; M18 | A risk: check the state before each season |
+| The address | **Sources differ**: 70, 82, 84 or 88 Agripas | run 06; M18; search results | Never a question |
+
+**The AHA's closing line**, "The painting doesn't create the community's identity. It asks us to notice what was already there.", is **Interpretation (DORI's)**, not a historical quotation (owner, 4 Nov 2026).
+
+New sources:
+
+| # | Source | Kind |
+|---|---|---|
+| M18 | Smadar Barak, "מאחזים עיניים", סקר אמנות הקיר בישראל, Yad Yitzhak Ben-Zvi. https://www.wallart.org.il/מאחזים-עיניים/ (read 4 Nov 2026) | Survey (academic institute) |
+| M19 | The guide's recorded tour, Hebrew transcript, `docs/knowledge/HE_trans.txt` lines 84–92 | Oral (guide) |
+| M20 | Baruch Guian, "אמנות בירושלים: האיש שבקיר", *Masa Acher*, 25 Jan 2007 (12 French artists; 5 Israeli trainees; which wall is unconfirmed) | Press |
+| M21 | Search results only, pages not read: Mynet Jerusalem (Eli Mizrahi tribute), Israel Hayom ("קפה של תקווה"), JPost (merchants' association), Kol Ha'ir 2020 (building) | Press, unread |
+
 ## Field checks still needed
 
 These decide whether a claim above can be a question:

@@ -1,5 +1,27 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Mural v3 additions: the fridge, the boxes, the real people: 4 Nov 2026
+
+Documentation only; no code, no commit. At the owner's request, through `/experience-design`.
+- **[Run 13](../../research/results/shuk-places/13_mural_fridge_boxes_people.md):**
+  - **The transcript** (`HE_trans.txt` lines 84–92) holds two guide anecdotes:
+    - the fridge painted on a cabinet door, with prices that froze while the market's rose, and the kiosk man's door swap;
+    - the angry calls about the painted boxes the day after the unveiling.
+    - Both are uncorroborated, so both are Attributed tradition.
+  - **The Yad Ben-Zvi wall-art survey** (M18) tells the same joke about the car-for-sale note (Esther Saad).
+  - **Israel Post's flyer, read in full:** one stamp per sheet. It names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son, but no source places any of them in the mural.
+  - **The building:** reported as dangerous in 2020 (search results only).
+- **[The rework, v3](mural-rework.md):**
+  - **Something's Missing** (the fridge) replaces Then and Now.
+  - **The boxes** go into The Trick of the Eye's reveal, plus an unscored "Look closer" find with the car-for-sale note.
+  - **The real people** are an unscored story line only, never a figure to find.
+  - **The AHA's closing line** is labelled Interpretation (DORI's).
+  - The mural maximum is 270; everything takes about 16–22 min.
+- **Corrections appended** (nothing rewritten): the knowledge file (M18–M21) and run 12 now say the fridge was painted, not real.
+- **The owner decides:**
+  - whether to name the painted people;
+  - the new field checks (the cabinet, the carton's place, the note, the north side, the building's state).
+
 ## Mural rework v2 and the real-or-painted correction: 4 Nov 2026
 
 Documentation only; no code, no commit. This follows the owner's review of v1, recorded in `product-decisions.md` (4 Nov).

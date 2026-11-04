@@ -2,9 +2,140 @@
 
 **Status:** content only, awaiting the owner's approval. Nothing is built. Every visitor-facing line is a draft (`TODO(copy)`) unless it's marked as the owner's wording.
 
-This document has two versions:
-- **v2, recommended** (4 Nov 2026, after the owner's review): below.
+This document has three layers:
+- **v3 additions** (4 Nov 2026): the fridge, the boxes, the real people. They change v2 only where marked.
+- **v2, recommended** (4 Nov 2026, after the owner's review): its "Then and Now" is replaced by v3's "Something's Missing".
 - **[The author's original (v1)](#the-authors-original-v1-for-comparison)**: kept intact for comparison.
+
+## v3 additions (4 Nov 2026): the fridge, the boxes, the real people
+
+These additions build on v2 (below), which they change only where marked. Worked through `/experience-design`.
+
+**Sources:**
+- [run 13](../../research/results/shuk-places/13_mural_fridge_boxes_people.md): the guide's transcript, Israel Post's flyer read in full, and the Yad Ben-Zvi wall-art survey;
+- the knowledge file's new section (M18–M21).
+
+### Recommendations
+
+| Idea | Verdict | Why |
+|---|---|---|
+| **"Something's Missing"** (the fridge) | **Add, as an optional challenge. It replaces v2's "Then and Now"** | One clear target instead of 3 of 7: less load, less phone. It's physical (the cabinets at the corner), and it ends in the stop's best human story: painted prices that froze while the market's rose |
+| **The painted boxes** | **A story reveal and an unscored find, not a scored challenge** | The joke lands best as the payoff to being fooled. A scored "find the box" would be trivia. It goes into The Trick of the Eye's reveal, plus an unscored "Look closer" find |
+| **The car-for-sale note** | **An unscored "Look closer" find**, paired with the boxes | A good find for children; the same joke, told by a second guide (M18) |
+| **"Find the real person"** | **Not a challenge. A story line only** | No source places any named person in the mural, and faces are never matched. The documented fact that residents and merchants are in it serves the AHA |
+| How the artists represented everyday community | Carried by the AHA | — |
+
+### The stop, v3
+
+**Order:**
+- **Required:** intro → **core: Who Painted It?** → AHA.
+- **Optional, in the owner's order:**
+  - **Something's Missing** (new);
+  - The Stamp;
+  - **The Trick of the Eye** (recommended; its reveal now carries the boxes);
+  - two unscored "Look closer" cards.
+
+| Part | Status | Form, check | Difficulty | Hints | Points (provisional) | Time, min (wall / phone) |
+|---|---|---|---|---|---|---|
+| Intro + "Phones down, look up" | required | read aloud, look | — | — | — | 3 (2 / 1) |
+| Who Painted It? | core | typed, code | Easy | 1 | 100 | 2–3 (2 / 0.5) |
+| **Something's Missing** | optional | choose 1 of 4, code | Medium | 2 | 60 | 3–4 (2.5 / 1) |
+| The Stamp | optional | choose 1 of 4, code | Easy | 1 | 30 | 2–3 (1 / 1.5) |
+| The Trick of the Eye | optional, recommended | as v2 (its "real" key on hold) | Medium | 2 + 2 | 80 | 4–6 (4 / 1) |
+| Look closer: fooled on opening day | optional, **unscored** | find; the group taps "We found them" | — | — | — | 1–2 (1.5 / 0.5) |
+| Look closer: real people on the wall | optional, **unscored** | read | — | — | — | 1 (0.5 / 0.5) |
+| Why Paint a Market Here? (AHA) | required, unscored | predict, then the owner's text | — | — | — | 2 (1 / 1) |
+
+- **Duration:** the required path is unchanged, about 7–8 min. Everything takes about 16–22 min (v2: 18–24).
+- **Points:** the mural maximum is 270, still subject to the owner's per-stop cap decision.
+- **Interactions:** no step needs a resident or vendor. Solo play works throughout; every Researcher step works on one phone.
+
+### Draft copy (`TODO(copy)`)
+
+English first. The guide's sequence and humour are kept, and the hedges are in the words: "The story goes…", never "a guide tells".
+
+**Something's Missing** (Medium, 2 hints, choose 1 of 4):
+- **Prompt:**
+  > Researcher: open the artists' photo of their finished wall. Something stood at the corner then that isn't there now. What was it?
+- **Options:**
+  - ✔ a drinks fridge
+  - a falafel stand
+  - a street lamp
+  - a bicycle
+- **Hints:**
+  1. > Look at the grey cabinets at the corner.
+  2. > In the photo, it's full of bottles.
+- **Reveal** (Attributed tradition, M19; the painted fridge itself is M3 #7):
+  > The story goes that the painters put a drinks fridge on a cabinet door here, prices and all. Years passed. The painted prices stayed put; the market's prices didn't. Shoppers started haggling with the kiosk next door: "Why so expensive? Look, it says…!" So when technicians came to fix the cabinet, the kiosk owner asked them for a plain door.
+- **Gate:** which cabinet it was (field check). The fridge is painted (M19 and the owner's rule); the cabinet door's change is visible in the photos.
+
+**The Trick of the Eye**, an addition to its reveal (Attributed tradition, M19):
+> The story goes that the day after the grand unveiling, the city's phones didn't stop: "Such a beautiful wall, and you left cardboard boxes lying around?" The boxes were painted. The artists couldn't have been happier.
+
+**Look closer: fooled on opening day** (unscored; the group confirms itself):
+> Two painted things fooled grown-ups on opening day. Find the cardboard box, and a car-for-sale note with tear-off phone numbers.
+
+Then:
+> It's told that at the opening, an official spotted the note and cried, "What nerve, they've already stuck a note on the wall!"
+
+**Data:**
+- **The carton and the note:** M1, Historical fact.
+- **The official's line:** M18, Attributed tradition (the guide Esther Saad, as published by the survey). The official isn't named in copy.
+
+**Look closer: real people on the wall** (unscored, read only):
+> Some faces up there are real market people. Israel Post's stamp notes name Eli Mizrahi, "Benny Dagim", the tea man and Moti's son. Which figure is which? The records don't say.
+
+- **Facts:** M1, Historical fact (that Israel Post names them).
+- **Never:** pointing at a figure, matching faces, or adding biographies.
+- **The owner decides** whether to name anyone at all (see the conflicts).
+
+**The AHA:**
+- The owner's text, verbatim (v2).
+- **Its closing line,** "The painting doesn't create the community's identity. It asks us to notice what was already there.", is labelled **Interpretation (DORI's)**, not a historical quotation.
+- "Residents helped choose…" stays Historical fact (M1: "They wished to hear what the residents wanted to see on the wall… and acted accordingly").
+
+### The real people: what the sources support
+
+| Name in M1 | What's known | Place in the mural | Status |
+|---|---|---|---|
+| Eli Mizrahi (אלי מזרחי) | "The restaurateur" (M18). Probably the founder of Café Mizrahi (2002) and a former head of the merchants' association; said to have died (M21, search results only) | Unknown | Named; link to the café owner **probable, unverified** |
+| Benny Dagim (בני דגים) | A name in M1's English; in Hebrew it may be a nickname ("Benny of the fish") | Unknown (never assume the fish shop) | Named, **unidentified** |
+| The tea distributor (מחלק התה) | A role | Unknown | **Unidentified** |
+| Moti's son (הבן של מוטי) | A relationship | Unknown | **Unidentified** |
+| A child with a juice; a smoking Beitar Jerusalem fan | Described (M2) | Described only | Unnamed figures |
+| Two electric company workers | Painted in thanks (M1) | North-facing side, left of a juice counter (M18) | Figures, not individuals |
+
+**Leads, if the owner wants a figure placed:**
+- the historian Nirit Shalev-Khalifa (thanked in M1);
+- the survey, at Yad Ben-Zvi;
+- CitéCréation;
+- the Mizrahi family.
+
+### Guide anecdotes and their status
+
+| Story | Teller | Corroboration | Label |
+|---|---|---|---|
+| The painted fridge's prices and the door swap | Our guide (M19) | None found. The painted fridge and today's plain cabinet are visible in the photos | Attributed tradition |
+| The angry calls about the boxes the day after the unveiling | Our guide (M19) | None found in Hebrew, French or English. The carton is real (M1) | Attributed tradition |
+| The official and the car-for-sale note at the unveiling | Esther Saad, via M18 | Only the survey. The note is real (M1) | Attributed tradition |
+| Drivers can't tell the painted balconies from the real ones | M2's writers | — | Attributed tradition |
+
+### Conflicts
+
+1. **v2 and run 12 called the fridge "a real drinks fridge".** It was painted on a cabinet door (M19, the owner's rule). Corrected by appending to the knowledge file and run 12.
+2. **v2's "Never: names of the painted people"** vs the owner's new research ask. v3 names them only as Israel Post's list, never pointing at a figure. **The owner decides.** Consent is still Unknown, and one may have died.
+3. **"Never write 'A guide tells that…'"** (29 Oct): the reveals use "The story goes…" and "It's told that…".
+4. **v2's "Then and Now" is replaced** by Something's Missing. Its other changes (the tree, the fading) can go in Something's Missing's reveal, or be dropped.
+
+### New field checks
+
+1. Which cabinet carried the painted fridge, and whether a second painted fridge remains (the guide says one does).
+2. Where the painted carton is (the transcript says "here below, on the left"; #7 shows one on the ledge above the awning).
+3. Whether the car-for-sale note is still there and readable.
+4. The north side: the juice counter and the electric company's workers.
+5. The building's condition: the 2020 danger report (M21) and the peeling (M18).
+
+---
 
 ## v2: recommended (4 Nov 2026, after the owner's review)
 
@@ -34,7 +165,7 @@ An option is skipped with "Skip" and never blocks. The AHA always plays.
 |---|---|---|---|---|---|---|
 | Intro + "Phones down, look up" | required | read aloud, then look | none | none | none | 3 min (2 / 1) |
 | **Who Painted It?** | **core, required**; the stop's food tokens (D3) | typed, code | Easy | 1 | 100 | 2–3 min (2 / 0.5) |
-| Then and Now | optional | choose 3 of 7, code | Tricky | 2 | 80 | 5–7 min (3 / 3) |
+| Then and Now (*replaced in v3 by "Something's Missing"*) | optional | choose 3 of 7, code | Tricky | 2 | 80 | 5–7 min (3 / 3) |
 | The Stamp | optional | choose 1 of 4, code | Easy | 1 | 30 | 2–3 min (1 / 1.5) |
 | **The Trick of the Eye** | **optional, recommended** | choose N, then choose 1 of 4, code | Medium | 2 + 2 | 80 | 4–6 min (4 / 1) |
 | Why Paint a Market Here? (AHA) | required, unscored | predict out loud, then the reveal | none | none | none | 2 min (1 / 1) |
