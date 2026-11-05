@@ -7,6 +7,7 @@ Where the games get their useful facts from. A piece belongs here because it can
 | File | What it holds |
 |---|---|
 | [The market mural](market-mural-agrippas.md) | The Agripas St mural (CitéCréation, 2001): what's in it, real or painted, why it was painted, the stamp, the lion riddle. From runs 07–09 (4 Nov 2026); added the same day: then and now and the shop page (run 12), the fridge, the painted boxes and the real people (run 13) |
+| People of the market: [Eli Mizrahi](influational_people/DORI_Knowledge_Eli_Mizrahi_Mahane_Yehuda%281%29.md) and [Beni Dagim (Beni Rosenzweig)](influational_people/DORI_Knowledge_Beni_Dagim_Rosenzweig.md) | The owner's research files (5 Nov 2026): research only, not approved copy. Both are named in the mural; that the named men are these two is probable, not established (see the mural file's 5 Nov section) |
 | [The Ohel Moshe gate](ohel-moshe-gate.md) | The Montefiore inscription and *avnei zikaron*. From run 08 (4 Nov 2026) |
 | [Mahane Yehuda tour, English](Machane_Yehuda_Tour_EN.md) and [Hebrew](Machane_Yehuda_Tour_HE.md) | The Mahane Yehuda tour texts |
 | [`HE_trans.txt`](HE_trans.txt) | The guide's recorded Hebrew tour (stories are Attributed tradition) |

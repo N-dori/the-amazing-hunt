@@ -166,6 +166,45 @@ New sources:
 | M20 | Baruch Guian, "אמנות בירושלים: האיש שבקיר", *Masa Acher*, 25 Jan 2007 (12 French artists; 5 Israeli trainees; which wall is unconfirmed) | Press |
 | M21 | Search results only, pages not read: Mynet Jerusalem (Eli Mizrahi tribute), Israel Hayom ("קפה של תקווה"), JPost (merchants' association) | Press, unread |
 
+## Added 5 Nov 2026: the people behind the painting
+
+Added at the owner's request for the challenge "The People Behind the Painting" ([mural rework](../project/mural-rework.md), v3). It draws on M1, M18 and M20 as read for run 13, and on the owner's two people files (M22, M23). Nothing earlier in this file is rewritten; where this section is more precise, it governs.
+
+**Established:**
+
+| Claim | Label | Source | Can serve |
+|---|---|---|---|
+| Before painting, the artists met residents and business owners of the neighbourhood; the images were gathered in those meetings | Historical fact | M1; M18 | The challenge's reveal |
+| The residents helped shape the subject: the artists "wished to hear what the residents wanted to see on the wall… and acted accordingly" | Historical fact | M1 | **The AHA** (kept for it; see the rework's conflicts) |
+| Recognizable local figures are painted in it: "some of whom appear in the mural itself" (M1); "central figures who worked in the market" (M18, "דמויות מרכזיות שפעלו בשוק") | Historical fact | M1; M18 | The challenge's reveal |
+| **Eli Mizrahi** and **Beni Dagim** are named among those depicted | Historical fact | M1 ("Eli Mizrahi, Benny Dagim"); M18 ("המסעדן אלי מזרחי, בני דגים") | The challenge's reveal |
+| CitéCréation's Jerusalem work painted "typical Jerusalemites" | Historical fact **about CitéCréation's work in Jerusalem**, not this wall: M20 is from 2007, names no one, and its wall is unconfirmed | M20 | Context only; never as evidence about this wall's people |
+
+**Unverified (never stated as fact):**
+
+| Claim | Status | Why |
+|---|---|---|
+| Why each individual was chosen | **Unknown** | No source says |
+| Whether residents nominated Eli Mizrahi or Beni Dagim | **Unknown** | M1 says residents shaped the subject, not who chose the people |
+| Where each person is in the painting | **Unknown** without an annotated source | No source places any named figure. Never match faces. The owner's memory of Beni Dagim "on the corner" stays a field check (4 Nov) |
+| That the mural's "Eli Mizrahi" is the founder of Café Mizrahi (opened 2002; former chair of the merchants' committee; died 25 May 2022) | **Probable, unverified**: M18 calls him "the restaurateur", and M22 documents that founder; no source states both | **Timing:** the mural was unveiled at Hanukkah 2001 and the café opened in 2002, so "restaurateur" is a later description. Never imply the café existed when he was painted |
+| That the mural's "Beni Dagim" is Beni Rosenzweig, the Jerusalem fish trader known as "בני דגים" | **Probable, unverified** | M23 says so itself: don't identify Beni as a painted figure without an authoritative source. M23 also documents his death before June 2017 |
+| The tea distributor and Moti's son: who they were | **Unknown** | M1 names roles only |
+
+**Rules for content** (from M22 and M23):
+- No invented dialogue, biography, dates or anecdotes. The people files' stories (Café Mizrahi, the night drive to the Kishon) stay in those files until a challenge of their own is approved.
+- Don't confuse the 2023 memorial portrait of Eli Mizrahi at his old café (M22) with this 2001 mural.
+- Don't mix Beni with his brother Shraga (Chupi) Rosenzweig (M23).
+- No photographs of either man are used: their identity and rights are unverified (M22, M23).
+- **DORI's interpretation stays** (Interpretation, internal label): the mural makes an existing community identity more visible; it doesn't create it.
+
+New sources:
+
+| # | Source | Kind |
+|---|---|---|
+| M22 | The owner's people file: [Eli Mizrahi](influational_people/DORI_Knowledge_Eli_Mizrahi_Mahane_Yehuda%281%29.md) (5 Nov 2026; research dossier, not approved copy; its sources S1–S12) | Owner's research |
+| M23 | The owner's people file: [Beni Dagim (Beni Rosenzweig)](influational_people/DORI_Knowledge_Beni_Dagim_Rosenzweig.md) (5 Nov 2026; research only; its sources S1–S5) | Owner's research |
+
 ## Field checks still needed
 
 These decide whether a claim above can be a question:

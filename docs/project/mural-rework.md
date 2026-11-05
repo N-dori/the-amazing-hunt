@@ -24,6 +24,7 @@ These additions build on v2 (below), which they change only where marked. Worked
 | **The car-for-sale note** | **An unscored "Look closer" find**, paired with the boxes | A good find for children; the same joke, told by a second guide (M18) |
 | **"Find the real person"** | **Not a challenge. A story line only** | No source places any named person in the mural, and faces are never matched. The documented fact that residents and merchants are in it serves the AHA |
 | How the artists represented everyday community | Carried by the AHA | — |
+| **"The People Behind the Painting"** (5 Nov 2026, owner's request) | **Add, optional and unscored. It replaces the "Look closer: real people" card** | It asks *why* artists would paint real market people, not *who is where*, so it needs no figure placed and no face matched. The group answers from their own lives first; the reveal gives the evidence; the AHA then gives the meaning |
 
 ### The stop, v3
 
@@ -33,7 +34,8 @@ These additions build on v2 (below), which they change only where marked. Worked
   - **Something's Missing** (new);
   - The Stamp;
   - **The Trick of the Eye** (recommended; its reveal now carries the boxes);
-  - two unscored "Look closer" cards.
+  - the unscored "Look closer: fooled on opening day" card;
+  - **The People Behind the Painting** (unscored), last, just before the AHA.
 
 | Part | Status | Form, check | Difficulty | Hints | Points (provisional) | Time, min (wall / phone) |
 |---|---|---|---|---|---|---|
@@ -43,10 +45,10 @@ These additions build on v2 (below), which they change only where marked. Worked
 | The Stamp | optional | tap the spot on a photo of the wall (or choose 1 of 3), code | Easy | 1 | 30 | 2–3 (1 / 1.5) |
 | The Trick of the Eye | optional, recommended | point together, then choose N (its "real" key on hold); then choose 1 of 3 | Medium | 2 + 2 | 80 | 4–6 (4 / 1) |
 | Look closer: fooled on opening day | optional, **unscored** | find; the group taps "We found them" | — | — | — | 1–2 (1.5 / 0.5) |
-| Look closer: real people on the wall | optional, **unscored** | read | — | — | — | 1 (0.5 / 0.5) |
+| **The People Behind the Painting** (replaces "Look closer: real people") | optional, **unscored** | each says one name aloud; the group taps "We've each said one" | — | — | — | 2 (1.5 / 0.5) |
 | Why Paint a Market Here? (AHA) | required, unscored | an unscored group vote, then the owner's text | — | — | — | 2 (1 / 1) |
 
-- **Duration:** the required path is unchanged, about 7–8 min. Everything takes about 16–22 min (v2: 18–24).
+- **Duration:** the required path is unchanged, about 7–8 min. Everything takes about 17–23 min (v2: 18–24; The People Behind the Painting adds about 1 min over the card it replaces).
 - **Points:** the mural maximum is 270. **No per-stop cap** (owner, 4 Nov 2026): every optional challenge is offered, and a group that chooses to stay longer to earn every point may do so. The route is theirs. Only the required path must stay about 7–8 min.
 - **Interactions:** no step needs a resident or vendor. Solo play works throughout; every Researcher step works on one phone.
 
@@ -115,13 +117,35 @@ Then:
 - **The carton and the note:** M1, Historical fact.
 - **The official's line:** M18, Attributed tradition (the guide Esther Saad, as published by the survey). The official isn't named in copy.
 
-**Look closer: real people on the wall** (unscored, read only):
-> Some faces up there are real market people. Israel Post's stamp notes name Eli Mizrahi, "Benny Dagim", the tea man and Moti's son. Which figure is which? The records don't say.
+**The People Behind the Painting** (5 Nov 2026; optional, unscored; it replaces v3's "Look closer: real people on the wall"). Worked through `/experience-design`; facts from the knowledge file's 5 Nov section.
 
-- **Facts:** M1, Historical fact (that Israel Post names them).
-- **Naming approved** (owner, 4 Nov 2026): the names come from reliable sources.
-- **Never:** pointing at a figure, matching faces, or adding biographies.
-- **The owner remembers Benny Dagim "on the corner".** If a field check confirms where, the card can say so (`TODO(copy)`); until then, it doesn't.
+- **Why this treatment:**
+  - **The question is "why", not "who is where".** No source places a named figure, so a find-the-person task can't be built honestly; a "why" works with the evidence we have.
+  - **Discovery before explanation.** Each player first answers from their own life, then the wall answers back. A grandparent and a nine-year-old both have someone to name.
+  - **It varies the stop.** The stop already has choose-one, tap-the-spot, typed and point-together forms. This one is said aloud, with phones down.
+  - **It sets up the AHA without taking its line.** The challenge reveals *who is on the wall*; the AHA keeps *who chose* and *why it matters*.
+- **Runner-up:** a code-checked choice, "What did the artists do before painting?" (met the people who live and trade here ✔, copied old photographs, painted from imagination). It's rejected because the stop already has three choice questions, and it would check reading rather than thinking.
+- **The moment:** the group stands looking up at the painted crowd. One phone shows the prompt; someone reads it aloud.
+  - **Prompt** (`TODO(copy)`):
+    > Look at the people painted up there. If you painted your own street, who's one real person you'd put on the wall? Each of you, say one, and why.
+  - **The answer:** said aloud, unscored and never recorded. The group taps **"We've each said one"** (`TODO(copy)`). Solo: "Say one to yourself" (`TODO(copy)`).
+  - **Reveal** (`TODO(copy)`; about 50 words; a fact comes last):
+    > The artists asked something like that too. Before painting, they met the people who live and trade here, and some of those faces are on the wall. Which figure is who? No record says. But two of them are named: Eli Mizrahi, a restaurateur, and Beni Dagim.
+
+    | Line | Label | Source |
+    |---|---|---|
+    | "The artists asked something like that too" | Interpretation (a bridge; M1 says they asked what residents wanted to see) | M1 |
+    | They met the people who live and trade here; some are on the wall | Historical fact | M1; M18 |
+    | Which figure is who: no record says | Historical fact (that no source places them) | Knowledge file, 5 Nov |
+    | Eli Mizrahi, a restaurateur, and Beni Dagim are named | Historical fact | M1; M18 ("המסעדן") |
+- **Never in copy:**
+  - why each person was chosen, or that residents nominated them;
+  - where anyone is in the painting, or pointing at a figure, or matching faces;
+  - "Café Mizrahi", "the fish trader" or any biography, death or anecdote. The identities are probable, not established, and the café opened in 2002, after the mural (knowledge file, 5 Nov). The people files (M22, M23) stay research until a challenge of their own is approved.
+  - any photograph of either man.
+- **Later, only with a source:** if an annotated source places a figure, or the owner's field check confirms Beni Dagim "on the corner", a "find him" step can follow (`TODO(copy)`). If the identities are confirmed, one sourced line each can join the reveal, with the owner's approval.
+- **The tea distributor and Moti's son** (M1) are left out of the reveal to keep it short; they can return in a longer version.
+- **The DORI interpretation is unchanged:** the mural makes an existing community identity more visible; the AHA says it.
 
 **The AHA:**
 - **First, an unscored group vote** (it replaces v2's spoken prediction):
@@ -142,6 +166,8 @@ Then:
 | Moti's son (הבן של מוטי) | A relationship | Unknown | **Unidentified** |
 | A child with a juice; a smoking Beitar Jerusalem fan | Described (M2) | Described only | Unnamed figures |
 | Two electric company workers | Painted in thanks (M1) | North-facing side, left of a juice counter (M18) | Figures, not individuals |
+
+**Updated 5 Nov 2026:** the owner's people files on Eli Mizrahi and Beni Dagim (Beni Rosenzweig) are in `docs/knowledge/influational_people/`. What they settle and what stays unverified is in the [knowledge file's 5 Nov section](../knowledge/market-mural-agrippas.md#added-5-nov-2026-the-people-behind-the-painting). In short, both identities are probable but not established, and no figure is placed.
 
 **Leads, if the owner wants a figure placed:**
 - the historian Nirit Shalev-Khalifa (thanked in M1);
@@ -164,6 +190,8 @@ Then:
 2. **v2's "Never: names of the painted people" is superseded** (owner, 4 Nov 2026). They are named, because the names come from reliable sources (M1, M18). No figure is pointed at without a source or a field check.
 3. **"Never write 'A guide tells that…'"** (29 Oct): the reveals use "The story goes…" and "It's told that…".
 4. **v2's "Then and Now" is replaced** by Something's Missing. Its other changes (the tree, the fading) can go in Something's Missing's reveal, or be dropped.
+5. **The People Behind the Painting vs the AHA's vote** (5 Nov 2026). The AHA asks "Who chose what to paint here?". The People reveal says the artists met the people who live and trade here, which hints at the answer. It is kept apart: the reveal says who is *on* the wall, never who *chose*. **The owner's call:** keep both as drafted, or skip the AHA vote when the group has just played The People Behind the Painting.
+6. **"Find the real person: not a challenge" (4 Nov) still holds.** The new challenge asks why, never where.
 
 ### New field checks
 

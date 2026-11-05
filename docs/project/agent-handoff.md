@@ -1,5 +1,22 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Mural: "The People Behind the Painting" drafted; the real people recorded: 5 Nov 2026
+
+Research and content planning only; no code, no commit. At the owner's request.
+- **[Knowledge file](../knowledge/market-mural-agrippas.md#added-5-nov-2026-the-people-behind-the-painting), a new 5 Nov section:**
+  - **Established:** the artists met residents and merchants; residents shaped the subject; recognizable local figures are painted; Eli Mizrahi and Beni Dagim are named among them (M1, M18).
+  - **Unverified:** why each person was chosen, whether residents nominated them, and where anyone is in the painting.
+  - **Two findings beyond the brief:**
+    - That the named men are the Café Mizrahi founder and Beni Rosenzweig is probable, not established. Beni's own file says so.
+    - The mural (Hanukkah 2001) predates Café Mizrahi (2002), so "restaurateur" is a later description.
+  - **Masa Acher (M20)** supports the artists' method only in general: it is from 2007, names no one, and its wall is unconfirmed.
+  - The owner's people files are cited as M22 and M23, and listed in the knowledge index.
+- **[Mural rework](mural-rework.md), v3:** "The People Behind the Painting" is optional and unscored, and replaces the "Look closer: real people" card.
+  - Each player names one real person they'd paint on their own street. Then the reveal: the artists met the people here; no record says which figure is who; Eli Mizrahi and Beni Dagim are named.
+  - No biographies, places or photos.
+  - **The owner's call:** the People reveal hints at the AHA vote's answer. Keep both, or skip the vote after this challenge.
+- **Committed with this entry:** the owner's two people files in `docs/knowledge/influational_people/`, so the links work on GitHub too.
+
 ## Onboarding and roles rules recorded; admin screen ideas started: 5 Nov 2026
 
 Documentation only; no code. Supersedes the "proposed" parts of the entry below.
