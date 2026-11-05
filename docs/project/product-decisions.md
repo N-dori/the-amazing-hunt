@@ -55,6 +55,30 @@ Approved as the target design, built in increments I0–I8, each implemented, ve
 - **I4/I5 direction:** decided on 31 Oct 2026; see the next section.
 - **Still open:** the plan's gates O16 (team names are decided; part names and the other onboarding copy remain), O17 and O25 (O6 and O15 were approved on 31 Oct 2026) (how many teams one guide can lead at once) (operational and copy choices; no live data migration without separate authorisation), and O20: the 29 Oct line in the protected `.claude/agents/dori-ux-designer.md` still awaits explicit approval or revert, and that file must not be changed meanwhile.
 
+## Onboarding and roles (owner, 5 Nov 2026)
+
+Decided; not built. It builds on the 3 Nov roles rule (below, under "Rules changed"). The plan's §4, §5, I4 and I7a carry it: [multiplayer plan](multiplayer-plan.md#4-invitation-and-onboarding-flow).
+- **The count:** the host **or the guide** enters how many are playing.
+- **Team leaders:**
+  - more than 5 players: the host or guide assigns the team leaders; the host becomes a leader too if the host chooses to play;
+  - one team: the host is the team leader.
+  - Each leader assigns the roles in their own team. A solo player holds every role.
+- **Main roles:** Navigator, Submitter, **Researcher** and **Photographer**. A player can hold more than one.
+  - The Researcher has no server permission (4 Nov).
+  - **Only the Photographer submits a photo answer**, enforced by the server.
+- **Everyone else:** the mission parts Spotter, Reader and Language Explorer, **dealt per stop and rotated**. Language Explorer stays deferred (31 Oct).
+- **What a player sees:** their main roles in the **profile panel**, and a **role emblem on their own avatar** for each role held. The header's role pills stay.
+- **Replaces:**
+  - the host-only count;
+  - the host as an automatic leader of team A in a multi-team game;
+  - the Advisor default;
+  - the deferred Photographer;
+  - "nothing is chosen at join" for roles, and Claude's 5 Nov lobby-step proposal.
+- **Open:**
+  - the Photographer's vacant-seat fallback, and the typed answer through the Submitter, so the permission never blocks a group;
+  - the emblems' artwork and licence;
+  - all labels are `TODO(copy)` (O16).
+
 ## Approved: I4/I5 direction (owner, 31 Oct 2026)
 
 The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md) (D1–D9), with the owner's later corrections the same day. **I4a is approved for local development only** (built locally, not committed or deployed); the rest of I4 and all of I5 are not built, and the live well is unchanged (3 L / 5 L / 4 L jar). Details and the puzzle check are in the [multiplayer plan](multiplayer-plan.md) (I4, I5).

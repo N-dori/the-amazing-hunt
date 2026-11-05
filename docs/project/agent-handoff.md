@@ -1,5 +1,31 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Onboarding and roles rules recorded; admin screen ideas started: 5 Nov 2026
+
+Documentation only; no code. Supersedes the "proposed" parts of the entry below.
+- **The owner's rules (5 Nov), in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026) and the [multiplayer plan](multiplayer-plan.md) (§4, §5, I4, I7a):**
+  - the host or guide enters the count;
+  - over 5 players, the host or guide assigns the team leaders, and the host leads a team only if playing; with one team, the host is the leader; a solo player holds every role;
+  - the main roles: Navigator, Submitter, Researcher (no permission) and Photographer (only they submit photo answers);
+  - Advisor is removed: everyone else gets parts, dealt per stop and rotated;
+  - the profile panel shows the main roles, with a role emblem on the player's own avatar.
+- **Open:** the Photographer's fallback, the emblems' artwork, all copy (O16).
+- **New: [admin screen](admin-screen.md)**, ideas only. It answers the owner's questions about a new phone, cleared cookies and in-app browsers (each needs a new link from the CLI today). Suggested first: a rescue QR link, and "sign out other devices". Open: who gets admin rights, phone or PC, the order.
+
+## Onboarding: the plan and current state brought up to date: 5 Nov 2026
+
+Documentation only; no code, no live change. Multiplayer onboarding stays paused (1 Nov); its resume index is the 1 Nov entry below.
+- **`multiplayer-plan.md`:**
+  - the status header is current (it still said "I2 uncommitted", from 29 Oct);
+  - the owner's roles rule (3 Nov) is folded in: §4 step 6's "Nothing is chosen at join" is struck and superseded, the Researcher is in §5's table (no server permission, owner 4 Nov), and I4 lists what the rule adds;
+  - **proposed, not approved:** a role step in the leader's lobby before Start, reusing I4a's assign action; an empty role never blocks Start. Wording is `TODO(copy)` (O16).
+- **`current-state.md`:**
+  - the header was stale: live is `193873f` (the pasted sign-in link fix) since 2 Nov 14:59 UTC, not `fe1df94`;
+  - the links issued for the phone-and-PC test have expired;
+  - **disk is 89%, over the build limit**;
+  - the paused section notes the unbuilt roles rule.
+- **Unknown, ask the owner:** whether the 2 Nov phone-and-PC test ran, and its result. The live state wasn't read (a read of `/data/state.json` was refused by the permission check).
+
 ## Mural v3 drafts: the research proposals applied: 4 Nov 2026
 
 Documentation only; no commit. At the owner's request, the answer-format proposals are now in v3's drafts (`mural-rework.md`):

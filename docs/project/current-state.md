@@ -1,12 +1,12 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 2 Nov 2026 (Claude).** **Live since 2 Nov 2026, 08:20 UTC: `fe1df94`** (UX-4, on top of Phase 2 and UX-3), image `dori-shuk:20261102-082004-fe1df94`, deployed with `/deploy`, and the game was reset. Rollback: `previous` = `946b531` (Phase 2 and UX-3).
-- **The new adventure** was opened at 08:21 UTC and waits in its lobby with no members.
-- **Links:** `host-player-1.txt` and `guide.txt` in `.local/amazing-shuk/live-links/`, valid until about 3 Nov 08:21 UTC. **Join links are off.**
-- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261102T082003Z.json`, the only one.
+**Updated: 5 Nov 2026 (Claude).** **Live since 2 Nov 2026, 14:59 UTC: `193873f`** (a sign-in link pasted into an open tab now works, `link-fragment.ts`; on top of UX-4, Phase 2 and UX-3), image `dori-shuk:20261102-145812-193873f`. Rollback: `previous` = `fe1df94` (UX-4).
+- **Links:** `host-player-1.txt`, `guide.txt` and `player-2.txt` in `.local/amazing-shuk/live-links/`, issued at 14:59 UTC on 2 Nov for the phone-and-PC test. Invitations last 24 h, so **they have expired** unless used; a new set needs the owner's OK. **Join links are off.**
+- **Not recorded:** whether the phone-and-PC test ran, its result, and the live adventure's state since (not read on 5 Nov). Ask the owner.
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261102T145812Z.json`, the only one.
 - **Safety copies:** nine in `/data`, kept until the owner decides.
-- **Disk:** 85%, the build limit. Free space before the next deploy if the preflight refuses.
-- **Built, uncommitted:** a sign-in link pasted into an open tab now works (`link-fragment.ts`; the owner's PC sign-in failed without it). Next: commit, push, then `/deploy host player-1 guide player-2` for the phone-and-PC test. See the top of the [handoff](agent-handoff.md).
+- **Disk: 89% on 5 Nov, over the 85% build limit.** No build or deploy until space is freed (e.g. old images, build cache), with the owner's OK.
+- **Since 3 Nov:** content and research only (the mural rework, below); no code change.
 
 ## Progressive challenges and Market Surprise: Phase 1 LIVE, phases 2–5 planned (owner, 2 Nov 2026)
 
@@ -26,6 +26,7 @@ Content only; nothing is built, and the live mural is unchanged. The [mural rewo
 ## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
 
 The multiplayer onboarding, team setup, invitation and security workstream is paused. Its I1–I3b and I4a work is live inside `87c1877`, with **join links off**. The resume index (what's built, flags, decisions, open tests, the exact next step, I3c/I4/I7a and the Stitch and UX approvals) is the top entry of the [handoff](agent-handoff.md). Older "Next" lines below about I2–I4 are history.
+- **The owner's onboarding and roles rules (3 and 5 Nov 2026) are recorded and not built:** the host or guide enters the count and assigns team leaders; the leader assigns Navigator, Submitter, Researcher and Photographer; parts for everyone else; role emblems in the profile panel. See the [multiplayer plan](multiplayer-plan.md) (§4, §5, I4, I7a) and [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026).
 
 ## Implemented; automated verification passes
 
@@ -75,6 +76,7 @@ The multiplayer onboarding, team setup, invitation and security workstream is pa
 - Possibly compact role pills on phones narrower than 22rem.
 - Then the challenge screens (C1) and Food (E1) in the Stitch style. The approved challenge rules win over Stitch: no moves counter, contextual controls, no hint penalties on buttons. Re-export the C1 and E1 screenshots first.
 - New missions and reworks go through `/experience-design` first (owner's direction, 29 Oct 2026).
+- **Admin screen (ideas, 5 Nov 2026; not approved):** [admin screen](admin-screen.md). Today every sign-in problem (a new phone, cleared cookies, an in-app browser) needs the operator's CLI; suggested first: a rescue QR link and "sign out other devices".
 - Multiplayer plan approved (29 Oct 2026): [multiplayer plan](multiplayer-plan.md), increments I0–I8, one at a time. I0 and I1 are done, and **I1 is deployed**. The live file becomes schema 6 on its first write after the deploy and keeps an automatic `pre-schema6` copy; see the [handoff](agent-handoff.md). I2 (host invitation and lobby) is the next approved milestone; its implementation isn't authorised yet.
 - **I2 (host invitation, lobby, Start Adventure) is deployed (30 Oct 2026, 06:27 UTC, `364a4f5`) for the owner's phone test**; a new live adventure waits in its lobby (schema 6, no host, everyone signed out). Before that, committed as `dccaf95` and `a05c2a7`; the live app is unchanged. The owner corrected the model the same day: one adventure of many teams of about 5 (recommended `ceil(count / 5)`, ceiling 30 participants, provisional). I2 shows that recommendation only: groups of 1–5 start as one team, and groups of 6–30 can't start until multi-team play exists. The corrections after the owner's review are committed too (30 Oct 2026); mobile visual acceptance is still a deployment prerequisite. See the [handoff](agent-handoff.md).
 

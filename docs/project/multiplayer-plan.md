@@ -1,10 +1,11 @@
 # The Amazing Shuk: multiplayer plan (adventure, teams, invitations, roles, languages)
 
-**Status, 29 Oct 2026:**
-- Approved by the owner as the target design and roadmap.
-- **I0 and I1 are done; I1 is deployed (29 Oct 2026, `175548f`). I2 is implemented and verified locally, uncommitted, awaiting the owner's review** (authorised 29 Oct 2026; no deploy or push). Every later increment needs the owner's go-ahead at its boundary.
+**Status, 5 Nov 2026:**
+- Approved by the owner as the target design and roadmap. **The workstream is paused (owner, 1 Nov 2026)**; the resume index is the "Multiplayer onboarding: PAUSED" entry (1 Nov) in the [handoff](agent-handoff.md).
+- **Live:** I1, I2, I3a, S0-B, I3b (join links **off**) and I4a, all inside the live image since `522ecd9` (1 Nov 2026). **Not built:** I3c, the rest of I4, I5, I6, I7a and later. Every increment needs the owner's go-ahead at its boundary.
+- **Never run on real phones:** the I3b join flow (Stage 1), the Team Leader flow and I4a's role changes.
+- **The owner's onboarding and roles rules (3 and 5 Nov 2026) are recorded and not built:** the host or guide enters the count and assigns team leaders; the leader assigns the roles; the Researcher and the Photographer; parts for everyone else; role emblems in the profile panel. See §4, §5, I4 and I7a, and [product decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026).
 - **Corrected 29 Oct 2026 (owner): one adventure of many small teams of about 5**, not one or two teams. This file follows the correction; the approved rules are in [product decisions](product-decisions.md).
-- Only I1's internal model is live: players still see the single group described in [current state](current-state.md), with no visible multiplayer features yet.
 - The approved decisions are summarised in [product decisions](product-decisions.md). This file holds the increments, their checks and the open gates.
 
 Made with `/experience-design`, after reading the repository and the official Claude Code guidance on [skills](https://code.claude.com/docs/en/skills), [memory](https://code.claude.com/docs/en/memory) and [best practices](https://code.claude.com/docs/en/best-practices). Build each increment in a fresh session with this file as the spec.
@@ -72,12 +73,17 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 ## 4. Invitation and onboarding flow
 
 1. The operator issues one host link (CLI), as today.
-2. **Host:** "How many are playing?" (1–30). The app recommends the teams, `ceil(count / 5)`, split evenly (11 → 4 + 4 + 3; 30 → six of 5). No format screen, and the host never assigns every player.
+2. **Host or guide** (owner, 5 Nov 2026): "How many are playing?" (1–30). The app recommends the teams, `ceil(count / 5)`, split evenly (11 → 4 + 4 + 3; 30 → six of 5). No format screen, and the host never assigns every player.
    - **Until I7a** the recommendation is advice only: groups of 1–5 start as team A; groups of 6–30 see the recommendation but can't start (enforced by the server), with no one-team stand-in.
 3. **One team:** the host is Team A's leader. **Invite players** shows a QR, *Share link* and *Copy* (I3).
-4. **Several teams (I7a):** the host accepts the recommendation, which creates the teams, then sends each other team's leader a single-use invitation. Each leader then has their own team's link and QR. The host sees each team's name, leader, count and readiness.
+4. **Several teams (I7a):** the host or guide accepts the recommendation, which creates the teams, then **assigns the team leaders** and sends each leader a single-use invitation (owner, 5 Nov 2026). The host leads a team only if the host chooses to play. Each leader then has their own team's link and QR. The host sees each team's name, leader, count and readiness.
 5. **Player:** opens the team link → "Join Team …" → optional first name → **Ask to join** → waits → the leader taps **Let in** → the map.
-6. **Roles come in context:** a free role is shown on the Group tab; the vacant-seat fallback sits on the submit bar. An optional "swap roles?" appears on the cheer card. Nothing is chosen at join.
+6. **Roles:** ~~Roles come in context: a free role is shown on the Group tab; the vacant-seat fallback sits on the submit bar. An optional "swap roles?" appears on the cheer card. Nothing is chosen at join.~~ **Superseded by the owner's rules (3 and 5 Nov 2026):**
+   - **More than 5 players (several teams):** the host or guide assigns the team leaders. The host becomes a team leader too if the host chooses to play. Each leader assigns the roles in their own team.
+   - **One team (1–5):** the host is the team leader and assigns the roles to the players.
+   - **Solo:** the player holds every role (D12).
+   - The roles are Navigator, Submitter, Researcher and Photographer (§5). A player can hold more than one. Players choose nothing at join.
+   - The leader assigns them during onboarding, before Start. The vacant-seat fallbacks and the Group tab's Change controls still work during play. All wording is `TODO(copy)` (O16).
 7. **Leader's Group tab:** requests, and members with avatar, name, role and "active now / last seen". Readiness comes from activity, with no extra tap.
 8. **Start Adventure** (host or guide). Late arrivals use the same link.
 
@@ -95,16 +101,23 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
 
 | Role | Kind | Backend | Notes |
 |---|---|---|---|
-| Host, Team Leader, Guide | Permissions | yes | The host is Team A's leader |
+| Host, Team Leader, Guide | Permissions | yes | The host leads a team only when playing (owner, 5 Nov 2026); with one team, the host is its leader. The host or guide assigns the team leaders |
 | **Navigator** | Permanent | yes (start) | Can combine with Submitter, as today |
 | **Submitter** | Permanent | yes (submit) | New name for "answer-submitter" (approved); the UI still says the old name |
-| Advisor | Everyone's default | no | Gets parts |
+| **Researcher** | Permanent (owner, 3 Nov 2026) | **no** (owner, 4 Nov 2026: an optional responsibility, never a required permission) | Goes online from a URL the app gives (e.g. the artists' photo of the mural). Assigned by the group leader during onboarding; can combine with the other roles. Anyone can open the link, and every Researcher step works on one shared phone. Not built |
+| **Photographer** | Permanent (owner, 5 Nov 2026) | **yes (submits photo answers)** | Only the Photographer submits a photo answer, as only the Submitter submits today. Needs a vacant-seat fallback, and the typed answer (through the Submitter) stays available, so the permission never blocks a group. Depends on the photo-answer decisions of 3–4 Nov in [product decisions](product-decisions.md). Not built |
+| ~~Advisor~~ | ~~Everyone's default~~ | — | **Removed (owner, 5 Nov 2026):** the players without a main role get the mission parts below, dealt per stop and rotated |
 | Detective / Spotter | Mission part | no | Observation stops only |
 | Storyteller / Reader | Mission part, always voluntary | no | The guide or on-screen text covers it |
 | Language Explorer | Mission part + opt-in "I can read some Hebrew" flag | no | Language stops only; never required. **Deferred** until verified language content exists (owner, 31 Oct 2026) |
-| Photographer | **Deferred** | — | No photo capture or storage |
 
-Part names other than Language Explorer are draft copy (gate O16).
+The main roles are Navigator, Submitter, Researcher and Photographer; the parts are Spotter, Reader and Language Explorer (owner, 5 Nov 2026). Part names other than Language Explorer are draft copy (gate O16). (The Photographer was "Deferred: no photo capture or storage" until 5 Nov 2026.)
+
+**What a player sees (owner, 5 Nov 2026; not built):**
+- The **profile panel** (opened from the avatar) shows the player's main roles: Navigator, Submitter, Researcher, Photographer. Parts aren't shown there.
+- The player's **own avatar gets a role emblem** for each main role held (two roles, two emblems). The avatar itself stays the player's.
+- The header's role pills stay as they are.
+- The emblems are new illustration work (subjects, illustrator, licence), alongside the [team avatar set](../../design/output/team-avatar-set-2026-10-31.md); they need their own approval.
 
 **How parts work:**
 - A mission may declare parts per step.
@@ -513,6 +526,13 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
   - **Group tab:** for the leader, a **Change** disclosure under each role lists the team's members and **No one**; the current holder is marked and disabled (`buildRoleAssignees`, `PreviewRoleChoices`). The copy is draft (O16).
   - **Tests:** `leader-roles.test.ts` (teams of 1–5, no guide-only powers and no submit without the role, cross-team isolation, stale sessions, concurrent changes) and the leader render test in `role-choice.test.ts`.
   - **Left for later I4 steps:** Hand to…, the vacant-seat fallback, the cheer-card prompt and the "Submitter" label.
+  - **Status, 5 Nov 2026:** I4a is committed and live (`522ecd9`, 1 Nov 2026).
+- **Added by the owner's rules (3 and 5 Nov 2026; not built):**
+  - The leader assigns **all four main roles** (Navigator, Submitter, Researcher, Photographer) during onboarding (§4, step 6), reusing I4a's assign action. A player can hold more than one.
+  - **The Researcher** has no server permission (a label the app uses to address Researcher steps; it gates nothing).
+  - **The Photographer** has one: only the Photographer submits a photo answer. It needs a **vacant-seat fallback**, as the Submitter's, and the typed answer stays available.
+  - The role emblems on the avatar, in the profile panel (§5).
+  - Tests to add: only the Photographer submits a photo answer; a Researcher-only player can't start or submit; a solo player holds all four roles; a team with no Photographer or Researcher can still finish every mission, through the fallback and the typed path.
 - **Depends on:** I1 (I3 for leaders).
 - **Scope:**
   - **Hand to…** (a pure `handGroupRole`).
@@ -570,7 +590,8 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 - **Scope:**
   - Schema 7: a team count replaces `format`, with the same automatic pre-migration copy as I1.
   - The host accepts the recommended teams (`ceil(count / 5)`, split evenly), which creates teams B, C, … No format screen and no manual assignment of players.
-  - A single-use leader invitation per team, from the host, regenerable and revocable; team leadership transferable without changing the host.
+  - The host or guide assigns the team leaders (owner, 5 Nov 2026); the host leads a team only if the host plays.
+  - A single-use leader invitation per team, from the host or guide, regenerable and revocable; team leadership transferable without changing the host.
   - The host overview: each team's name, leader, participant count and readiness; nothing of other teams' answers, clues or unnecessary personal details.
   - Team-scoped points; food tokens pooled; a guide team switcher; the Marzipan lock per team.
   - Seat enforcement per team (O6), with 5 as the planned maximum.
