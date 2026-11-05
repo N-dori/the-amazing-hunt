@@ -7,14 +7,14 @@ type Props = {
   // The team's leader only (I4a): the members a role can go to, and the change itself (a member, or null to free the role).
   assignees?: readonly RoleAssigneeView[]; onAssign?: (role: RoleChoiceView["role"], participantId: string | null) => void;
 };
-// TODO(copy): draft wording for owner review, from the owner's direction "let them choose and the rest are advisors".
+// TODO(copy): draft wording for owner review. Advisor was removed (owner, 5 Nov 2026): the others get the stop's parts.
 // The leader's Change, "(you)", "No one" and the leader note are I4a drafts too (O16).
 /** The two roles: who holds each, and a button to take a free one or step down from your own. Everyone else advises.
  * The team's leader also gets Change on each role, to give it to any member or free it. */
 export default function PreviewRoleChoices({ choices, guide, busy, onClaim, onRelease, assignees, onAssign }: Props) {
   return <section className={styles.roles} aria-labelledby="role-choices-title">
     <h3 id="role-choices-title" className={styles.title}>Roles</h3>
-    <p className={styles.intro}>Choose who navigates and who submits the group&apos;s answers. Everyone else is an advisor.</p>
+    <p className={styles.intro}>Choose who navigates and who submits the group&apos;s answers. Everyone else helps at each stop.</p>
     {assignees && onAssign ? <p className={styles.note}>As team leader, you can change who holds each role.</p> : null}
     <ul className={styles.list}>
       {choices.map(choice => <li key={choice.role} className={styles.role}>

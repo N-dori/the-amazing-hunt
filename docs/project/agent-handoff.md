@@ -1,5 +1,22 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Onboarding and roles, first build (the casting call): built, not committed or deployed: 5 Nov 2026
+
+From the [treatment](onboarding-roles-treatment.md) and the owner's answers (recorded in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026)).
+- **Built:**
+  - **The lobby as a stepper:** Players · Who's here · Roles · Ready (solo: Players · Ready; 6–30: the groups note, no stepper). The count is sent on Continue, so the players' screens follow.
+  - **Groups:** no group count or split for 2–5; "Playing solo: you'll hold every role." for 1; "Groups: N" and "Players per group" from 6.
+  - **The casting call:** a question per role, a chip per team member (never the guide), the holder pressed; tap again to free. One player may hold both.
+  - **Start blocked** while a group of two or more has no Navigator or no Submitter: the warning offers "Set the roles" and, for the leader, "Give them to me" (assign, then Start, in order through the queue). The **server refuses** such a Start too (`ROLES_NEEDED`); solo and a team with no member yet are exempt.
+  - **The role card:** on the player's own phone when they gain a role, in the lobby and during play; never on the first read or a reload.
+  - **The branded waiting screen:** the game's name, an awning loader in the brand colours (static with reduced motion), the approved words, the host's step, the stepper and the player's own roles.
+  - **Advisor removed:** no "Your role: Advisor" and no Advisor label in the roster; the Group tab says "Everyone else helps at each stop".
+- **Files:** `adventure-lobby.ts`, `roles.ts` (`newlyHeldRoles`), `participant-identity.ts`, `participant-store.ts`, `welcome-copy.ts`; new `PreviewLobbyStepper`, `PreviewLobbyRoles`, `PreviewLobbyWaiting`, `PreviewStartBlocked`, `PreviewRoleCard`, `IndexRoleCard`; `IndexAdventureLobby`, `PreviewAdventureLobby` and `IndexWaterTask` changed. The test fixture `startWithRoles` (`seat-fixture.ts`) gives and frees the roles around Start for tests that aren't about roles.
+- **Copy drafts (`TODO(copy)`, O16), all in `LOBBY_COPY`:** the stepper's states; "Who's here?", "N of M here" and its help; "Who does what?", its lead, the two questions, "No one yet"; the solo and groups lines; the warning's title, text and buttons; the waiting lines; the two role cards and "Got it"; `ROLES_NEEDED`; "Everyone else helps at each stop".
+- **Checks:** `test:shuk` 308/308 (new `lobby-onboarding-ui.test.ts`; lobby, roles and store tests extended); `npm test` 63/63; ESLint on `lib/amazing-shuk` and `components/amazing-shuk` clean; `tsc` passes; the new Sass modules compile; `/game-verify shuk` healthy, 8/8 routes, invite link shape OK, 46 MiB; `git diff --check` clean. **Not checked in a browser.**
+- **`shuk-dev` is broken:** its `node_modules` volume is empty, so the dev page returns 500. Restarting it (it runs `npm ci`) needs the owner's OK; the two-device check on the dev page waits for that, or for a deploy.
+- **Next (second build):** Researcher and Photographer (always shown), the emblems, and read-only picks for non-Submitters.
+
 ## Deployed `15cc9db`; the owner's phone-and-PC test, in progress: 5 Nov 2026
 
 - **Deployed** with `/deploy`: live `dori-shuk:20261105-211524-15cc9db`, rollback `193873f`. Backup: `live-state-before-deploy-20261105T211500Z.json`. A fresh adventure; links `host-player-1.txt`, `guide.txt` and `player-2.txt` (written at the owner's request) in `.local/amazing-shuk/live-links/`, valid about 24 h. Join links off. Eleven safety copies in `/data`.

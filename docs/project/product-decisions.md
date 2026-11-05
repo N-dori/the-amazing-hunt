@@ -78,6 +78,11 @@ Decided; not built. It builds on the 3 Nov roles rule (below, under "Rules chang
   - the Photographer's vacant-seat fallback, and the typed answer through the Submitter, so the permission never blocks a group;
   - the emblems' artwork and licence;
   - all labels are `TODO(copy)` (O16).
+- **The onboarding treatment's answers (owner, 5 Nov 2026)**, on [the treatment](onboarding-roles-treatment.md):
+  - **The casting call:** the lobby is a stepper (Players · Who's here · Roles · Ready); each role is a question read out to the group; the leader taps the person chosen; a role card lands on that person's phone.
+  - **Start is blocked while the Navigator or the Submitter is empty** (a group of two or more). A warning offers two ways on: set the roles (one player may hold several), or give the missing ones to the group leader. The server refuses such a Start too.
+  - **The Photographer is always shown** in the roles step, once it is built.
+  - **First build:** the lobby and Navigator and Submitter; Researcher, Photographer and the emblems come in a second build.
 
 ## Approved: I4/I5 direction (owner, 31 Oct 2026)
 

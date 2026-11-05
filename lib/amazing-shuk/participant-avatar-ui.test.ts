@@ -70,7 +70,10 @@ test("the profile's identity shows who is signed in and their role, not the grou
   }));
   assert.match(html, /Signed in as/);
   assert.match(html, /<strong>Bea<\/strong>/);
-  assert.match(html, /Your role: Advisor/);
+  // No main role, no role line: Advisor was removed (owner, 5 Nov 2026).
+  assert.doesNotMatch(html, /Your role|Advisor/);
+  const navigator = renderToStaticMarkup(createElement(List, { participants: [{ id: "a", name: "Ari" }], currentId: "a", currentRole: "navigator", roles: { navigator: "a", answerSubmitter: null } }));
+  assert.match(navigator, /Your role: (<!-- -->)?Navigator/);
   // The group sheet and the Group tab hold the roles; the profile repeats none of them.
   assert.doesNotMatch(html.replace(/ src="[^"]*"/g, ""), /Ari|Navigator|Answer-submitter|<li>/);
   assert.equal((html.match(/src="data:image\/svg/g) ?? []).length, 1);
@@ -101,7 +104,7 @@ test("profile menu shows only the avatar until opened; the open panel holds iden
   const Open = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx", openReact);
   const open = text(createElement(Open, props));
   assert.match(open, /aria-expanded="true"/); assert.match(open, /aria-label="Close profile"/);
-  assert.match(open, /Signed in as/); assert.match(open, /Your role: Advisor/); assert.doesNotMatch(open, /follower/); assert.match(open, /Sign out/);
+  assert.match(open, /Signed in as/); assert.doesNotMatch(open, /Your role|Advisor|follower/); assert.match(open, /Sign out/);
   assert.doesNotMatch(open, /: free|Group tab/);
 });
 
@@ -135,7 +138,8 @@ test("Group tab lists everyone with roles and marks you; progress and balance co
   // Three people in the roster (after the two roles); players without a role are advisors.
   const roster = html.slice(html.indexOf('aria-label="Participants"'));
   assert.equal((roster.match(/<li/g) ?? []).length, 3);
-  assert.match(roster, /<strong>Cal<\/strong><span>Advisor<\/span>/);
+  // No main role, no label: Advisor was removed (owner, 5 Nov 2026).
+  assert.match(roster, /<strong>Cal<\/strong><\/div>/); assert.doesNotMatch(roster, /Advisor/);
   assert.doesNotMatch(html, /Sign out|<select/);
 });
 

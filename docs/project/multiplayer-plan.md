@@ -84,6 +84,7 @@ Parts ── per team, per mission: { partId → participantId[] } (UI only)
    - **Solo:** the player holds every role (D12).
    - The roles are Navigator, Submitter, Researcher and Photographer (§5). A player can hold more than one. Players choose nothing at join.
    - The leader assigns them during onboarding, before Start. The vacant-seat fallbacks and the Group tab's Change controls still work during play. All wording is `TODO(copy)` (O16).
+   - **The casting call (owner, 5 Nov 2026; first build done for Navigator and Submitter, not deployed):** the lobby's stepper (Players · Who's here · Roles · Ready; solo: Players · Ready), one question per role, the role card on the chosen player's phone, and the players' waiting screen following the host's step. **Start is refused while a group of two or more has no Navigator or no Submitter**; the warning offers "Set the roles" or, for the leader, "Give them to me". See the [treatment](onboarding-roles-treatment.md).
 7. **Leader's Group tab:** requests, and members with avatar, name, role and "active now / last seen". Readiness comes from activity, with no extra tap.
 8. **Start Adventure** (host or guide). Late arrivals use the same link.
 

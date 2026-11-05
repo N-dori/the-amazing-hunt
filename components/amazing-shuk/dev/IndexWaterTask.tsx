@@ -13,6 +13,7 @@ import PreviewFoodRewards from "@/components/amazing-shuk/PreviewFoodRewards";
 import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
 import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
 import IndexAdventureLobby from "@/components/amazing-shuk/IndexAdventureLobby";
+import IndexRoleCard from "@/components/amazing-shuk/IndexRoleCard";
 import IndexTeamJoin from "@/components/amazing-shuk/IndexTeamJoin";
 import IndexTeamMembers from "@/components/amazing-shuk/IndexTeamMembers";
 import { JOIN_ERROR, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY, type MembershipView } from "@/lib/amazing-shuk/team-membership";
@@ -372,7 +373,10 @@ export default function IndexWaterTask({ mode }: Props) {
   if (!view) return <main className={styles.page}><p role="status">{message}</p></main>;
   // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.
   if (view.adventure?.status === "lobby") return <main className={`${styles.page} ${styles.lobbyPage}`}>
-    <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} busy={busy} message={message} onAction={act} />
+    <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} participants={view.participants ?? []} roles={view.session.roles}
+      currentId={view.session.activeActorId} busy={busy} message={message} onAction={act} />
+    {/* The role card (owner, 5 Nov 2026): this phone's player has just been given a role. */}
+    <IndexRoleCard roles={view.session.roles} currentId={view.session.activeActorId} />
     {/* Players can join while the group waits in the lobby. */}
     {view.membership ? <IndexTeamMembers membership={view.membership} participants={view.participants ?? PARTICIPANT_IDENTITIES}
       {...(view.solo ? { title: TEAM_MEMBERS_COPY.titleSolo } : {})}
@@ -395,6 +399,8 @@ export default function IndexWaterTask({ mode }: Props) {
     : journeyStage === "location" && !finaleLocked(openDefinition, view.missions) ? destinationTitle(openDefinition.name) : openDefinition.name;
   return (
     <main className={styles.page} ref={pageRef}>
+      {/* A role given during play (the Group tab's Change) gets the same card as in the lobby. */}
+      <IndexRoleCard roles={view.session.roles} currentId={view.session.activeActorId} />
       <PreviewShukHeader ref={headerRef} title={headerTitle}
         group={<IndexGroupSheet participants={participants} roles={view.session.roles} currentId={view.session.activeActorId} solo={solo}
           missions={view.missions} balance={view.sharedBalance} onOpenGroupTab={() => navigate(goToTab(nav, "group"))} />}

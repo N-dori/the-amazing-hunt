@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { issueHostInvitation, issueInvitation, redeemInvitation, ROLE_CHANGE_REFUSED, sessionAction, sessionView, startNewAdventure } from "./participant-store.ts";
+import { issueHostInvitation, issueInvitation, redeemInvitation, ROLE_CHANGE_REFUSED, ROLES_NEEDED, sessionAction, sessionView, startNewAdventure } from "./participant-store.ts";
 import { roleForParticipant } from "./roles.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 
@@ -36,11 +36,14 @@ async function team(path: string, size: number, lobby = false) {
   const players: string[] = [];
   for (let seat = 2; seat <= size; seat++) players.push(await signIn(path, `player-${seat}`));
   const guide = await signIn(path, "guide");
+  const ids = [await idOf(path, leader), ...await Promise.all(players.map(token => idOf(path, token)))];
   if (!lobby) {
     await sessionAction(path, leader, { type: "set-intended-count", count: size }, key("count"), NOW);
+    // A group starts only with a Navigator and a Submitter (owner, 5 Nov 2026); these tests then change them as they need.
+    if (size > 1) { await assign(path, leader, "navigator", ids[0]); await assign(path, leader, "answerSubmitter", ids[0]); }
     await sessionAction(path, leader, { type: "start-adventure" }, key("start"), NOW);
+    if (size > 1) { await assign(path, leader, "navigator", null); await assign(path, leader, "answerSubmitter", null); }
   }
-  const ids = [await idOf(path, leader), ...await Promise.all(players.map(token => idOf(path, token)))];
   return { leader, players, guide, ids };
 }
 
@@ -148,3 +151,37 @@ test("concurrent changes: simultaneous leader, guide and player actions apply on
   assert.equal(roles.answerSubmitter, ids[4]);
   assert.ok(Object.hasOwn((await stored(path)).participants, roles.navigator ?? ids[0]));
 }));
+
+test("a group of 2 to 5 starts only with a Navigator and a Submitter; solo starts without; the leader can take both and start", async () => {
+  const rolesNeeded = (error: Error) => error.message === ROLES_NEEDED;
+  const start = (path: string, token: string) => sessionAction(path, token, { type: "start-adventure" }, key("start"), NOW);
+  for (let size = 2; size <= 5; size++) await fixture(async path => {
+    const { leader, players, guide, ids } = await team(path, size, true);
+    await sessionAction(path, leader, { type: "set-intended-count", count: size }, key("count"), NOW);
+    await assert.rejects(start(path, leader), rolesNeeded, `size ${size}: none set`);
+    await assert.rejects(start(path, guide), rolesNeeded, `size ${size}: the guide too`);
+    // The leader gives the Navigator in the lobby; the Submitter is still missing.
+    await assign(path, leader, "navigator", ids[size - 1]);
+    await assert.rejects(start(path, leader), rolesNeeded, `size ${size}: no Submitter`);
+    // A player who isn't the leader can't give roles in the lobby either.
+    await assert.rejects(assign(path, players[0], "answerSubmitter", ids[1]), notLeader);
+    // "Give them to me": the leader takes the missing role, then starts.
+    await assign(path, leader, "answerSubmitter", ids[0]);
+    assert.match(await start(path, leader), /started/);
+    assert.equal((await sessionView(path, leader, NOW)).adventure.status, "active");
+  });
+  // One player may hold both.
+  await fixture(async path => {
+    const { leader, ids } = await team(path, 3, true);
+    await sessionAction(path, leader, { type: "set-intended-count", count: 3 }, key("count"), NOW);
+    await assign(path, leader, "navigator", ids[1]);
+    await assign(path, leader, "answerSubmitter", ids[1]);
+    assert.match(await start(path, leader), /started/);
+  });
+  // Solo holds both without anyone choosing.
+  await fixture(async path => {
+    const { leader } = await team(path, 1, true);
+    await sessionAction(path, leader, { type: "set-intended-count", count: 1 }, key("count"), NOW);
+    assert.match(await start(path, leader), /started/);
+  });
+});

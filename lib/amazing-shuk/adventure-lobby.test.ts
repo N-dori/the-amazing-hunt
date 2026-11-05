@@ -2,12 +2,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, readdir, stat, writeFile, rm } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
-import { buildLobbyView, lobbyStep, recommendedTeamCount, recommendedTeamSizes, stepCount, type AdventureView } from "./adventure-lobby.ts";
+import { buildLobbyView, groupSummary, LOBBY_STAGES, lobbyStep, recommendedTeamCount, recommendedTeamSizes, requiredRolesMissing, stepCount, stepperStates, waitingStage, type AdventureView } from "./adventure-lobby.ts";
 import { parseAction } from "./parse-water-action.ts";
 import { issueHostInvitation, issueInvitation, redeemInvitation, sessionAction, sessionView, setParticipantName, startNewAdventure } from "./participant-store.ts";
 import { schema5Snapshot } from "./legacy-store-fixture.ts";
 import { LOBBY_COPY } from "./welcome-copy.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
+import { startWithRoles } from "./seat-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 const NOW = Date.UTC(2026, 9, 29, 22, 0, 0);
 const forbidden = (error: Error & { status?: number }) => error.status === 403;
@@ -58,27 +59,57 @@ test("the lobby view recommends teams without claiming them: 1 to 5 can start, 6
   assert.deepEqual([buildLobbyView(player, 4).canStart, buildLobbyView(player, 4).canIncrease, buildLobbyView(player, 4).canDecrease], [false, false, false]);
   assert.equal(buildLobbyView({ ...host, status: "active" }, 4).canStart, false);
   assert.deepEqual([stepCount(null, 1), stepCount(null, -1), stepCount(1, -1), stepCount(30, 1), stepCount(6, 1)], [1, 1, 1, 30, 7]);
-  // The draft wording names a recommendation, and says plainly that one team plays for now.
-  // The approved wording, filled from the actual count.
+  // Groups are named only from 6 up (owner's note, 5 Nov 2026), filled from the actual count.
   const eleven = buildLobbyView(host, 11).recommendation!;
-  assert.equal(LOBBY_COPY.recommendedTeams(eleven.teams), "Recommended teams: 3");
-  assert.equal(LOBBY_COPY.suggestedSplit(eleven.sizes), "Suggested split: 4 + 4 + 3");
-  const thirty = buildLobbyView(host, 30).recommendation!;
-  assert.deepEqual([LOBBY_COPY.recommendedTeams(thirty.teams), LOBBY_COPY.suggestedSplit(thirty.sizes)], ["Recommended teams: 6", "Suggested split: 5 + 5 + 5 + 5 + 5 + 5"]);
-  assert.deepEqual([LOBBY_COPY.recommendedTeams(1), LOBBY_COPY.suggestedSplit(buildLobbyView(host, 4).recommendation!.sizes)], ["Recommended teams: 1", "Suggested split: 4"]);
+  assert.equal(LOBBY_COPY.groups(eleven.teams), "Groups: 3");
+  assert.equal(LOBBY_COPY.groupSizes(eleven.sizes), "Players per group: 4 + 4 + 3");
   assert.match(LOBBY_COPY.needsTeams, /coming soon/);
 });
 
-test("the lobby shows one step at a time: the count, then Ready to Start for 1 to 5 or the teams recommendation for 6 to 30", () => {
+test("the lobby's steps: the count, then who's here, roles and Ready for 2 to 5; straight to Ready solo; the teams note for 6 to 30", () => {
   const host: AdventureView = { status: "lobby", intendedCount: null, host: true, leader: true, canManage: true };
-  // Continue without a count stays on the count.
-  assert.deepEqual([lobbyStep(buildLobbyView(host, null), false), lobbyStep(buildLobbyView(host, null), true)], ["count", "count"]);
-  for (const count of [1, 5]) assert.deepEqual([lobbyStep(buildLobbyView(host, count), false), lobbyStep(buildLobbyView(host, count), true)], ["count", "ready"], `count ${count}`);
-  for (const count of [6, 11, 30]) assert.equal(lobbyStep(buildLobbyView(host, count), true), "teams", `count ${count}`);
+  // Without a count, every step stays on the count.
+  for (const stage of LOBBY_STAGES) assert.equal(lobbyStep(buildLobbyView(host, null), stage), "count");
+  for (const count of [2, 5]) assert.deepEqual(LOBBY_STAGES.map(stage => lobbyStep(buildLobbyView(host, count), stage)), ["count", "here", "roles", "ready"], `count ${count}`);
+  assert.deepEqual(LOBBY_STAGES.map(stage => lobbyStep(buildLobbyView(host, 1), stage)), ["count", "ready", "ready", "ready"], "solo");
+  for (const count of [6, 11, 30]) assert.equal(lobbyStep(buildLobbyView(host, count), "here"), "teams", `count ${count}`);
   // Only the step that can start offers Start: the teams step never can.
   for (const count of [6, 11, 30]) assert.equal(buildLobbyView(host, count).canStart, false);
   const player = { ...host, host: false, leader: false, canManage: false };
-  assert.deepEqual([lobbyStep(buildLobbyView(player, null), false), lobbyStep(buildLobbyView(player, 4), true)], ["waiting", "waiting"]);
+  assert.deepEqual([lobbyStep(buildLobbyView(player, null), "count"), lobbyStep(buildLobbyView(player, 4), "ready")], ["waiting", "waiting"]);
+});
+
+test("the stepper: Players, Who's here, Roles, Ready for a group; Players and Ready solo; done, current and to come", () => {
+  assert.deepEqual(stepperStates("roles", false), [
+    { stage: "count", status: "done" }, { stage: "here", status: "done" }, { stage: "roles", status: "current" }, { stage: "ready", status: "todo" }]);
+  assert.deepEqual(stepperStates("count", false).map(state => state.status), ["current", "todo", "todo", "todo"]);
+  assert.deepEqual(stepperStates("ready", true), [{ stage: "count", status: "done" }, { stage: "ready", status: "current" }]);
+  assert.deepEqual(Object.values(LOBBY_COPY.stages), ["Players", "Who's here", "Roles", "Ready"]);
+});
+
+test("one group shows no group count and no split; solo says so; 6 and more name the groups (owner's note, 5 Nov 2026)", () => {
+  assert.equal(groupSummary(null), null);
+  assert.deepEqual(groupSummary(1), { kind: "solo" });
+  for (const count of [2, 3, 4, 5]) assert.equal(groupSummary(count), null, `count ${count}`);
+  assert.deepEqual(groupSummary(6), { kind: "groups", groups: 2, sizes: [3, 3] });
+  assert.deepEqual(groupSummary(11), { kind: "groups", groups: 3, sizes: [4, 4, 3] });
+  assert.deepEqual(groupSummary(30), { kind: "groups", groups: 6, sizes: [5, 5, 5, 5, 5, 5] });
+});
+
+test("Navigator and Submitter are required to start a group; solo needs none; the waiting screen follows the host", () => {
+  const none = { navigator: null, answerSubmitter: null };
+  assert.deepEqual(requiredRolesMissing(none, ["player-1", "player-2"]), ["navigator", "answerSubmitter"]);
+  assert.deepEqual(requiredRolesMissing({ navigator: "player-1", answerSubmitter: null }, ["player-1", "player-2"]), ["answerSubmitter"]);
+  // One player may hold both.
+  assert.deepEqual(requiredRolesMissing({ navigator: "player-2", answerSubmitter: "player-2" }, ["player-1", "player-2"]), []);
+  assert.deepEqual(requiredRolesMissing(none, ["player-1"]), []);
+  assert.deepEqual(requiredRolesMissing(none, []), [], "no one signed in yet: no one to give them to");
+  assert.equal(waitingStage({ intendedCount: null }, none, ["player-1", "player-2"]), "count");
+  assert.equal(waitingStage({ intendedCount: 3 }, none, ["player-1", "player-2"]), "roles");
+  assert.equal(waitingStage({ intendedCount: 3 }, { navigator: "player-1", answerSubmitter: "player-2" }, ["player-1", "player-2"]), "ready");
+  assert.deepEqual([LOBBY_COPY.blockedText(["Navigator"]), LOBBY_COPY.blockedText(["Navigator", "Submitter"])],
+    ["No one is the Navigator yet. Every group needs both before the start. One person can hold both.",
+      "No one is the Navigator or the Submitter yet. Every group needs both before the start. One person can hold both."]);
 });
 
 test("lobby actions parse only with a whole count", () => {
@@ -129,7 +160,7 @@ test("a host invitation issued for one lobby can't be redeemed once the lobby ha
   await assert.rejects(redeemInvitation(path, first, NOW), unauthorised);
   const guide = await redeemInvitation(path, await issueInvitation(path, "guide", NOW), NOW);
   await sessionAction(path, guide, { type: "set-intended-count", count: 3 }, "guide-count-before-host", NOW);
-  await sessionAction(path, guide, { type: "start-adventure" }, "guide-start-before-host", NOW);
+  await startWithRoles(path, guide, "guide-start-before-host", NOW);
   await assert.rejects(redeemInvitation(path, second, NOW), unauthorised);
   assert.equal(JSON.parse(await readFile(path, "utf8")).adventure.hostId, null);
 }));
@@ -146,7 +177,7 @@ test("only the host or the guide sets the count and starts; Start needs a count 
   await assert.rejects(sessionAction(path, host, { type: "start-adventure" }, "host-start-nine-plain-1", NOW), /needs multiple teams/);
   assert.equal((await sessionView(path, player, NOW)).adventure.status, "lobby");
   await sessionAction(path, host, { type: "set-intended-count", count: 5 }, "host-count-five-00001", NOW);
-  assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-adventure-1", NOW), "The adventure has started!");
+  assert.equal(await startWithRoles(path, host, "host-start-adventure-1", NOW), "The adventure has started!");
   assert.equal((await sessionView(path, player, NOW)).adventure.status, "active");
   // A second Start (the guide's, queued at the same time) changes nothing; the count is fixed once play begins.
   assert.equal(await sessionAction(path, guide, { type: "start-adventure" }, "guide-start-adventure-2", NOW), "The adventure has already started.");
@@ -157,7 +188,7 @@ test("only the host or the guide sets the count and starts; Start needs a count 
 test("being host and leader grants no guide-only permission", () => fixture(async path => {
   const { host, guide } = await lobbyWithHost(path);
   await sessionAction(path, host, { type: "set-intended-count", count: 3 }, "host-count-three-0001", NOW);
-  await sessionAction(path, host, { type: "start-adventure" }, "host-start-adventure-3", NOW);
+  await startWithRoles(path, host, "host-start-adventure-3", NOW);
   await assert.rejects(sessionAction(path, host, { type: "confirm-arrival", missionId: WELL }, "host-confirm-arrival-1", NOW), /Only the guide/);
   // Changing roles is the leader's too since I4a (owner, 31 Oct 2026); role-choice.test.ts covers it.
   await assert.rejects(sessionAction(path, host, { type: "timing", operation: "pause", missionId: WELL }, "host-timing-pause-0001", NOW), /Only the guide/);
@@ -182,7 +213,7 @@ test("nothing on the journey counts in the lobby, for anyone; roles may be settl
   await sessionAction(path, guide, { type: "assign-role", role: "answerSubmitter", participantId: await idOf(path, host) }, "lobby-assign-submitter", NOW);
   await assert.rejects(sessionAction(path, player, { type: "start", missionId: WELL }, "lobby-navigator-start-1", NOW), refused);
   await sessionAction(path, host, { type: "set-intended-count", count: 2 }, "lobby-host-count-two-1", NOW);
-  await sessionAction(path, host, { type: "start-adventure" }, "lobby-host-start-00001", NOW);
+  await startWithRoles(path, host, "lobby-host-start-00001", NOW);
   await sessionAction(path, player, { type: "start", missionId: WELL }, "after-start-navigator-1", NOW);
   const view = await sessionView(path, player, NOW);
   assert.equal(view.performance.started, true);
@@ -249,7 +280,7 @@ test("6 to 30 can't start, even with an \"as one team\" flag; 5 or fewer can, an
   }
   assert.equal(JSON.parse(await readFile(path, "utf8")).adventure.status, "lobby");
   await sessionAction(path, host, { type: "set-intended-count", count: 5 }, "host-count-back-to-five", NOW);
-  assert.equal(await sessionAction(path, host, { type: "start-adventure" }, "host-start-five-0000001", NOW), "The adventure has started!");
+  assert.equal(await startWithRoles(path, host, "host-start-five-0000001", NOW), "The adventure has started!");
   const db = JSON.parse(await readFile(path, "utf8"));
   assert.deepEqual(db.adventure, { status: "active", format: "together", hostId: await idOf(path, host), intendedCount: 5 });
   assert.deepEqual(Object.keys(db.teams), ["A"]);
@@ -288,7 +319,7 @@ test("host rights belong to the host invitation's session: other sessions of the
   const unused = await issueHostInvitation(path, "player-1", NOW);
   await assert.rejects(redeemInvitation(path, unused, NOW + 86_400_000), unauthorised);
   await sessionAction(path, third, { type: "set-intended-count", count: 4 }, "host-third-count-00001", NOW);
-  await sessionAction(path, third, { type: "start-adventure" }, "host-third-start-00001", NOW);
+  await startWithRoles(path, third, "host-third-start-00001", NOW);
   await assert.rejects(issueHostInvitation(path, "player-1", NOW), conflict);
   await assert.rejects(redeemInvitation(path, unused, NOW), unauthorised);
 }));

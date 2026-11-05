@@ -15,3 +15,16 @@ export async function classicRoles(path: string, tokens: Readonly<Record<string,
   await sessionAction(path, tokens.guide, { type: "assign-role", role: "answerSubmitter", participantId: ids["player-2"] }, "fixture-classic-submitter", now);
   return ids;
 }
+
+/** Test fixture: Start Adventure for a test that isn't about roles. A group of two or more starts only with a Navigator and a Submitter
+ * (owner, 5 Nov 2026), so any empty one goes to the first member just before Start and is freed again just after: the test keeps the
+ * roles it had. `token` is the host's or the guide's session; the start's own message comes back. */
+export async function startWithRoles(path: string, token: string, actionId: string, now = Date.now()): Promise<string> {
+  const view = await sessionView(path, token, now);
+  const [first] = (view.participants ?? []).map(participant => participant.id);
+  const missing = (view.participants ?? []).length > 1 ? (["navigator", "answerSubmitter"] as const).filter(role => view.session.roles[role] === null) : [];
+  for (const role of missing) await sessionAction(path, token, { type: "assign-role", role, participantId: first }, `${actionId}-give-${role}`, now);
+  const message = await sessionAction(path, token, { type: "start-adventure" }, actionId, now);
+  for (const role of missing) await sessionAction(path, token, { type: "assign-role", role, participantId: null }, `${actionId}-free-${role}`, now);
+  return message;
+}

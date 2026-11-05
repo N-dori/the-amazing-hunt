@@ -10,7 +10,7 @@ import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, typ
 import { claimGroupRole, effectiveRoles, isSoloTeam, mayReveal, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { soloLine } from "./solo-copy.ts";
 import { basename, dirname, resolve } from "node:path";
-import { LOBBY_COUNT, recommendedTeamCount } from "./adventure-lobby.ts";
+import { LOBBY_COUNT, recommendedTeamCount, requiredRolesMissing } from "./adventure-lobby.ts";
 import { JOIN_ERROR, TEAM_JOIN_COPY, type JoinErrorCode } from "./team-membership.ts";
 import { applyDevWaterAction, DEV_GUIDE_ID, DEV_PARTICIPANTS, type DevWaterSession } from "./dev-water-session.ts";
 
@@ -95,6 +95,8 @@ const SELF_ARRIVAL_GROUP = "Arrival confirmed. You've made it!";
 const ARRIVAL_ALREADY = "Arrival already recorded.";
 /** A player who isn't the team's leader (or the guide) tries to change someone's role. TODO(copy): draft (O16). */
 export const ROLE_CHANGE_REFUSED = "Only your team's leader or the guide can change roles.";
+// TODO(copy): draft (onboarding and roles, 5 Nov 2026).
+export const ROLES_NEEDED = "Choose a Navigator and a Submitter before you start.";
 /** Development only: an action a phone queued before a development reset. Never shown live, where no reset epoch is ever set. */
 export const DEV_RESET_STALE = "This action was made before a development reset, so it was dropped.";
 /** A refusal with its HTTP status; `code` is a stable reason the app can act on (I3b join refusals only). */
@@ -713,6 +715,9 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           if (db.adventure.intendedCount === null) throw new Error("First, tell us how many are playing.");
           // A count that needs more than one team can't start until teams can be created (I7a): no one-team stand-in.
           if (recommendedTeamCount(db.adventure.intendedCount) > 1) throw new Error("Your adventure needs multiple teams. For now, adventures can start with up to five players.");
+          // A group of two or more starts only with a Navigator and a Submitter (owner, 5 Nov 2026): the phone offers to set them or to
+          // give them to the leader first. A solo player holds both, so nothing is missing.
+          if (requiredRolesMissing(roles, ids).length) throw new Error(ROLES_NEEDED);
           db.adventure = { ...db.adventure, status: "active" };
           message = "The adventure has started!";
         }

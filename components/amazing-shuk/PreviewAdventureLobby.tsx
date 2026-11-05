@@ -1,29 +1,30 @@
 import type { Ref } from "react";
 import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
-import type { LobbyStep, LobbyView } from "@/lib/amazing-shuk/adventure-lobby";
+import type { GroupSummary, LobbyStep, LobbyView, StepperState } from "@/lib/amazing-shuk/adventure-lobby";
+import type { LobbyRoleRowView } from "@/lib/amazing-shuk/participant-identity";
+import type { AssignableGroupRole } from "@/lib/amazing-shuk/roles";
 import type { LobbyCopy } from "@/lib/amazing-shuk/welcome-copy";
+import ParticipantAvatar from "./ParticipantAvatar";
+import PreviewLobbyRoles from "./PreviewLobbyRoles";
+import PreviewLobbyStepper from "./PreviewLobbyStepper";
 import styles from "./PreviewAdventureLobby.module.scss";
 
-type Props = { copy: LobbyCopy; lobby: LobbyView; step: LobbyStep; lead: string | null; busy: boolean; message: string; headingRef: Ref<HTMLHeadingElement>;
-  onStep: (delta: -1 | 1) => void; onContinue: () => void; onChangeCount: () => void; onStart: () => void };
-/** The lobby, one purpose per screen: the host's count, then Ready to Start (one team) or the teams recommendation (not startable yet).
- * Players without lobby powers see the waiting state only. */
-export default function PreviewAdventureLobby({ copy, lobby, step, lead, busy, message, headingRef, onStep, onContinue, onChangeCount, onStart }: Props) {
-  if (step === "waiting") return <section className={styles.lobby} aria-labelledby="lobby-title">
-    <p className={styles.eyebrow}>{copy.eyebrow}</p>
-    <div className={styles.waiting} role="status">
-      <span className={styles.waitingBadge}><Icon name="team" className={styles.waitingIcon} /></span>
-      <h1 id="lobby-title" className={styles.title} ref={headingRef} tabIndex={-1}>{copy.waitingTitle}</h1>
-      <p className={styles.lead}>{copy.waiting}</p>
-    </div>
-    <p className={styles.message} role="status">{message}</p>
-  </section>;
-
-  const { recommendation } = lobby;
+export type LobbyMemberView = Readonly<{ id: string; name: string; roles: readonly string[] }>;
+type Props = { copy: LobbyCopy; lobby: LobbyView; step: Exclude<LobbyStep, "waiting">; stepper: readonly StepperState[] | null; summary: GroupSummary;
+  lead: string | null; members: readonly LobbyMemberView[]; roleRows: readonly LobbyRoleRowView[]; busy: boolean; message: string;
+  headingRef: Ref<HTMLHeadingElement>; onStep: (delta: -1 | 1) => void; onContinue: () => void; onNext: () => void; onBack: () => void;
+  onGive: (role: AssignableGroupRole, participantId: string | null) => void; onStart: () => void };
+/** The host's or guide's lobby, one purpose per screen (owner's note, 5 Nov 2026: states with a stepper): how many are playing, who's
+ * here, who does what, then Ready to Start. A solo player goes from the count to Ready; 6–30 see the groups note and can't start yet. */
+export default function PreviewAdventureLobby({ copy, lobby, step, stepper, summary, lead, members, roleRows, busy, message, headingRef,
+  onStep, onContinue, onNext, onBack, onGive, onStart }: Props) {
+  const title = step === "here" ? copy.hereTitle : step === "roles" ? copy.rolesTitle : copy.title;
   return <section className={styles.lobby} aria-labelledby="lobby-title">
     <p className={styles.eyebrow}>{copy.eyebrow}</p>
-    <h1 id="lobby-title" className={styles.title} ref={headingRef} tabIndex={-1}>{copy.title}</h1>
+    {stepper ? <PreviewLobbyStepper label={copy.stepperLabel} states={stepper} names={copy.stages} /> : null}
+    <h1 id="lobby-title" className={styles.title} ref={headingRef} tabIndex={-1}>{title}</h1>
+
     {step === "count" ? <>
       {lead ? <p className={styles.lead}>{lead}</p> : null}
       <fieldset className={styles.card}>
@@ -44,12 +45,48 @@ export default function PreviewAdventureLobby({ copy, lobby, step, lead, busy, m
           aria-describedby={lobby.count === null ? "lobby-need-count" : undefined}>{copy.next}</ActionButton>
         {lobby.count === null ? <p className={styles.help} id="lobby-need-count">{copy.needCount}</p> : null}
       </div>
-    </> : recommendation ? <>
-      {/* The count the host chose, and the advice it gives. A recommendation only: no team beyond the first exists until multiple teams are built (I7a). */}
+    </> : null}
+
+    {step === "here" ? <>
+      <div className={styles.card}>
+        <p className={styles.question}>{copy.hereCount(members.length, lobby.count ?? members.length)}</p>
+        <ul className={styles.members}>
+          {members.map(member => <li key={member.id} className={styles.member}>
+            <ParticipantAvatar participantId={member.id} displayName={member.name} size={40} label="" /><span>{member.name}</span>
+          </li>)}
+        </ul>
+        <p className={styles.help}>{copy.hereHelp}</p>
+      </div>
+      <div className={styles.action}>
+        <ActionButton block icon="arrowForward" className={styles.primary} disabled={busy} onClick={onNext}>{copy.next}</ActionButton>
+        <ActionButton variant="quiet" className={styles.back} disabled={busy} onClick={onBack}>{copy.changeCount}</ActionButton>
+      </div>
+    </> : null}
+
+    {step === "roles" ? <>
+      <p className={styles.lead}>{copy.rolesLead}</p>
+      <PreviewLobbyRoles copy={copy} rows={roleRows} busy={busy} onGive={onGive} />
+      <div className={styles.action}>
+        <ActionButton block icon="arrowForward" className={styles.primary} disabled={busy} onClick={onNext}>{copy.next}</ActionButton>
+        <ActionButton variant="quiet" className={styles.back} disabled={busy} onClick={onBack}>{copy.back}</ActionButton>
+      </div>
+    </> : null}
+
+    {step === "ready" || step === "teams" ? <>
       <div className={styles.card}>
         <p className={styles.summary}><span className={styles.help}>{copy.countQuestion}</span><span className={styles.summaryCount}>{lobby.count}</span></p>
-        <h2 className={styles.question}>{copy.recommendedTeams(recommendation.teams)}</h2>
-        <p className={styles.recommendation}><Icon name="team" className={styles.recommendationIcon} />{copy.suggestedSplit(recommendation.sizes)}</p>
+        {/* One group needs no group count and no split (owner's note, 5 Nov 2026): only solo, or 6 and more, say anything here. */}
+        {summary?.kind === "solo" ? <p className={styles.recommendation}><Icon name="team" className={styles.recommendationIcon} />{copy.solo}</p> : null}
+        {summary?.kind === "groups" ? <>
+          <h2 className={styles.question}>{copy.groups(summary.groups)}</h2>
+          <p className={styles.recommendation}><Icon name="team" className={styles.recommendationIcon} />{copy.groupSizes(summary.sizes)}</p>
+        </> : null}
+        {step === "ready" && summary === null ? <ul className={styles.members}>
+          {members.map(member => <li key={member.id} className={styles.member}>
+            <ParticipantAvatar participantId={member.id} displayName={member.name} size={40} label="" />
+            <span><strong>{member.name}</strong>{member.roles.length ? <span className={styles.memberRoles}> {member.roles.join(" · ")}</span> : null}</span>
+          </li>)}
+        </ul> : null}
         {step === "teams" ? <div className={styles.notYet}><Icon name="info" className={styles.notYetIcon} />
           <p><strong>{copy.needsTeamsTitle}</strong> {copy.needsTeams}</p></div> : null}
       </div>
@@ -57,7 +94,7 @@ export default function PreviewAdventureLobby({ copy, lobby, step, lead, busy, m
       <div className={styles.action}>
         {step === "ready" ? <ActionButton block icon="arrowForward" className={styles.primary} disabled={busy || !lobby.canStart} onClick={onStart}>
           {busy ? copy.starting : copy.start}</ActionButton> : null}
-        <ActionButton variant="quiet" className={styles.back} disabled={busy} onClick={onChangeCount}>{copy.changeCount}</ActionButton>
+        <ActionButton variant="quiet" className={styles.back} disabled={busy} onClick={onBack}>{step === "ready" && summary === null ? copy.back : copy.changeCount}</ActionButton>
       </div>
     </> : null}
     <p className={styles.message} role="status">{message}</p>

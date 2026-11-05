@@ -48,11 +48,11 @@ test("a free role can be taken, your own kept, someone else's never; only the ho
   assert.throws(() => claimGroupRole(IDS, NONE, "navigator", "stranger"), /current group participant/);
 });
 
-test("players see Advisor, never follower; the roster and role choices say who holds what", () => {
-  assert.equal(roleLabel("follower"), "Advisor"); assert.equal(roleLabel("navigatorAndAnswerSubmitter"), "Navigator and answer-submitter");
+test("a player without a main role shows none (Advisor removed, owner, 5 Nov 2026), never follower; the roster and role choices say who holds what", () => {
+  assert.equal(roleLabel("follower"), null); assert.equal(roleLabel("navigatorAndAnswerSubmitter"), "Navigator and answer-submitter");
   const people = [{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }, { id: "guide", name: "Guide" }];
   const roles = { navigator: "player-1", answerSubmitter: null };
-  assert.deepEqual(buildGroupRoster(people, roles, "player-2").map(member => member.responsibilities), [["Navigator"], ["Advisor"], ["Guide"]]);
+  assert.deepEqual(buildGroupRoster(people, roles, "player-2").map(member => member.responsibilities), [["Navigator"], [], ["Guide"]]);
   assert.deepEqual(buildRoleChoices(people, roles, "player-2", false), [
     { role: "navigator", label: "Navigator", holderId: "player-1", holder: "Ari", mine: false, canClaim: false },
     { role: "answerSubmitter", label: "Answer-submitter", holderId: null, holder: null, mine: false, canClaim: true },
@@ -68,7 +68,7 @@ test("the Group tab offers Take this role for a free role, Step down for your ow
   const Choices = loadComponent("components/amazing-shuk/PreviewRoleChoices.tsx");
   const choices = buildRoleChoices([{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }], { navigator: "player-1", answerSubmitter: null }, "player-1", false);
   const html = renderToStaticMarkup(createElement(Choices, { choices, guide: false, busy: false, onClaim() {}, onRelease() {} }));
-  assert.match(html, /Everyone else is an advisor/);
+  assert.match(html, /Everyone else helps at each stop/); assert.doesNotMatch(html, /advisor/i);
   assert.match(html, /Navigator:<\/strong> you/); assert.match(html, /Step down/);
   assert.match(html, /Answer-submitter:<\/strong> free/); assert.match(html, /Take this role/);
   const other = buildRoleChoices([{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }], { navigator: "player-1", answerSubmitter: "player-1" }, "player-2", false);

@@ -8,6 +8,7 @@ import { handleParticipantRequest } from "./participant-http.ts";
 import { ASKS_OVERALL, ASKS_PER_LINK, resetJoinAsks } from "./join-rate-limit.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
+import { startWithRoles } from "./seat-fixture.ts";
 
 // I3b: the team join link with leader approval. Temporary state files only.
 const WELL = GAN_HATUT_MISSION.id;
@@ -28,7 +29,7 @@ async function team(path: string) {
   const player = await signIn(path, "player-4");
   const guide = await signIn(path, "guide");
   await sessionAction(path, leader, { type: "set-intended-count", count: 3 }, "join-fixture-count-0001", NOW);
-  await sessionAction(path, leader, { type: "start-adventure" }, "join-fixture-start-0001", NOW);
+  await startWithRoles(path, leader, "join-fixture-start-0001", NOW);
   await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "join-fixture-navigator-1", NOW);
   return { leader, player, guide, link: await createJoinLink(path, leader, false, NOW) };
 }

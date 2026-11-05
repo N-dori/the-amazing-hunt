@@ -8,6 +8,7 @@ export default function ListParticipantIdentity({ participants, roles, currentId
   const view = buildParticipantIdentities(participants, roles, currentId);
   return <div className={styles.group}>
     {view.current ? <PreviewParticipantIdentity {...view.current} label="Signed in as" showResponsibilities={false} /> : null}
-    <p>Your role: {roleLabel(currentRole)}</p>
+    {/* A player with no main role has no role line: Advisor was removed (owner, 5 Nov 2026). */}
+    {roleLabel(currentRole) ? <p>Your role: {roleLabel(currentRole)}</p> : null}
   </div>;
 }

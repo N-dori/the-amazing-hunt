@@ -3,7 +3,7 @@ import type { DevWaterAction } from "./dev-water-session.ts";
 
 import type { AssignableGroupRole } from "./roles.ts";
 
-/** A player takes a free role, or steps down from their own. Everyone without a role is an advisor. */
+/** A player takes a free role, or steps down from their own. Everyone without a role helps at each stop (Advisor was removed, owner, 5 Nov 2026). */
 export type RoleChoiceAction = Readonly<{ type: "claim-role"; role: AssignableGroupRole }> | Readonly<{ type: "release-role"; role: AssignableGroupRole }>;
 /** The lobby, before the adventure starts: the host or guide says how many are playing, then starts. */
 export type AdventureAction = Readonly<{ type: "set-intended-count"; count: number }> | Readonly<{ type: "start-adventure" }>;

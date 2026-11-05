@@ -1,3 +1,5 @@
+import { isSoloTeam, type AssignableGroupRole, type GroupRoleAssignments } from "./roles.ts";
+
 /** The adventure as the server shows it to one participant (`sessionView().adventure`). */
 export type AdventureView = Readonly<{
   status: "lobby" | "active";
@@ -56,11 +58,51 @@ export function stepCount(count: number | null, delta: -1 | 1): number {
   return Math.min(LOBBY_COUNT.max, Math.max(LOBBY_COUNT.min, next));
 }
 
-/** One screen at a time in the lobby (compact onboarding, 30 Oct 2026): the count, then either Ready to Start (one team) or the teams
- * recommendation (6–30, which can't start yet). Players without lobby powers only wait. `counted` is the host's Continue on this phone. */
-export type LobbyStep = "waiting" | "count" | "ready" | "teams";
-export function lobbyStep(lobby: LobbyView, counted: boolean): LobbyStep {
+/** The host's own progress through the lobby on this phone (onboarding and roles, owner, 5 Nov 2026): the count, who's here, the
+ * roles, then ready. Kept on the phone; the server holds only what each step decides (the count, the roles). */
+export type LobbyStage = "count" | "here" | "roles" | "ready";
+export const LOBBY_STAGES: readonly LobbyStage[] = Object.freeze(["count", "here", "roles", "ready"]);
+
+/** One screen at a time in the lobby: the count, then who's here, the roles and Ready to Start for a group of 2–5; straight to Ready
+ * for a solo player; the teams note for 6–30, which can't start yet. Players without lobby powers only wait. `stage` is where the
+ * host has got to on this phone. */
+export type LobbyStep = "waiting" | LobbyStage | "teams";
+export function lobbyStep(lobby: LobbyView, stage: LobbyStage): LobbyStep {
   if (!lobby.canManage) return "waiting";
-  if (!counted || lobby.recommendation === null) return "count";
-  return lobby.needsTeams ? "teams" : "ready";
+  if (stage === "count" || lobby.count === null) return "count";
+  if (lobby.needsTeams) return "teams";
+  if (lobby.count === 1) return "ready";
+  return stage;
+}
+
+/** The stepper's states for one group (Players · Who's here · Roles · Ready) or a solo player (Players · Ready). */
+export type StepperState = Readonly<{ stage: LobbyStage; status: "done" | "current" | "todo" }>;
+export function stepperStates(current: LobbyStage, solo: boolean): readonly StepperState[] {
+  const stages = solo ? LOBBY_STAGES.filter(stage => stage === "count" || stage === "ready") : LOBBY_STAGES;
+  const at = Math.max(0, stages.indexOf(current));
+  return stages.map((stage, index) => ({ stage, status: index < at ? "done" : index === at ? "current" : "todo" }));
+}
+
+/** What the count says about groups (owner's note, 5 Nov 2026): one group needs no group count and no split. A solo player is told
+ * so; from 6 up, the number of groups and their sizes. */
+export type GroupSummary = Readonly<{ kind: "solo" }> | Readonly<{ kind: "groups"; groups: number; sizes: readonly number[] }> | null;
+export function groupSummary(count: number | null): GroupSummary {
+  if (count === null) return null;
+  if (count === 1) return { kind: "solo" };
+  const groups = recommendedTeamCount(count);
+  return groups > 1 ? { kind: "groups", groups, sizes: recommendedTeamSizes(count) } : null;
+}
+
+/** The roles a group can't start without (owner, 5 Nov 2026): Navigator and Submitter. A solo player holds both, so nothing is missing;
+ * with no member yet (the guide starting before anyone has signed in) there is no one to give them to, and the Group tab's fallbacks apply. */
+export function requiredRolesMissing(roles: GroupRoleAssignments, memberIds: readonly string[]): readonly AssignableGroupRole[] {
+  if (memberIds.length === 0 || isSoloTeam(memberIds)) return [];
+  return (["navigator", "answerSubmitter"] as const).filter(role => roles[role] === null);
+}
+
+/** What the players' waiting screen says the host is doing, from what the server already holds: no count yet, the roles still being
+ * chosen, or ready to go. */
+export function waitingStage(adventure: Pick<AdventureView, "intendedCount">, roles: GroupRoleAssignments, memberIds: readonly string[]): LobbyStage {
+  if (adventure.intendedCount === null) return "count";
+  return requiredRolesMissing(roles, memberIds).length ? "roles" : "ready";
 }

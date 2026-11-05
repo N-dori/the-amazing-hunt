@@ -1,4 +1,6 @@
 import type { IconName } from "@/components/icons";
+import type { LobbyStage } from "./adventure-lobby.ts";
+import type { AssignableGroupRole } from "./roles.ts";
 
 // The first screen a player sees: opening an invitation link, or coming back signed out.
 // TODO(copy): every line here is a draft for owner review.
@@ -43,10 +45,12 @@ export type LobbyCopy = {
   countEmpty: string;
   decrease: string;
   increase: string;
-  /** "Recommended teams: 3", from the actual count. */
-  recommendedTeams: (teams: number) => string;
-  /** "Suggested split: 4 + 4 + 3", from the actual count. */
-  suggestedSplit: (sizes: readonly number[]) => string;
+  /** "Groups: 3", only from 6 players up: one group needs no group count (owner's note, 5 Nov 2026). */
+  groups: (groups: number) => string;
+  /** "Players per group: 4 + 4 + 3", from the actual count, only from 6 players up. */
+  groupSizes: (sizes: readonly number[]) => string;
+  /** A count of 1: the solo note in place of any group count. */
+  solo: string;
   needsTeamsTitle: string;
   needsTeams: string;
   start: string;
@@ -56,6 +60,33 @@ export type LobbyCopy = {
   next: string;
   /** Back from Ready to Start or the teams recommendation to the count. */
   changeCount: string;
+  /** The stepper (owner's note, 5 Nov 2026): its accessible name and one short label per state. */
+  stepperLabel: string;
+  stages: Readonly<Record<LobbyStage, string>>;
+  /** Who's here: the signed-in players, then on to the roles. */
+  hereTitle: string;
+  hereCount: (here: number, expected: number) => string;
+  hereHelp: string;
+  /** The roles step, the casting call: one question per role, read out to the group. */
+  rolesTitle: string;
+  rolesLead: string;
+  roleNames: Readonly<Record<AssignableGroupRole, string>>;
+  roleQuestions: Readonly<Record<AssignableGroupRole, string>>;
+  roleNobody: string;
+  /** Spoken label of a player's chip in a role's row. */
+  giveRole: (name: string, role: string) => string;
+  back: string;
+  /** Start with a required role empty: the warning and its two ways on. */
+  blockedTitle: string;
+  blockedText: (roles: readonly string[]) => string;
+  blockedSetRoles: string;
+  blockedGiveToMe: string;
+  /** The players' waiting screen: what the host is doing now, and the player's own roles once given. */
+  waitingStages: Readonly<Record<LobbyStage, string>>;
+  yourRoles: (roles: readonly string[]) => string;
+  /** The role card, on the phone of the player who has just been given a role. */
+  roleCards: Readonly<Record<AssignableGroupRole, Readonly<{ title: string; text: string }>>>;
+  roleCardOk: string;
 };
 
 export const LOBBY_COPY: LobbyCopy = Object.freeze({
@@ -73,8 +104,10 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   countEmpty: "Not set yet",
   decrease: "One fewer player",
   increase: "One more player",
-  recommendedTeams: (teams: number) => `Recommended teams: ${teams}`,
-  suggestedSplit: (sizes: readonly number[]) => `Suggested split: ${sizes.join(" + ")}`,
+  // TODO(copy): drafts (owner's note, 5 Nov 2026: "Groups", shown only for more than one group or a solo player).
+  groups: (groups: number) => `Groups: ${groups}`,
+  groupSizes: (sizes: readonly number[]) => `Players per group: ${sizes.join(" + ")}`,
+  solo: "Playing solo: you'll hold every role.",
   needsTeamsTitle: "Your adventure needs multiple teams.",
   needsTeams: "We recommend splitting into teams of up to five. Multi-team adventures are coming soon. For now, adventures can start with up to five players.",
   start: "Start Adventure",
@@ -83,4 +116,28 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   // TODO(copy): drafts for the compact onboarding steps (30 Oct 2026).
   next: "Continue",
   changeCount: "Change the number",
+  // TODO(copy): every line below is a draft (onboarding and roles, 5 Nov 2026), pending the owner's approval (O16).
+  stepperLabel: "Getting ready",
+  stages: Object.freeze({ count: "Players", here: "Who's here", roles: "Roles", ready: "Ready" }),
+  hereTitle: "Who's here?",
+  hereCount: (here: number, expected: number) => `${here} of ${expected} here`,
+  hereHelp: "Everyone opens their own link on their own phone. Anyone who comes later can still join.",
+  rolesTitle: "Who does what?",
+  rolesLead: "Read these out and decide together. You can change roles at any stop.",
+  roleNames: Object.freeze({ navigator: "Navigator", answerSubmitter: "Submitter" }),
+  roleQuestions: Object.freeze({ navigator: "Who'll find the way?", answerSubmitter: "Who'll send our answers?" }),
+  roleNobody: "No one yet",
+  giveRole: (name: string, role: string) => `${name} as ${role}`,
+  back: "Back",
+  blockedTitle: "Roles still needed",
+  blockedText: (roles: readonly string[]) => `No one is the ${roles.join(" or the ")} yet. Every group needs both before the start. One person can hold both.`,
+  blockedSetRoles: "Set the roles",
+  blockedGiveToMe: "Give them to me",
+  waitingStages: Object.freeze({ count: "Your host is getting ready…", here: "Your host is getting ready…", roles: "Your host is choosing roles…", ready: "Almost ready…" }),
+  yourRoles: (roles: readonly string[]) => `You're the ${roles.join(" and the ")}.`,
+  roleCards: Object.freeze({
+    navigator: Object.freeze({ title: "You're the Navigator", text: "You lead the way to each stop, and tell the group when you've arrived." }),
+    answerSubmitter: Object.freeze({ title: "You're the Submitter", text: "You choose and send the group's answers. Listen to everyone first." }),
+  }),
+  roleCardOk: "Got it",
 }) as LobbyCopy;

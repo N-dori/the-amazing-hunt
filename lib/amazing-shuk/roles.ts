@@ -60,3 +60,10 @@ export function effectiveRoles(memberIds: readonly string[], stored: GroupRoleAs
 export function mayReveal(participantId: string, roles: GroupRoleAssignments, guide: boolean): boolean {
   return guide || roles.answerSubmitter === null || roles.answerSubmitter === participantId;
 }
+
+/** The roles `participantId` holds in `next` but didn't in `previous`: what their phone announces with a role card (owner, 5 Nov 2026).
+ * Nothing on the first read (`previous` null), so a reload or a phone signing in doesn't announce roles already held. */
+export function newlyHeldRoles(previous: GroupRoleAssignments | null, next: GroupRoleAssignments, participantId: string): readonly AssignableGroupRole[] {
+  if (previous === null) return [];
+  return (["navigator", "answerSubmitter"] as const).filter(role => next[role] === participantId && previous[role] !== participantId);
+}

@@ -1,6 +1,6 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
-import { effectiveRoles, isSoloTeam, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { effectiveRoles, isSoloTeam, newlyHeldRoles, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 
 const participants = ["p1", "p2", "p3"] as const;
 const empty: GroupRoleAssignments = { navigator: null, answerSubmitter: null };
@@ -51,4 +51,16 @@ test("a team of exactly one holds both roles; other teams keep their stored role
   // A solo player's own stored half-role doesn't matter: they hold both.
   assert.equal(roleForParticipant("p1", effectiveRoles(["p1"], { navigator: "p1", answerSubmitter: null })), "navigatorAndAnswerSubmitter");
   assert.deepEqual([isSoloTeam([]), isSoloTeam(["p1"]), isSoloTeam(["p1", "p2"])], [false, true, false]);
+});
+
+test("the role card announces only roles newly given to this player, never on the first read", () => {
+  const none = { navigator: null, answerSubmitter: null };
+  assert.deepEqual(newlyHeldRoles(null, { navigator: "player-1", answerSubmitter: "player-1" }, "player-1"), []);
+  assert.deepEqual(newlyHeldRoles(none, { navigator: "player-1", answerSubmitter: null }, "player-1"), ["navigator"]);
+  assert.deepEqual(newlyHeldRoles(none, { navigator: "player-1", answerSubmitter: "player-1" }, "player-1"), ["navigator", "answerSubmitter"]);
+  // Someone else's new role, a role already held, or a role taken away: nothing to announce.
+  assert.deepEqual(newlyHeldRoles(none, { navigator: "player-2", answerSubmitter: null }, "player-1"), []);
+  assert.deepEqual(newlyHeldRoles({ navigator: "player-1", answerSubmitter: null }, { navigator: "player-1", answerSubmitter: null }, "player-1"), []);
+  assert.deepEqual(newlyHeldRoles({ navigator: "player-1", answerSubmitter: null }, none, "player-1"), []);
+  assert.deepEqual(newlyHeldRoles({ navigator: "player-2", answerSubmitter: null }, { navigator: "player-1", answerSubmitter: null }, "player-1"), ["navigator"]);
 });

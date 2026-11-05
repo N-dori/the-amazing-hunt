@@ -8,6 +8,7 @@ import { promisify } from "node:util";
 import { askToJoin, createJoinLink, issueHostInvitation, issueInvitation, redeemInvitation, resetDevState, sessionAction, sessionView, startNewAdventure, summariseDevState } from "./participant-store.ts";
 import { resolveResetTarget } from "./dev-reset.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
+import { startWithRoles } from "./seat-fixture.ts";
 
 // The development reset (scripts/shuk-dev-reset.ts): both modes, stale sessions, replay protection, idempotency and the guard rails.
 const WELL = GAN_HATUT_MISSION.id;
@@ -36,7 +37,7 @@ async function played(path: string) {
   const player = await signIn(path, "player-4");
   const guide = await signIn(path, "guide");
   await sessionAction(path, host, { type: "set-intended-count", count: 3 }, "reset-host-count-0001", NOW);
-  await sessionAction(path, host, { type: "start-adventure" }, "reset-host-start-0001", NOW);
+  await startWithRoles(path, host, "reset-host-start-0001", NOW);
   await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "reset-claim-nav-00001", NOW);
   await sessionAction(path, player, { missionId: WELL, type: "start" }, "reset-well-start-0001", NOW);
   await sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "reset-well-fill-00001", NOW);

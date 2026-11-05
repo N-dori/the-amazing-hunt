@@ -6,6 +6,7 @@ import { basename, dirname, join } from "node:path";
 import { issueHostInvitation, issueInvitation, redeemInvitation, sessionAction, sessionView, setParticipantName, startNewAdventure } from "./participant-store.ts";
 import { schema6Snapshot } from "./legacy-store-fixture.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
+import { startWithRoles } from "./seat-fixture.ts";
 
 // I3a: the participant registry (schema 7). Members come only from redeeming an invitation; IDs are random; host and leader
 // rights belong to one session; a session counts only while its member is in the registry.
@@ -33,7 +34,7 @@ async function hostedAdventure(path: string) {
   const player = await signIn(path, "player-4");
   const guide = await signIn(path, "guide");
   await sessionAction(path, host, { type: "set-intended-count", count: 3 }, "registry-host-count-001", NOW);
-  await sessionAction(path, host, { type: "start-adventure" }, "registry-host-start-001", NOW);
+  await startWithRoles(path, host, "registry-host-start-001", NOW);
   await sessionAction(path, player, { type: "claim-role", role: "navigator" }, "registry-claim-nav-0001", NOW);
   await sessionAction(path, player, { missionId: WELL, type: "start" }, "registry-well-start-001", NOW);
   await sessionAction(path, player, { missionId: WELL, type: "move", move: "fill-large" }, "registry-well-fill-0001", NOW);
