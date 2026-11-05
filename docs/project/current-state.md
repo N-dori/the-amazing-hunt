@@ -1,11 +1,11 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 5 Nov 2026 (Claude).** **Live since 2 Nov 2026, 14:59 UTC: `193873f`** (a sign-in link pasted into an open tab now works, `link-fragment.ts`; on top of UX-4, Phase 2 and UX-3), image `dori-shuk:20261102-145812-193873f`. Rollback: `previous` = `fe1df94` (UX-4).
-- **Links:** `host-player-1.txt`, `guide.txt` and `player-2.txt` in `.local/amazing-shuk/live-links/`, issued at 14:59 UTC on 2 Nov for the phone-and-PC test. Invitations last 24 h, so **they have expired** unless used; a new set needs the owner's OK. **Join links are off.**
-- **Not recorded:** whether the phone-and-PC test ran, its result, and the live adventure's state since (not read on 5 Nov). Ask the owner.
-- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261102T145812Z.json`, the only one.
-- **Safety copies:** nine in `/data`, kept until the owner decides.
-- **Disk: 89% on 5 Nov, over the 85% build limit.** No build or deploy until space is freed (e.g. old images, build cache), with the owner's OK.
+**Updated: 5 Nov 2026 (Claude).** **Live since 5 Nov 2026, 21:16 UTC: `15cc9db`** (no app change since `193873f`: docs and research only), image `dori-shuk:20261105-211524-15cc9db`. Rollback: `previous` = `193873f` (the pasted sign-in link fix).
+- **Links:** `host-player-1.txt`, `guide.txt` and `player-2.txt` in `.local/amazing-shuk/live-links/`, issued 5 Nov at about 21:17 UTC and valid 24 h; the host and player-2 links were used in the owner's phone-and-PC test. **Join links are off.**
+- **The phone-and-PC test ran on 5 Nov 2026:** results and the owner's notes are the top entry of the [handoff](agent-handoff.md).
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261105T211500Z.json`, the only one.
+- **Safety copies:** eleven in `/data`, kept until the owner decides.
+- **Disk: 70% after the deploy** (the owner approved clearing the build cache, the npm cache and the journal on 5 Nov; it was 89%).
 - **Since 3 Nov:** content and research only (the mural rework, below); no code change.
 
 ## Progressive challenges and Market Surprise: Phase 1 LIVE, phases 2–5 planned (owner, 2 Nov 2026)
@@ -67,6 +67,8 @@ The multiplayer onboarding, team setup, invitation and security workstream is pa
 - Map rule (owner, 29 Oct 2026): markers shrink as the map zooms out, so the gate and well pins stop overlapping. Not built; waiting for the owner.
 
 ## Next
+
+- **The owner's phone-and-PC test (5 Nov 2026, live `15cc9db`) and notes:** the waiting screen, the lobby's numbers and stepper, roles in onboarding, and a rethought navigation screen (the hidden address, a riddle route, a real location check, navigation points, the challenge opening for the whole group). Notes only, not approved for build; in the top entry of the [handoff](agent-handoff.md).
 
 - **Multiplayer is paused** (owner, 1 Nov 2026): see the paused section above. (I3a, I3b and I4a have since been built and deployed.)
 - **UX is paused for the multiplayer roadmap (owner, 31 Oct 2026).** The deferred UX backlog (UX-1 full-width map, UX-2 spatial Find this place, UX-3 story then Start then the timed activity, UX-4 the completion celebration) is in [decisions](product-decisions.md#deferred-ux-backlog-owner-31-oct-2026-recorded-not-scheduled-not-approved-for-build). Not scheduled; each phase needs its own approval.

@@ -1,5 +1,56 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Deployed `15cc9db`; the owner's phone-and-PC test, in progress: 5 Nov 2026
+
+- **Deployed** with `/deploy`: live `dori-shuk:20261105-211524-15cc9db`, rollback `193873f`. Backup: `live-state-before-deploy-20261105T211500Z.json`. A fresh adventure; links `host-player-1.txt`, `guide.txt` and `player-2.txt` (written at the owner's request) in `.local/amazing-shuk/live-links/`, valid about 24 h. Join links off. Eleven safety copies in `/data`.
+- **Disk:** 89% before; the owner approved clearing the build cache, the npm cache and the journal: 67%, 70% after the deploy.
+- **The test (phone = host `player-1`, PC = `player-2`):**
+  - Lobby ("Before you set off"): the count set to 5, Start allowed, with the up-to-five note. **Passed.**
+  - PC: "Waiting for the adventure to begin", no controls. **Passed.**
+  - Start on the phone: the game started on both the phone and the PC. **Passed.**
+  - Group tab after Start: Navigator and Submitter both empty ("free"); each player's own role shows "Advisor" (on the PC and the phone). Works as built, but Advisor is removed by the owner's 5 Nov roles rule; the owner: never mind, roles move into onboarding next.
+  - The leader's Change made player-2 the Navigator, and the pill shows it. **Passed.**
+  - The phone (host) made itself the Submitter: it worked. **Passed.**
+  - "I'm completely stuck" on the Submitter's phone: the pop-up with its two buttons; "Show answer" opens "Here's the answer". **Works.** The Navigator (the PC) doesn't see the button: check 13 **passed**.
+  - The Submitter's picks show on the Navigator's screen too. **Found: the Navigator can change a pick** (the owner flagged it), though not submit: the Submit button isn't there. **Decided (owner, 5 Nov 2026), not built:** only the Submitter picks; everyone else sees the picks live, read-only. **Later:** a small chat-like section showing group members' suggestions.
+  - After the Submitter's Submit, both devices show the points and food tokens. **Passed.**
+  - **More tests (5 Nov):**
+    - Hints: after hint 1, the count dropped from 3 to 2 on both devices. **Passed.**
+    - **The well: found.** The Submitter's moves show on the PC, but moves made on the PC (not Submitter) don't show on the phone. To be fixed by the plan: only the Submitter acts, as decided for picks (I5 reworks the well).
+    - "We're here": the arrival bonus once on both, no second bonus after a retap or reload; Check our location away from a stop gives a clear message. **Passed** (3–5).
+    - Double Submit: one award. **Passed.** The submit-and-reveal race: not relevant (not run).
+    - Offline: a pick made in airplane mode synced to the other player on reconnect; refresh mid-challenge and closing and reopening the browser kept the sign-in and progress, with no repeat pop-up. **Passed** (10–12).
+    - Back and the bottom bar stay inside the app, **but Back at the first screen leaves the game.** The owner wants a warning before players are taken out of the game: a "Leave the game?" pop-up (Stay / Leave), added to the [plan](progressive-challenges-plan.md) §8.
+    - Marzipan is locked until the other five are done. **Passed**; the owner will change this rule later.
+  - **The hint flow (the owner's note):** first the hint's implications (its cost); a tap shows the hint; then, still in the pop-up, an option to give the answer with its explanation; then close.
+- **The owner's notes on the stuck flow**, recorded in the [progressive-challenges plan](progressive-challenges-plan.md) (§1 and §2b):
+  - **"I'm completely stuck" becomes a real button in a strong colour, beside the hint, just above the challenge title** (replaces the quiet text button at the foot).
+  - **A new rule for creating challenges:** every challenge fills its "Here's the answer" content; it is never left for later.
+  - "Here's the answer" should tell the Navigator to tap "Go to the next stop"; for everyone else that button is disabled, and a tap explains that only the Navigator can do it.
+- **The owner's notes (record only, not approved for build):**
+  - **The waiting screen should be game-branded, with an animated loader.** Today it is a plain card with "Waiting for the adventure to begin". Needs a design (`/experience-design` or the UX designer), the brand tokens, and a `prefers-reduced-motion` fallback; copy stays the owner's.
+  - **The lobby's numbers** (it shows "How many playing: 5", "Recommended teams: 1", "Suggested split: 5"):
+    - "Recommended teams" should read as "Groups: X": the user has already chosen it in the previous step, so it isn't a recommendation;
+    - "Suggested split: 5" is unclear when there is one group only, or a solo player.
+  - **The lobby onboarding should be a series of states, shown with a stepper.**
+  - **Answer on the groups (5 Nov):** the screen shows the number of groups only when there is more than one group, or a solo player.
+  - **Role assignment belongs in onboarding**, before Start, as the plan proposes (the role step in the leader's lobby, `multiplayer-plan.md` §4 and I4). Today the roles start empty and are assigned after Start on the Group tab.
+  - **The navigation screen** ("Find this place", seen on stop 1, the Mahane Yehuda mural). The owner's notes for the plan:
+    - **Focus:** the screen is about finding the place, nothing else.
+    - **Header:** "Find the Mahane Yehuda mural" should be sticky.
+    - **Stepper:** say "Navigation" (or just "Finding the place") instead of "Mission 1". The stepper should be designed differently; something about how it looks is unclear.
+    - **Title:** remove the Hebrew title; put what you should see when you get there.
+    - **Address:** hidden, with only its icon kept; a tap reveals it. Players should be motivated to find the place without the address: **a group that reveals it gets no navigation points.**
+    - **Picture:** remove the small map here; show one clear picture of what they'll see on arrival.
+    - **Landmarks:** rethink as the storyboard for getting there, **like a riddle** rather than giving out the address.
+    - **About this place:** keep; its content can be used.
+    - **Check our location:** may stay for all players.
+    - **Navigator side, "We're here":** in production, Open Challenge doesn't work outside a 100 m radius of the stop, and the button must really check the location (now too).
+    - **Confirm your arrival** → "Confirming your location", with a loader. When in place: a nice animation, graphic and the sound of money: "your group just earned X points for this stop's navigation", given to them with a message like "Successful navigation, you rock!" (all `TODO(copy)`).
+    - **Points:** the points icon is attached to the group avatar and updates there too.
+    - **Open Challenge:** disabled until arrival is confirmed; a tap shows a pop-up saying the location must be confirmed first; active again once it is.
+    - **Opening the challenge** opens the challenge screen automatically on every player of that group.
+
 ## Mural: "The People Behind the Painting" drafted; the real people recorded: 5 Nov 2026
 
 Research and content planning only; no code, no commit. At the owner's request.

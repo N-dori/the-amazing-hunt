@@ -31,6 +31,7 @@ Every stop follows one reusable shape: **find the place** → **one approachable
 - A stop has **one core challenge** (required; solve it or use the fallback) and **0–n optional challenges** (skippable, never blocking, open after the core). No stop needs three.
 - **Difficulty is a per-challenge attribute** (`easy | medium | hard`), independent of its position. Challenge 2 can be easy.
 - Reuse what exists: the core = today's `challenge` (+ `followUps` where a core truly needs steps); optional = today's `bonus`, extended with hints, a reveal and its own timing. Make it a list (`extras`) only when a stop gets a second optional challenge.
+- **Every challenge fills its "I'm completely stuck" answer** (owner, 5 Nov 2026): the content the "Here's the answer" pop-up shows is part of creating a challenge, never left for later. A challenge isn't complete without it (`TODO(copy)` until approved).
 - **Answer mechanic** is a per-challenge field: `choice` (today), `water` (today), later `match`, `photo`, `voice`, `find` (physical). Each mechanic that uses the camera, microphone or location has an **equivalent no-device path**.
 
 ## 2. Voice answers, with a Montefiore pilot concept
@@ -201,6 +202,11 @@ Map → preview → **Let's go here** (`set-out`) → find the place ("Check our
 - Stuck → confirmation → the answer + Behind the answer.
 
 Then two actions, the next challenge's teaser title and "Continue to the next stop". No difficulty menu. Optional challenges can be resumed later from the stop's preview; once done or revealed, they're never re-scored.
+
+**"Leave the game?" (owner, 5 Nov 2026; approved for the plan, not built).** The live test found that Back on the game's first screen takes players out of the game with no warning. Browsers allow no custom text on their own leave prompt, and phones often skip it on Back, so the game catches Back on its first screen itself and shows its own pop-up:
+- "Leave the game?" with **Stay** (focused first) and **Leave**, both 3rem targets (`TODO(copy)` for the body line and the labels).
+- **Stay** keeps the player where they were; **Leave** goes back out of the game. Progress is safe either way: it is on the server, and the sign-in stays on the device.
+- Only Back from the first in-game screen triggers it; Back between the game's own screens is unchanged. A reload or closing the tab is not intercepted.
 
 ## 8a. Reward celebrations (owner direction, 2 Nov 2026)
 
@@ -600,6 +606,14 @@ Built on D1 (model B), D2 (minimum, optional ≤ 2× core), D3 (core food tokens
   - choice challenges: the correct options, from the data that already exists, then "Behind the answer";
   - the well: the move sequence, generated from the puzzle data (labels `TODO(copy)`); the I5 rework later replaces it;
   - Marzipan: **no reveal in Phase 2** (owner, P2-3); its stuck rule is set when Marzipan is reworked.
+- **The owner's notes after the live test (5 Nov 2026; not approved for build):**
+  - The flow works on the Submitter's phone: the stuck button, the confirmation with its two buttons, then "Show answer" opens the "Here's the answer" pop-up.
+  - The Navigator (not the Submitter) doesn't see "I'm completely stuck": check 13 **passed** live.
+  - **The button's place and look change** (supersedes "a quiet text button at the foot of the challenge, away from the hint icon" in §5 and §2c): a real button in a strong colour, **together with the hint, just above the challenge title**. The "Keep trying" confirmation still guards against a mis-tap.
+  - **Shared picks (decided, owner, 5 Nov 2026; not built):** the live test found that a non-Submitter could change the Submitter's picks (not submit them). Only the Submitter picks; the others see the picks live and read-only. **Later:** a small chat-like section with group members' suggestions.
+  - **The hint pop-up's flow (owner's note):** first the hint's implications (its cost); a tap shows the hint; then, still in the pop-up, an option to give the answer with its explanation; then close. Hint counts sync to every device (passed live: 3 → 2 on both).
+  - **The well (found live):** the Submitter's moves reach the other players, but a non-Submitter's moves don't reach the Submitter. Fix with the shared-picks rule: only the Submitter moves; the others watch read-only. To be done in the well's I5 rework.
+  - **"Here's the answer. You can carry on."** should instruct the **Navigator** to tap **"Go to the next stop"**. For everyone else that button is disabled; a tap shows a small hint that only the Navigator can do it (all `TODO(copy)`).
 - **Data:** no schema bump. `outcome` and `endedAt` are optional; absent means solved. The store validator doesn't check award keys, so the rollback image (`522ecd9`) still loads a file with a reveal (it shows a completed mission with 0 points). To be confirmed by a test that loads such a file with the old validator rules.
 
 #### 2c. Hint sheet (client)
