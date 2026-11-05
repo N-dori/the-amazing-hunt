@@ -1,5 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Mural v3 drafts: the research proposals applied: 4 Nov 2026
+
+Documentation only; no commit. At the owner's request, the answer-format proposals are now in v3's drafts (`mural-rework.md`):
+- **Who Painted It?:** the code tiers of the checker, and the right spelling first in the reveal.
+- **Something's Missing:** 3 options (no bicycle); the reveal ends on the plain grey door.
+- **The Stamp:** tap the spot on the owner's photo of the wall, with a 3-option text path.
+- **The Trick of the Eye:** "Point to it together, then choose"; 3 technique options; a reveal with the traditions first and the electric company fact last.
+- **The AHA:** an unscored group vote before the owner's text.
+
+The two "Later" rows (then and now in the app, the lion strand) stay later. v2 and v1 are unchanged.
+
+References checked (5 Nov 2026): every document from 4 Nov is linked from its index. Two gaps closed: [current state](current-state.md) gained a mural-rework section and a "Waiting on the owner" line, and the [knowledge index](../knowledge/README.md) now names runs 12 and 13 for the mural file. At the owner's request, the five byte-for-byte copies in `research/content/` (02, 03, `Cognitive_Load.md`, the audience-engagement file, `Answer_Formats_Pack/Endowment_Effect_Creatively.md`) were deleted; the originals stay in `design/inputs/content/`.
+
 ## The owner's new research filed into the project: 4 Nov 2026
 
 Documentation only; no commit. The owner's uncommitted research was read and placed. The owner's files stay where they are.

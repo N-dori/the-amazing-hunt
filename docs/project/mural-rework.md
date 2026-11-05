@@ -39,12 +39,12 @@ These additions build on v2 (below), which they change only where marked. Worked
 |---|---|---|---|---|---|---|
 | Intro + "Phones down, look up" | required | read aloud, look | — | — | — | 3 (2 / 1) |
 | Who Painted It? | core | typed, code | Easy | 1 | 100 | 2–3 (2 / 0.5) |
-| **Something's Missing** | optional | choose 1 of 4, code | Medium | 2 | 60 | 3–4 (2.5 / 1) |
-| The Stamp | optional | choose 1 of 4, code | Easy | 1 | 30 | 2–3 (1 / 1.5) |
-| The Trick of the Eye | optional, recommended | as v2 (its "real" key on hold) | Medium | 2 + 2 | 80 | 4–6 (4 / 1) |
+| **Something's Missing** | optional | choose 1 of 3, code | Medium | 2 | 60 | 3–4 (2.5 / 1) |
+| The Stamp | optional | tap the spot on a photo of the wall (or choose 1 of 3), code | Easy | 1 | 30 | 2–3 (1 / 1.5) |
+| The Trick of the Eye | optional, recommended | point together, then choose N (its "real" key on hold); then choose 1 of 3 | Medium | 2 + 2 | 80 | 4–6 (4 / 1) |
 | Look closer: fooled on opening day | optional, **unscored** | find; the group taps "We found them" | — | — | — | 1–2 (1.5 / 0.5) |
 | Look closer: real people on the wall | optional, **unscored** | read | — | — | — | 1 (0.5 / 0.5) |
-| Why Paint a Market Here? (AHA) | required, unscored | predict, then the owner's text | — | — | — | 2 (1 / 1) |
+| Why Paint a Market Here? (AHA) | required, unscored | an unscored group vote, then the owner's text | — | — | — | 2 (1 / 1) |
 
 - **Duration:** the required path is unchanged, about 7–8 min. Everything takes about 16–22 min (v2: 18–24).
 - **Points:** the mural maximum is 270. **No per-stop cap** (owner, 4 Nov 2026): every optional challenge is offered, and a group that chooses to stay longer to earn every point may do so. The route is theirs. Only the required path must stay about 7–8 min.
@@ -52,25 +52,58 @@ These additions build on v2 (below), which they change only where marked. Worked
 
 ### Draft copy (`TODO(copy)`)
 
-English first. The guide's sequence and humour are kept, and the hedges are in the words: "The story goes…", never "a guide tells".
+English first. The guide's sequence and humour are kept, and the hedges are in the words: "The story goes…", never "a guide tells". The answer-format research proposals (table below) are applied here (owner, 4 Nov 2026).
 
-**Something's Missing** (Medium, 2 hints, choose 1 of 4):
+**Who Painted It?** (as v2, plus):
+- **The check:** the tiered checker's code tiers. First normalise (case, accents, spaces, hyphens) and match exactly; then accept a near-miss.
+- **The reveal** opens with the right spelling, so a near-miss sees it: "CitéCréation:" before v2's reveal text.
+
+**Something's Missing** (Medium, 2 hints, choose 1 of 3):
 - **Prompt:**
   > Researcher: open the artists' photo of their finished wall. Something stood at the corner then that isn't there now. What was it?
 - **Options:**
   - ✔ a drinks fridge
   - a falafel stand
   - a street lamp
-  - a bicycle
+
+  "A bicycle" is dropped: there's a painted one on the balcony, so it could confuse.
 - **Hints:**
   1. > Look at the grey cabinets at the corner.
   2. > In the photo, it's full of bottles.
 - **Reveal** (Attributed tradition, M19; the painted fridge itself is M3 #7):
-  > The story goes that the painters put a drinks fridge on a cabinet door here, prices and all. Years passed. The painted prices stayed put; the market's prices didn't. Shoppers started haggling with the kiosk next door: "Why so expensive? Look, it says…!" So when technicians came to fix the cabinet, the kiosk owner asked them for a plain door.
+  > The story goes that the painters put a drinks fridge on a cabinet door here, prices and all. The painted prices stayed put; the market's didn't. Shoppers haggled with the kiosk next door: "Why so expensive? Look, it says…!" So when technicians came to fix the cabinet, the kiosk owner asked for a plain door. There it is, grey and plain.
+
+  It ends on what players can see: the plain door (photos compared; which cabinet is a field check).
 - **Gate:** which cabinet it was (field check). The fridge is painted (M19 and the owner's rule); the cabinet door's change is visible in the photos.
 
-**The Trick of the Eye**, an addition to its reveal (Attributed tradition, M19):
-> The story goes that the day after the grand unveiling, the city's phones didn't stop: "Such a beautiful wall, and you left cardboard boxes lying around?" The boxes were painted. The artists couldn't have been happier.
+**The Stamp** (Easy, 1 hint). It replaces v2's choose 1 of 4.
+- **Prompt:**
+  > Israel Post put this wall on a stamp. Open the sheet; the stamp is the piece marked 15. Now tap the part of the wall it shows.
+- **The answer:** tap the spot on the owner's own photo of the whole wall; the zone is the market alley under the big arch. The photo's rights are settled later (owner, 4 Nov).
+- **The text path,** for when the image can't show (and for screen readers): choose 1 of 3.
+  - ✔ the market alley under the big arch
+  - the balconies
+  - the fish shop's arch
+- **Hint and reveal:** as v2.
+
+**The Trick of the Eye** (Medium):
+- **Step 1:** v2's approved question, after a new line:
+  > Point to it together, then choose.
+
+  Its "real" key stays on hold until the field check.
+- **Step 2:**
+  > You've just been fooled. What's this kind of painting called?
+  - **Options:** ✔ Trompe-l'œil · Mosaic · Graffiti.
+  - **Hints:** as v2.
+- **Reveal** (replaces v2's; the traditions come first, so a fact comes last; about 64 words):
+  > This is trompe-l'œil, French for "deceive the eye". The story goes that the day after the unveiling, the city's phones rang: "Such a beautiful wall, and you left cardboard boxes lying around?" The boxes were painted. The artists were delighted. It's said drivers can't tell the painted balconies from real ones. The workers on the side? Painted too: the electric company's thank-you for its wall.
+
+  | Line | Label | Source |
+  |---|---|---|
+  | Trompe-l'œil | Historical fact | M1 |
+  | The phone calls, the boxes, the delight | Attributed tradition | M19 |
+  | The drivers | Attributed tradition | M2 |
+  | The electric company's workers | Historical fact | M1 |
 
 **Look closer: fooled on opening day** (unscored; the group confirms itself):
 > Two painted things fooled grown-ups on opening day. Find the cardboard box, and a car-for-sale note with tear-off phone numbers.
@@ -91,7 +124,11 @@ Then:
 - **The owner remembers Benny Dagim "on the corner".** If a field check confirms where, the card can say so (`TODO(copy)`); until then, it doesn't.
 
 **The AHA:**
-- The owner's text, verbatim (v2).
+- **First, an unscored group vote** (it replaces v2's spoken prediction):
+  > Who chose what to paint here? Vote together: the city · the artists · the people who live here.
+
+  No answer is marked; the owner's text reveals it.
+- **Then** the owner's text, verbatim (v2).
 - **Its closing line,** "The painting doesn't create the community's identity. It asks us to notice what was already there.", is labelled **Interpretation (DORI's)** in the data, not a historical quotation. **Internal only, never shown to players** (owner, 4 Nov 2026; the Shuk shows no labels).
 - "Residents helped choose…" stays Historical fact (M1: "They wished to hear what the residents wanted to see on the wall… and acted accordingly").
 
@@ -138,7 +175,7 @@ Then:
 
 ### Checked against the answer-format research (4 Nov 2026)
 
-The owner's [Answer Formats pack](../../research/content/Answer_Formats_Pack/DORI_AF_00_Index.md) (rule numbers from its index) holds proposals, not decisions. Applied to v3, it suggests the changes below. **Nothing in the drafts above is changed until the owner agrees.**
+The owner's [Answer Formats pack](../../research/content/Answer_Formats_Pack/DORI_AF_00_Index.md) (rule numbers from its index) holds proposals, not decisions. Its proposals for v3 are below. **Applied to the drafts above** (owner, 4 Nov 2026), except the two "Later" rows.
 
 | Part | What the research says | Proposed change |
 |---|---|---|

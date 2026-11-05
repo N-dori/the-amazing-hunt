@@ -16,6 +16,13 @@ The [progressive-challenges plan](progressive-challenges-plan.md) sets out the r
 - **Open:** D1–D5, D7–D11, the Market Surprise stop pool, and the solo copy drafts marked TODO(copy).
 - **Phase 2 approved (owner, 2 Nov 2026) and in progress:** 2a (model B scoring on the mural) and 2b (the server's "I'm completely stuck") are committed (`17a1549`); 2c (the hint sheet and the stuck button on screen) is committed (`6b61124`); 2d (the reward pop-up) is committed (`aa2cc2d`). **UX-3** (the story, then Start, then the challenge; Marzipan unchanged) and **2e** (the silent timing record, analytics only) are committed (`fbd67d0`, `946b531`), and **all are live** (`946b531`). The owner's live review passed checks 1–12. Check 13 (who sees the stuck button) is covered by tests only, because there's no second player. Checks 14–15 (tap sizes and the draft wording) are still open. **UX-4** (the points count up in the reward pop-up; no Back buttons on the challenge) is committed and live (`fe1df94`). See the top of the [handoff](agent-handoff.md).
 
+## The mural stop's content rework: drafts, awaiting the owner (4 Nov 2026)
+
+Content only; nothing is built, and the live mural is unchanged. The [mural rework](mural-rework.md) holds v3 (recommended additions, with the [Answer Formats pack](../../research/content/Answer_Formats_Pack/DORI_AF_00_Index.md)'s proposals applied at the owner's request), v2 and the original v1.
+- **Facts from:** the knowledge files [the market mural](../knowledge/market-mural-agrippas.md) (runs 07–09, 12, 13) and [the Ohel Moshe gate](../knowledge/ohel-moshe-gate.md) (run 08).
+- **Conflict:** the live answer key (`lib/amazing-shuk/mural-task.ts`) still scores the vents, the plaque and the sign as real; the owner's correction may disagree. The owner decides after the field check.
+- **Waiting on the owner:** approval of the drafts, all `TODO(copy)` lines, the field checks and open choices listed in the rework, and the rights to the owner's wall photo for The Stamp.
+
 ## Multiplayer onboarding: PAUSED — Ready to Resume (owner, 1 Nov 2026)
 
 The multiplayer onboarding, team setup, invitation and security workstream is paused. Its I1–I3b and I4a work is live inside `87c1877`, with **join links off**. The resume index (what's built, flags, decisions, open tests, the exact next step, I3c/I4/I7a and the Stitch and UX approvals) is the top entry of the [handoff](agent-handoff.md). Older "Next" lines below about I2–I4 are history.
@@ -75,6 +82,7 @@ The multiplayer onboarding, team setup, invitation and security workstream is pa
 
 ## Waiting on the owner
 
+- The mural rework (4 Nov 2026): approve or change its drafts, then its field checks; see the section above.
 - Copy: all the missions' drafts, the UI labels, the alt texts, the cheers, "Behind the answer", the Marzipan lock note and the next-stop lines (listed per slice in the handoff).
 - Rewards: every mission's rewards and both bonuses are provisional; no food offers are approved.
 - Rights: the mural image (still unresolved in [decisions](product-decisions.md)) and the before photo's source (possibly altered). The photo rights audit is deferred.
