@@ -1,7 +1,7 @@
 ---
 name: deploy
 description: Release The Amazing Shuk to https://doriisrael.com/shuk end to end. Back up the live game, deploy main with deploy/deploy.sh shuk in tmux, remove old images, start a fresh adventure and issue fresh invitation links into .local. Run it only when the owner types /deploy.
-argument-hint: "[keep-game] [seats…]  (default seats: host player-1, guide)"
+argument-hint: "[keep-game] [seats…]  (default seats: host player-1, guide, player-2)"
 disable-model-invocation: true
 allowed-tools: Bash(free *) Bash(df *) Bash(git status *) Bash(git log *) Bash(git fetch *) Bash(git rev-parse *) Bash(tmux *) Bash(tail *) Bash(grep *) Bash(docker ps *) Bash(docker images *) Bash(curl *) Bash(.claude/skills/deploy/scripts/*) Bash(docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-new-adventure.ts --confirm)
 ---
@@ -20,9 +20,9 @@ It touches only `dori-shuk`, never `dori-game`, `dori-platform`, `dori-site` or 
 The deploy restarts the container, and the reset signs everyone out. That is why this runs only when the owner asks, and why step 2 stops if people are playing.
 
 **Arguments** (`$ARGUMENTS`):
-- Empty: the full release, with links for `host player-1` and `guide`.
+- Empty: the full release, with links for `host player-1`, `guide` and `player-2` (a second player for two-device tests, owner, 6 Nov 2026).
 - `keep-game`: deploy and clean up only. No reset, and the current links stay.
-- Any other words are the link seats for `fresh-links.sh`, e.g. `host player-1 guide player-2`. `host <seat>` makes that seat's single-use host link.
+- Any other words are the link seats for `fresh-links.sh`, e.g. `host player-1 guide player-2 player-3`. `host <seat>` makes that seat's single-use host link.
 
 ## Current state
 
@@ -70,7 +70,7 @@ Stop and tell the owner at the first failure. Never retry a failed deploy by you
    - This opens a new adventure in its lobby: everyone is signed out, and roles and progress are cleared. Seat names and action receipts stay.
    - It keeps its own copy in `/data` (`state.json.before-new-adventure-*`). Leave those copies; the owner decides about them.
 
-7. **Fresh links** (skip with `keep-game`): `.claude/skills/deploy/scripts/fresh-links.sh <seats>`, with the seats from the arguments or the default `host player-1 guide`.
+7. **Fresh links** (skip with `keep-game`): `.claude/skills/deploy/scripts/fresh-links.sh <seats>`, with the seats from the arguments or the default `host player-1 guide player-2`.
    - It deletes every old link file in `.local/amazing-shuk/live-links/` (there is one live set; void links aren't kept) and writes one file per seat, mode 600.
    - It prints file names only. **Never print, cat or paste a link or token**: the repo and this transcript aren't private, and a link is a login.
    - Links are valid for 24 h and are single-use.

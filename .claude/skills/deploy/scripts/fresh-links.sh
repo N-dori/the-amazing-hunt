@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Replaces the live invitation links: deletes every old link file, then issues one single-use link per seat into
 # .local/amazing-shuk/live-links/<seat>.txt (mode 600). It prints file names and checks only, never a link or token.
-#   fresh-links.sh host player-1 guide      ("host <seat>" makes that seat's host link; other words are plain seats)
+#   fresh-links.sh host player-1 guide player-2   ("host <seat>" makes that seat's host link; other words are plain seats)
 set -euo pipefail
 dir=/root/projects/The-Amazing-Hunt/.local/amazing-shuk/live-links
 origin=https://doriisrael.com
-[ $# -gt 0 ] || set -- host player-1 guide
+[ $# -gt 0 ] || set -- host player-1 guide player-2
 mkdir -p "$dir" && chmod 700 "$dir"
 find "$dir" -maxdepth 1 -type f -print -delete | sed 's#^.*/#links: deleted old #'
 umask 077
