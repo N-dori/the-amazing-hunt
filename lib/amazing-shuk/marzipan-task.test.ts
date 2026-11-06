@@ -120,12 +120,12 @@ test("server: two questions in order, hints per question, one award at the end, 
   await act("player-1", { missionId: MARZIPAN, type: "start" }, "marzipan-start-000001");
   await act("player-3", { missionId: MARZIPAN, type: "hint", hint: 1, step: 0 }, "marzipan-hint-q1-0001", 1);
   // A wrong answer keeps the group on question 1.
-  await act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "fully-cooled" }, "marzipan-pick-wrong-01", 2);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "fully-cooled" }, "marzipan-pick-wrong-01", 2);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit" }, "marzipan-submit-wrong1", 3), /Not quite/);
   assert.equal(choiceSession(await sessionView(path, tokens["player-3"], now + 4, MARZIPAN)).step, 0);
   // A follower can pick but not submit.
-  await act("player-3", { missionId: MARZIPAN, type: "reset" }, "marzipan-reset-000001", 5);
-  await act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-pick-warm-001", 6);
+  await act("player-2", { missionId: MARZIPAN, type: "reset" }, "marzipan-reset-000001", 5);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-pick-warm-001", 6);
   await assert.rejects(act("player-3", { missionId: MARZIPAN, type: "submit" }, "marzipan-follower-sub1", 7), /answer-submitter/);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit" }, "marzipan-submit-q1-001", 8), /next question/);
 
@@ -138,10 +138,10 @@ test("server: two questions in order, hints per question, one award at the end, 
   await act("player-1", { missionId: MARZIPAN, type: "hint", hint: 1, step: 1 }, "marzipan-hint-q2-0002", 12);
   await assert.rejects(act("player-3", { missionId: MARZIPAN, type: "hint", hint: 2, step: 1 }, "marzipan-hint-q2-0003", 13), /Invalid hint/);
   // Question 1's options don't exist on question 2.
-  await assert.rejects(act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-stale-pick-01", 14), /Choose up to/);
+  await assert.rejects(act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-stale-pick-01", 14), /Choose up to/);
   // The bonus waits for the whole mission.
-  await assert.rejects(act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "frozen-flown", part: "bonus" }, "marzipan-early-bonus01", 15), /after the main challenge/);
-  await act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "horns" }, "marzipan-pick-horns-01", 16);
+  await assert.rejects(act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "frozen-flown", part: "bonus" }, "marzipan-early-bonus01", 15), /after the main challenge/);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "horns" }, "marzipan-pick-horns-01", 16);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit" }, "marzipan-submit-q2-001", 60_000), /Task complete/);
   // Under two minutes with two hints: 100 - 10 - 15.
   const done = await sessionView(path, tokens.guide, now + 60_001, MARZIPAN);
@@ -157,10 +157,10 @@ test("server: two questions in order, hints per question, one award at the end, 
   assert.deepEqual(after.performance.reward, done.performance.reward); assert.equal(after.sharedBalance.points, done.sharedBalance.points);
 
   // Bonus: wrong, then right; points once, no food tokens.
-  await act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "cargo-ships", part: "bonus" }, "marzipan-bonus-wrong01", 60_006);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "cargo-ships", part: "bonus" }, "marzipan-bonus-wrong01", 60_006);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit", part: "bonus" }, "marzipan-bonus-subm01", 60_007), /Not quite/);
-  await act("player-3", { missionId: MARZIPAN, type: "reset", part: "bonus" }, "marzipan-bonus-reset1", 60_008);
-  await act("player-3", { missionId: MARZIPAN, type: "toggle-choice", optionId: "frozen-flown", part: "bonus" }, "marzipan-bonus-right01", 60_009);
+  await act("player-2", { missionId: MARZIPAN, type: "reset", part: "bonus" }, "marzipan-bonus-reset1", 60_008);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "frozen-flown", part: "bonus" }, "marzipan-bonus-right01", 60_009);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit", part: "bonus" }, "marzipan-bonus-subm02", 60_010), /Bonus complete/);
   assert.match(await act("player-2", { missionId: MARZIPAN, type: "submit", part: "bonus" }, "marzipan-bonus-subm03", 60_011), /already complete/);
   const final = await sessionView(path, tokens.guide, now + 60_012, MARZIPAN);
@@ -171,7 +171,7 @@ test("server: two questions in order, hints per question, one award at the end, 
 test("server: progress survives a reload from disk, and a record on a missing step is refused", () => fixture(async (path, tokens, now) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset = 0) => sessionAction(path, tokens[id], action, key, now + offset);
   await act("player-1", { missionId: MARZIPAN, type: "start" }, "marzipan-start-reload1");
-  await act("player-1", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-pick-reload01", 1);
+  await act("player-2", { missionId: MARZIPAN, type: "toggle-choice", optionId: "still-warm" }, "marzipan-pick-reload01", 1);
   await act("guide", { missionId: MARZIPAN, type: "submit" }, "marzipan-guide-submit1", 2);
   const disk = JSON.parse(await readFile(path, "utf8")), team = storedTeam(disk);
   assert.equal(team.missions[MARZIPAN].step, 1); assert.equal(team.missions[MARZIPAN].stepHintsStart, 0);

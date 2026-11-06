@@ -50,7 +50,7 @@ const stored = async (path: string, missionId: string) => storedTeam(JSON.parse(
 
 test("the awarding action records outcome, end and its queue delay; points and the view are unchanged", () => team(async (path, tokens) => {
   await act(path, tokens["player-1"], { type: "start", missionId: MURAL_MISSION_ID });
-  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-3"], { type: "toggle-choice", optionId, missionId: MURAL_MISSION_ID }, 1);
+  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-2"], { type: "toggle-choice", optionId, missionId: MURAL_MISSION_ID }, 1);
   // Submitted offline 90 s before it synced: recorded as uncertain, still the full award.
   await act(path, tokens["player-2"], { type: "submit", missionId: MURAL_MISSION_ID }, 120_000, NOW + 30_000);
   const award = await stored(path, MURAL_MISSION_ID);
@@ -72,7 +72,7 @@ test("a reveal records its delay too; an older phone that sends no queue time re
   assert.equal(revealed.outcome, "revealed"); assert.equal(revealed.endedAt, NOW + 10_000);
   assert.equal(revealed.queuedMs, 1_000); assert.equal(revealed.uncertain, undefined); assert.equal(revealed.points, 0);
   await act(path, tokens["player-1"], { type: "start", missionId: MURAL_MISSION_ID });
-  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-3"], { type: "toggle-choice", optionId, missionId: MURAL_MISSION_ID }, 1);
+  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-2"], { type: "toggle-choice", optionId, missionId: MURAL_MISSION_ID }, 1);
   await act(path, tokens["player-2"], { type: "submit", missionId: MURAL_MISSION_ID }, 20_000);
   const old = await stored(path, MURAL_MISSION_ID);
   assert.equal(old.outcome, "solved"); assert.equal(old.endedAt, NOW + 20_000);

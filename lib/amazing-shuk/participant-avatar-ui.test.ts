@@ -23,6 +23,7 @@ function loadComponent(path: string, reactOverride?: object): ComponentType<Reco
     if (id === "@/components/ui/StatusTag") return { __esModule: true, default: ({ status }: { status: string }) => createElement("span", null, status === "draft" ? "Draft" : "") };
     if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx", reactOverride) };
     if (id.startsWith("./")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx"), reactOverride) };
+    if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     return nativeRequire(id);
   };
   new Function("require", "exports", output)(localRequire, exports);
@@ -161,4 +162,19 @@ test("Food tab shows the shared token balance and a marked draft gap, never inve
   const html = text(createElement(Food, { foodTokens: 3 }));
   assert.match(html, /<strong>3<\/strong>/); assert.match(html, /aren't confirmed yet|aren&#x27;t confirmed yet/); assert.match(html, /Draft/);
   assert.doesNotMatch(html, /₪|shekel|falafel|hummus|redeem now/i);
+});
+
+test("the profile lists every main role the player holds, and the avatar carries one emblem per role (owner, 5 Nov 2026)", () => {
+  const List = loadComponent("components/amazing-shuk/ListParticipantIdentity.tsx");
+  const roles = { navigator: "a", answerSubmitter: null, researcher: "a", photographer: null };
+  const html = text(createElement(List, { participants: [{ id: "a", name: "Ari" }], currentId: "a", currentRole: "navigator", roles }));
+  assert.match(html, /Your roles: Navigator · Researcher/);
+  const solo = text(createElement(List, { participants: [{ id: "a", name: "Ari" }], currentId: "a", currentRole: "navigatorAndAnswerSubmitter", roles, solo: true }));
+  assert.match(solo, /Your roles: Navigator · Submitter · Researcher · Photographer/);
+  const Menu = loadComponent("components/amazing-shuk/IndexParticipantMenu.tsx");
+  const menu = text(createElement(Menu, { participants: [{ id: "a", name: "Ari" }], roles, currentId: "a", currentRole: "navigator", busy: false, onSignOut() {} }));
+  assert.equal((menu.match(/class="emblem"/g) ?? []).length, 2);
+  assert.match(menu, /aria-hidden="true" title="Navigator, Researcher"/);
+  const none = text(createElement(Menu, { participants: [{ id: "a", name: "Ari" }], roles: { navigator: null, answerSubmitter: null }, currentId: "a", currentRole: "follower", busy: false, onSignOut() {} }));
+  assert.doesNotMatch(none, /emblem/);
 });

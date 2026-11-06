@@ -53,9 +53,12 @@ test("a player without a main role shows none (Advisor removed, owner, 5 Nov 202
   const people = [{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }, { id: "guide", name: "Guide" }];
   const roles = { navigator: "player-1", answerSubmitter: null };
   assert.deepEqual(buildGroupRoster(people, roles, "player-2").map(member => member.responsibilities), [["Navigator"], [], ["Guide"]]);
+  // The four main roles (owner, 5 Nov 2026); Researcher and Photographer absent from the stored roles read as free.
   assert.deepEqual(buildRoleChoices(people, roles, "player-2", false), [
     { role: "navigator", label: "Navigator", holderId: "player-1", holder: "Ari", mine: false, canClaim: false },
     { role: "answerSubmitter", label: "Answer-submitter", holderId: null, holder: null, mine: false, canClaim: true },
+    { role: "researcher", label: "Researcher", holderId: null, holder: null, mine: false, canClaim: true },
+    { role: "photographer", label: "Photographer", holderId: null, holder: null, mine: false, canClaim: true },
   ]);
   assert.equal(buildRoleChoices(people, roles, "player-1", false)[0].mine, true);
   assert.ok(buildRoleChoices(people, roles, "guide", true).every(choice => !choice.canClaim), "the guide uses the guide panel");
@@ -71,9 +74,10 @@ test("the Group tab offers Take this role for a free role, Step down for your ow
   assert.match(html, /Everyone else helps at each stop/); assert.doesNotMatch(html, /advisor/i);
   assert.match(html, /Navigator:<\/strong> you/); assert.match(html, /Step down/);
   assert.match(html, /Answer-submitter:<\/strong> free/); assert.match(html, /Take this role/);
-  const other = buildRoleChoices([{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }], { navigator: "player-1", answerSubmitter: "player-1" }, "player-2", false);
+  const other = buildRoleChoices([{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }],
+    { navigator: "player-1", answerSubmitter: "player-1", researcher: "player-1", photographer: "player-1" }, "player-2", false);
   const otherHtml = renderToStaticMarkup(createElement(Choices, { choices: other, guide: false, busy: false, onClaim() {}, onRelease() {} }));
-  assert.doesNotMatch(otherHtml, /<button/); assert.match(otherHtml, /Navigator:<\/strong> Ari/);
+  assert.doesNotMatch(otherHtml, /<button/); assert.match(otherHtml, /Navigator:<\/strong> Ari/); assert.match(otherHtml, /Photographer:<\/strong> Ari/);
 });
 
 test("the team's leader gets Change on each role: every member and No one, the holder marked; nobody else does", () => {
@@ -84,7 +88,7 @@ test("the team's leader gets Change on each role: every member and No one, the h
   assert.deepEqual(assignees, [{ id: "player-1", name: "Ari", you: true }, { id: "player-2", name: "Bea", you: false }], "never the guide");
   const html = renderToStaticMarkup(createElement(Choices, { choices: buildRoleChoices(people, roles, "player-1", false), guide: false, busy: false,
     onClaim() {}, onRelease() {}, assignees, onAssign() {} }));
-  assert.equal(html.match(/<summary/g)?.length, 2);
+  assert.equal(html.match(/<summary/g)?.length, 4);
   assert.match(html, /As team leader, you can change who holds each role/);
   assert.match(html, /Ari \(you\)/);
   // The navigator's current holder (Bea) and the free Submitter's No one are pressed and disabled.

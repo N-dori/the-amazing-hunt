@@ -91,10 +91,13 @@ test("two isolated cookie jars retain identities and share persistent progress (
   assert.equal((await call(a, { type: "switch-actor", actorId: "guide", actionId: "switch-actor-test-1" })).status, 403);
   assert.equal((await call(a, { type: "assign-role", role: "navigator", participantId: "player-2", actionId: "assign-role-test-1" })).status, 403);
   assert.equal((await call(a, { missionId: WELL, type: "start", actionId: "start-challenge-001" })).status, 200);
-  assert.equal((await call(a, { missionId: WELL, type: "reset", actionId: "reset-action-test-1" })).status, 200);
+  // Only the Submitter moves or resets (owner, 5 Nov 2026): the navigator is refused, the Submitter's browser does it.
+  assert.equal((await call(a, { missionId: WELL, type: "reset", actionId: "reset-action-test-0" })).status, 403);
+  assert.equal((await call(b, { missionId: WELL, type: "reset", actionId: "reset-action-test-1", expectedParticipantId: idB })).status, 200);
   assert.equal((await call(a, { missionId: WELL, type: "submit", actionId: "submit-action-test-1" })).status, 403);
-  assert.equal((await call(a, { missionId: WELL, type: "move", move: "fill-large", actionId: "move-action-test-1" }, { origin: "https://attacker.example" })).status, 403);
-  assert.equal((await call(a, { missionId: WELL, type: "move", move: "fill-large", actionId: "move-action-test-1" })).status, 200);
+  assert.equal((await call(b, { missionId: WELL, type: "move", move: "fill-large", actionId: "move-action-test-1", expectedParticipantId: idB }, { origin: "https://attacker.example" })).status, 403);
+  assert.equal((await call(a, { missionId: WELL, type: "move", move: "fill-large", actionId: "move-action-test-0" })).status, 403);
+  assert.equal((await call(b, { missionId: WELL, type: "move", move: "fill-large", actionId: "move-action-test-1", expectedParticipantId: idB })).status, 200);
   const stateA = await (await call(a)).json();
   const stateB = await (await call(b)).json();
   assert.equal(stateA.session.activeActorId, idA);
@@ -232,13 +235,16 @@ test("guide cannot bypass the jar goal; reset and repeated completion preserve t
 }));
 
 
-test("two participants measure two liters twice and finalize the same shared jar", () => fixture(async path => {
+test("the Submitter and the guide measure two liters twice on one shared jar; the navigator only watches", () => fixture(async path => {
   const first = await seat(path, "player-1");
   const submitter = await seat(path, "player-2");
   await sessionAction(path, first, { missionId: WELL, type: "start" }, "first-start-challenge");
   const sequence = ["fill-large", "pour-large-into-small", "pour-large-into-jar", "empty-small", "fill-large", "pour-large-into-small", "pour-large-into-jar"] as const;
+  const guide = await seat(path, "guide");
+  // Only the Submitter moves (owner, 5 Nov 2026); the guide may too. The navigator sees every move but can't make one.
+  await assert.rejects(sessionAction(path, first, { missionId: WELL, type: "move", move: "fill-large" }, "two-rounds-navigator-move"), /Only the Submitter/);
   for (const [index, move] of sequence.entries()) {
-    await sessionAction(path, index % 2 ? submitter : first, { missionId: WELL, type: "move", move }, `two-rounds-move-${index}`);
+    await sessionAction(path, index % 2 ? submitter : guide, { missionId: WELL, type: "move", move }, `two-rounds-move-${index}`);
     assert.deepEqual(cupsOf(await sessionView(path, first)), cupsOf(await sessionView(path, submitter)));
   }
   assert.deepEqual(cupsOf(await sessionView(path, first)), { small: 3, large: 0, jar: 4 });
@@ -252,8 +258,10 @@ test("concurrent queued actions retry lock contention without overwriting shared
   const first = await seat(path, "player-1");
   const second = await seat(path, "player-2");
   await sessionAction(path, first, { missionId: WELL, type: "start" }, "concurrent-start-challenge");
+  // Two writers at once: the Submitter and the guide (only they move, owner, 5 Nov 2026).
+  const guide = await seat(path, "guide");
   const actions = [
-    { token: first, action: { missionId: WELL, type: "move", move: "fill-small" } as const, id: "concurrent-fill-small" },
+    { token: guide, action: { missionId: WELL, type: "move", move: "fill-small" } as const, id: "concurrent-fill-small" },
     { token: second, action: { missionId: WELL, type: "move", move: "fill-large" } as const, id: "concurrent-fill-large" },
   ];
   const results = await Promise.allSettled(actions.map(item => sessionAction(path, item.token, item.action, item.id)));
@@ -265,9 +273,9 @@ test("concurrent queued actions retry lock contention without overwriting shared
     }
   }
   assert.deepEqual(cupsOf(await sessionView(path, first)), { small: 3, large: 5, jar: 0 });
-  await sessionAction(path, first, { missionId: WELL, type: "move", move: "empty-small" }, "concurrent-return-small");
+  await sessionAction(path, guide, { missionId: WELL, type: "move", move: "empty-small" }, "concurrent-return-small");
   // A delayed duplicate fill must not put returned water back into the small vessel.
-  await sessionAction(path, first, actions[0].action, actions[0].id);
+  await sessionAction(path, actions[0].token, actions[0].action, actions[0].id);
   assert.deepEqual(cupsOf(await sessionView(path, second)), { small: 0, large: 5, jar: 0 });
 }));
 
@@ -355,8 +363,9 @@ test("a burst of writes in one process waits in line: none is busy, none is lost
   const first = await seat(path, "player-1");
   const second = await seat(path, "player-2");
   await sessionAction(path, first, { missionId: WELL, type: "start" }, "line-start-challenge-01");
+  const guide = await seat(path, "guide");
   const moves = [
-    { token: first, action: { missionId: WELL, type: "move", move: "fill-small" } as const, id: "line-fill-small-001" },
+    { token: guide, action: { missionId: WELL, type: "move", move: "fill-small" } as const, id: "line-fill-small-001" },
     { token: second, action: { missionId: WELL, type: "move", move: "fill-large" } as const, id: "line-fill-large-001" },
   ];
   // Every move sent three times at once (a lost reply and two retries): all succeed, and each changes the cups once.

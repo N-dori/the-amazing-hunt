@@ -7,7 +7,7 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { link, mkdir, readFile, open, rename, rm, stat } from "node:fs/promises";
 import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, isWaterPuzzleSolved, type WaterCups } from "./water-measurement.ts";
 import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
-import { claimGroupRole, effectiveRoles, isSoloTeam, mayReveal, releaseGroupRole, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { claimGroupRole, effectiveRoles, holderOf, isSoloTeam, MAIN_ROLES, mayChangeAnswer, mayReveal, releaseGroupRole, roleForParticipant, setGroupRole, type AssignableGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { soloLine } from "./solo-copy.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount, requiredRolesMissing } from "./adventure-lobby.ts";
@@ -95,7 +95,9 @@ const SELF_ARRIVAL_GROUP = "Arrival confirmed. You've made it!";
 const ARRIVAL_ALREADY = "Arrival already recorded.";
 /** A player who isn't the team's leader (or the guide) tries to change someone's role. TODO(copy): draft (O16). */
 export const ROLE_CHANGE_REFUSED = "Only your team's leader or the guide can change roles.";
-// TODO(copy): draft (onboarding and roles, 5 Nov 2026).
+// TODO(copy): drafts (onboarding and roles, 5 Nov 2026).
+export const ANSWER_IS_SUBMITTERS = "Only the Submitter chooses the group's answer. Tell them what you think.";
+const ROLE_WORDS: Readonly<Record<AssignableGroupRole, string>> = { navigator: "navigator", answerSubmitter: "answer-submitter", researcher: "researcher", photographer: "photographer" };
 export const ROLES_NEEDED = "Choose a Navigator and a Submitter before you start.";
 /** Development only: an action a phone queued before a development reset. Never shown live, where no reset epoch is ever set. */
 export const DEV_RESET_STALE = "This action was made before a development reset, so it was dropped.";
@@ -230,7 +232,8 @@ function migrate(raw: Buffer | null): { db: Database; older: boolean } {
   for (const [teamId, team] of Object.entries(db.teams)) {
     const members = memberIds(db, teamId);
     if (!team || !team.roles || !team.missions || !isValidJoin(team) || (team.leaderId !== null && !members.includes(team.leaderId))
-      || [team.roles.navigator, team.roles.answerSubmitter].some(id => id !== null && !members.includes(id))) throw new Error("Unsupported Shuk storage state");
+      || MAIN_ROLES.some(role => { const id = team.roles[role]; return id !== undefined && id !== null && !members.includes(id); })
+      || [team.roles.navigator, team.roles.answerSubmitter].some(id => id === undefined)) throw new Error("Unsupported Shuk storage state");
     teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
   }
   db.teams = teams;
@@ -662,6 +665,8 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       stepHintsUsed: record.performance.hintsUsed - (record.kind === "choice" ? record.stepHintsStart ?? 0 : 0),
       canStart: guide || role !== "follower", reward: award ? { points: award.points, foodTokens: award.foodTokens, hintsUsed: award.hintsUsed } : null,
       canReveal: definition.reveal !== false && !record.completed && record.performance.startedAt !== null && mayReveal(participantId, roles, guide),
+      // Whether this phone may pick or move (owner, 5 Nov 2026): the others see the shared answer read-only.
+      canAnswer: mayChangeAnswer(participantId, roles, guide),
       revealed: award?.outcome === "revealed", ...(award ? { awardedAt: award.awardedAt } : {}) },
     // The team's balance covers every one of its missions' recorded rewards.
     sharedBalance: { ...balanceOf(records), status: "Provisional local-development rewards" },
@@ -690,6 +695,8 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     const solo = isSoloTeam(ids);
     if (action.type === "submit" && participantId !== DEV_GUIDE_ID && !["answerSubmitter", "navigatorAndAnswerSubmitter"].includes(roleForParticipant(participantId, roles))) throw new AccessError("Only the answer-submitter may submit");
     if (action.type === "confirm-arrival" && participantId !== DEV_GUIDE_ID) throw new AccessError("Only the guide may confirm group arrival");
+    // Only the Submitter picks or moves (owner, 5 Nov 2026); the others watch. Anyone may while the Submitter seat is empty.
+    if ((action.type === "toggle-choice" || action.type === "move" || action.type === "reset") && !mayChangeAnswer(participantId, roles, participantId === DEV_GUIDE_ID)) throw new AccessError(ANSWER_IS_SUBMITTERS);
     if (action.type === "switch-actor") throw new AccessError("Identity comes from the authenticated session");
     if (!/^[A-Za-z0-9-]{16,80}$/.test(actionId)) throw new AccessError("Invalid action ID", 400);
     const applied = db.applied[participantId] ?? [];
@@ -736,8 +743,8 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           delete db.participants[target];
           for (const [key, session] of Object.entries(db.sessions)) if (session.participantId === target) delete db.sessions[key];
           delete db.applied[target];
-          team.roles = { navigator: team.roles.navigator === target ? null : team.roles.navigator,
-            answerSubmitter: team.roles.answerSubmitter === target ? null : team.roles.answerSubmitter };
+          // Every role they held frees up; the optional roles stay absent when nobody ever held them.
+          team.roles = Object.fromEntries(Object.entries(team.roles).map(([role, id]) => [role, id === target ? null : id])) as GroupRoleAssignments;
           message = "Removed from the team.";
         } else {
           const request = team.joinRequests?.[action.requestId];
@@ -767,13 +774,13 @@ export async function sessionAction(path: string, token: string, action: GroupAc
       } else if (action.type === "claim-role" || action.type === "release-role") {
         // Players choose their own roles: a free role can be taken, your own can be given up. The guide assigns any role.
         if (guide) throw new Error("The guide assigns roles from the guide panel.");
-        const label = action.role === "navigator" ? "navigator" : "answer-submitter";
+        const label = ROLE_WORDS[action.role];
         if (action.type === "claim-role") {
-          if (team.roles[action.role] !== null && team.roles[action.role] !== participantId) throw new Error(`Someone else is already the ${label}. They can step down, or ask your guide.`);
+          if (holderOf(team.roles, action.role) !== null && holderOf(team.roles, action.role) !== participantId) throw new Error(`Someone else is already the ${label}. They can step down, or ask your guide.`);
           team.roles = claimGroupRole(ids, team.roles, action.role, participantId);
           message = `You're the ${label} now.`;
         } else {
-          if (team.roles[action.role] !== participantId) throw new Error(`You aren't the ${label}.`);
+          if (holderOf(team.roles, action.role) !== participantId) throw new Error(`You aren't the ${label}.`);
           team.roles = releaseGroupRole(ids, team.roles, action.role, participantId);
           message = `You've stepped down. The ${label} role is free for someone else.`;
         }

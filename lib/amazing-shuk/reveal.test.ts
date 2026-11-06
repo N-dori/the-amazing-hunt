@@ -48,7 +48,7 @@ test("the Submitter reveals once: 0 points, the core's food tokens, hints kept; 
   // Two phones and a replayed queue: the same action ID is a receipt, a new one finds the award.
   assert.equal(await act(path, tokens["player-2"], reveal(MURAL), id, 2), "Action already synced.");
   assert.match(await act(path, tokens.guide, reveal(MURAL), key("guide-late"), 3), /already complete/);
-  await assert.rejects(act(path, tokens["player-3"], { type: "toggle-choice", optionId: "plaque", missionId: MURAL }), /already complete/);
+  await assert.rejects(act(path, tokens["player-2"], { type: "toggle-choice", optionId: "plaque", missionId: MURAL }), /already complete/);
   await act(path, tokens["player-2"], { type: "submit", missionId: MURAL }, key("late-submit"), 4);
   const shown = await view(path, tokens["player-3"], MURAL, 5);
   assert.equal(shown.session.completed, true); assert.equal(shown.mission.state, "completed");
@@ -63,7 +63,7 @@ test("the Submitter reveals once: 0 points, the core's food tokens, hints kept; 
 
 test("a solve that lands first wins: a later reveal is a no-op and the points stay", () => team(async (path, tokens) => {
   await act(path, tokens["player-1"], { type: "start", missionId: MURAL });
-  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-3"], { type: "toggle-choice", optionId, missionId: MURAL });
+  for (const optionId of ["air-vents", "plaque"]) await act(path, tokens["player-2"], { type: "toggle-choice", optionId, missionId: MURAL });
   await act(path, tokens["player-2"], { type: "submit", missionId: MURAL }, key("solve-first"), 1);
   assert.match(await act(path, tokens["player-2"], reveal(MURAL), key("reveal-second"), 2), /already complete/);
   const shown = await view(path, tokens["player-1"], MURAL, 3);

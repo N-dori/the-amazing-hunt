@@ -1,6 +1,6 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
-import { effectiveRoles, isSoloTeam, newlyHeldRoles, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { effectiveRoles, heldRoles, isSoloTeam, mayChangeAnswer, newlyHeldRoles, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 
 const participants = ["p1", "p2", "p3"] as const;
 const empty: GroupRoleAssignments = { navigator: null, answerSubmitter: null };
@@ -63,4 +63,24 @@ test("the role card announces only roles newly given to this player, never on th
   assert.deepEqual(newlyHeldRoles({ navigator: "player-1", answerSubmitter: null }, { navigator: "player-1", answerSubmitter: null }, "player-1"), []);
   assert.deepEqual(newlyHeldRoles({ navigator: "player-1", answerSubmitter: null }, none, "player-1"), []);
   assert.deepEqual(newlyHeldRoles({ navigator: "player-2", answerSubmitter: null }, { navigator: "player-1", answerSubmitter: null }, "player-1"), ["navigator"]);
+});
+
+test("four main roles (owner, 5 Nov 2026): Researcher and Photographer are given like the others, one player may hold several", () => {
+  const ids = ["p1", "p2"];
+  const none = { navigator: null, answerSubmitter: null };
+  const given = setGroupRole(ids, setGroupRole(ids, none, "researcher", "p2"), "photographer", "p2");
+  assert.deepEqual(given, { navigator: null, answerSubmitter: null, researcher: "p2", photographer: "p2" });
+  assert.deepEqual(heldRoles(given, "p2"), ["researcher", "photographer"]);
+  assert.deepEqual(heldRoles(none, "p1", true), ["navigator", "answerSubmitter", "researcher", "photographer"], "a solo player holds every role");
+  assert.deepEqual(newlyHeldRoles(none, given, "p2"), ["researcher", "photographer"]);
+  assert.throws(() => setGroupRole(ids, none, "photographer", "stranger"), /current group participant/);
+  // Neither carries a permission: they never make a player the navigator or the Submitter.
+  assert.equal(roleForParticipant("p2", given), "follower");
+});
+
+test("only the Submitter changes the answer; the guide may; anyone may while the Submitter seat is empty", () => {
+  const roles = { navigator: "p1", answerSubmitter: "p2" };
+  assert.deepEqual(["p1", "p2", "p3"].map(id => mayChangeAnswer(id, roles, false)), [false, true, false]);
+  assert.equal(mayChangeAnswer("guide", roles, true), true);
+  assert.equal(mayChangeAnswer("p3", { navigator: "p1", answerSubmitter: null }, false), true);
 });

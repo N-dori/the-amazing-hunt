@@ -1,4 +1,4 @@
-import type { AssignableGroupRole, GroupRoleAssignments, ParticipantRole } from "./roles.ts";
+import { holderOf, MAIN_ROLES, type AssignableGroupRole, type GroupRoleAssignments, type ParticipantRole } from "./roles.ts";
 
 /** What players see for a role, or null for a player with no main role: Advisor was removed (owner, 5 Nov 2026); those players get
  * the stop's parts instead. The code keeps "follower". */
@@ -32,12 +32,13 @@ export function buildGroupRoster(participants: readonly ParticipantIdentity[], r
   }));
 }
 
-export type RoleChoiceView = Readonly<{ role: "navigator" | "answerSubmitter"; label: string; holderId: string | null; holder: string | null; mine: boolean; canClaim: boolean }>;
-/** The two roles as the signed-in player sees them: who holds each, and whether they can take it or step down. */
+export type RoleChoiceView = Readonly<{ role: AssignableGroupRole; label: string; holderId: string | null; holder: string | null; mine: boolean; canClaim: boolean }>;
+const CHOICE_LABEL: Readonly<Record<AssignableGroupRole, string>> = { navigator: "Navigator", answerSubmitter: "Answer-submitter", researcher: "Researcher", photographer: "Photographer" };
+/** The four main roles as the signed-in player sees them (owner, 5 Nov 2026): who holds each, and whether they can take it or step down. */
 export function buildRoleChoices(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guide: boolean): readonly RoleChoiceView[] {
-  return (["navigator", "answerSubmitter"] as const).map(role => {
-    const holderId = roles[role];
-    return { role, label: role === "navigator" ? "Navigator" : "Answer-submitter", holderId,
+  return MAIN_ROLES.map(role => {
+    const holderId = holderOf(roles, role);
+    return { role, label: CHOICE_LABEL[role], holderId,
       holder: holderId === null ? null : participants.find(participant => participant.id === holderId)?.name ?? holderId,
       mine: holderId === currentId, canClaim: !guide && holderId === null };
   });
@@ -51,15 +52,11 @@ export function buildRoleAssignees(participants: readonly ParticipantIdentity[],
 
 export type LobbyRoleChipView = Readonly<{ id: string; name: string; you: boolean; selected: boolean }>;
 export type LobbyRoleRowView = Readonly<{ role: AssignableGroupRole; holderId: string | null; chips: readonly LobbyRoleChipView[] }>;
-/** The roles step of the lobby, the casting call (owner, 5 Nov 2026): one row per required role, in order, each with a chip for every
- * member of the team (never the guide), the holder selected. One player may hold both roles. */
+/** The roles step of the lobby, the casting call (owner, 5 Nov 2026): one row per main role, in order (Navigator, Submitter, Researcher,
+ * Photographer; the Photographer always shown), each with a chip for every member of the team (never the guide), the holder selected.
+ * One player may hold several roles. */
 export function buildLobbyRoleRows(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guideId = "guide"): readonly LobbyRoleRowView[] {
   const assignees = buildRoleAssignees(participants, currentId, guideId);
-  return (["navigator", "answerSubmitter"] as const).map(role => ({ role, holderId: roles[role],
-    chips: assignees.map(person => ({ ...person, selected: person.id === roles[role] })) }));
-}
-
-/** The main roles one participant holds, in the lobby's order: what the waiting screen and the Ready step say about them. */
-export function heldRoles(roles: GroupRoleAssignments, participantId: string): readonly AssignableGroupRole[] {
-  return (["navigator", "answerSubmitter"] as const).filter(role => roles[role] === participantId);
+  return MAIN_ROLES.map(role => ({ role, holderId: holderOf(roles, role),
+    chips: assignees.map(person => ({ ...person, selected: person.id === holderOf(roles, role) })) }));
 }

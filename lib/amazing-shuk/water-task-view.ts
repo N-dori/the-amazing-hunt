@@ -1,3 +1,4 @@
+import { READ_ONLY_NOTE } from "./mural-task-view.ts";
 import { applyWaterMove, isWaterPuzzleSolved, WATER_CAPACITY, type WaterCups, type WaterMove, type WaterSubmissionRole } from "./water-measurement.ts";
 
 export type WaterContainerId = keyof WaterCups;
@@ -12,16 +13,18 @@ export type WaterTaskView = Readonly<{
   containers: readonly WaterContainerView[]; actions: readonly WaterActionView[];
   solved: boolean; completed: boolean; canSubmit: boolean; canReset: boolean;
   busy: boolean; submitDisabled: boolean; status: string; prompt: string; pouring: boolean;
+  /** Someone else is the Submitter: this phone watches the vessels but can't move water (owner, 5 Nov 2026). Empty otherwise. */
+  readOnlyNote: string;
 }>;
 function pourMove(from: WaterContainerId | null, to: WaterContainerId): WaterMove | null {
   if (!from || from === "jar" || from === to) return null;
   return `pour-${from}-into-${to}` as WaterMove;
 }
 /** Internal empty-* IDs stay compatible with existing queued return actions. */
-export function buildWaterTaskView(cups: WaterCups, completed: boolean, role: WaterSubmissionRole, busy: boolean, interaction = INITIAL_WATER_INTERACTION, started = true): WaterTaskView {
+export function buildWaterTaskView(cups: WaterCups, completed: boolean, role: WaterSubmissionRole, busy: boolean, interaction = INITIAL_WATER_INTERACTION, started = true, canAnswer = true): WaterTaskView {
   const solved = isWaterPuzzleSolved(cups);
   const available = (move: WaterMove | null) => {
-    if (!move || !started || busy || completed || solved) return false;
+    if (!move || !started || busy || completed || solved || !canAnswer) return false;
     const next = applyWaterMove(cups, move);
     return next !== null && (next.small !== cups.small || next.large !== cups.large || next.jar !== cups.jar);
   };
@@ -44,14 +47,15 @@ export function buildWaterTaskView(cups: WaterCups, completed: boolean, role: Wa
       return {
         id, label, amount: cups[id], capacity: WATER_CAPACITY[id], percentage: cups[id] / WATER_CAPACITY[id] * 100,
         selected: id === selected, destinationMove,
-        disabled: !started || busy || completed || solved || (pouring && !destinationMove),
+        disabled: !started || busy || completed || solved || !canAnswer || (pouring && !destinationMove),
         accessibleLabel: `${pouring && destinationMove ? "Pour into " : "Select "}${label}, ${cups[id]} of ${WATER_CAPACITY[id]} liters`,
       };
     }),
     actions, pouring, solved, completed, busy,
-    prompt: !started || solved || completed ? "" : pouring ? "Choose a container to pour into." : selected === "jar" ? "Your family's jar collects the water. Select a measuring vessel to fill it." : selected ? `${WATER_CAPACITY[selected]} L measuring vessel selected` : "Tap a measuring vessel to begin.",
+    prompt: !started || solved || completed || !canAnswer ? "" : pouring ? "Choose a container to pour into." : selected === "jar" ? "Your family's jar collects the water. Select a measuring vessel to fill it." : selected ? `${WATER_CAPACITY[selected]} L measuring vessel selected` : "Tap a measuring vessel to begin.",
     canSubmit: ["guide", "answerSubmitter", "navigatorAndAnswerSubmitter"].includes(role),
-    canReset: !completed && !busy && (cups.small + cups.large + cups.jar > 0),
+    canReset: !completed && !busy && canAnswer && (cups.small + cups.large + cups.jar > 0),
+    readOnlyNote: started && !completed && !canAnswer ? READ_ONLY_NOTE : "",
     submitDisabled: busy || completed || !solved,
     status: completed ? "Group answer accepted." : solved ? "Solved! Your family's jar holds exactly 4 liters. Submit your group answer." : "",
   };

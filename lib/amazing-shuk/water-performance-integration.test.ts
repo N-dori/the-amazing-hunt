@@ -28,7 +28,7 @@ const snapshot = async (path: string) => storedTeam(await stored(path));
 
 test("server clock survives devices and stops on solution; rewards issue only once", () => fixture(async (path, tokens, base) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, base + offset);
-  await assert.rejects(act("player-1", { missionId: WELL, type: "move", move: "fill-large" }, "before-start-move-001", 0));
+  await assert.rejects(act("player-2", { missionId: WELL, type: "move", move: "fill-large" }, "before-start-move-001", 0));
   await assert.rejects(act("player-3", { missionId: WELL, type: "start" }, "follower-start-001", 0));
   await act("player-1", { missionId: WELL, type: "start" }, "authorized-start-001", 0);
   await act("player-2", { missionId: WELL, type: "start" }, "other-device-start-001", 60000);
@@ -42,7 +42,7 @@ test("server clock survives devices and stops on solution; rewards issue only on
   assert.equal(before.performance.started, true);
   assert.equal("guideTiming" in before, false);
   assert.doesNotMatch(JSON.stringify(before), /startedAt|solvedAt|elapsedMs|clockStartedAt/);
-  await act("player-3", { missionId: WELL, type: "move", move: "fill-large" }, "follower-fill-large-001", 119000);
+  await act("player-2", { missionId: WELL, type: "move", move: "fill-large" }, "follower-fill-large-001", 119000);
   await act("player-2", { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "submitter-fill-jar-001", 119999);
   const stopped = await sessionView(path, tokens.guide, base + 700000);
   assert.equal(stopped.guideTiming!.startedAt, base);

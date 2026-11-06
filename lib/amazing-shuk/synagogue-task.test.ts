@@ -70,16 +70,16 @@ test("server: a wrong guess can be revised; the tavern completes the mission onc
   await act("player-1", { missionId: SYN, type: "start" }, "syn-navigator-start-01", 0);
   await act("player-3", { missionId: SYN, type: "hint", hint: 1 }, "syn-follower-hint-0001", 1);
   await assert.rejects(act("player-3", { missionId: SYN, type: "hint", hint: 3 }, "syn-hint-past-the-end", 1));
-  await act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "bakery" }, "syn-follower-pick-0001", 2);
-  await assert.rejects(act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-second-pick-00001", 3));
+  await act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "bakery" }, "syn-follower-pick-0001", 2);
+  await assert.rejects(act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-second-pick-00001", 3));
   // Followers pick together but can't submit; the answer-submitter can.
   await assert.rejects(act("player-3", { missionId: SYN, type: "submit" }, "syn-follower-submit-01", 4), { status: 403 });
   assert.match(await act("player-2", { missionId: SYN, type: "submit" }, "syn-wrong-submit-0001", 5), /Not quite/);
   const wrong = await sessionView(path, tokens.guide, now + 6, SYN);
   assert.equal(wrong.session.completed, false); assert.equal(wrong.performance.reward, null);
   assert.deepEqual("selected" in wrong.session ? wrong.session.selected : null, ["bakery"]);
-  await act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "bakery" }, "syn-unpick-bakery-001", 7);
-  await act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-pick-tavern-00001", 8);
+  await act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "bakery" }, "syn-unpick-bakery-001", 7);
+  await act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-pick-tavern-00001", 8);
   assert.match(await act("player-2", { missionId: SYN, type: "submit" }, "syn-right-submit-0001", 60_000), /correct/);
   const done = await sessionView(path, tokens["player-1"], now + 70_000, SYN);
   assert.equal(done.session.completed, true); assert.equal(done.mission.state, "completed");
@@ -87,7 +87,7 @@ test("server: a wrong guess can be revised; the tavern completes the mission onc
   // Repeats and guide approval don't pay twice.
   await act("player-2", { missionId: SYN, type: "submit" }, "syn-repeat-submit-001", 80_000);
   await act("guide", { missionId: SYN, type: "guide-approve" }, "syn-guide-approve-001", 80_000);
-  await assert.rejects(act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-pick-after-done-1", 80_000));
+  await assert.rejects(act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "syn-pick-after-done-1", 80_000));
   const after = await sessionView(path, tokens["player-3"], now + 90_000, SYN);
   assert.deepEqual(after.sharedBalance, { points: 90, foodTokens: 2, status: "Provisional local-development rewards" });
   // The mural is untouched.
@@ -123,20 +123,20 @@ test("server: the bonus opens after the main answer, allows retries, adds its po
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, now + offset);
   const bonus = (type: "toggle-choice" | "submit" | "reset", optionId = "") => ({ type, missionId: SYN, part: "bonus", ...(optionId ? { optionId } : {}) }) as Parameters<typeof sessionAction>[2];
   await act("player-1", { missionId: SYN, type: "start" }, "bonus-main-start-0001", 0);
-  await assert.rejects(act("player-3", bonus("toggle-choice", "beauty-queen"), "bonus-too-early-00001", 1), /after the main challenge/);
-  await act("player-3", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "bonus-main-pick-00001", 2);
+  await assert.rejects(act("player-2", bonus("toggle-choice", "beauty-queen"), "bonus-too-early-00001", 1), /after the main challenge/);
+  await act("player-2", { missionId: SYN, type: "toggle-choice", optionId: "tavern" }, "bonus-main-pick-00001", 2);
   await act("player-2", { missionId: SYN, type: "submit" }, "bonus-main-submit-001", 60_000);
   const main = await sessionView(path, tokens["player-3"], now + 60_001, SYN);
   assert.deepEqual(main.sharedBalance, { points: 100, foodTokens: 2, status: "Provisional local-development rewards" });
   assert.deepEqual("bonus" in main.session ? main.session.bonus : null, { selected: [], completed: false, points: 0 });
-  await act("player-3", bonus("toggle-choice", "pearl-mahane-yehuda"), "bonus-wrong-pick-0001", 60_002);
+  await act("player-2", bonus("toggle-choice", "pearl-mahane-yehuda"), "bonus-wrong-pick-0001", 60_002);
   await assert.rejects(act("player-3", bonus("submit"), "bonus-follower-submit", 60_003), { status: 403 });
   assert.match(await act("player-2", bonus("submit"), "bonus-wrong-submit-01", 60_004), /Not quite/);
-  await act("player-3", bonus("reset"), "bonus-clear-picks-001", 60_005);
-  await act("player-3", bonus("toggle-choice", "beauty-queen"), "bonus-right-pick-0001", 60_006);
+  await act("player-2", bonus("reset"), "bonus-clear-picks-001", 60_005);
+  await act("player-2", bonus("toggle-choice", "beauty-queen"), "bonus-right-pick-0001", 60_006);
   assert.match(await act("player-2", bonus("submit"), "bonus-right-submit-01", 60_007), /Bonus complete/);
   assert.match(await act("player-2", bonus("submit"), "bonus-repeat-submit-1", 60_008), /already complete/);
-  await assert.rejects(act("player-3", bonus("toggle-choice", "beauty-queen"), "bonus-pick-after-0001", 60_009));
+  await assert.rejects(act("player-2", bonus("toggle-choice", "beauty-queen"), "bonus-pick-after-0001", 60_009));
   const done = await sessionView(path, tokens.guide, now + 60_010, SYN);
   // The bonus's own award time comes too (Phase 2d), so phones can announce it once.
   const doneBonus = "bonus" in done.session ? done.session.bonus : null;
@@ -145,7 +145,7 @@ test("server: the bonus opens after the main answer, allows retries, adds its po
   assert.deepEqual(done.sharedBalance, { points: 100 + SYNAGOGUE_MISSION.bonus.points, foodTokens: 2, status: "Provisional local-development rewards" });
   assert.deepEqual(done.performance.reward, main.performance.reward);
   // A mission without a bonus refuses bonus actions.
-  await assert.rejects(act("player-3", { type: "reset", missionId: MURAL_MISSION_ID, part: "bonus" }, "bonus-on-the-mural-01", 60_011), /no bonus/);
+  await assert.rejects(act("player-2", { type: "reset", missionId: MURAL_MISSION_ID, part: "bonus" }, "bonus-on-the-mural-01", 60_011), /no bonus/);
 }));
 
 test("an existing synagogue record from before the bonus keeps its progress and gains an empty bonus", () => fixture(async (path, tokens, now) => {

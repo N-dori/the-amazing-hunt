@@ -55,7 +55,10 @@ test("the casting call: a question per role, a chip per player, the holder press
   assert.match(out, /Who&#x27;ll find the way\?/); assert.match(out, /Who&#x27;ll send our answers\?/);
   assert.match(out, /aria-pressed="true" aria-label="Bea as Navigator"/);
   assert.match(out, /aria-pressed="false" aria-label="Ari as Submitter"/);
-  assert.equal((out.match(/No one yet/g) ?? []).length, 1);
+  // Four rows (owner, 5 Nov 2026: the Photographer always shown); Submitter, Researcher and Photographer are free here.
+  assert.match(out, /Who&#x27;ll look things up online\?/); assert.match(out, /Who&#x27;ll take the photos\?/);
+  assert.equal((out.match(/<fieldset/g) ?? []).length, 4);
+  assert.equal((out.match(/No one yet/g) ?? []).length, 3);
   // Never the guide, and never the old name.
   assert.doesNotMatch(out, /Guide|Answer-submitter|Advisor/);
 });

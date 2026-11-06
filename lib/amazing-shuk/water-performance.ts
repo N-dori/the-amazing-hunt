@@ -28,6 +28,8 @@ export type WaterPerformance = Readonly<{
 // `canReveal`: this phone may press "I'm completely stuck" now; `revealed`: the award came from a reveal (0 points).
 export type WaterPerformanceView = Readonly<{ started: boolean; hintsUsed: number; stepHintsUsed?: number; canStart: boolean; reward: WaterReward | null;
   canReveal?: boolean; revealed?: boolean;
+  // False while someone else is the Submitter (owner, 5 Nov 2026): this phone watches the shared answer. Absent means it may answer.
+  canAnswer?: boolean;
   // When the challenge's award was recorded (Phase 2d): the reward pop-up's key.
   awardedAt?: number }>;
 export type GuideTimingView = Readonly<{ startedAt: number | null; solvedAt: number | null; stoppedElapsedMs: number | null; paused: boolean; excluded: boolean }>;

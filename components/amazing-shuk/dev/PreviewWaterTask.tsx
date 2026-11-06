@@ -68,6 +68,7 @@ export default function PreviewWaterTask({ view, performance, narrative, help, a
         <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
       </dl> : null}
     </section> : null}
+    {view.readOnlyNote ? <p className={styles.readOnly} role="status">{view.readOnlyNote}</p> : null}
     {view.status && !view.completed ? <p id="water-puzzle-status" tabIndex={-1} className={styles.success} role="status" aria-live="polite">{view.status}</p> : null}
     <div className={styles.contextControls}>
       {view.prompt ? <p id="water-controls-heading" tabIndex={-1} className={styles.prompt} aria-live="polite">{view.prompt}</p> : null}

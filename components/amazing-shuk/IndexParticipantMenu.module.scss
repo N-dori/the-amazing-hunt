@@ -1,6 +1,6 @@
 // The panel drops from the avatar over the page; it sits above the map and the mission sheet (z-index 1000).
 .menu { position: relative; flex: none; }
-.toggle { display: grid; place-items: center; min-width: 3rem; min-height: 3rem; padding: .25rem; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.toggle { position: relative; display: grid; place-items: center; min-width: 3rem; min-height: 3rem; padding: .25rem; border: 0; border-radius: 50%; background: none; cursor: pointer; }
 .toggle[aria-expanded="true"] { background: var(--chalk-tint); }
 .toggle:focus-visible, .close:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .panel { position: absolute; inset-block-start: calc(100% + .5rem); inset-inline-end: 0; z-index: 1100; display: grid; gap: .5rem; width: min(18rem, calc(100vw - 2rem)); max-height: 75svh; overflow-y: auto; overscroll-behavior: contain; padding: .25rem 1rem .75rem; border: 1px solid var(--ink); border-block-start: 3px solid var(--sumac); background: var(--chalk); color: var(--ink); animation: panelIn var(--dur-fast) var(--ease-out) both; }
@@ -10,5 +10,9 @@
 .close:hover { background: var(--chalk-tint); }
 .icon { width: 1.25rem; height: 1.25rem; }
 .panel button { justify-self: start; max-width: 100%; }
+// The role emblems sit along the avatar's lower edge, overlapping it a little, one small disc per role held.
+.emblems { position: absolute; inset-block-end: -.125rem; inset-inline: 0; display: flex; justify-content: center; gap: .0625rem; pointer-events: none; }
+.emblem { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--chalk); border-radius: 50%; background: var(--zaatar); color: var(--chalk); }
+.emblemIcon { width: .6875rem; height: .6875rem; }
 @keyframes panelIn { from { opacity: 0; transform: translateY(-.25rem); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }

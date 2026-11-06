@@ -405,7 +405,7 @@ export default function IndexWaterTask({ mode }: Props) {
         group={<IndexGroupSheet participants={participants} roles={view.session.roles} currentId={view.session.activeActorId} solo={solo}
           missions={view.missions} balance={view.sharedBalance} onOpenGroupTab={() => navigate(goToTab(nav, "group"))} />}
         menu={<IndexParticipantMenu participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}
-          currentRole={activeRole ?? "follower"} busy={busy} onSignOut={() => void signOut()} />} />
+          currentRole={activeRole ?? "follower"} solo={solo} busy={busy} onSignOut={() => void signOut()} />} />
       {nav.area === "noMission" ? <section className={styles.empty} aria-labelledby="no-mission-title">
         <h2 id="no-mission-title">No mission open yet</h2>
         <p>Choose a mission on the map, then open its location.</p>
@@ -450,7 +450,7 @@ export default function IndexWaterTask({ mode }: Props) {
       {cheer(Boolean(choiceTask.bonus && view.session.bonus && !view.session.bonus.completed))}
       {/* Optional extras after the accepted answer: they never change the mission's completion or its food tokens. */}
       {view.session.completed && choiceTask.bonus && view.session.bonus ? <ListChoiceBonus content={choiceTask.bonus.content} challenge={choiceTask.bonus.challenge}
-        state={view.session.bonus} activeRole={activeRole ?? "follower"} busy={busy} feedback={message}
+        state={view.session.bonus} activeRole={activeRole ?? "follower"} busy={busy} feedback={message} canAnswer={view.performance.canAnswer ?? true}
         onToggle={(optionId) => void act({ type: "toggle-choice", optionId, missionId, part: "bonus" })}
         onSubmit={() => void act({ type: "submit", missionId, part: "bonus" })} onReset={() => void act({ type: "reset", missionId, part: "bonus" })} /> : null}
       {view.session.completed && choiceTask.appreciation ? <PreviewAppreciation {...choiceTask.appreciation} /> : null}

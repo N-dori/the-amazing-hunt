@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { issueHostInvitation, issueInvitation, redeemInvitation, ROLE_CHANGE_REFUSED, ROLES_NEEDED, sessionAction, sessionView, startNewAdventure } from "./participant-store.ts";
+import { ANSWER_IS_SUBMITTERS, issueHostInvitation, issueInvitation, redeemInvitation, ROLE_CHANGE_REFUSED, ROLES_NEEDED, sessionAction, sessionView, startNewAdventure } from "./participant-store.ts";
 import { roleForParticipant } from "./roles.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
 
@@ -185,3 +185,40 @@ test("a group of 2 to 5 starts only with a Navigator and a Submitter; solo start
     assert.match(await start(path, leader), /started/);
   });
 });
+
+test("Researcher and Photographer: the leader gives them in the lobby, one player may hold several; a file naming a stranger is refused", () => fixture(async path => {
+  const { leader, players, ids } = await team(path, 3, true);
+  const give = (role: "researcher" | "photographer", participantId: string | null) =>
+    sessionAction(path, leader, { type: "assign-role", role, participantId }, key(`give-${role}`), NOW);
+  await give("researcher", ids[2]);
+  await give("photographer", ids[2]);
+  assert.deepEqual(await rolesOf(path, players[1]), { navigator: null, answerSubmitter: null, researcher: ids[2], photographer: ids[2] });
+  // Neither carries a permission, and neither counts towards Start: a Navigator and a Submitter are still needed.
+  await sessionAction(path, leader, { type: "set-intended-count", count: 3 }, key("count"), NOW);
+  await assert.rejects(sessionAction(path, leader, { type: "start-adventure" }, key("start"), NOW), (error: Error) => error.message === ROLES_NEEDED);
+  await assert.rejects(sessionAction(path, players[0], { type: "assign-role", role: "photographer", participantId: ids[1] }, key("not-leader"), NOW), notLeader);
+  await give("photographer", null);
+  assert.equal((await rolesOf(path, leader)).photographer, null);
+  // A stored Photographer who isn't a member makes the file unreadable rather than silently repaired.
+  const file = await stored(path);
+  file.teams.A.roles.photographer = "p_not-a-member-of-this-team";
+  await writeFile(path, JSON.stringify(file));
+  await assert.rejects(sessionView(path, leader, NOW));
+}));
+
+test("only the Submitter picks or moves once a challenge runs; the others see the answer read-only, until the seat is empty", () => fixture(async path => {
+  const { leader, players, ids } = await team(path, 3);
+  await assign(path, leader, "navigator", ids[0]);
+  await assign(path, leader, "answerSubmitter", ids[1]);
+  await sessionAction(path, leader, { missionId: WELL, type: "start" }, key("well-start"), NOW);
+  const watcher = players[1];
+  const refused = (error: Error & { status?: number }) => error.status === 403 && error.message === ANSWER_IS_SUBMITTERS;
+  await assert.rejects(sessionAction(path, watcher, { missionId: WELL, type: "move", move: "fill-large" }, key("watcher-move"), NOW), refused);
+  await assert.rejects(sessionAction(path, leader, { missionId: WELL, type: "reset" }, key("navigator-reset"), NOW), refused);
+  assert.deepEqual([(await sessionView(path, watcher, NOW)).performance.canAnswer, (await sessionView(path, players[0], NOW)).performance.canAnswer], [false, true]);
+  await sessionAction(path, players[0], { missionId: WELL, type: "move", move: "fill-large" }, key("submitter-move"), NOW);
+  // With the Submitter seat empty, anyone may carry on, so a missing Submitter never strands the team.
+  await assign(path, leader, "answerSubmitter", null);
+  assert.equal((await sessionView(path, watcher, NOW)).performance.canAnswer, true);
+  await sessionAction(path, watcher, { missionId: WELL, type: "move", move: "pour-large-into-small" }, key("watcher-move-free"), NOW);
+}));

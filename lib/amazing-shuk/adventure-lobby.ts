@@ -1,4 +1,4 @@
-import { isSoloTeam, type AssignableGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { isSoloTeam, type GroupRoleAssignments, type PermissionRole } from "./roles.ts";
 
 /** The adventure as the server shows it to one participant (`sessionView().adventure`). */
 export type AdventureView = Readonly<{
@@ -95,7 +95,7 @@ export function groupSummary(count: number | null): GroupSummary {
 
 /** The roles a group can't start without (owner, 5 Nov 2026): Navigator and Submitter. A solo player holds both, so nothing is missing;
  * with no member yet (the guide starting before anyone has signed in) there is no one to give them to, and the Group tab's fallbacks apply. */
-export function requiredRolesMissing(roles: GroupRoleAssignments, memberIds: readonly string[]): readonly AssignableGroupRole[] {
+export function requiredRolesMissing(roles: GroupRoleAssignments, memberIds: readonly string[]): readonly PermissionRole[] {
   if (memberIds.length === 0 || isSoloTeam(memberIds)) return [];
   return (["navigator", "answerSubmitter"] as const).filter(role => roles[role] === null);
 }

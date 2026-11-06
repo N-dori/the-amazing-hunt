@@ -2,11 +2,10 @@
 import { useRef } from "react";
 import ActionButton from "@/components/ui/ActionButton";
 import { Icon } from "@/components/icons";
+import { ROLE_EMBLEM } from "@/lib/amazing-shuk/role-emblems";
 import type { AssignableGroupRole } from "@/lib/amazing-shuk/roles";
 import PreviewBottomSheet from "./PreviewBottomSheet";
 import styles from "./PreviewRoleCard.module.scss";
-
-const ROLE_ICON = { navigator: "compass", answerSubmitter: "textAnswer" } as const;
 
 type Props = { open: boolean; role: AssignableGroupRole; title: string; text: string; ok: string; onClose: () => void };
 /** The role card (owner, 5 Nov 2026): the moment a player is given a role, their own phone says so, with the role's emblem settling
@@ -16,7 +15,7 @@ export default function PreviewRoleCard({ open, role, title, text, ok, onClose }
   return <PreviewBottomSheet open={open} title={title} closeLabel={ok} onClose={onClose} initialFocus={words}
     footer={<ActionButton block onClick={onClose}>{ok}</ActionButton>}>
     <div ref={words} tabIndex={-1} className={styles.card}>
-      <span className={styles.emblem} aria-hidden="true"><Icon name={ROLE_ICON[role]} className={styles.emblemIcon} /></span>
+      <span className={styles.emblem} aria-hidden="true"><Icon name={ROLE_EMBLEM[role]} className={styles.emblemIcon} /></span>
       <p className={styles.text}>{text}</p>
     </div>
   </PreviewBottomSheet>;

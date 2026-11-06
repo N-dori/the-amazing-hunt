@@ -2,6 +2,8 @@ import { validArrivalReading } from "./mission-arrival.ts";
 import type { DevWaterAction } from "./dev-water-session.ts";
 import type { GroupAction, MissionAction } from "./group-action.ts";
 import { WATER_MOVES } from "./water-measurement.ts";
+import { MAIN_ROLES, type AssignableGroupRole } from "./roles.ts";
+const isMainRole = (role: unknown): role is AssignableGroupRole => typeof role === "string" && (MAIN_ROLES as readonly string[]).includes(role);
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice", "reveal"]);
 
@@ -17,7 +19,7 @@ export function parseAction(value: unknown): GroupAction | null {
 
 function parseMissionAction(value: unknown): GroupAction | null {
   if (isRecord(value) && (value.type === "claim-role" || value.type === "release-role")) {
-    return value.role === "navigator" || value.role === "answerSubmitter" ? { type: value.type, role: value.role } : null;
+    return isMainRole(value.role) ? { type: value.type, role: value.role } : null;
   }
   if (isRecord(value) && value.type === "set-intended-count") {
     return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
@@ -51,7 +53,7 @@ function parseActionBody(value: unknown): DevWaterAction | null {
     case "switch-actor":
       return typeof value.actorId === "string" ? { type: value.type, actorId: value.actorId } : null;
     case "assign-role":
-      if ((value.role === "navigator" || value.role === "answerSubmitter") && (value.participantId === null || typeof value.participantId === "string")) {
+      if (isMainRole(value.role) && (value.participantId === null || typeof value.participantId === "string")) {
         return { type: value.type, role: value.role, participantId: value.participantId };
       }
       return null;

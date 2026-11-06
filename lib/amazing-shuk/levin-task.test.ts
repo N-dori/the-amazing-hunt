@@ -68,7 +68,7 @@ test("server: no clock runs, so a slow answer still earns the full points, and h
   const started = storedTeam(JSON.parse(await readFile(path, "utf8")));
   assert.equal(started.missions[LEVIN].performance.excluded, true);
   await assert.rejects(act("player-3", { missionId: LEVIN, type: "hint", hint: 1 }, "levin-follower-hint-001", 1), /Invalid hint/);
-  await act("player-3", { missionId: LEVIN, type: "toggle-choice", optionId: "spare-rabbi" }, "levin-follower-pick-001", 2);
+  await act("player-2", { missionId: LEVIN, type: "toggle-choice", optionId: "spare-rabbi" }, "levin-follower-pick-001", 2);
   // Twenty minutes of talking it over: well past every timed threshold.
   assert.match(await act("player-2", { missionId: LEVIN, type: "submit" }, "levin-submitter-submit1", 1_200_000), /correct/);
   const done = await sessionView(path, tokens.guide, now + 1_200_001, LEVIN);

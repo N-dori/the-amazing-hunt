@@ -94,7 +94,7 @@ test("HTTP keeps CSRF/authentication and rejects unchecked destination evidence 
 
 test("schema3 migration preserves completed challenge reward without inventing an arrival bonus", () => fixture(async (path, tokens, now) => {
   await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "start" }, "migration-start-001", now);
-  await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "move", move: "fill-large" }, "migration-fill-001", now + 1);
+  await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "fill-large" }, "migration-fill-001", now + 1);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "migration-pour-001", now + 2);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "submit" }, "migration-submit-001", now + 3);
   const old = schema4Snapshot(JSON.parse(await readFile(path, "utf8"))); old.version = 3; delete old.arrival;
@@ -107,7 +107,7 @@ test("schema3 migration preserves completed challenge reward without inventing a
 
 test("concurrent bonus and official challenge completion preserve both rewards exactly once", () => fixture(async (path, tokens, now) => {
   await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "start" }, "race-start-challenge-001", now);
-  await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "move", move: "fill-large" }, "race-fill-challenge-001", now + 1);
+  await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "fill-large" }, "race-fill-challenge-001", now + 1);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "race-solve-challenge-001", now + 2);
   const operations = [
     () => sessionAction(path, tokens["player-1"], gps(now), "race-optional-arrival-001", now + 3, undefined, verified),

@@ -1,5 +1,18 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Onboarding and roles, second build: four roles, emblems, read-only answers: built, not committed or deployed: 6 Nov 2026
+
+The first build (`8001e8f`) is live since 6 Nov 2026, 00:00 UTC; the owner will test both builds together.
+- **Researcher and Photographer:** stored as optional fields of the team's roles (absent = nobody), so the rollback image `8001e8f` still reads the file. The leader gives them in the lobby's roles step (four rows; the Photographer always shown) and on the Group tab; players can take or step down from them. Neither carries a permission and neither is needed to start. A stored holder who isn't a member makes the file unreadable. Removing a member frees every role they held.
+- **The Photographer's permission** (only they submit photo answers) is **not built**: no challenge takes a photo yet.
+- **Emblems:** `role-emblems.ts`, one icon per role (compass, answer, search, camera) standing in for the artwork. On the lobby rows, the role card, and **the player's own avatar** in the header (one small disc per role held; solo holds all four).
+- **The profile:** "Your role: …" or "Your roles: Navigator · Researcher" (solo: all four); nothing for a player with no main role; the guide's line unchanged.
+- **Read-only answers (owner, 5 Nov 2026):** the server refuses a pick, a well move or a reset from anyone but the Submitter or the guide (`ANSWER_IS_SUBMITTERS`, 403), except while the Submitter seat is empty (the same fallback as "I'm completely stuck"). The view sends `performance.canAnswer`; the others see the picks and vessels live but disabled, with a note. Covers the main challenges, follow-ups and the bonus.
+- **Not changed:** the guide panel still assigns only Navigator and Submitter; the header's role pills.
+- **Copy drafts (`TODO(copy)`):** the Researcher's and Photographer's names, questions and cards; the longer roles lead; "Your role(s): …"; the Group tab intro; the read-only note and `ANSWER_IS_SUBMITTERS`.
+- **Tests changed by the rule:** about 30 tests that picked or moved from a non-Submitter seat now act from the Submitter's seat or the guide; two tests now check that the others are refused.
+- **Checks:** `test:shuk` 315/315; `npm test` 63/63; ESLint clean on the Shuk folders; `tsc` passes; the changed Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 49 MiB; `git diff --check` clean. **Not checked in a browser.**
+
 ## Onboarding and roles, first build (the casting call): built, not committed or deployed: 5 Nov 2026
 
 From the [treatment](onboarding-roles-treatment.md) and the owner's answers (recorded in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026)).

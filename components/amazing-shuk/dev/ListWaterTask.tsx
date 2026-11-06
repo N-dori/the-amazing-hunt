@@ -18,7 +18,7 @@ type Props = {
   storyFirst?: boolean;
 };
 export default function ListWaterTask({ cups, completed, activeRole, busy, interaction, performance, solo = false, ...callbacks }: Props) {
-  const view = buildWaterTaskView(cups, completed, activeRole, busy, interaction, performance.started);
+  const view = buildWaterTaskView(cups, completed, activeRole, busy, interaction, performance.started, performance.canAnswer ?? true);
   return <PreviewWaterTask view={{ ...view, status: soloLine(view.status, solo) }} narrative={WATER_TASK.narrative}
     performance={performance} answer={performance.revealed ? waterAnswer() : undefined} {...callbacks} />;
 }

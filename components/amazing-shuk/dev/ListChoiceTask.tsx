@@ -24,7 +24,7 @@ type Props = {
 export default function ListChoiceTask({ task, challenge, step, followUps, selected, completed, activeRole, busy, performance, solo = false, ...rest }: Props) {
   const followUp = step > 0 ? task.followUps?.[step - 1] : undefined;
   const current = step > 0 ? followUps?.[step - 1] ?? challenge : challenge;
-  const view = buildChoiceTaskView(current, selected, completed, activeRole, busy, performance.started);
+  const view = buildChoiceTaskView(current, selected, completed, activeRole, busy, performance.started, performance.canAnswer ?? true);
   return <PreviewChoiceTask view={{ ...view, status: soloLine(view.status, solo) }}
     question={followUp?.question ?? (solo ? task.questionSolo ?? task.question : task.question)} lead={followUp?.lead} performance={performance} reveal={task.reveal} completionTitle={task.completionTitle}
     answer={performance.revealed ? choiceAnswer(current) : undefined} {...rest} />;

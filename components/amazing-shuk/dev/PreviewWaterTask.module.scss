@@ -46,3 +46,6 @@
 .reward div { display: grid; gap: .25rem; }
 .reward dt { font-weight: 400; }
 .reward dd { font-size: 1.5rem; margin: 0; }
+
+// Someone else is the Submitter: this phone watches (owner, 5 Nov 2026).
+.readOnly { margin-block: .75rem; padding: .75rem 1rem; border-radius: .75rem; background: var(--chalk-tint); color: var(--ink); font-weight: 600; }

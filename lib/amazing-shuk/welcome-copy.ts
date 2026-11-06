@@ -87,6 +87,8 @@ export type LobbyCopy = {
   /** The role card, on the phone of the player who has just been given a role. */
   roleCards: Readonly<Record<AssignableGroupRole, Readonly<{ title: string; text: string }>>>;
   roleCardOk: string;
+  /** The profile panel: the player's own main roles. */
+  profileRoles: (roles: readonly string[]) => string;
 };
 
 export const LOBBY_COPY: LobbyCopy = Object.freeze({
@@ -123,9 +125,10 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   hereCount: (here: number, expected: number) => `${here} of ${expected} here`,
   hereHelp: "Everyone opens their own link on their own phone. Anyone who comes later can still join.",
   rolesTitle: "Who does what?",
-  rolesLead: "Read these out and decide together. You can change roles at any stop.",
-  roleNames: Object.freeze({ navigator: "Navigator", answerSubmitter: "Submitter" }),
-  roleQuestions: Object.freeze({ navigator: "Who'll find the way?", answerSubmitter: "Who'll send our answers?" }),
+  rolesLead: "Read these out and decide together. One person can hold more than one role, and you can change roles at any stop.",
+  roleNames: Object.freeze({ navigator: "Navigator", answerSubmitter: "Submitter", researcher: "Researcher", photographer: "Photographer" }),
+  roleQuestions: Object.freeze({ navigator: "Who'll find the way?", answerSubmitter: "Who'll send our answers?",
+    researcher: "Who'll look things up online?", photographer: "Who'll take the photos?" }),
   roleNobody: "No one yet",
   giveRole: (name: string, role: string) => `${name} as ${role}`,
   back: "Back",
@@ -138,6 +141,9 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   roleCards: Object.freeze({
     navigator: Object.freeze({ title: "You're the Navigator", text: "You lead the way to each stop, and tell the group when you've arrived." }),
     answerSubmitter: Object.freeze({ title: "You're the Submitter", text: "You choose and send the group's answers. Listen to everyone first." }),
+    researcher: Object.freeze({ title: "You're the Researcher", text: "When a challenge needs the web, the app gives you a link. You look it up for the group." }),
+    photographer: Object.freeze({ title: "You're the Photographer", text: "When a challenge asks for a photo, you take it and send it for the group." }),
   }),
   roleCardOk: "Got it",
+  profileRoles: (roles: readonly string[]) => `${roles.length === 1 ? "Your role" : "Your roles"}: ${roles.join(" · ")}`,
 }) as LobbyCopy;
