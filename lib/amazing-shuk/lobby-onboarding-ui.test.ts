@@ -6,8 +6,8 @@ import { createRequire } from "node:module";
 import { createElement, type ComponentType, type ReactNode } from "react";
 import ts from "typescript";
 import { renderToStaticMarkup } from "react-dom/server";
-import { buildLobbyView, groupSummary, stepperStates, type AdventureView } from "./adventure-lobby.ts";
-import { buildLobbyRoleRows } from "./participant-identity.ts";
+import { buildLobbyView, groupSummary, requiredRolesMissing, stepperStates, type AdventureView } from "./adventure-lobby.ts";
+import { buildLobbyRoleRows, teamPlayers } from "./participant-identity.ts";
 import { LOBBY_COPY } from "./welcome-copy.ts";
 
 // Onboarding and roles (owner, 5 Nov 2026): the lobby's steps, the casting call, the start warning, the waiting screen and the role card,
@@ -110,4 +110,15 @@ test("the role card: the role's title and its one line on the job; the Submitter
     assert.match(out, new RegExp(`aria-label="${card.title.replace("'", "&#x27;")}"`)); assert.match(out, /Got it/);
   }
   assert.match(LOBBY_COPY.roleCards.answerSubmitter.text, /choose and send the group/);
+});
+
+test("the guide is never one of the lobby's players: not counted, not listed, no roles asked of a solo player (live test, 6 Nov 2026)", () => {
+  const signedIn = [{ id: "player-1", name: "Ari" }, { id: "guide", name: "Guide" }, { id: "player-2", name: "Bea" }];
+  assert.deepEqual(teamPlayers(signedIn).map(person => person.id), ["player-1", "player-2"]);
+  // A solo player with the guide signed in is still solo: nothing is required to start.
+  const solo = teamPlayers([{ id: "player-1", name: "Ari" }, { id: "guide", name: "Guide" }]).map(person => person.id);
+  assert.deepEqual(requiredRolesMissing({ navigator: null, answerSubmitter: null }, solo), []);
+  const here = html("components/amazing-shuk/PreviewAdventureLobby.tsx", { ...lobbyProps("here", 3),
+    members: teamPlayers(signedIn).map(person => ({ ...person, roles: [] })) });
+  assert.match(here, /2 of 3 here/); assert.doesNotMatch(here, /avatar:Guide/);
 });

@@ -10,9 +10,11 @@
 .close:hover { background: var(--chalk-tint); }
 .icon { width: 1.25rem; height: 1.25rem; }
 .panel button { justify-self: start; max-width: 100%; }
-// The role emblems sit along the avatar's lower edge, overlapping it a little, one small disc per role held.
-.emblems { position: absolute; inset-block-end: -.125rem; inset-inline: 0; display: flex; justify-content: center; gap: .0625rem; pointer-events: none; }
-.emblem { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; border: 1.5px solid var(--chalk); border-radius: 50%; background: var(--zaatar); color: var(--chalk); }
-.emblemIcon { width: .6875rem; height: .6875rem; }
+// The role emblems sit along the avatar's lower edge, one disc per role held, overlapping each other a little when there are several.
+// Ink on chalk inverts with the theme, so the icon stays clear in light and dark (the live test, 6 Nov 2026: a pale disc, icon unreadable).
+.emblems { position: absolute; inset-block-end: -.375rem; inset-inline: -.25rem; display: flex; justify-content: center; pointer-events: none; }
+.emblem { display: grid; place-items: center; width: 1.375rem; height: 1.375rem; border: 2px solid var(--chalk); border-radius: 50%; background: var(--ink); color: var(--chalk); }
+.emblem + .emblem { margin-inline-start: -.375rem; }
+.emblemIcon { width: .875rem; height: .875rem; }
 @keyframes panelIn { from { opacity: 0; transform: translateY(-.25rem); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .panel { animation: none; } }

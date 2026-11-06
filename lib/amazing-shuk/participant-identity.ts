@@ -60,3 +60,10 @@ export function buildLobbyRoleRows(participants: readonly ParticipantIdentity[],
   return MAIN_ROLES.map(role => ({ role, holderId: holderOf(roles, role),
     chips: assignees.map(person => ({ ...person, selected: person.id === holderOf(roles, role) })) }));
 }
+
+/** The team's players, never the guide (who signs in and is listed for names, but isn't a player): what the lobby counts, lists and
+ * asks roles of. Found in the owner's live test, 6 Nov 2026: the guide was listed in "Who's here" and counted, and a solo player with
+ * the guide signed in would have been asked for roles. */
+export function teamPlayers(participants: readonly ParticipantIdentity[], guideId = "guide"): readonly ParticipantIdentity[] {
+  return participants.filter(participant => participant.id !== guideId);
+}

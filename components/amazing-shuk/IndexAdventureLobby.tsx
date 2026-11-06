@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { AdventureView, LobbyStage } from "@/lib/amazing-shuk/adventure-lobby";
 import { buildLobbyView, groupSummary, lobbyStep, requiredRolesMissing, stepCount, stepperStates, waitingStage } from "@/lib/amazing-shuk/adventure-lobby";
 import type { AdventureAction } from "@/lib/amazing-shuk/group-action";
-import { buildLobbyRoleRows, type ParticipantIdentity } from "@/lib/amazing-shuk/participant-identity";
+import { buildLobbyRoleRows, teamPlayers, type ParticipantIdentity } from "@/lib/amazing-shuk/participant-identity";
 import { heldRoles, type AssignableGroupRole, type GroupRoleAssignments } from "@/lib/amazing-shuk/roles";
 import { LOBBY_COPY, WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import PreviewAdventureLobby from "./PreviewAdventureLobby";
@@ -22,7 +22,9 @@ const PREVIOUS: Record<LobbyStage, LobbyStage> = { count: "count", here: "count"
 /** The lobby before Start Adventure (onboarding and roles, owner, 5 Nov 2026). The host or guide goes through the steps on this phone:
  * the count (sent at once, so the players' screens follow), who's here, the roles, Ready. The players wait on a screen that shows
  * where the host has got to. Start with the Navigator or the Submitter empty opens the warning; the server refuses it too. */
-export default function IndexAdventureLobby({ adventure, guide, participants, roles, currentId, busy, message, onAction }: Props) {
+export default function IndexAdventureLobby({ adventure, guide, participants: everyone, roles, currentId, busy, message, onAction }: Props) {
+  // The players only: the guide is never counted, listed or given a role here.
+  const participants = useMemo(() => teamPlayers(everyone), [everyone]);
   const [draft, setDraft] = useState<number | null>(null);
   const [stage, setStage] = useState<LobbyStage>("count");
   const [blocked, setBlocked] = useState(false);
