@@ -58,3 +58,8 @@
 @media (forced-colors: active) {
   .cheer { border-color: CanvasText; }
 }
+
+// After a reveal: who takes the group on. The others' button looks disabled but still answers a tap with the reason (owner, 5 Nov 2026).
+.instruction { font-weight: 700; }
+.notMine { opacity: .5; cursor: not-allowed; }
+.why { color: var(--ink-subdued); font-size: .9375rem; }

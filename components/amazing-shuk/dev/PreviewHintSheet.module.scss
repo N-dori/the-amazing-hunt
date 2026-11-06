@@ -46,3 +46,6 @@
 .note { color: var(--ink-subdued); }
 
 @media (forced-colors: active) { .badge { border: 1px solid CanvasText; } }
+
+// The next hint first, then the way to the answer under it.
+.footer { display: grid; gap: .5rem; }

@@ -34,8 +34,11 @@ export default function PreviewHintSheet({ view, open, pending, offline, busy, o
       <span className={styles.badge} aria-hidden="true">{view.remaining}</span>
     </button>
     <PreviewBottomSheet open={open} title="Hints" closeLabel="Close hints" onClose={onClose} afterClose={afterClose}
-      footer={next ? <ActionButton block disabled={busy || pending} onClick={onShowHint}>{pending ? "Opening hint…" : `Show hint ${next.number}`}</ActionButton>
-        : view.offerStuck ? <ActionButton block variant="quiet" onClick={onStuck}>I&apos;m completely stuck</ActionButton> : null}>
+      footer={next || view.offerAnswer ? <div className={styles.footer}>
+        {next ? <ActionButton block disabled={busy || pending} onClick={onShowHint}>{pending ? "Opening hint…" : `Show hint ${next.number}`}</ActionButton> : null}
+        {/* Still in the pop-up, the way to the answer and its explanation (owner, 5 Nov 2026); it opens the "Show the answer?" check. */}
+        {view.offerAnswer ? <ActionButton block variant={next ? "quiet" : "primary"} onClick={onStuck}>Show the answer</ActionButton> : null}
+      </div> : null}>
       {shown ? <ol className={styles.list} aria-live="polite" aria-relevant="additions">
         {view.revealed.map((hint, index) => <li key={hint.title}>
           <h3 ref={index === shown - 1 ? latest : undefined} tabIndex={-1} className={styles.title}>{hint.title}</h3>

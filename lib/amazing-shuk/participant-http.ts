@@ -3,7 +3,7 @@ import { BASE_PATH } from "../base-path.ts";
 import { isLocalDevelopmentHost } from "./dev-water-session.ts";
 import { shukAccess, shukPublicOrigin } from "./shuk-access.ts";
 import { parseAction } from "./parse-water-action.ts";
-import { AccessError, ALREADY_IN, APPROVED_MS, askToJoin, createJoinLink, defaultStorePath, exchangeJoin, isSignedIn, joinStatus, logout, PENDING_MS,
+import { AccessError, ALREADY_IN, APPROVED_MS, askToJoin, createJoinLink, defaultStorePath, exchangeJoin, isSignedIn, issueLeaderInvitation, joinStatus, logout, PENDING_MS,
   redeemInvitation, SESSION_COOKIE, sessionAction, sessionView } from "./participant-store.ts";
 import { allowJoinAsk } from "./join-rate-limit.ts";
 import { JOIN_ERROR, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY } from "./team-membership.ts";
@@ -77,6 +77,11 @@ export async function handleParticipantRequest(request: Request, path = defaultS
       const response = json({ ok: true });
       response.headers.set("Set-Cookie", cookie(SESSION_COOKIE, value, 604800));
       return response;
+    }
+    // I7a: the host's (or guide's) single-use invitation for a team's leader. Like an operator invitation, it doesn't depend on join links.
+    if (body.type === "leader-link") {
+      if (typeof body.teamId !== "string" || body.teamId.length > 4) return json({ error: "Invalid request" }, 400);
+      return json({ link: await issueLeaderInvitation(path, token, body.teamId) });
     }
     if (body.type === "join-ask" || body.type === "join-exchange" || body.type === "join-link") {
       if (!joinLinks) return linksOff();

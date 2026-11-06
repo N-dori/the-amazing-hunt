@@ -89,6 +89,25 @@ export type LobbyCopy = {
   roleCardOk: string;
   /** The profile panel: the player's own main roles. */
   profileRoles: (roles: readonly string[]) => string;
+  /** I7a, the host's teams step: create the teams, then one row per team with its leader's invitation and readiness. */
+  teamsTitle: string;
+  teamsLead: string;
+  createTeams: string;
+  teamLabel: (id: string) => string;
+  leaderStatus: Readonly<Record<"host" | "none" | "waiting" | "expired" | "accepted", string>>;
+  teamMembers: (members: number) => string;
+  teamReady: string;
+  teamNotReady: string;
+  shareInvite: string;
+  newInvite: string;
+  inviteShareTitle: (team: string) => string;
+  inviteCopied: string;
+  inviteFailed: string;
+  /** Ready, with several teams: who the host is still waiting for; a team leader's own Ready, where the host starts. */
+  waitingForTeams: (teams: readonly string[]) => string;
+  allTeamsReady: string;
+  leaderReady: string;
+  leaderNotReady: string;
 };
 
 export const LOBBY_COPY: LobbyCopy = Object.freeze({
@@ -120,7 +139,7 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   changeCount: "Change the number",
   // TODO(copy): every line below is a draft (onboarding and roles, 5 Nov 2026), pending the owner's approval (O16).
   stepperLabel: "Getting ready",
-  stages: Object.freeze({ count: "Players", here: "Who's here", roles: "Roles", ready: "Ready" }),
+  stages: Object.freeze({ count: "Players", teams: "Teams", name: "Name", here: "Who's here", roles: "Roles", ready: "Ready" }),
   hereTitle: "Who's here?",
   hereCount: (here: number, expected: number) => `${here} of ${expected} here`,
   hereHelp: "Everyone opens their own link on their own phone. Anyone who comes later can still join.",
@@ -136,7 +155,8 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   blockedText: (roles: readonly string[]) => `No one is the ${roles.join(" or the ")} yet. Every group needs both before the start. One person can hold both.`,
   blockedSetRoles: "Set the roles",
   blockedGiveToMe: "Give them to me",
-  waitingStages: Object.freeze({ count: "Your host is getting ready…", here: "Your host is getting ready…", roles: "Your host is choosing roles…", ready: "Almost ready…" }),
+  waitingStages: Object.freeze({ count: "Your host is getting ready…", teams: "Your host is setting up the teams…", name: "Your team is choosing its name…",
+    here: "Your host is getting ready…", roles: "Your leader is choosing roles…", ready: "Almost ready…" }),
   yourRoles: (roles: readonly string[]) => `You're the ${roles.join(" and the ")}.`,
   roleCards: Object.freeze({
     navigator: Object.freeze({ title: "You're the Navigator", text: "You lead the way to each stop, and tell the group when you've arrived." }),
@@ -146,4 +166,30 @@ export const LOBBY_COPY: LobbyCopy = Object.freeze({
   }),
   roleCardOk: "Got it",
   profileRoles: (roles: readonly string[]) => `${roles.length === 1 ? "Your role" : "Your roles"}: ${roles.join(" · ")}`,
+  teamsTitle: "Your teams",
+  teamsLead: "Pick a leader for each team and send them their invite. Each leader names their team and lets their players in.",
+  createTeams: "Create the teams",
+  teamLabel: (id: string) => `Team ${id}`,
+  leaderStatus: Object.freeze({ host: "You lead this team", none: "Invite not sent", waiting: "Waiting for the leader", expired: "Invite expired", accepted: "Leader is in" }),
+  teamMembers: (members: number) => members === 1 ? "1 player" : `${members} players`,
+  teamReady: "Ready",
+  teamNotReady: "Not ready yet",
+  shareInvite: "Share invite",
+  newInvite: "Make a new invite",
+  inviteShareTitle: (team: string) => `Lead ${team} in The Amazing Shuk`,
+  inviteCopied: "Invite copied. Send it to this team's leader only.",
+  inviteFailed: "The invite couldn't be made. Try again.",
+  waitingForTeams: (teams: readonly string[]) => `Waiting for ${teams.join(", ")}.`,
+  allTeamsReady: "Every team is ready.",
+  leaderReady: "Your team is ready. The host will start the adventure.",
+  leaderNotReady: "Name your team and give the Navigator and Submitter roles to be ready.",
 }) as LobbyCopy;
+
+// "Leave the game?" (owner, 5 Nov 2026), on the phone's Back from the game's first screen.
+// TODO(copy): the body line and the labels are drafts.
+export const LEAVE_COPY = Object.freeze({
+  title: "Leave the game?",
+  text: "Your group's progress is saved, and this phone stays signed in. You can come back any time.",
+  stay: "Stay",
+  leave: "Leave",
+});

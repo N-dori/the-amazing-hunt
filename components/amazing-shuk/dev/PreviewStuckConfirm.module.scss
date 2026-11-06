@@ -1,18 +1,16 @@
-// A quiet text button, kept apart from the hint icon so it isn't tapped by mistake.
-.foot { margin-block: 2.5rem 1.5rem; text-align: center; }
-
+// A real button in a strong colour, beside the hints (owner, 5 Nov 2026). The confirmation still guards against a mis-tap.
 .stuck {
   min-height: 3rem;
-  padding: .5rem 1rem;
+  padding: .5rem 1.125rem;
   border: 0;
-  background: none;
-  color: var(--ink-subdued);
+  border-radius: 9999px;
+  background: var(--sumac);
+  color: var(--chalk);
   font: inherit;
-  text-decoration: underline;
-  text-underline-offset: .2em;
+  font-weight: 700;
   cursor: pointer;
 
-  &:hover { color: var(--ink); }
+  &:hover { filter: brightness(1.08); }
   &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 }
 

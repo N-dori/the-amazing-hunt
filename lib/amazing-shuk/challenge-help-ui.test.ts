@@ -10,7 +10,7 @@ import { buildHintSheetView, choiceAnswer, waterAnswer } from "./challenge-help.
 import { MURAL_CHALLENGE, MURAL_REWARDS, MURAL_TASK } from "./mural-task.ts";
 import { buildChoiceTaskView } from "./mural-task-view.ts";
 import { buildWaterTaskView } from "./water-task-view.ts";
-import { missionCheer, rewardAmountItems } from "./mission-cheer.ts";
+import { missionCheer, NEXT_STOP_COPY, rewardAmountItems } from "./mission-cheer.ts";
 import { MURAL_MISSION_ID } from "./mural-task.ts";
 
 const nativeRequire = createRequire(import.meta.url);
@@ -47,8 +47,13 @@ test("the hint icon names what's left; the sheet shows the hints so far and the 
   const open = renderToStaticMarkup(createElement(HintSheet, { ...sheetProps, view: view(1), open: true }));
   assert.match(open, /Hint 1 — Gentle/); assert.doesNotMatch(open, /Hint 2 — More specific/);
   assert.match(open, /from 85 to 60 points/); assert.match(open, /Show hint 2/); assert.doesNotMatch(open, /−\d|-\d+ points/);
+  // The pop-up's flow (owner, 5 Nov 2026): the cost, the hint, then, still in the pop-up, the way to the answer, under the next hint.
+  assert.ok(open.indexOf("Show hint 2") < open.indexOf("Show the answer"));
   const all = renderToStaticMarkup(createElement(HintSheet, { ...sheetProps, view: view(2), open: true }));
-  assert.match(all, /aria-label="Hints, all used"/); assert.match(all, /I&#x27;m completely stuck/); assert.doesNotMatch(all, /Show hint/);
+  assert.match(all, /aria-label="Hints, all used"/); assert.match(all, /Show the answer/); assert.doesNotMatch(all, /Show hint/);
+  const noReveal = renderToStaticMarkup(createElement(HintSheet, { ...sheetProps, open: true,
+    view: buildHintSheetView({ hints: MURAL_TASK.hints, stepUsed: 1, totalUsed: 1, started: true, completed: false, canReveal: false, rewards: MURAL_REWARDS }) }));
+  assert.doesNotMatch(noReveal, /Show the answer/);
   const waiting = renderToStaticMarkup(createElement(HintSheet, { ...sheetProps, view: view(0), open: true, pending: true, offline: true }));
   assert.match(waiting, /Opening hint…/); assert.match(waiting, /back online/);
   assert.equal(renderToStaticMarkup(createElement(HintSheet, { ...sheetProps, view: { ...view(0), available: false }, open: false })), "");
@@ -136,4 +141,17 @@ test("UX-3: before Start the story is open with no fold; after, one tap reopens 
   assert.doesNotMatch(open, /<details|<summary|Hide story|Read story/); assert.match(open, /This wall was once bare/); assert.match(open, /<h3/);
   const folded = renderToStaticMarkup(createElement(Story, { ...MURAL_TASK.story, instruction: MURAL_TASK.instruction, open: false, onToggle: noop }));
   assert.match(folded, /<details/); assert.match(folded, /Read story/);
+});
+
+test("I'm completely stuck is a real button, no longer a link at the foot; the cheer's next stop is the Navigator's (owner, 5 Nov 2026)", () => {
+  const stuck = renderToStaticMarkup(createElement(Stuck, { open: false, busy: false, foodTokens: 0, onOpen: noop, onKeepTrying: noop, onReveal: noop, canReveal: true }));
+  assert.match(stuck, /^<button type="button" class="stuck"/);
+  const Cheer = loadComponent("components/amazing-shuk/dev/PreviewMissionCheer.tsx");
+  const base = { cheer: "Here's the answer. You can carry on.", celebrate: false, next: { order: 2, name: "The mural" }, bonusBelow: false,
+    onlyNavigator: NEXT_STOP_COPY.onlyNavigator, onNext: noop, onMap: noop };
+  const navigator = renderToStaticMarkup(createElement(Cheer, { ...base, canGoOn: true, instruction: NEXT_STOP_COPY.navigator }));
+  assert.match(navigator, /Navigator, tap Go to the next stop/); assert.doesNotMatch(navigator, /aria-disabled/);
+  const other = renderToStaticMarkup(createElement(Cheer, { ...base, canGoOn: false, instruction: NEXT_STOP_COPY.others }));
+  assert.match(other, /Your Navigator takes the group/); assert.match(other, /aria-disabled="true"[^>]*><span>Go to the next stop/);
+  assert.match(other, /Back to the map/);
 });

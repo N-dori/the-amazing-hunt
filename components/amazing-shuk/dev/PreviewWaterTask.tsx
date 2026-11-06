@@ -27,6 +27,8 @@ export default function PreviewWaterTask({ view, performance, narrative, help, a
   </div>;
   if (storyFirst && !performance.started && !view.completed) return <section className={styles.task}>{startArea}</section>;
   return <section className={styles.task} aria-labelledby="water-task-title">
+    {/* Help sits just above the title (owner, 5 Nov 2026): the hints and "I'm completely stuck", side by side. */}
+    {help ? <div className={styles.helpBar}>{help}</div> : null}
     <div className={styles.taskIntro}>
       {/* Focusable so the phone that pressed Start lands on the puzzle (UX-3). */}
       <h2 id="water-task-title" tabIndex={-1}>Fill your family&apos;s jar</h2>
@@ -79,6 +81,5 @@ export default function PreviewWaterTask({ view, performance, narrative, help, a
       {view.canSubmit && view.solved && !view.completed ? <ActionButton disabled={view.submitDisabled} onClick={onSubmit}>Submit Group Answer</ActionButton> : view.solved && !view.completed ? <p>Your answer-submitter or guide can submit.</p> : null}
       <ActionButton variant="quiet" className={styles.reset} disabled={!view.canReset} onClick={onReset}>Reset puzzle</ActionButton>
     </div>
-    {help ? <div className={styles.help}>{help}</div> : null}
   </section>;
 }

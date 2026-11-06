@@ -87,3 +87,9 @@ export function heldRoles(roles: GroupRoleAssignments, participantId: string, so
 export function mayChangeAnswer(participantId: string, roles: GroupRoleAssignments, guide: boolean): boolean {
   return mayReveal(participantId, roles, guide);
 }
+
+/** Who may take the group on to the next stop (owner, 5 Nov 2026): the Navigator, the guide, a solo player, or anyone while the Navigator
+ * seat is empty. Everyone else sees the button disabled, with a short note. Moving on is a screen change on this phone, not a server action. */
+export function mayLead(participantId: string, roles: GroupRoleAssignments, guide: boolean, solo: boolean): boolean {
+  return guide || solo || roles.navigator === null || roles.navigator === participantId;
+}

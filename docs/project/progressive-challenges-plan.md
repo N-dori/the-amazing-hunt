@@ -203,7 +203,7 @@ Map → preview → **Let's go here** (`set-out`) → find the place ("Check our
 
 Then two actions, the next challenge's teaser title and "Continue to the next stop". No difficulty menu. Optional challenges can be resumed later from the stop's preview; once done or revealed, they're never re-scored.
 
-**"Leave the game?" (owner, 5 Nov 2026; approved for the plan, not built).** The live test found that Back on the game's first screen takes players out of the game with no warning. Browsers allow no custom text on their own leave prompt, and phones often skip it on Back, so the game catches Back on its first screen itself and shows its own pop-up:
+**"Leave the game?" (owner, 5 Nov 2026; built 6 Nov 2026, not deployed: `leave-guard.ts`, `PreviewLeaveGame`).** The live test found that Back on the game's first screen takes players out of the game with no warning. Browsers allow no custom text on their own leave prompt, and phones often skip it on Back, so the game catches Back on its first screen itself and shows its own pop-up:
 - "Leave the game?" with **Stay** (focused first) and **Leave**, both 3rem targets (`TODO(copy)` for the body line and the labels).
 - **Stay** keeps the player where they were; **Leave** goes back out of the game. Progress is safe either way: it is on the server, and the sign-in stays on the device.
 - Only Back from the first in-game screen triggers it; Back between the game's own screens is unchanged. A reload or closing the tab is not intercepted.
@@ -606,7 +606,7 @@ Built on D1 (model B), D2 (minimum, optional ≤ 2× core), D3 (core food tokens
   - choice challenges: the correct options, from the data that already exists, then "Behind the answer";
   - the well: the move sequence, generated from the puzzle data (labels `TODO(copy)`); the I5 rework later replaces it;
   - Marzipan: **no reveal in Phase 2** (owner, P2-3); its stuck rule is set when Marzipan is reworked.
-- **The owner's notes after the live test (5 Nov 2026; not approved for build):**
+- **The owner's notes after the live test (5 Nov 2026). Built 6 Nov 2026, not deployed:** the strong stuck button beside the hints above the title; "Show the answer" in the hint pop-up; "Go to the next stop" only on the Navigator's phone (the others see it disabled, and a tap says why), with the Navigator told to tap it after a reveal; read-only picks (second onboarding build). The live notes:
   - The flow works on the Submitter's phone: the stuck button, the confirmation with its two buttons, then "Show answer" opens the "Here's the answer" pop-up.
   - The Navigator (not the Submitter) doesn't see "I'm completely stuck": check 13 **passed** live.
   - **The button's place and look change** (supersedes "a quiet text button at the foot of the challenge, away from the hint icon" in §5 and §2c): a real button in a strong colour, **together with the hint, just above the challenge title**. The "Keep trying" confirmation still guards against a mis-tap.

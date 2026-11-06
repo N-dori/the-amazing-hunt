@@ -1,6 +1,6 @@
 ﻿import assert from "node:assert/strict";
 import test from "node:test";
-import { effectiveRoles, heldRoles, isSoloTeam, mayChangeAnswer, newlyHeldRoles, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
+import { effectiveRoles, heldRoles, isSoloTeam, mayChangeAnswer, mayLead, newlyHeldRoles, roleForParticipant, setGroupRole, type GroupRoleAssignments } from "./roles.ts";
 
 const participants = ["p1", "p2", "p3"] as const;
 const empty: GroupRoleAssignments = { navigator: null, answerSubmitter: null };
@@ -83,4 +83,12 @@ test("only the Submitter changes the answer; the guide may; anyone may while the
   assert.deepEqual(["p1", "p2", "p3"].map(id => mayChangeAnswer(id, roles, false)), [false, true, false]);
   assert.equal(mayChangeAnswer("guide", roles, true), true);
   assert.equal(mayChangeAnswer("p3", { navigator: "p1", answerSubmitter: null }, false), true);
+});
+
+test("only the Navigator takes the group to the next stop; the guide, a solo player, or anyone while the seat is empty may too", () => {
+  const roles = { navigator: "p1", answerSubmitter: "p2" };
+  assert.deepEqual(["p1", "p2", "p3"].map(id => mayLead(id, roles, false, false)), [true, false, false]);
+  assert.equal(mayLead("guide", roles, true, false), true);
+  assert.equal(mayLead("p1", { navigator: null, answerSubmitter: null }, false, true), true);
+  assert.equal(mayLead("p3", { navigator: null, answerSubmitter: "p2" }, false, false), true);
 });

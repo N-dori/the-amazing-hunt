@@ -85,3 +85,7 @@ A player is signed in by one cookie, `shuk_session`. The server makes it when a 
 - [Multiplayer plan](multiplayer-plan.md): §4's edge cases (lost session, lost leader phone), I3c (QR), I7a (leader invitations).
 - [Current state](current-state.md).
 - [Local participant login](local-participant-login.md): how invitations and sessions work today.
+
+## The guide's view of every team (owner, 6 Nov 2026)
+
+With several teams (I7a), the guide's team switcher and overview belong here, not in the I7a build: the owner, 6 Nov 2026. Until then the guide acts on team A, as before. Ideas for this screen: each team's name, leader, players and readiness (the same rows the host sees in the lobby), choosing a team to see and act on (roles, arrival, timing), correcting a team's name, and replacing a lost leader's invitation after Start.

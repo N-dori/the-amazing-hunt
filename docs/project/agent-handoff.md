@@ -1,5 +1,24 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## Multi-team play (I7a): built, not committed or deployed: 6 Nov 2026
+
+At the owner's request ("complete the plan"), with the owner's answers of 6 Nov (host-shared leader invitations, no typed names; initials for avatars; the guide's view in the admin screen; built to 30, not advertised). Details in the [plan's I7a](multiplayer-plan.md#i7a-multiple-teams).
+- **New files:** `team-name.ts` (the decided name rules, approved copy, suggestions from the owner's bank without kada or mufleta, initials), `PreviewLobbyTeams`, `PreviewTeamName`; tests `team-name.test.ts`, `multi-team.test.ts`.
+- **Changed:** `participant-store.ts` (teams, leader invitations, names, readiness, overview, pooled food tokens), `participant-http.ts` (`leader-link`), the action parser and types, `adventure-lobby.ts` (flows: solo, group, multi, leader), `IndexAdventureLobby`, `PreviewAdventureLobby`, the header.
+- **Copy drafts (`TODO(copy)`):** the teams step, leader statuses, invite notices, readiness lines, the per-team waiting lines, `TEAMS_NOT_READY`, `CREATE_TEAMS_FIRST`, `TEAM_HAS_PLAYERS`. The team-name copy is the owner's approved wording.
+- **To play it live, join links must be on** (`SHUK_JOIN_LINKS=1`): players of teams B… join with their leader's join link. Owner's decision.
+- **Checks:** `test:shuk` 329/329; `npm test` 63/63; `tsc` and ESLint clean; Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean. **Not checked in a browser, and never with several phones.**
+
+## The 5 Nov challenge notes: built, not committed or deployed: 6 Nov 2026
+
+The owner's notes from the phone-and-PC test, in the [progressive-challenges plan](progressive-challenges-plan.md) §2b and §8:
+- **"I'm completely stuck"** is a strong button (Sumac, 3rem) in a help bar **above the challenge's title**, beside the hints; it was a quiet link at the foot. The "Keep trying" check stays.
+- **The hint pop-up:** the cost first, "Show hint N", then, still in the pop-up, **"Show the answer"** (opens the same check) whenever this phone may reveal (`offerAnswer`).
+- **"Go to the next stop"** works only on the Navigator's phone (also the guide, a solo player, or anyone while the seat is empty: `mayLead`). The others see it disabled; a tap says "Only the Navigator can take the group to the next stop." After a reveal, the card adds who taps.
+- **"Leave the game?":** `leave-guard.ts` puts one guard history entry under the game's first screen, once per tab. Back onto it puts the screen back and opens the question (Stay focused first; Leave steps back past the guard). Back between the game's screens, reload and closing the tab aren't intercepted.
+- **Copy drafts (`TODO(copy)`):** "Show the answer", `NEXT_STOP_COPY`, `LEAVE_COPY`.
+- **Checks:** `test:shuk` 320/320 (new `leave-guard.test.ts`; hint, stuck, cheer and lead tests); ESLint and `tsc` clean; the changed Sass compiles. **Not checked in a browser**, including the Back behaviour on a real phone.
+
 ## Onboarding and roles, second build: four roles, emblems, read-only answers: built, not committed or deployed: 6 Nov 2026
 
 The first build (`8001e8f`) is live since 6 Nov 2026, 00:00 UTC; the owner will test both builds together.

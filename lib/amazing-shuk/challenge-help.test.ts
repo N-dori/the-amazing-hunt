@@ -11,7 +11,7 @@ const base = { started: true, completed: false, canReveal: true, rewards: MURAL_
 test("the mural's sheet: two hints, each priced as a lower potential (100 → 85 → 60), then the stuck offer", () => {
   const none = buildHintSheetView({ ...base, hints: MURAL_TASK.hints, stepUsed: 0, totalUsed: 0 });
   assert.equal(none.available, true); assert.equal(none.remaining, 2); assert.equal(none.total, 2);
-  assert.deepEqual(none.revealed, []); assert.deepEqual(none.next, { number: 1, fromPoints: 100, toPoints: 85 }); assert.equal(none.offerStuck, false);
+  assert.deepEqual(none.revealed, []); assert.deepEqual(none.next, { number: 1, fromPoints: 100, toPoints: 85 }); assert.equal(none.offerStuck, false); assert.equal(none.offerAnswer, true);
   const one = buildHintSheetView({ ...base, hints: MURAL_TASK.hints, stepUsed: 1, totalUsed: 1 });
   assert.deepEqual(one.revealed, MURAL_TASK.hints.slice(0, 1)); assert.deepEqual(one.next, { number: 2, fromPoints: 85, toPoints: 60 });
   const all = buildHintSheetView({ ...base, hints: MURAL_TASK.hints, stepUsed: 2, totalUsed: 2 });

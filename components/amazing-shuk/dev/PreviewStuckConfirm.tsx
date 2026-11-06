@@ -12,12 +12,13 @@ type Props = {
   onOpen: () => void; onKeepTrying: () => void; onReveal: () => void;
 };
 // TODO(copy): every visible line below is a draft (plan §5, 2 Nov 2026), pending the owner's approval.
-/** "I'm completely stuck": a quiet button at the foot of the challenge, and its confirmation, with "Keep trying" focused first. */
+/** "I'm completely stuck": a strong button beside the hints, above the challenge's title (owner, 5 Nov 2026; it was a quiet link at the
+ * foot), and its confirmation, with "Keep trying" focused first so a mis-tap costs nothing. */
 export default function PreviewStuckConfirm({ canReveal, open, busy, foodTokens, onOpen, onKeepTrying, onReveal }: Props) {
   const keepTrying = useRef<HTMLButtonElement>(null);
   if (!canReveal) return null;
   return <>
-    <p className={styles.foot}><button type="button" className={styles.stuck} aria-haspopup="dialog" onClick={onOpen}>I&apos;m completely stuck</button></p>
+    <button type="button" className={styles.stuck} aria-haspopup="dialog" onClick={onOpen}>I&apos;m completely stuck</button>
     <PreviewBottomSheet open={open} title="Show the answer?" closeLabel="Close" onClose={onKeepTrying} initialFocus={keepTrying}
       footer={<div className={styles.choices}>
         <button ref={keepTrying} type="button" className={styles.keep} onClick={onKeepTrying}>Keep trying</button>

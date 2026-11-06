@@ -9,6 +9,7 @@ import { EMPTY_WATER_CUPS, WATER_PUZZLE_REVISION, WATER_TASK_ID, isValidCups, is
 import { cleanDisplayName, isValidNames, rosterParticipants, setDisplayName, type ParticipantNames } from "./participant-names.ts";
 import { claimGroupRole, effectiveRoles, holderOf, isSoloTeam, MAIN_ROLES, mayChangeAnswer, mayReveal, releaseGroupRole, roleForParticipant, setGroupRole, type AssignableGroupRole, type GroupRoleAssignments } from "./roles.ts";
 import { soloLine } from "./solo-copy.ts";
+import { TEAM_NAME_COPY, teamInitials, teamNameKey, teamNameMessage, validateTeamName } from "./team-name.ts";
 import { basename, dirname, resolve } from "node:path";
 import { LOBBY_COUNT, recommendedTeamCount, requiredRolesMissing } from "./adventure-lobby.ts";
 import { JOIN_ERROR, TEAM_JOIN_COPY, type JoinErrorCode } from "./team-membership.ts";
@@ -53,7 +54,10 @@ export const DEFAULT_TEAM_ID = "A";
 /** One team's shared play: its leader (none until a host joins), its roles, and its missions' progress and rewards.
  * `joinLink` and `joinRequests` (I3b, optional under schema 7) are its join link, stored hashed, and the requests made with it. */
 type TeamRecord = { leaderId: string | null; roles: GroupRoleAssignments; missions: Record<string, MissionRecord>;
-  joinLink?: { tokenHash: string; createdAt: number }; joinRequests?: Record<string, JoinRequest> };
+  joinLink?: { tokenHash: string; createdAt: number }; joinRequests?: Record<string, JoinRequest>;
+  // I7a (optional under schema 7, so the rollback image reads the file): the team's confirmed name and its comparison key, its stored
+  // avatar ID (initials stand in until the artwork exists), and the single-use invitation the host shared for its leader, hashed.
+  name?: string; nameKey?: string; avatarId?: string; leaderInvite?: { tokenHash: string; createdAt: number; expiresAt: number } };
 /** A device's request to join (I3b), keyed by a public ID the leader's screen refers to. Only the device holds the secret, in its
  * `shuk_join` cookie; `code` is shown on both phones so the leader lets in the right one, and proves nothing. A pending request
  * lasts 10 minutes; let in, it holds a place for 15 more until the device collects its session. A declined one stays until it
@@ -76,6 +80,15 @@ export const SCHEMA_VERSION = 7;
 /** O6 (owner, 31 Oct 2026): members per team, the leader included; the guide is in no team. Members plus requests let in but not
  * yet collected count. Operator invitations over it need the explicit --over-cap override. */
 export const TEAM_CAPACITY = 5;
+/** I7a: the teams an adventure can hold, in order: up to 30 players in teams of 5 (a provisional limit, never advertised before the
+ * 30-device checks). Team A is the host's. */
+export const TEAM_IDS: readonly string[] = Object.freeze(["A", "B", "C", "D", "E", "F"]);
+/** The team avatar catalogue's stable IDs (owner, 31 Oct 2026: about 8 Shuk-themed avatars). Never reused; the artwork is pending. */
+export const TEAM_AVATAR_IDS: readonly string[] = Object.freeze(["shuk-01", "shuk-02", "shuk-03", "shuk-04", "shuk-05", "shuk-06", "shuk-07", "shuk-08"]);
+// TODO(copy): drafts for multi-team play (I7a, 6 Nov 2026).
+export const TEAMS_NOT_READY = (team: string) => `${team} isn't ready yet.`;
+export const CREATE_TEAMS_FIRST = "Create the teams before you start.";
+export const TEAM_HAS_PLAYERS = "A team that already has players can't be removed. Change the number back, or ask your guide.";
 /** O6: requests waiting for the leader, per team. */
 export const PENDING_LIMIT = 5;
 export const PENDING_MS = 10 * 60_000;
@@ -160,6 +173,14 @@ function isValidRegistry(db: Database): boolean {
     && (member.name === undefined || cleanDisplayName(member.name) === member.name))
     && Object.values(db.invitations).every(invitation => Boolean(invitation) && SEATS.includes(invitation.seat));
 }
+/** I7a's optional team fields: a known team ID, a name that passes the same checks as a claim with its matching key, a catalogue
+ * avatar ID, and a well-formed leader invitation. */
+const isValidTeamExtras = (teamId: string, team: TeamRecord) => TEAM_IDS.includes(teamId)
+  && (team.name === undefined || (typeof team.name === "string" && validateTeamName(team.name).ok && team.nameKey === teamNameKey(team.name)))
+  && (team.name !== undefined || team.nameKey === undefined)
+  && (team.avatarId === undefined || TEAM_AVATAR_IDS.includes(team.avatarId))
+  && (team.leaderInvite === undefined || (Boolean(team.leaderInvite) && /^[0-9a-f]{64}$/.test(team.leaderInvite.tokenHash)
+    && Number.isSafeInteger(team.leaderInvite.createdAt) && Number.isSafeInteger(team.leaderInvite.expiresAt)));
 const isValidAdventure = (adventure: AdventureRecord) => Boolean(adventure) && ["lobby", "active"].includes(adventure.status)
   && ["together", "twoTeams"].includes(adventure.format) && (adventure.hostId === null || typeof adventure.hostId === "string")
   && (adventure.intendedCount === null || (Number.isSafeInteger(adventure.intendedCount) && adventure.intendedCount > 0));
@@ -233,9 +254,12 @@ function migrate(raw: Buffer | null): { db: Database; older: boolean } {
     const members = memberIds(db, teamId);
     if (!team || !team.roles || !team.missions || !isValidJoin(team) || (team.leaderId !== null && !members.includes(team.leaderId))
       || MAIN_ROLES.some(role => { const id = team.roles[role]; return id !== undefined && id !== null && !members.includes(id); })
-      || [team.roles.navigator, team.roles.answerSubmitter].some(id => id === undefined)) throw new Error("Unsupported Shuk storage state");
+      || [team.roles.navigator, team.roles.answerSubmitter].some(id => id === undefined) || !isValidTeamExtras(teamId, team)) throw new Error("Unsupported Shuk storage state");
     teams[teamId] = { ...team, missions: catalogueMissions(team.missions) };
   }
+  // A team name is unique in its adventure (I7a): a file holding one name twice is refused, never repaired.
+  const nameKeys = Object.values(teams).flatMap(team => team.nameKey === undefined ? [] : [team.nameKey]);
+  if (new Set(nameKeys).size !== nameKeys.length) throw new Error("Unsupported Shuk storage state");
   db.teams = teams;
   return { db, older };
 }
@@ -297,6 +321,44 @@ function catalogueMissions(stored: Record<string, MissionRecord>): Record<string
   return missions;
 }
 const memberIds = (db: Database, teamId: string) => Object.keys(db.participants).filter(id => db.participants[id].teamId === teamId);
+/** I7a: the teams for `count` teams, A first. New ones start empty, each with the first avatar ID no other team holds, counted from a
+ * point set by the team's ID, so teams get different avatars. A team beyond `count` with a member or a leader is never dropped. */
+function resizedTeams(db: Database, count: number): Record<string, TeamRecord> {
+  const wanted = TEAM_IDS.slice(0, Math.max(1, Math.min(count, TEAM_IDS.length)));
+  for (const id of Object.keys(db.teams)) {
+    if (!wanted.includes(id) && (memberIds(db, id).length > 0 || db.teams[id].leaderId !== null)) throw new Error(TEAM_HAS_PLAYERS);
+  }
+  const teams: Record<string, TeamRecord> = {};
+  const held = new Set(Object.values(db.teams).flatMap(team => team.avatarId ? [team.avatarId] : []));
+  for (const id of wanted) {
+    if (db.teams[id]) { teams[id] = db.teams[id]; continue; }
+    const start = TEAM_IDS.indexOf(id) % TEAM_AVATAR_IDS.length;
+    const avatarId = [...TEAM_AVATAR_IDS.slice(start), ...TEAM_AVATAR_IDS.slice(0, start)].find(candidate => !held.has(candidate)) ?? TEAM_AVATAR_IDS[start];
+    held.add(avatarId);
+    teams[id] = { leaderId: null, roles: { navigator: null, answerSubmitter: null }, avatarId,
+      missions: Object.fromEntries(SHUK_MISSIONS.map(mission => [mission.id, emptyMission(mission)])) };
+  }
+  return teams;
+}
+/** One row of the host's overview (I7a): the team's name, avatar, leader status, player count and readiness. Nothing of its answers,
+ * clues or players' details. */
+function teamOverview(db: Database, teamId: string, now: number) {
+  const team = db.teams[teamId];
+  const readiness = teamReadiness(db, teamId);
+  const leader = team.leaderId !== null ? "accepted" : !team.leaderInvite ? "none" : team.leaderInvite.expiresAt > now ? "waiting" : "expired";
+  return { id: teamId, name: team.name ?? null, avatarId: team.avatarId ?? null, initials: teamInitials(team.name ?? null, teamId), leader,
+    host: teamId === DEFAULT_TEAM_ID, members: readiness.members, named: readiness.named, rolesMissing: readiness.rolesMissing.length, ready: readiness.ready } as const;
+}
+export type TeamOverview = ReturnType<typeof teamOverview>;
+/** Whether a team can start (I7a): a leader, a confirmed name, at least one player, and for two or more a Navigator and a Submitter. */
+function teamReadiness(db: Database, teamId: string) {
+  const team = db.teams[teamId];
+  const members = memberIds(db, teamId);
+  const rolesMissing = requiredRolesMissing(effectiveRoles(members, team.roles), members);
+  const leader = team.leaderId !== null;
+  const named = team.name !== undefined;
+  return { leader, named, members: members.length, rolesMissing, ready: leader && named && members.length > 0 && rolesMissing.length === 0 };
+}
 /** The team a participant plays in. The guide oversees every team; until the guide can choose one, that is team A. */
 function teamIdOf(db: Database, participantId: string): string {
   if (participantId === DEV_GUIDE_ID) return DEFAULT_TEAM_ID;
@@ -482,10 +544,43 @@ export async function issueHostInvitation(path: string, seat: string, now = Date
   });
   return token;
 }
+/**
+ * A team's leader invitation (I7a, owner, 6 Nov 2026: the host shares it from the app): single-use, 24 hours, for one of teams B…F,
+ * only in the lobby, from the host's session or the guide. Stored hashed on the team, so the link is returned only here, once. A new
+ * one replaces the old at once; if the team already has a leader, whoever redeems the new one becomes its leader instead.
+ */
+export async function issueLeaderInvitation(path: string, token: string, teamId: string, now = Date.now()) {
+  const link = secret();
+  await transact(path, db => {
+    const participantId = identity(db, token, now);
+    if (participantId !== DEV_GUIDE_ID && !isHostSession(db, token)) throw new AccessError("Only the host or the guide can invite team leaders.");
+    if (db.adventure.status !== "lobby") throw new AccessError("The adventure has already started.", 409);
+    if (teamId === DEFAULT_TEAM_ID || !Object.hasOwn(db.teams, teamId)) throw new AccessError("There's no such team to invite a leader to.", 404);
+    db.teams = { ...db.teams, [teamId]: { ...db.teams[teamId], leaderInvite: { tokenHash: hash(link), createdAt: now, expiresAt: now + DAY } } };
+  });
+  return link;
+}
+/** The team whose live leader invitation this token is, if any (I7a). */
+const leaderInviteTeam = (db: Database, tokenHash: string, now: number) =>
+  Object.keys(db.teams).find(id => db.teams[id].leaderInvite?.tokenHash === tokenHash && db.teams[id].leaderInvite!.expiresAt > now);
 export async function redeemInvitation(path: string, token: string, now = Date.now(), replaceSession = "") {
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) throw new AccessError(INVITATION_UNUSABLE, 401);
   const session = secret();
   await transact(path, db => {
+    // A team leader's invitation (I7a): a new member of that team, its leader, with the leadership bound to this session only.
+    const leaderTeam = leaderInviteTeam(db, hash(token), now);
+    if (leaderTeam !== undefined) {
+      if (db.adventure.status !== "lobby") throw new AccessError(INVITATION_UNUSABLE, 401);
+      if (placesTaken(db, leaderTeam, now) >= TEAM_CAPACITY) throw new AccessError(TEAM_FULL, 409);
+      const leaderId = newParticipantId();
+      db.participants[leaderId] = { teamId: leaderTeam, joinedAt: now };
+      const led: TeamRecord = { ...db.teams[leaderTeam], leaderId };
+      delete led.leaderInvite;
+      db.teams = { ...db.teams, [leaderTeam]: led };
+      if (replaceSession) delete db.sessions[hash(replaceSession)];
+      db.sessions[hash(session)] = { participantId: leaderId, expiresAt: now + 7 * DAY, leaderTeamId: leaderTeam };
+      return;
+    }
     const invitation = db.invitations[hash(token)];
     if (!invitation || invitation.expiresAt <= now) throw new AccessError(INVITATION_UNUSABLE, 401);
     // Fail closed on any kind this version doesn't grant.
@@ -648,11 +743,18 @@ export async function sessionView(path: string, token: string, now = Date.now(),
   const host = isHostSession(db, token);
   const adventure = { status: db.adventure.status, intendedCount: db.adventure.intendedCount,
     host, leader: isLeaderSession(db, token, teamId), canManage: guide || host };
+  const own = db.teams[teamId];
   return {
     puzzleRevision: WATER_PUZZLE_REVISION,
     // Only after a development reset: the phone sends it back with every action it queues from now on.
     ...(db.resetEpoch !== undefined ? { resetEpoch: db.resetEpoch } : {}),
     adventure, solo,
+    // I7a: this phone's own team (its name, avatar and initials, which stand in until the avatar artwork exists) and how many teams
+    // the adventure has. Only the host and the guide get the overview of every team, and it holds no answers and no players' details.
+    team: { id: teamId, name: own.name ?? null, avatarId: own.avatarId ?? null, initials: teamInitials(own.name ?? null, teamId), count: Object.keys(db.teams).length,
+      // In the lobby, the other teams' name keys, so the naming screen offers only free suggestions. Names only; nothing else of theirs.
+      taken: db.adventure.status === "lobby" ? Object.entries(db.teams).flatMap(([id, other]) => id !== teamId && other.nameKey ? [other.nameKey] : []) : [] },
+    ...(guide || host ? { teams: TEAM_IDS.filter(id => Object.hasOwn(db.teams, id)).map(id => teamOverview(db, id, now)) } : {}),
     missions: SHUK_MISSIONS.map(mission => missionView(mission, team.missions[mission.id])),
     // Names are shown only to signed-in members of the team (this view needs a session), plus the guide.
     participants: rosterParticipants(members.map(id => ({ id, ...db.participants[id] })), db.seatNames ?? {}),
@@ -669,7 +771,9 @@ export async function sessionView(path: string, token: string, now = Date.now(),
       canAnswer: mayChangeAnswer(participantId, roles, guide),
       revealed: award?.outcome === "revealed", ...(award ? { awardedAt: award.awardedAt } : {}) },
     // The team's balance covers every one of its missions' recorded rewards.
-    sharedBalance: { ...balanceOf(records), status: "Provisional local-development rewards" },
+    // Points are the team's; food tokens are pooled for the whole adventure (owner, 29 Oct 2026), so every team sees the same tokens.
+    sharedBalance: { ...balanceOf(records), foodTokens: balanceOf(Object.values(db.teams).flatMap(other => Object.values(other.missions))).foodTokens,
+      status: "Provisional local-development rewards" },
     // Membership (I3b) for the team's leader session and the guide only: requests (never their secrets), the space and the leader.
     ...(guide || adventure.leader ? { membership: { capacity: TEAM_CAPACITY, taken: placesTaken(db, teamId, now), leaderId: team.leaderId,
       hasLink: Boolean(team.joinLink), requests: liveRequests(team, now).filter(([, request]) => request.status !== "declined")
@@ -705,11 +809,11 @@ export async function sessionAction(path: string, token: string, action: GroupAc
     const role = roleForParticipant(participantId, roles);
     let message = "";
     try {
-      if (action.type === "set-intended-count" || action.type === "start-adventure") {
+      if (action.type === "set-intended-count" || action.type === "start-adventure" || action.type === "set-teams") {
         // Lobby powers: the host's and the guide's only. Being host or leader grants nothing else (no guide-only permission).
         if (!guide && !isHostSession(db, token)) throw new Error("Only the host or the guide can set up the adventure.");
         if (db.adventure.status !== "lobby") {
-          if (action.type === "set-intended-count") throw new Error("The adventure has already started.");
+          if (action.type !== "start-adventure") throw new Error("The adventure has already started.");
           message = "The adventure has already started.";
         } else if (action.type === "set-intended-count") {
           if (!Number.isSafeInteger(action.count) || action.count < LOBBY_COUNT.min || action.count > LOBBY_COUNT.max) {
@@ -718,10 +822,23 @@ export async function sessionAction(path: string, token: string, action: GroupAc
           // The count only feeds the recommended number of teams; the adventure keeps its one team until teams can be created.
           db.adventure = { ...db.adventure, intendedCount: action.count, format: "together" };
           message = "Got it. Player count saved.";
+        } else if (action.type === "set-teams") {
+          // I7a: the host accepts the recommended teams. Teams B, C… are created (each with its stored avatar ID); with a smaller
+          // count, the teams beyond it go, but only while nobody is in them. Team A is always the host's.
+          if (db.adventure.intendedCount === null) throw new Error("First, tell us how many are playing.");
+          db.teams = { ...db.teams, ...resizedTeams(db, recommendedTeamCount(db.adventure.intendedCount)) };
+          for (const id of Object.keys(db.teams)) if (!TEAM_IDS.slice(0, recommendedTeamCount(db.adventure.intendedCount)).includes(id)) delete db.teams[id];
+          message = "Teams ready.";
         } else {
           if (db.adventure.intendedCount === null) throw new Error("First, tell us how many are playing.");
-          // A count that needs more than one team can't start until teams can be created (I7a): no one-team stand-in.
-          if (recommendedTeamCount(db.adventure.intendedCount) > 1) throw new Error("Your adventure needs multiple teams. For now, adventures can start with up to five players.");
+          const wanted = recommendedTeamCount(db.adventure.intendedCount);
+          // A count that needs more than one team starts only once its teams exist (I7a): no one-team stand-in.
+          if (Object.keys(db.teams).length !== wanted) throw new Error(wanted > 1 ? CREATE_TEAMS_FIRST : "Change the number of players, then start.");
+          if (wanted > 1) {
+            // Every team is ready: a leader, a confirmed name and, for two or more players, a Navigator and a Submitter.
+            const notReady = TEAM_IDS.slice(0, wanted).find(id => !teamReadiness(db, id).ready);
+            if (notReady) throw new Error(TEAMS_NOT_READY(db.teams[notReady].name ?? `Team ${notReady}`));
+          }
           // A group of two or more starts only with a Navigator and a Submitter (owner, 5 Nov 2026): the phone offers to set them or to
           // give them to the leader first. A solo player holds both, so nothing is missing.
           if (requiredRolesMissing(roles, ids).length) throw new Error(ROLES_NEEDED);
@@ -762,6 +879,18 @@ export async function sessionAction(path: string, token: string, action: GroupAc
             message = "Let in. Their phone will join in a moment.";
           }
         }
+      } else if (action.type === "name-team") {
+        // I7a: the team's leader names it before Start; the guide may correct a name at any time (on team A until the guide's admin
+        // screen can choose a team). The same checks as on the phone; the server's answer is final, and a rename frees the old name.
+        if (!guide && !(db.adventure.status === "lobby" && isLeaderSession(db, token, teamId))) {
+          throw new Error(db.adventure.status === "lobby" ? "Only your team's leader can name the team." : TEAM_NAME_COPY.afterStart);
+        }
+        const taken = new Set(Object.entries(db.teams).filter(([id]) => id !== teamId).flatMap(([, other]) => other.nameKey === undefined ? [] : [other.nameKey]));
+        const result = validateTeamName(action.name, taken);
+        if (!result.ok) throw new Error(teamNameMessage(result.error));
+        team.name = result.name;
+        team.nameKey = result.key;
+        message = TEAM_NAME_COPY.success(result.name);
       } else if (db.adventure.status === "lobby" && !["assign-role", "claim-role", "release-role"].includes(action.type)) {
         // Nothing on the journey counts until the adventure starts; roles may be settled while the group waits.
         throw new Error("The adventure hasn't started yet. Your host will start it soon.");

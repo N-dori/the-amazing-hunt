@@ -25,6 +25,9 @@ function parseMissionAction(value: unknown): GroupAction | null {
     return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
   }
   if (isRecord(value) && value.type === "start-adventure") return { type: value.type };
+  // I7a: the host accepts the recommended teams; a team's leader (or the guide) names the team. The server checks the name itself.
+  if (isRecord(value) && value.type === "set-teams") return { type: value.type };
+  if (isRecord(value) && value.type === "name-team") return typeof value.name === "string" && value.name.length <= 200 ? { type: value.type, name: value.name } : null;
   if (isRecord(value) && (value.type === "let-in" || value.type === "decline")) {
     return typeof value.requestId === "string" && /^r_[A-Za-z0-9_-]{16}$/.test(value.requestId) ? { type: value.type, requestId: value.requestId } : null;
   }

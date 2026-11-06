@@ -15,6 +15,9 @@ export type HintSheetView = Readonly<{
   next: Readonly<{ number: number; fromPoints: number; toPoints: number }> | null;
   // Every hint used: the sheet offers "I'm completely stuck" too, if this phone may press it.
   offerStuck: boolean;
+  // The hint pop-up's flow (owner, 5 Nov 2026): the cost first, then the hint, then, still in the pop-up, the way to the answer and its
+  // explanation, whenever this phone may reveal it.
+  offerAnswer: boolean;
 }>;
 
 export type HintSheetInput = Readonly<{
@@ -35,7 +38,7 @@ export function buildHintSheetView({ hints, stepUsed, totalUsed, started, comple
   const next = playing && used < hints.length
     ? { number: used + 1, fromPoints: potential(rewards, totalUsed), toPoints: potential(rewards, totalUsed + 1) } : null;
   return { available: playing && hints.length > 0, remaining: hints.length - used, total: hints.length,
-    revealed: hints.slice(0, used), next, offerStuck: playing && canReveal && used >= hints.length };
+    revealed: hints.slice(0, used), next, offerStuck: playing && canReveal && used >= hints.length, offerAnswer: playing && canReveal };
 }
 
 /** After "I'm completely stuck" on a "choose N" challenge: every option the field-checked key marks as right, in catalogue order. */

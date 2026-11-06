@@ -9,6 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { buildLobbyView, groupSummary, requiredRolesMissing, stepperStates, type AdventureView } from "./adventure-lobby.ts";
 import { buildLobbyRoleRows, teamPlayers } from "./participant-identity.ts";
 import { LOBBY_COPY } from "./welcome-copy.ts";
+import { TEAM_NAME_COPY } from "./team-name.ts";
 
 // Onboarding and roles (owner, 5 Nov 2026): the lobby's steps, the casting call, the start warning, the waiting screen and the role card,
 // rendered from the actual TSX without a browser (the loader of role-choice.test.ts). The avatar and the sheet are stubbed: they have
@@ -42,7 +43,7 @@ const PEOPLE = [{ id: "player-1", name: "Ari" }, { id: "player-2", name: "Bea" }
 const HOST: AdventureView = { status: "lobby", intendedCount: 2, host: true, leader: true, canManage: true };
 const noop = () => {};
 const lobbyProps = (step: string, count: number, roles = { navigator: "player-2", answerSubmitter: "player-1" }) => ({
-  copy: LOBBY_COPY, lobby: buildLobbyView(HOST, count), step, stepper: step === "teams" ? null : stepperStates(step as "count", count === 1),
+  copy: LOBBY_COPY, lobby: buildLobbyView(HOST, count), step, stepper: stepperStates(step as "count", count === 1 ? "solo" : count > 5 ? "multi" : "group"),
   summary: groupSummary(count), lead: LOBBY_COPY.hostLead, busy: false, message: "", headingRef: null,
   members: [{ id: "player-1", name: "Ari", roles: ["Submitter"] }, { id: "player-2", name: "Bea", roles: ["Navigator"] }],
   roleRows: buildLobbyRoleRows(PEOPLE, roles, "player-1"),
@@ -75,13 +76,13 @@ test("the lobby's steps: a stepper on top; Ready lists the crew with their roles
   assert.match(roles, /Who does what\?/); assert.match(roles, /Read these out and decide together/);
 });
 
-test("solo says so with only two steps; 6 and more name the groups and can't start", () => {
+test("solo says so with only two steps; 6 and more get the teams step, with no Start on it", () => {
   const solo = html("components/amazing-shuk/PreviewAdventureLobby.tsx", lobbyProps("ready", 1));
   assert.match(solo, /Playing solo: you&#x27;ll hold every role\./);
   assert.equal((solo.match(/<li/g) ?? []).length, 2, "Players and Ready only");
-  const teams = html("components/amazing-shuk/PreviewAdventureLobby.tsx", lobbyProps("teams", 11));
-  assert.match(teams, /Groups: 3/); assert.match(teams, /Players per group: 4 \+ 4 \+ 3/);
-  assert.doesNotMatch(teams, /Start Adventure|Getting ready/);
+  const teams = html("components/amazing-shuk/PreviewAdventureLobby.tsx", { ...lobbyProps("teams", 11), teams: "TEAMS-SLOT", backLabel: LOBBY_COPY.changeCount });
+  assert.match(teams, /Your teams/); assert.match(teams, /TEAMS-SLOT/); assert.match(teams, /Change the number/);
+  assert.doesNotMatch(teams, /Start Adventure/);
 });
 
 test("Start with a role missing: the warning names it; Give them to me only for the team's leader", () => {
@@ -95,10 +96,10 @@ test("Start with a role missing: the warning names it; Give them to me only for 
 });
 
 test("the waiting screen: the game's name, a loader, the approved words, where the host is, and the player's own roles", () => {
-  const out = html("components/amazing-shuk/PreviewLobbyWaiting.tsx", { copy: LOBBY_COPY, brand: "The Amazing Shuk", states: stepperStates("roles", false),
+  const out = html("components/amazing-shuk/PreviewLobbyWaiting.tsx", { copy: LOBBY_COPY, brand: "The Amazing Shuk", states: stepperStates("roles", "group"),
     stageLine: LOBBY_COPY.waitingStages.roles, yourRoles: LOBBY_COPY.yourRoles(["Navigator"]), message: "", headingRef: null });
   assert.match(out, /The Amazing Shuk/); assert.match(out, /Waiting for the adventure to begin/);
-  assert.match(out, /role="status">Your host is choosing roles…/); assert.match(out, /You&#x27;re the Navigator\./);
+  assert.match(out, /role="status">Your leader is choosing roles…/); assert.match(out, /You&#x27;re the Navigator\./);
   assert.match(out, /aria-hidden="true"><span><\/span><span><\/span><span><\/span>/, "the loader is decorative");
   assert.match(out, /aria-current="step"/);
 });
@@ -121,4 +122,36 @@ test("the guide is never one of the lobby's players: not counted, not listed, no
   const here = html("components/amazing-shuk/PreviewAdventureLobby.tsx", { ...lobbyProps("here", 3),
     members: teamPlayers(signedIn).map(person => ({ ...person, roles: [] })) });
   assert.match(here, /2 of 3 here/); assert.doesNotMatch(here, /avatar:Guide/);
+});
+
+test("the host's teams (I7a): Create the teams first; then one row per team with its leader's status, players, readiness and invite", () => {
+  const before = html("components/amazing-shuk/PreviewLobbyTeams.tsx", { copy: LOBBY_COPY, summary: groupSummary(11), teams: [], created: false, busy: false,
+    linkBusy: null, notice: "", onCreate: noop, onShare: noop });
+  assert.match(before, /Groups: 3/); assert.match(before, /Players per group: 4 \+ 4 \+ 3/); assert.match(before, /Create the teams/);
+  const rows = [
+    { id: "A", name: "Falafel Fugitives", avatarId: null, initials: "FF", leader: "accepted", host: true, members: 4, named: true, rolesMissing: 0, ready: true },
+    { id: "B", name: null, avatarId: "shuk-02", initials: "B", leader: "none", host: false, members: 0, named: false, rolesMissing: 0, ready: false },
+    { id: "C", name: "Olive Squad Goals", avatarId: "shuk-03", initials: "OS", leader: "accepted", host: false, members: 3, named: true, rolesMissing: 1, ready: false },
+  ];
+  const after = html("components/amazing-shuk/PreviewLobbyTeams.tsx", { copy: LOBBY_COPY, summary: groupSummary(11), teams: rows, created: true, busy: false,
+    linkBusy: null, notice: "", onCreate: noop, onShare: noop });
+  assert.match(after, /Falafel Fugitives/); assert.match(after, /You lead this team · 4 players/);
+  assert.match(after, /Team B/); assert.match(after, /Invite not sent · 0 players/); assert.match(after, /aria-label="Share invite: Team B"/);
+  assert.match(after, /Leader is in · 3 players/); assert.match(after, /aria-label="Make a new invite: Olive Squad Goals"/);
+  assert.equal((after.match(/aria-label="(Share invite|Make a new invite)/g) ?? []).length, 2, "no invite for the host's own team");
+  assert.doesNotMatch(after, /#invite=/, "the invitation itself is never on screen");
+});
+
+test("Name your team: the approved copy, the suggestions, the field's error, and the name shown only once saved", () => {
+  const props = { copy: TEAM_NAME_COPY, value: "Falafel", error: "", saved: null, saving: false, suggestions: ["Falafel Fugitives", "Sabich Side Quest"], maxLength: 20,
+    onChange: noop, onPick: noop, onConfirm: noop };
+  const out = html("components/amazing-shuk/PreviewTeamName.tsx", props);
+  assert.match(out, /Make up a name or pick a Shuk favorite!/); assert.match(out, /Need inspiration\?/); assert.match(out, /Confirm name/);
+  assert.doesNotMatch(out, /You&#x27;re/);
+  const saving = html("components/amazing-shuk/PreviewTeamName.tsx", { ...props, saving: true, saved: "Falafel Fugitives" });
+  assert.match(saving, /Saving your team name…/); assert.doesNotMatch(saving, /You&#x27;re Falafel Fugitives/);
+  const saved = html("components/amazing-shuk/PreviewTeamName.tsx", { ...props, saved: "Falafel Fugitives" });
+  assert.match(saved, /You&#x27;re Falafel Fugitives!/);
+  const error = html("components/amazing-shuk/PreviewTeamName.tsx", { ...props, error: "That name's taken. Try another!" });
+  assert.match(error, /role="alert">That name&#x27;s taken/); assert.match(error, /aria-invalid="true"/);
 });

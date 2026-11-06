@@ -48,7 +48,8 @@ export function buildLobbyView(adventure: AdventureView, draftCount: number | nu
     canIncrease: adventure.canManage && (count === null || count < LOBBY_COUNT.max),
     recommendation,
     needsTeams: recommendation !== null && recommendation.teams > 1,
-    canStart: adventure.canManage && adventure.status === "lobby" && recommendation !== null && recommendation.teams === 1,
+    // With several teams (I7a) the phone also waits for every team to be ready (IndexAdventureLobby); the server checks both.
+    canStart: adventure.canManage && adventure.status === "lobby" && recommendation !== null,
   };
 }
 
@@ -58,27 +59,46 @@ export function stepCount(count: number | null, delta: -1 | 1): number {
   return Math.min(LOBBY_COUNT.max, Math.max(LOBBY_COUNT.min, next));
 }
 
-/** The host's own progress through the lobby on this phone (onboarding and roles, owner, 5 Nov 2026): the count, who's here, the
- * roles, then ready. Kept on the phone; the server holds only what each step decides (the count, the roles). */
-export type LobbyStage = "count" | "here" | "roles" | "ready";
-export const LOBBY_STAGES: readonly LobbyStage[] = Object.freeze(["count", "here", "roles", "ready"]);
-
-/** One screen at a time in the lobby: the count, then who's here, the roles and Ready to Start for a group of 2–5; straight to Ready
- * for a solo player; the teams note for 6–30, which can't start yet. Players without lobby powers only wait. `stage` is where the
- * host has got to on this phone. */
-export type LobbyStep = "waiting" | LobbyStage | "teams";
-export function lobbyStep(lobby: LobbyView, stage: LobbyStage): LobbyStep {
-  if (!lobby.canManage) return "waiting";
-  if (stage === "count" || lobby.count === null) return "count";
-  if (lobby.needsTeams) return "teams";
-  if (lobby.count === 1) return "ready";
-  return stage;
+/** Where this phone has got to in the lobby (onboarding and roles, owner, 5 Nov 2026; teams, I7a). Kept on the phone; the server holds
+ * only what each step decides (the count, the teams, the name, the roles). */
+export type LobbyStage = "count" | "teams" | "name" | "here" | "roles" | "ready";
+/** Which steps this phone goes through:
+ * - `solo`: the host of a group of one, Players then Ready;
+ * - `group`: the host of one group of 2–5, Players, Who's here, Roles, Ready;
+ * - `multi`: the host (or guide) of 6–30, who also creates the teams and names team A;
+ * - `leader`: another team's leader, who names their team, lets their players in and gives the roles; the host starts. */
+export type LobbyFlow = "solo" | "group" | "multi" | "leader";
+const FLOWS: Readonly<Record<LobbyFlow, readonly LobbyStage[]>> = Object.freeze({
+  solo: ["count", "ready"], group: ["count", "here", "roles", "ready"],
+  multi: ["count", "teams", "name", "here", "roles", "ready"], leader: ["name", "here", "roles", "ready"],
+});
+export const flowStages = (flow: LobbyFlow): readonly LobbyStage[] => FLOWS[flow];
+/** The flow for this phone: a team's leader who isn't the host has their own; otherwise it follows the count. */
+export function lobbyFlow(lobby: LobbyView, leaderOnly: boolean): LobbyFlow {
+  if (leaderOnly) return "leader";
+  if (lobby.count === 1) return "solo";
+  return lobby.needsTeams ? "multi" : "group";
 }
+/** The step to show. Players without lobby powers (and not leading a team) only wait. Without a count the host stays on the count; a
+ * stage this flow doesn't have moves to the nearest one it does (a changed count can turn a group into teams and back). */
+export type LobbyStep = "waiting" | LobbyStage;
+export function lobbyStep(lobby: LobbyView, stage: LobbyStage, leaderOnly = false): LobbyStep {
+  if (!lobby.canManage && !leaderOnly) return "waiting";
+  const flow = lobbyFlow(lobby, leaderOnly);
+  if (flow !== "leader" && (stage === "count" || lobby.count === null)) return "count";
+  const stages = FLOWS[flow];
+  if (stages.includes(stage)) return stage;
+  const order = FLOWS.multi;
+  return stages.find(candidate => order.indexOf(candidate) >= order.indexOf(stage)) ?? stages[stages.length - 1];
+}
+/** The next and previous steps in a flow, for Continue and Back. */
+export const nextStage = (flow: LobbyFlow, stage: LobbyStage): LobbyStage => { const stages = FLOWS[flow]; return stages[Math.min(stages.length - 1, stages.indexOf(stage) + 1)]; };
+export const previousStage = (flow: LobbyFlow, stage: LobbyStage): LobbyStage => { const stages = FLOWS[flow]; return stages[Math.max(0, stages.indexOf(stage) - 1)]; };
 
-/** The stepper's states for one group (Players · Who's here · Roles · Ready) or a solo player (Players · Ready). */
+/** The stepper's states: done, current, to come, for this flow. */
 export type StepperState = Readonly<{ stage: LobbyStage; status: "done" | "current" | "todo" }>;
-export function stepperStates(current: LobbyStage, solo: boolean): readonly StepperState[] {
-  const stages = solo ? LOBBY_STAGES.filter(stage => stage === "count" || stage === "ready") : LOBBY_STAGES;
+export function stepperStates(current: LobbyStage, flow: LobbyFlow): readonly StepperState[] {
+  const stages = FLOWS[flow];
   const at = Math.max(0, stages.indexOf(current));
   return stages.map((stage, index) => ({ stage, status: index < at ? "done" : index === at ? "current" : "todo" }));
 }
@@ -102,7 +122,25 @@ export function requiredRolesMissing(roles: GroupRoleAssignments, memberIds: rea
 
 /** What the players' waiting screen says the host is doing, from what the server already holds: no count yet, the roles still being
  * chosen, or ready to go. */
-export function waitingStage(adventure: Pick<AdventureView, "intendedCount">, roles: GroupRoleAssignments, memberIds: readonly string[]): LobbyStage {
+export function waitingStage(adventure: Pick<AdventureView, "intendedCount">, roles: GroupRoleAssignments, memberIds: readonly string[], team?: Pick<TeamView, "count" | "name">): LobbyStage {
   if (adventure.intendedCount === null) return "count";
+  // With several teams (I7a), each team first names itself.
+  if (team && team.count > 1 && team.name === null) return "name";
   return requiredRolesMissing(roles, memberIds).length ? "roles" : "ready";
 }
+
+/** This phone's own team as the server shows it (I7a): its name (null until confirmed), avatar, initials, how many teams the adventure
+ * has, and, in the lobby, the other teams' name keys. */
+export type TeamView = Readonly<{ id: string; name: string | null; avatarId: string | null; initials: string; count: number; taken: readonly string[] }>;
+/** One row of the host's overview of the teams (I7a): no answers and no players' details. */
+export type TeamOverviewView = Readonly<{ id: string; name: string | null; avatarId: string | null; initials: string;
+  leader: "none" | "waiting" | "expired" | "accepted"; host: boolean; members: number; named: boolean; rolesMissing: number; ready: boolean }>;
+/** How many players this team expects, from the count's even split (I7a): team A gets the first size, B the next, and so on. */
+export function expectedTeamSize(count: number | null, teamId: string): number | null {
+  if (count === null) return null;
+  const sizes = recommendedTeamSizes(count);
+  const index = "ABCDEF".indexOf(teamId);
+  return sizes[index] ?? sizes[sizes.length - 1];
+}
+/** The teams the host is still waiting for before Start, by their names (or "Team B"). */
+export const teamsNotReady = (teams: readonly TeamOverviewView[]) => teams.filter(team => !team.ready).map(team => team.name ?? `Team ${team.id}`);

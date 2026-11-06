@@ -27,6 +27,12 @@ const QUIET: Readonly<Record<string, string>> = Object.freeze({ [LEVIN_MISSION.i
 
 // After "I'm completely stuck": never a cheer or "Well done" (plan §8a). TODO(copy): draft for owner review (Phase 2c).
 export const REVEALED_LINE = "Here's the answer. You can carry on.";
+// TODO(copy): drafts (owner, 5 Nov 2026: after the answer, the Navigator takes the group on; the others can't).
+export const NEXT_STOP_COPY = Object.freeze({
+  navigator: "Navigator, tap Go to the next stop when the group is ready.",
+  others: "Your Navigator takes the group to the next stop.",
+  onlyNavigator: "Only the Navigator can take the group to the next stop.",
+});
 
 /** A different line for each mission, fixed by its map order so every phone in the group sees the same one. A revealed answer gets
  * the quiet line instead, with no celebration. */

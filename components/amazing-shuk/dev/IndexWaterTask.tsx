@@ -14,12 +14,14 @@ import PreviewShukNav from "@/components/amazing-shuk/PreviewShukNav";
 import PreviewShukWelcome from "@/components/amazing-shuk/PreviewShukWelcome";
 import IndexAdventureLobby from "@/components/amazing-shuk/IndexAdventureLobby";
 import IndexRoleCard from "@/components/amazing-shuk/IndexRoleCard";
+import PreviewLeaveGame from "@/components/amazing-shuk/PreviewLeaveGame";
+import { createLeaveGuard } from "@/lib/amazing-shuk/leave-guard";
 import IndexTeamJoin from "@/components/amazing-shuk/IndexTeamJoin";
 import IndexTeamMembers from "@/components/amazing-shuk/IndexTeamMembers";
 import { JOIN_ERROR, TEAM_JOIN_COPY, TEAM_MEMBERS_COPY, type MembershipView } from "@/lib/amazing-shuk/team-membership";
 import { queuedActionOutcome } from "@/lib/amazing-shuk/action-sync";
-import type { AdventureView } from "@/lib/amazing-shuk/adventure-lobby";
-import { WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
+import type { AdventureView, TeamOverviewView, TeamView } from "@/lib/amazing-shuk/adventure-lobby";
+import { LEAVE_COPY, WELCOME_COPY } from "@/lib/amazing-shuk/welcome-copy";
 import { activeTab, goToStage, goToTab, initialNavState, parseNavState, previewMission, type JourneyStage, type ShukNavState } from "@/lib/amazing-shuk/shuk-navigation";
 import IndexGuideWaterTask from "./IndexGuideWaterTask";
 import ListArrivalMission from "./ListArrivalMission";
@@ -44,7 +46,8 @@ import ListChoiceBonus from "./ListChoiceBonus";
 import PreviewAppreciation from "./PreviewAppreciation";
 import PreviewChoicePrediction from "./PreviewChoicePrediction";
 import PreviewMissionCheer from "./PreviewMissionCheer";
-import { missionCheer, nextMission, rewardAmountItems, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
+import { missionCheer, NEXT_STOP_COPY, nextMission, rewardAmountItems, rewardHeadline, rewardToastText } from "@/lib/amazing-shuk/mission-cheer";
+import { mayLead } from "@/lib/amazing-shuk/roles";
 import { pendingRewardEvent, readSeenRewards, rememberSeenRewards, rewardRecords, type RewardEvent } from "@/lib/amazing-shuk/reward-events";
 import { readLinkFragment } from "@/lib/amazing-shuk/link-fragment";
 import PreviewRewardDialog from "./PreviewRewardDialog";
@@ -78,7 +81,7 @@ type MissionSession = DevWaterSession & { kind?: "water" | "choice"; selected?: 
 // `participants` carries the group's display names (from the server's state, never git); older servers omit it, and `adventure` too.
 // `membership` comes only to the team's leader session and the guide, and only while join links are on (I3b).
 // `solo`: a team of one (D12), computed by the server; it holds both roles and reads personal wording.
-type ServerView = { resetEpoch?: string; solo?: boolean; adventure?: AdventureView; membership?: MembershipView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
+type ServerView = { resetEpoch?: string; solo?: boolean; adventure?: AdventureView; team?: TeamView; teams?: readonly TeamOverviewView[]; membership?: MembershipView; participants?: { id: string; name: string }[]; missions: MissionView[]; mission: MissionView; puzzleRevision: number; session: MissionSession; performance: WaterPerformanceView; guideTiming?: GuideTimingView; message?: string; error?: string; sharedBalance: { points: number; foodTokens: number; status: string } };
 
 /** The Shuk game: the local simulation ("dev") or the protected app ("app"), which differ only in wording and the dev panel. */
 export default function IndexWaterTask({ mode }: Props) {
@@ -105,7 +108,17 @@ export default function IndexWaterTask({ mode }: Props) {
     if (scrollToTop) window.requestAnimationFrame(() => window.scrollTo({ top: 0 }));
   };
   const goTo = (next: JourneyStage) => navigate(goToStage(nav, next));
+  // "Leave the game?" (owner, 5 Nov 2026): Back from the first screen asks first. The guard needs the current screen, kept in a ref.
+  const navRef = useRef(nav);
+  useEffect(() => { navRef.current = nav; }, [nav]);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const leaveGuard = useRef<ReturnType<typeof createLeaveGuard> | null>(null);
+  const afterLeaveClose = useRef<(() => void) | null>(null);
   useEffect(() => {
+    let storage: Storage | null = null;
+    try { storage = window.sessionStorage; } catch { /* The guard still works for this load. */ }
+    leaveGuard.current = createLeaveGuard(window.history, storage);
+    leaveGuard.current.install();
     const timer = window.setTimeout(() => {
       try {
         const saved = parseNavState(JSON.parse(sessionStorage.getItem(NAV_STORAGE_KEY) ?? "null"), isMission);
@@ -113,6 +126,9 @@ export default function IndexWaterTask({ mode }: Props) {
       } catch { /* Start from the map when storage is unavailable. */ }
     }, 0);
     const back = (event: PopStateEvent) => {
+      const guarded = leaveGuard.current?.popped(event.state, { shukNav: navRef.current }) ?? "none";
+      if (guarded === "ask") { setLeaveOpen(true); return; }
+      if (guarded === "left") return;
       const restored = parseNavState((event.state as { shukNav?: unknown } | null)?.shukNav, isMission);
       setNav(current => restored ?? goToTab(current, "map"));
       try { if (restored) sessionStorage.setItem(NAV_STORAGE_KEY, JSON.stringify(restored)); } catch { /* Optional. */ }
@@ -362,9 +378,17 @@ export default function IndexWaterTask({ mode }: Props) {
     if (!view?.session.completed) return null;
     const { text, celebrate } = missionCheer(missionId, view.solo === true, view.performance.revealed === true);
     const next = nextMission(view.missions, missionId);
+    // Only the Navigator takes the group on (owner, 5 Nov 2026); after a reveal, the card says who taps.
+    const canGoOn = mayLead(view.session.activeActorId, view.session.roles, activeRole === "guide", view.solo === true);
+    const instruction = view.performance.revealed && view.solo !== true ? (canGoOn ? NEXT_STOP_COPY.navigator : NEXT_STOP_COPY.others) : undefined;
     return <PreviewMissionCheer cheer={text} celebrate={celebrate} next={next} bonusBelow={bonusBelow}
+      canGoOn={canGoOn} instruction={instruction} onlyNavigator={NEXT_STOP_COPY.onlyNavigator}
       onNext={() => { if (next) navigate(previewMission(nav, next.id)); }} onMap={() => goTo("map")} />;
   };
+
+  // Stay closes the question and keeps the screen; Leave closes it, then steps back past the guard once the sheet's own entry is gone.
+  const leaveDialog = <PreviewLeaveGame open={leaveOpen} copy={LEAVE_COPY} afterClose={afterLeaveClose} onStay={() => setLeaveOpen(false)}
+    onLeave={() => { afterLeaveClose.current = () => { afterLeaveClose.current = null; leaveGuard.current?.leave(); }; setLeaveOpen(false); }} />;
 
   if (invitation) return <PreviewShukWelcome copy={WELCOME_COPY} message={message === copy.connecting ? "" : message} busy={busy} onStart={() => void login()} />;
   // No session: a join link, or a request this phone made earlier, leads to joining; otherwise the signed-out welcome.
@@ -374,9 +398,10 @@ export default function IndexWaterTask({ mode }: Props) {
   // Before Start Adventure the lobby is the whole screen: nothing on the journey counts yet.
   if (view.adventure?.status === "lobby") return <main className={`${styles.page} ${styles.lobbyPage}`}>
     <IndexAdventureLobby adventure={view.adventure} guide={activeRole === "guide"} participants={view.participants ?? []} roles={view.session.roles}
-      currentId={view.session.activeActorId} busy={busy} message={message} onAction={act} />
+      currentId={view.session.activeActorId} team={view.team} teams={view.teams} busy={busy} message={message} onAction={act} />
     {/* The role card (owner, 5 Nov 2026): this phone's player has just been given a role. */}
     <IndexRoleCard roles={view.session.roles} currentId={view.session.activeActorId} />
+    {leaveDialog}
     {/* Players can join while the group waits in the lobby. */}
     {view.membership ? <IndexTeamMembers membership={view.membership} participants={view.participants ?? PARTICIPANT_IDENTITIES}
       {...(view.solo ? { title: TEAM_MEMBERS_COPY.titleSolo } : {})}
@@ -401,7 +426,9 @@ export default function IndexWaterTask({ mode }: Props) {
     <main className={styles.page} ref={pageRef}>
       {/* A role given during play (the Group tab's Change) gets the same card as in the lobby. */}
       <IndexRoleCard roles={view.session.roles} currentId={view.session.activeActorId} />
+      {leaveDialog}
       <PreviewShukHeader ref={headerRef} title={headerTitle}
+        team={view.team && view.team.count > 1 && view.team.name ? { name: view.team.name, initials: view.team.initials } : null}
         group={<IndexGroupSheet participants={participants} roles={view.session.roles} currentId={view.session.activeActorId} solo={solo}
           missions={view.missions} balance={view.sharedBalance} onOpenGroupTab={() => navigate(goToTab(nav, "group"))} />}
         menu={<IndexParticipantMenu participants={participants} roles={view.session.roles} currentId={view.session.activeActorId}

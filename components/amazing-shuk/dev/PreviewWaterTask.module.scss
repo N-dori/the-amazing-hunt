@@ -31,7 +31,6 @@
 .prompt { flex-basis: 100%; font-size: 1.0625rem; line-height: 1.5; }
 .prompt:focus, .success:focus { outline: 2px solid var(--ink); outline-offset: 3px; }
 .moveButton { min-height: 3rem; border: 1px solid var(--ink); padding: .75rem 1rem; text-decoration: none; overflow-wrap: anywhere; }
-.help { margin-block: 1.5rem; }
 // After "I'm completely stuck": the answer, in the result's quiet ink rather than its accent.
 .answer { margin-block: .75rem; color: var(--ink); font-weight: 400; }
 .answer h4 { font-size: 1rem; font-weight: 600; margin-block-end: .5rem; }
@@ -49,3 +48,6 @@
 
 // Someone else is the Submitter: this phone watches (owner, 5 Nov 2026).
 .readOnly { margin-block: .75rem; padding: .75rem 1rem; border-radius: .75rem; background: var(--chalk-tint); color: var(--ink); font-weight: 600; }
+
+// The help bar above the title: the hints and "I'm completely stuck" side by side, wrapping on narrow phones (owner, 5 Nov 2026).
+.helpBar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-block: .5rem 1rem; }

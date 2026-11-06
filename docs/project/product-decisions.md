@@ -84,6 +84,14 @@ Decided; not built. It builds on the 3 Nov roles rule (below, under "Rules chang
   - **The Photographer is always shown** in the roles step, once it is built.
   - **First build:** the lobby and Navigator and Submitter; Researcher, Photographer and the emblems come in a second build.
 
+## Multi-team play, I7a (owner, 6 Nov 2026)
+
+Decided for the I7a build; built 6 Nov 2026, not deployed.
+- **Leader invitations:** the host shares them from the app (O27's design): one row per team, Share invite or Make a new invite, and a status. Single-use, 24 hours, replaceable. **No typed leader names.** No QR yet (Share and Copy only).
+- **Team avatars:** the stored avatar ID now, with **the team's initials** standing in until the artwork exists.
+- **The guide's view of every team** belongs to the [admin screen](admin-screen.md), not this build. The guide acts on team A until then.
+- **Size:** built to 30 (six teams of 5), **not advertised** before the 30-device checks.
+
 ## Approved: I4/I5 direction (owner, 31 Oct 2026)
 
 The owner's decisions on the [I4/I5 roles and well pilot review](i4-i5-roles-and-well-pilot-review.md) (D1–D9), with the owner's later corrections the same day. **I4a is approved for local development only** (built locally, not committed or deployed); the rest of I4 and all of I5 are not built, and the live well is unchanged (3 L / 5 L / 4 L jar). Details and the puzzle check are in the [multiplayer plan](multiplayer-plan.md) (I4, I5).

@@ -41,6 +41,8 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
       {lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
       <p>{paragraph.text}</p>
     </div>)}</div> : null}
+    {/* Help sits just above the question (owner, 5 Nov 2026): the hints and "I'm completely stuck", side by side. */}
+    {help ? <div className={styles.helpBar}>{help}</div> : null}
     {/* Focusable so the phone that pressed Start lands on the question (UX-3). */}
     <h2 id="mural-task-title" tabIndex={-1} className={styles.question}>{question}</h2>
     {!performance.started && !view.completed ? startArea : null}
@@ -78,6 +80,5 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
         : <p className={styles.followerNote}>Talk it over. Your answer-submitter or guide submits the group&apos;s answer.</p>}
     </div> : null}
     {!performance.started && !view.canSubmit && !view.completed ? <p>Talk it over. Your answer-submitter or guide submits the group&apos;s answer.</p> : null}
-    {help ? <div className={styles.help}>{help}</div> : null}
   </section>;
 }

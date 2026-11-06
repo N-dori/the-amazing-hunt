@@ -587,6 +587,13 @@ Out of scope without separate approval: SSE, WebSockets, new storage, schema cha
 
 ### I7a. Multiple teams
 
+**Built 6 Nov 2026, not deployed** (owner's answers in [decisions](product-decisions.md#multi-team-play-i7a-owner-6-nov-2026)):
+- **Store:** `set-teams` (host or guide, lobby) creates teams B…F from the count, each with a stored `avatarId`, and drops empty ones for a smaller count (never a team with players). `issueLeaderInvitation` (host or guide, lobby, never team A) stores the invitation hashed on the team (`leaderInvite`); redeeming it makes a new member of that team its leader, bound to that session. `name-team` (the team's leader before Start, the guide any time) runs the decided checks (`team-name.ts`) and is unique per adventure. Start needs every team to be ready: a leader, a name, players, and a Navigator and a Submitter for two or more. The host and guide get an overview (`teams`: name, initials, leader status, players, readiness; no answers or players' details). Points stay per team; **food tokens are pooled** across teams.
+- **Rollback:** every new field is optional on the team record, which the rollback image ignores; leader invitations live on the team, not in `invitations`, because the rollback image refuses a seatless invitation there.
+- **Lobby:** the host of 6–30 goes Players · Teams · Name · Who's here · Roles · Ready; another team's leader goes Name · Who's here · Roles · Ready (no Start); players wait on their team's screen. The header shows the team's initials and name during play when there are several teams.
+- **Needs join links on to play:** a team's players join through their leader's join link (I3b), and join links are off live (`SHUK_JOIN_LINKS`). Turning them on is the owner's call.
+- **Not built:** the guide's team switcher (admin screen), team avatar artwork, QR codes, a lost leader after Start (admin screen), the 30-device checks.
+
 - **Depends on:** I2–I4 (I3 brings dynamic participants, which lift the fixed seven seats), and the I5 pilot result.
 - **Scope:**
   - Schema 7: a team count replaces `format`, with the same automatic pre-migration copy as I1.
