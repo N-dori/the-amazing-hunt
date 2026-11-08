@@ -7,6 +7,7 @@
 - **Safety copies:** 13 in `/data`, kept until the owner decides.
 - **Disk:** 77%.
 - **The session's handoff and next steps:** the top entry of the [handoff](agent-handoff.md).
+- **The Memory Protocol is paused (owner, 8 Nov 2026):** it's stale, so it is not deployed for now. `dori-game` keeps running its current image at `/memory-protocol`, untouched; its code stays in the repo. Releases are `/deploy` (the Shuk) only, until the owner resumes it. **Archiving it is planned and deferred (owner, 8 Nov 2026):** tag `archive/memory-protocol`, keep the story and plan as Markdown, move the map's parts of `lib/game` into `lib/map/`, then delete the Memory Protocol's code (about 80 files) from `main`.
 
 ## Progressive challenges and Market Surprise: Phase 1 LIVE, phases 2–5 planned (owner, 2 Nov 2026)
 
