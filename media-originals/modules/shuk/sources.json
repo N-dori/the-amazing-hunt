@@ -48,9 +48,10 @@
       "id": "levin-mural",
       "legacySrc": "/shuk/levin-mural.jpg",
       "kind": "photo",
-      "note": "Owner's photograph #39 of the Nachlaot mural of Rabbi Aryeh Levin.",
+      "note": "Owner's photograph #39 of the Nachlaot mural of Rabbi Aryeh Levin. Cropped to the mural (owner's choice B, 8 Nov 2026): the air conditioner, bars and gas cylinder are left out, and the WebP copies fit their caps.",
       "credit": "The owner's photograph",
-      "licence": "Own photo"
+      "licence": "Own photo",
+      "crop": { "left": 250, "top": 0, "width": 774, "height": 1500 }
     },
     {
       "file": "marzipan-rugelach.jpg",

@@ -620,8 +620,8 @@
     "module": "shuk",
     "legacySrc": "/shuk/levin-mural.jpg",
     "kind": "photo",
-    "width": 1024,
-    "height": 1819,
+    "width": 774,
+    "height": 1500,
     "sourceFile": "levin-mural.jpg",
     "sourceSha256": "95ff3915ac6e96dcd9876e3d6ec7d5979255931871bbd4cda3ce05eb810ea2e0",
     "credit": "The owner's photograph",
@@ -630,44 +630,44 @@
       {
         "format": "avif",
         "width": 320,
-        "height": 568,
-        "bytes": 29672,
-        "src": "/media/modules/shuk/levin-mural-320.4718db1d.avif"
+        "height": 620,
+        "bytes": 29995,
+        "src": "/media/modules/shuk/levin-mural-320.162fd5ef.avif"
       },
       {
         "format": "avif",
         "width": 640,
-        "height": 1137,
-        "bytes": 87356,
-        "src": "/media/modules/shuk/levin-mural-640.c72119b8.avif"
+        "height": 1240,
+        "bytes": 87025,
+        "src": "/media/modules/shuk/levin-mural-640.8b24d3f8.avif"
       },
       {
         "format": "webp",
         "width": 640,
-        "height": 1137,
-        "bytes": 109922,
-        "src": "/media/modules/shuk/levin-mural-640.f4ab25f5.webp"
+        "height": 1240,
+        "bytes": 102388,
+        "src": "/media/modules/shuk/levin-mural-640.788a4b5a.webp"
       },
       {
         "format": "avif",
-        "width": 1024,
-        "height": 1819,
-        "bytes": 214590,
-        "src": "/media/modules/shuk/levin-mural-1080.48a626ab.avif"
+        "width": 774,
+        "height": 1500,
+        "bytes": 144026,
+        "src": "/media/modules/shuk/levin-mural-1080.2fc3726b.avif"
       },
       {
         "format": "webp",
-        "width": 1024,
-        "height": 1819,
-        "bytes": 246516,
-        "src": "/media/modules/shuk/levin-mural-1080.7d8782ae.webp"
+        "width": 774,
+        "height": 1500,
+        "bytes": 214636,
+        "src": "/media/modules/shuk/levin-mural-1080.e23ee9aa.webp"
       },
       {
         "format": "avif",
-        "width": 1024,
-        "height": 1819,
-        "bytes": 257200,
-        "src": "/media/modules/shuk/levin-mural-1600.a0cafce8.avif"
+        "width": 774,
+        "height": 1500,
+        "bytes": 144026,
+        "src": "/media/modules/shuk/levin-mural-1600.2fc3726b.avif"
       }
     ]
   },
