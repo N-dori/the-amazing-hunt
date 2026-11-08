@@ -1,8 +1,7 @@
-import Image from "next/image";
+import Picture from "@/components/media/Picture";
 import type { ReactNode } from "react";
 import ActionButton from "@/components/ui/ActionButton";
 import PreviewChoiceOptions from "./PreviewChoiceOptions";
-import { BASE_PATH } from "@/lib/base-path";
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
 import type { ChoiceTaskView } from "@/lib/amazing-shuk/mural-task-view";
 import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
@@ -63,7 +62,7 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
         <p>{paragraph.text}</p>
       </div>)}
       {reveal.image ? <figure className={styles.figure}>
-        <Image src={BASE_PATH + reveal.image.src} width={reveal.image.width} height={reveal.image.height} alt={reveal.image.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
+        <Picture src={reveal.image.src} width={reveal.image.width} height={reveal.image.height} alt={reveal.image.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
         <figcaption className={styles.caption}>{reveal.image.caption}</figcaption>
       </figure> : null}
     </section> : null}

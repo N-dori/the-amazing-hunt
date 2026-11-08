@@ -38,7 +38,10 @@ test("the app gate: only the Shuk build in production with SHUK_APP=1, on the co
 test("the Shuk build serves only the Shuk: Memory Protocol pages, APIs and dev tools are 404", () => {
   assert.equal(shukRoute("/"), "home"); assert.equal(shukRoute(""), "home");
   for (const path of ["/amazing-shuk", "/api/amazing-shuk/dev", "/api/health", "/manifest.webmanifest", "/favicon.ico",
-    "/_next/static/chunks/app.js", "/shuk/gan-hatut-gate.jpg", "/map/nahlaot-illustrated-candidate.jpg"]) assert.equal(shukRoute(path), "allow", path);
+    "/_next/static/chunks/app.js", "/shuk/gan-hatut-gate.jpg", "/map/nahlaot-illustrated-candidate.jpg",
+    "/media/modules/shuk/mural-street-1080.ce5a541c.avif", "/media/modules/map/nahlaot-illustrated-candidate-640.0f0f0f0f.webp"]) assert.equal(shukRoute(path), "allow", path);
+  // The image pipeline's copies of the Memory Protocol's library photos never answer in the Shuk.
+  for (const path of ["/media/modules/library/broken-time-clue-1080.28a3ce14.avif", "/media/places/x-640.aaaaaaaa.avif", "/media/modules/shuk/../library/x.avif"]) assert.equal(shukRoute(path), "block", path);
   for (const path of ["/dev/amazing-shuk/water", "/dev/map", "/dev/icons", "/api/sessions", "/library/timeline-1946-entry.jpg",
     "/protocol", "/amazing-shuk/extra", "/shuk/../api/sessions", "/api/amazing-shukx", "//api/health"]) assert.equal(shukRoute(path), "block", path);
 });

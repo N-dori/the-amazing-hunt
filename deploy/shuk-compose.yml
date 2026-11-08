@@ -15,6 +15,9 @@ services:
     # The group's shared state (one JSON file). Never removed by a deploy or rollback.
     volumes:
       - shuk_data:/data
+      # The image pipeline's variants (docs/images-howto.md), read-only, never part of the image. The game's own
+      # media root, separate from the platform's /srv/dori/media, so neither project's prune can touch the other's files.
+      - /srv/dori/game-media:/app/public/media:ro
     environment:
       NEXT_PUBLIC_DORI_APP: shuk
       SHUK_APP: "1"

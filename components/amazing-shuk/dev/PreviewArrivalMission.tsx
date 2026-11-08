@@ -1,8 +1,7 @@
 import { useState, type ReactNode } from "react";
-import Image from "next/image";
+import Picture from "@/components/media/Picture";
 import ActionButton from "@/components/ui/ActionButton";
 import { Icon } from "@/components/icons";
-import { BASE_PATH } from "@/lib/base-path";
 import type { MissionPresentation, MissionProgressStage } from "@/lib/amazing-shuk/mission-arrival";
 import PreviewBottomSheet from "@/components/amazing-shuk/PreviewBottomSheet";
 import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProgress";
@@ -46,11 +45,11 @@ export default function PreviewArrivalMission({ view, stage, map, guide, busy, f
       {view.photo ? <figure className={styles.hero}>
         {/* The whole photo is the button: a tap shows it larger in a sheet over this screen. */}
         <button type="button" className={styles.enlarge} aria-label={`${COPY.enlarge}: ${view.photo.alt}`} aria-haspopup="dialog" onClick={() => setPhotoOpen(true)}>
-          <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} />
+          <Picture src={view.photo.src} alt={view.photo.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} />
         </button>
         {view.photo.credit ? <figcaption className={styles.credit}>{view.photo.credit}</figcaption> : null}
       </figure> : <p className={styles.photoGap}><Icon name="camera" className={styles.icon} /><span>Reference photograph not yet available. Use the landmark clue and your guide.</span></p>}
-      {view.cluePhoto ? <Image src={BASE_PATH + view.cluePhoto.src} alt={view.cluePhoto.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} /> : null}
+      {view.cluePhoto ? <Picture src={view.cluePhoto.src} alt={view.cluePhoto.alt} width={640} height={640} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.photo} /> : null}
       {/* Always shown: on every stop the landmarks carry how to behave there, not only where it is. */}
       {view.location.landmarks.length ? <>
         <h4 className={styles.subTitle}>Landmarks</h4>
@@ -86,7 +85,7 @@ export default function PreviewArrivalMission({ view, stage, map, guide, busy, f
     </PreviewBottomSheet>
     {view.photo ? <PreviewBottomSheet open={photoOpen} title={view.name} closeLabel={COPY.closePhoto} onClose={() => setPhotoOpen(false)}>
       <figure className={styles.large}>
-        <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={1280} height={1280} sizes="(min-width: 40rem) 40rem, 100vw" className={styles.largePhoto} />
+        <Picture src={view.photo.src} alt={view.photo.alt} width={1280} height={1280} sizes="(min-width: 40rem) 40rem, 100vw" className={styles.largePhoto} />
         {view.photo.credit ? <figcaption className={styles.credit}>{view.photo.credit}</figcaption> : null}
       </figure>
     </PreviewBottomSheet> : null}

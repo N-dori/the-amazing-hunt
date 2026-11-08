@@ -1,6 +1,52 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## Multi-team play (I7a): built, not committed or deployed: 6 Nov 2026
+## The DORI image pipeline, brought into the game: built, not committed, nothing on the server yet: 8 Nov 2026
+
+At the owner's request ("reuse the platform's implementation; don't redesign it"). How-to: [images-howto.md](../images-howto.md); decisions: [images-research.md](../images-research.md).
+- **Copied from the platform** (each file names its source): `scripts/images/build-images.mjs`, `deploy/check-assets.mjs`, `deploy/prune-media.mjs`, `types/media-images.ts`, `data/media-images.ts`, `data/module-images.ts`, `components/media/Picture.tsx`.
+- **Changed for this repo only:** the base path (`mediaSrc`); `check-assets` scans `components/` and `lib/`, skips tests, reads `${BASE_PATH}` paths, allows `<Image unoptimized>` and `/favicon.ico`; the Shuk's routes allow `/media/modules/shuk/` and `/media/modules/map/` only; `immutable` on `/media/:path*` in `next.config.ts`; `research/` excluded from `tsconfig`.
+- **Switched to `<Picture>`:** every raster image (the Shuk's 5 screens with `next/image`, the Memory Protocol's 7 `<img>`). The map JPEG stays in `public/map` for Leaflet.
+- **Serving:** `/srv/dori/game-media` (the game's own root, never the platform's `/srv/dori/media`) bind-mounted read-only at `/app/public/media` in both compose files; the Dockerfile makes the mount point; `deploy.sh` runs `check-assets --media /srv/dori/game-media` before building.
+- **First run** (throwaway container, from the current web JPEGs as originals): 16 images, 96 copies, 6.9 MB, metadata stripped. The 1080 AVIFs are 20–210 KB, within their caps.
+- **Blocked: the Levin mural's WebP fallbacks are over their hard caps** (107 KB > 100 at 640; 241 KB > 220 at 1080). It's a tall, detailed portrait (1024 × 1819); its AVIFs are fine. The platform's fix is a `crop` in `media-originals/modules/shuk/sources.json`: **the owner chooses the crop.** Until then, `check-assets` fails, so a deploy would stop at "Check images".
+- **Credits:** the Shuk's are filled from the data files; the library and map are "unrecorded".
+- **Checks:** `test:shuk` 329/329, `npm test` 65/65 (new `lib/media/media-images.test.ts`), `tsc` clean, ESLint with no new warnings; both images build; with the copies mounted, the Memory Protocol and the Shuk each serve their copies with `public, max-age=31536000, immutable`, the Shuk's smoke routes pass 10/10 and the library copies are a 404 there. **Not checked in a browser.**
+- **Waiting on the owner, in order:** the Levin crop; then creating `/srv/dori/game-media` and copying the copies in; the commit; a deploy of each app (it recreates the containers with the new mount: a live restart). After that, the JPEGs can leave `public/library` and `public/shuk` (and the `.dockerignore` photo lines).
+
+## Session handoff, 5–6 Nov 2026: start here
+
+**Where things stand (6 Nov 2026, about 02:15 UTC):**
+- **Live:** `5c4e027` (`dori-shuk:20261106-004445-5c4e027`), the first and second onboarding builds. Rollback: `8001e8f` (the first build only).
+- **Committed, not deployed:**
+  - `b4d2298`: the guide is no longer counted as a player in the lobby; clearer avatar emblems (from the owner's screenshots).
+  - `bcc3e2c`: the 5 Nov challenge notes and multi-team play (I7a).
+- **Not pushed:** 5 commits, `8001e8f` to `bcc3e2c`. The owner pushes from VS Code; this server's shell has no GitHub credentials.
+- **Live game:** a fresh adventure from the 00:46 UTC deploy. The owner tested the lobby with their phone and PC. Links in `.local/amazing-shuk/live-links/` (`host-player-1`, `guide`, `player-2`) were issued 6 Nov about 00:46 UTC and expire about 7 Nov 00:46 UTC.
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261106T004444Z.json`, the only one. 13 safety copies in `/data`, kept until the owner decides.
+- **Join links are off.** Multi-team play needs them on (`SHUK_JOIN_LINKS=1`) for players of teams B onward: the owner's decision.
+- **Untracked:** `research/results/competitors/DORI_B2G_Public_Buyers_Research_Summary.md` (the owner's; not committed).
+- **Server:** disk 77%. `shuk-dev` is broken (its `node_modules` volume is empty; the dev page returns 500); restarting it needs the owner's OK. Tests ran in a throwaway `node:22-alpine` container with a named `node_modules` volume, removed afterwards.
+
+**What happened, in order (the entries below have the details):**
+1. 5 Nov: the mural's "The People Behind the Painting" drafted (`c39c109`); research filed (`15cc9db`); the disk freed (89% → 67%, owner-approved); deployed `15cc9db`.
+2. 5 Nov: the owner's phone-and-PC test and notes, recorded in the plans (`e2b9494`).
+3. 5–6 Nov: onboarding and roles designed with `/experience-design` ([treatment](onboarding-roles-treatment.md)), built in two parts (`8001e8f`, `fe10743`), deployed (`8001e8f`, then `5c4e027`).
+4. 6 Nov: the deploy skill writes a player-2 link by default (`5c4e027`).
+5. 6 Nov: the owner's screenshots: the guide counted as a player, the emblems hard to see; fixed (`b4d2298`).
+6. 6 Nov: the 5 Nov challenge notes and I7a built (`bcc3e2c`).
+
+**Checks at `bcc3e2c`:** `test:shuk` 329/329; `npm test` 63/63; `tsc`, ESLint (Shuk folders) and Sass clean; `/game-verify shuk` healthy, 8/8 routes. **Nothing was checked in a browser by Claude; multi-team play has never run on several phones.**
+
+**Next, in order (each needs the owner):**
+1. The owner pushes; then `/deploy` for `b4d2298` and `bcc3e2c` (and a decision on join links for multi-team play).
+2. The owner's live test of the new lobby, the challenge notes and, with join links on, two teams on three phones.
+3. Copy approval for every `TODO(copy)` line (O16), listed in the entries below.
+4. Artwork: the role emblems and the 8 team avatars (who draws them, licence).
+5. The navigation screen rework (the owner's 5 Nov notes, in the entry "Deployed `15cc9db`…"): design first.
+6. The admin screen ([ideas](admin-screen.md)), now also holding the guide's view of every team.
+7. Still open from before: the mural v3 drafts and field checks; the Photographer's photo permission (waits for a photo challenge).
+
+## Multi-team play (I7a): committed `bcc3e2c`, not deployed: 6 Nov 2026
 
 At the owner's request ("complete the plan"), with the owner's answers of 6 Nov (host-shared leader invitations, no typed names; initials for avatars; the guide's view in the admin screen; built to 30, not advertised). Details in the [plan's I7a](multiplayer-plan.md#i7a-multiple-teams).
 - **New files:** `team-name.ts` (the decided name rules, approved copy, suggestions from the owner's bank without kada or mufleta, initials), `PreviewLobbyTeams`, `PreviewTeamName`; tests `team-name.test.ts`, `multi-team.test.ts`.
@@ -9,7 +55,7 @@ At the owner's request ("complete the plan"), with the owner's answers of 6 Nov 
 - **To play it live, join links must be on** (`SHUK_JOIN_LINKS=1`): players of teams B… join with their leader's join link. Owner's decision.
 - **Checks:** `test:shuk` 329/329; `npm test` 63/63; `tsc` and ESLint clean; Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean. **Not checked in a browser, and never with several phones.**
 
-## The 5 Nov challenge notes: built, not committed or deployed: 6 Nov 2026
+## The 5 Nov challenge notes: committed `bcc3e2c`, not deployed: 6 Nov 2026
 
 The owner's notes from the phone-and-PC test, in the [progressive-challenges plan](progressive-challenges-plan.md) §2b and §8:
 - **"I'm completely stuck"** is a strong button (Sumac, 3rem) in a help bar **above the challenge's title**, beside the hints; it was a quiet link at the foot. The "Keep trying" check stays.
@@ -19,7 +65,7 @@ The owner's notes from the phone-and-PC test, in the [progressive-challenges pla
 - **Copy drafts (`TODO(copy)`):** "Show the answer", `NEXT_STOP_COPY`, `LEAVE_COPY`.
 - **Checks:** `test:shuk` 320/320 (new `leave-guard.test.ts`; hint, stuck, cheer and lead tests); ESLint and `tsc` clean; the changed Sass compiles. **Not checked in a browser**, including the Back behaviour on a real phone.
 
-## Onboarding and roles, second build: four roles, emblems, read-only answers: built, not committed or deployed: 6 Nov 2026
+## Onboarding and roles, second build: four roles, emblems, read-only answers: `fe10743`, live in `5c4e027`: 6 Nov 2026
 
 The first build (`8001e8f`) is live since 6 Nov 2026, 00:00 UTC; the owner will test both builds together.
 - **Researcher and Photographer:** stored as optional fields of the team's roles (absent = nobody), so the rollback image `8001e8f` still reads the file. The leader gives them in the lobby's roles step (four rows; the Photographer always shown) and on the Group tab; players can take or step down from them. Neither carries a permission and neither is needed to start. A stored holder who isn't a member makes the file unreadable. Removing a member frees every role they held.
@@ -32,7 +78,7 @@ The first build (`8001e8f`) is live since 6 Nov 2026, 00:00 UTC; the owner will 
 - **Tests changed by the rule:** about 30 tests that picked or moved from a non-Submitter seat now act from the Submitter's seat or the guide; two tests now check that the others are refused.
 - **Checks:** `test:shuk` 315/315; `npm test` 63/63; ESLint clean on the Shuk folders; `tsc` passes; the changed Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 49 MiB; `git diff --check` clean. **Not checked in a browser.**
 
-## Onboarding and roles, first build (the casting call): built, not committed or deployed: 5 Nov 2026
+## Onboarding and roles, first build (the casting call): `8001e8f`, live in `5c4e027`: 5 Nov 2026
 
 From the [treatment](onboarding-roles-treatment.md) and the owner's answers (recorded in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026)).
 - **Built:**
@@ -49,7 +95,7 @@ From the [treatment](onboarding-roles-treatment.md) and the owner's answers (rec
 - **`shuk-dev` is broken:** its `node_modules` volume is empty, so the dev page returns 500. Restarting it (it runs `npm ci`) needs the owner's OK; the two-device check on the dev page waits for that, or for a deploy.
 - **Next (second build):** Researcher and Photographer (always shown), the emblems, and read-only picks for non-Submitters.
 
-## Deployed `15cc9db`; the owner's phone-and-PC test, in progress: 5 Nov 2026
+## Deployed `15cc9db`; the owner's phone-and-PC test, done: 5 Nov 2026
 
 - **Deployed** with `/deploy`: live `dori-shuk:20261105-211524-15cc9db`, rollback `193873f`. Backup: `live-state-before-deploy-20261105T211500Z.json`. A fresh adventure; links `host-player-1.txt`, `guide.txt` and `player-2.txt` (written at the owner's request) in `.local/amazing-shuk/live-links/`, valid about 24 h. Join links off. Eleven safety copies in `/data`.
 - **Disk:** 89% before; the owner approved clearing the build cache, the npm cache and the journal: 67%, 70% after the deploy.

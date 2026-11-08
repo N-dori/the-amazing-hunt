@@ -1,0 +1,69 @@
+{
+  "module": "library",
+  "images": [
+    {
+      "file": "broken-time-clue.jpg",
+      "id": "broken-time-clue",
+      "legacySrc": "/library/broken-time-clue.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "broken-time-full.jpg",
+      "id": "broken-time-full",
+      "legacySrc": "/library/broken-time-full.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "library-entrance.jpg",
+      "id": "library-entrance",
+      "legacySrc": "/library/library-entrance.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "timeline-1946-entry.jpg",
+      "id": "timeline-1946-entry",
+      "legacySrc": "/library/timeline-1946-entry.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "timeline-1946-scene.jpg",
+      "id": "timeline-1946-scene",
+      "legacySrc": "/library/timeline-1946-scene.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "timeline-wall-level-minus2.jpg",
+      "id": "timeline-wall-level-minus2",
+      "legacySrc": "/library/timeline-wall-level-minus2.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "travelers-prayer-clue.jpg",
+      "id": "travelers-prayer-clue",
+      "legacySrc": "/library/travelers-prayer-clue.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    },
+    {
+      "file": "travelers-prayer-panel.jpg",
+      "id": "travelers-prayer-panel",
+      "legacySrc": "/library/travelers-prayer-panel.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    }
+  ]
+}

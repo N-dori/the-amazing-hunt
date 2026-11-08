@@ -29,6 +29,8 @@ COPY --from=build /app/public ./public
 COPY --from=build /tools ./tools
 # A new named volume mounted here takes this owner, so the app can write its state.
 RUN mkdir /data && chown node:node /data
+# Where /srv/dori/game-media is bind-mounted (deploy/compose.yml): the image pipeline's variants, never baked in.
+RUN mkdir -p /app/public/media
 USER node
 EXPOSE 3000
 CMD ["node", "server.js"]

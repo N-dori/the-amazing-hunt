@@ -23,6 +23,10 @@ function loadComponent(path: string, reactOverride?: object): ComponentType<Reco
     if (id === "@/components/ui/StatusTag") return { __esModule: true, default: ({ status }: { status: string }) => createElement("span", null, status === "draft" ? "Draft" : "") };
     if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx", reactOverride) };
     if (id.startsWith("./")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx"), reactOverride) };
+    // <Picture> (components/media) has its own test (lib/media); here it stands in as what it renders for a path outside the image
+    // manifest: a plain <img> under the base path.
+    if (id === "@/components/media/Picture") return { __esModule: true, default: ({ src, ...props }: Record<string, unknown>) =>
+      nativeRequire("react").createElement("img", { loading: "lazy", ...props, src: nativeRequire(resolve("lib/base-path.ts")).BASE_PATH + String(src) }) };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     return nativeRequire(id);
   };

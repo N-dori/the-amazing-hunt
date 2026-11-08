@@ -1,0 +1,898 @@
+[
+  {
+    "id": "broken-time-clue",
+    "module": "library",
+    "legacySrc": "/library/broken-time-clue.jpg",
+    "kind": "photo",
+    "width": 368,
+    "height": 348,
+    "sourceFile": "broken-time-clue.jpg",
+    "sourceSha256": "3b8dc9357b0b23d82a2fc5789d5bfbfc2f9514f6425c242388ef5941381b05c1",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 303,
+        "bytes": 14601,
+        "src": "/media/modules/library/broken-time-clue-320.a1fa0f38.avif"
+      },
+      {
+        "format": "avif",
+        "width": 368,
+        "height": 348,
+        "bytes": 19767,
+        "src": "/media/modules/library/broken-time-clue-640.28a3ce14.avif"
+      },
+      {
+        "format": "webp",
+        "width": 368,
+        "height": 348,
+        "bytes": 27652,
+        "src": "/media/modules/library/broken-time-clue-640.514a901a.webp"
+      },
+      {
+        "format": "avif",
+        "width": 368,
+        "height": 348,
+        "bytes": 19767,
+        "src": "/media/modules/library/broken-time-clue-1080.28a3ce14.avif"
+      },
+      {
+        "format": "webp",
+        "width": 368,
+        "height": 348,
+        "bytes": 27652,
+        "src": "/media/modules/library/broken-time-clue-1080.514a901a.webp"
+      },
+      {
+        "format": "avif",
+        "width": 368,
+        "height": 348,
+        "bytes": 19767,
+        "src": "/media/modules/library/broken-time-clue-1600.28a3ce14.avif"
+      }
+    ]
+  },
+  {
+    "id": "broken-time-full",
+    "module": "library",
+    "legacySrc": "/library/broken-time-full.jpg",
+    "kind": "photo",
+    "width": 960,
+    "height": 785,
+    "sourceFile": "broken-time-full.jpg",
+    "sourceSha256": "4d88364cc81c34cbd2a96f1d72e6ddcf57b58d9e745ab1309c25d1ef55d16e2d",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 262,
+        "bytes": 12114,
+        "src": "/media/modules/library/broken-time-full-320.c6856734.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 523,
+        "bytes": 41322,
+        "src": "/media/modules/library/broken-time-full-640.85132b3b.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 523,
+        "bytes": 54416,
+        "src": "/media/modules/library/broken-time-full-640.f99b06c6.webp"
+      },
+      {
+        "format": "avif",
+        "width": 960,
+        "height": 785,
+        "bytes": 82581,
+        "src": "/media/modules/library/broken-time-full-1080.e9db3a01.avif"
+      },
+      {
+        "format": "webp",
+        "width": 960,
+        "height": 785,
+        "bytes": 104126,
+        "src": "/media/modules/library/broken-time-full-1080.94feef72.webp"
+      },
+      {
+        "format": "avif",
+        "width": 960,
+        "height": 785,
+        "bytes": 82581,
+        "src": "/media/modules/library/broken-time-full-1600.e9db3a01.avif"
+      }
+    ]
+  },
+  {
+    "id": "library-entrance",
+    "module": "library",
+    "legacySrc": "/library/library-entrance.jpg",
+    "kind": "photo",
+    "width": 900,
+    "height": 675,
+    "sourceFile": "library-entrance.jpg",
+    "sourceSha256": "579cd6bc2f74fcba8dcb3d5ce0e4e12af98d4564ac4df4d12ac4614441877b5a",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 240,
+        "bytes": 5940,
+        "src": "/media/modules/library/library-entrance-320.3ab57e89.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 480,
+        "bytes": 20546,
+        "src": "/media/modules/library/library-entrance-640.09bd11a6.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 36342,
+        "src": "/media/modules/library/library-entrance-640.d45b322f.webp"
+      },
+      {
+        "format": "avif",
+        "width": 900,
+        "height": 675,
+        "bytes": 42684,
+        "src": "/media/modules/library/library-entrance-1080.d046b9a6.avif"
+      },
+      {
+        "format": "webp",
+        "width": 900,
+        "height": 675,
+        "bytes": 68720,
+        "src": "/media/modules/library/library-entrance-1080.988eaedb.webp"
+      },
+      {
+        "format": "avif",
+        "width": 900,
+        "height": 675,
+        "bytes": 42684,
+        "src": "/media/modules/library/library-entrance-1600.d046b9a6.avif"
+      }
+    ]
+  },
+  {
+    "id": "timeline-1946-entry",
+    "module": "library",
+    "legacySrc": "/library/timeline-1946-entry.jpg",
+    "kind": "photo",
+    "width": 593,
+    "height": 560,
+    "sourceFile": "timeline-1946-entry.jpg",
+    "sourceSha256": "71225716cffc792d4366000c7f742a845f7added335e1714bf333aae1e539dfd",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 302,
+        "bytes": 9115,
+        "src": "/media/modules/library/timeline-1946-entry-320.2224db57.avif"
+      },
+      {
+        "format": "avif",
+        "width": 593,
+        "height": 560,
+        "bytes": 24517,
+        "src": "/media/modules/library/timeline-1946-entry-640.308ae96c.avif"
+      },
+      {
+        "format": "webp",
+        "width": 593,
+        "height": 560,
+        "bytes": 29120,
+        "src": "/media/modules/library/timeline-1946-entry-640.b297aea7.webp"
+      },
+      {
+        "format": "avif",
+        "width": 593,
+        "height": 560,
+        "bytes": 24517,
+        "src": "/media/modules/library/timeline-1946-entry-1080.308ae96c.avif"
+      },
+      {
+        "format": "webp",
+        "width": 593,
+        "height": 560,
+        "bytes": 29120,
+        "src": "/media/modules/library/timeline-1946-entry-1080.b297aea7.webp"
+      },
+      {
+        "format": "avif",
+        "width": 593,
+        "height": 560,
+        "bytes": 24517,
+        "src": "/media/modules/library/timeline-1946-entry-1600.308ae96c.avif"
+      }
+    ]
+  },
+  {
+    "id": "timeline-1946-scene",
+    "module": "library",
+    "legacySrc": "/library/timeline-1946-scene.jpg",
+    "kind": "photo",
+    "width": 513,
+    "height": 335,
+    "sourceFile": "timeline-1946-scene.jpg",
+    "sourceSha256": "871ce16a6b5ef5df2c258f226099a2cb4e6206cc0aa4dcb110ef117ad73f8ae9",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 209,
+        "bytes": 5356,
+        "src": "/media/modules/library/timeline-1946-scene-320.c678e766.avif"
+      },
+      {
+        "format": "avif",
+        "width": 513,
+        "height": 335,
+        "bytes": 10778,
+        "src": "/media/modules/library/timeline-1946-scene-640.dafc21b9.avif"
+      },
+      {
+        "format": "webp",
+        "width": 513,
+        "height": 335,
+        "bytes": 12004,
+        "src": "/media/modules/library/timeline-1946-scene-640.5b5e9f58.webp"
+      },
+      {
+        "format": "avif",
+        "width": 513,
+        "height": 335,
+        "bytes": 10778,
+        "src": "/media/modules/library/timeline-1946-scene-1080.dafc21b9.avif"
+      },
+      {
+        "format": "webp",
+        "width": 513,
+        "height": 335,
+        "bytes": 12004,
+        "src": "/media/modules/library/timeline-1946-scene-1080.5b5e9f58.webp"
+      },
+      {
+        "format": "avif",
+        "width": 513,
+        "height": 335,
+        "bytes": 10778,
+        "src": "/media/modules/library/timeline-1946-scene-1600.dafc21b9.avif"
+      }
+    ]
+  },
+  {
+    "id": "timeline-wall-level-minus2",
+    "module": "library",
+    "legacySrc": "/library/timeline-wall-level-minus2.jpg",
+    "kind": "photo",
+    "width": 900,
+    "height": 1599,
+    "sourceFile": "timeline-wall-level-minus2.jpg",
+    "sourceSha256": "f66b9d044446849e1084509261a846225b2c299aa7a3002ae01fd0eba9f03400",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 569,
+        "bytes": 14681,
+        "src": "/media/modules/library/timeline-wall-level-minus2-320.43ce5804.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 1137,
+        "bytes": 56037,
+        "src": "/media/modules/library/timeline-wall-level-minus2-640.696564bf.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 1137,
+        "bytes": 68104,
+        "src": "/media/modules/library/timeline-wall-level-minus2-640.567c524a.webp"
+      },
+      {
+        "format": "avif",
+        "width": 900,
+        "height": 1599,
+        "bytes": 111695,
+        "src": "/media/modules/library/timeline-wall-level-minus2-1080.ccfb46a1.avif"
+      },
+      {
+        "format": "webp",
+        "width": 900,
+        "height": 1599,
+        "bytes": 133570,
+        "src": "/media/modules/library/timeline-wall-level-minus2-1080.046f298b.webp"
+      },
+      {
+        "format": "avif",
+        "width": 900,
+        "height": 1599,
+        "bytes": 111695,
+        "src": "/media/modules/library/timeline-wall-level-minus2-1600.ccfb46a1.avif"
+      }
+    ]
+  },
+  {
+    "id": "travelers-prayer-clue",
+    "module": "library",
+    "legacySrc": "/library/travelers-prayer-clue.jpg",
+    "kind": "photo",
+    "width": 497,
+    "height": 231,
+    "sourceFile": "travelers-prayer-clue.jpg",
+    "sourceSha256": "4866e17211cdcbab30c93f7d2900586fbaa4fd52dfb3f7a1f9e5a6d1b2ecc2b3",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 149,
+        "bytes": 6551,
+        "src": "/media/modules/library/travelers-prayer-clue-320.e897474a.avif"
+      },
+      {
+        "format": "avif",
+        "width": 497,
+        "height": 231,
+        "bytes": 12792,
+        "src": "/media/modules/library/travelers-prayer-clue-640.00667e03.avif"
+      },
+      {
+        "format": "webp",
+        "width": 497,
+        "height": 231,
+        "bytes": 13940,
+        "src": "/media/modules/library/travelers-prayer-clue-640.38ce7c9f.webp"
+      },
+      {
+        "format": "avif",
+        "width": 497,
+        "height": 231,
+        "bytes": 12792,
+        "src": "/media/modules/library/travelers-prayer-clue-1080.00667e03.avif"
+      },
+      {
+        "format": "webp",
+        "width": 497,
+        "height": 231,
+        "bytes": 13940,
+        "src": "/media/modules/library/travelers-prayer-clue-1080.38ce7c9f.webp"
+      },
+      {
+        "format": "avif",
+        "width": 497,
+        "height": 231,
+        "bytes": 12792,
+        "src": "/media/modules/library/travelers-prayer-clue-1600.00667e03.avif"
+      }
+    ]
+  },
+  {
+    "id": "travelers-prayer-panel",
+    "module": "library",
+    "legacySrc": "/library/travelers-prayer-panel.jpg",
+    "kind": "photo",
+    "width": 532,
+    "height": 1290,
+    "sourceFile": "travelers-prayer-panel.jpg",
+    "sourceSha256": "e72d8cfa028c1e19d2c5706ca6520a4e5c6c723d454be0c8e592e3f40bd8b88e",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 776,
+        "bytes": 22272,
+        "src": "/media/modules/library/travelers-prayer-panel-320.0097cdca.avif"
+      },
+      {
+        "format": "avif",
+        "width": 532,
+        "height": 1290,
+        "bytes": 54088,
+        "src": "/media/modules/library/travelers-prayer-panel-640.559b3356.avif"
+      },
+      {
+        "format": "webp",
+        "width": 532,
+        "height": 1290,
+        "bytes": 65570,
+        "src": "/media/modules/library/travelers-prayer-panel-640.0849984f.webp"
+      },
+      {
+        "format": "avif",
+        "width": 532,
+        "height": 1290,
+        "bytes": 54088,
+        "src": "/media/modules/library/travelers-prayer-panel-1080.559b3356.avif"
+      },
+      {
+        "format": "webp",
+        "width": 532,
+        "height": 1290,
+        "bytes": 65570,
+        "src": "/media/modules/library/travelers-prayer-panel-1080.0849984f.webp"
+      },
+      {
+        "format": "avif",
+        "width": 532,
+        "height": 1290,
+        "bytes": 54088,
+        "src": "/media/modules/library/travelers-prayer-panel-1600.559b3356.avif"
+      }
+    ]
+  },
+  {
+    "id": "nahlaot-illustrated-candidate",
+    "module": "map",
+    "legacySrc": "/map/nahlaot-illustrated-candidate.jpg",
+    "kind": "render",
+    "width": 1586,
+    "height": 992,
+    "sourceFile": "nahlaot-illustrated-candidate.jpg",
+    "sourceSha256": "7cd49c8caf2ad179554d07c6524f2f0d6a296359cd5aafe621f15edf22815f02",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 200,
+        "bytes": 12892,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-320.456a9ebb.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 400,
+        "bytes": 38664,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-640.90f9ca4d.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 400,
+        "bytes": 71658,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-640.5cb7f187.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1080,
+        "height": 676,
+        "bytes": 103125,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-1080.2df8a23d.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1080,
+        "height": 676,
+        "bytes": 189094,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-1080.ff299886.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1586,
+        "height": 992,
+        "bytes": 190845,
+        "src": "/media/modules/map/nahlaot-illustrated-candidate-1600.672eb090.avif"
+      }
+    ]
+  },
+  {
+    "id": "gan-hatut-cistern",
+    "module": "shuk",
+    "legacySrc": "/shuk/gan-hatut-cistern.jpg",
+    "kind": "photo",
+    "width": 1600,
+    "height": 900,
+    "sourceFile": "gan-hatut-cistern.jpg",
+    "sourceSha256": "a71c6d0eca841b1691508297ff3da5cec74ca6077f4c7f1579ead1db5462be51",
+    "credit": "The owner's photograph",
+    "licence": "Own photo",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 180,
+        "bytes": 7543,
+        "src": "/media/modules/shuk/gan-hatut-cistern-320.64a4a4c3.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 360,
+        "bytes": 29702,
+        "src": "/media/modules/shuk/gan-hatut-cistern-640.8b7a130c.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 360,
+        "bytes": 41466,
+        "src": "/media/modules/shuk/gan-hatut-cistern-640.56c4ea88.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1080,
+        "height": 608,
+        "bytes": 77307,
+        "src": "/media/modules/shuk/gan-hatut-cistern-1080.b3bf1f9e.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1080,
+        "height": 608,
+        "bytes": 102788,
+        "src": "/media/modules/shuk/gan-hatut-cistern-1080.958f3836.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1600,
+        "height": 900,
+        "bytes": 149844,
+        "src": "/media/modules/shuk/gan-hatut-cistern-1600.55b617e1.avif"
+      }
+    ]
+  },
+  {
+    "id": "gan-hatut-gate",
+    "module": "shuk",
+    "legacySrc": "/shuk/gan-hatut-gate.jpg",
+    "kind": "photo",
+    "width": 1099,
+    "height": 1600,
+    "sourceFile": "gan-hatut-gate.jpg",
+    "sourceSha256": "6467e4899474e2da7e266da7087a8cd6c20d5df882bc053b06b1e40285eca647",
+    "credit": "The owner's photograph",
+    "licence": "Own photo",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 466,
+        "bytes": 17753,
+        "src": "/media/modules/shuk/gan-hatut-gate-320.8376e1e5.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 932,
+        "bytes": 60171,
+        "src": "/media/modules/shuk/gan-hatut-gate-640.41754a97.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 932,
+        "bytes": 86848,
+        "src": "/media/modules/shuk/gan-hatut-gate-640.66d62290.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1080,
+        "height": 1572,
+        "bytes": 135035,
+        "src": "/media/modules/shuk/gan-hatut-gate-1080.1326b24b.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1080,
+        "height": 1572,
+        "bytes": 192968,
+        "src": "/media/modules/shuk/gan-hatut-gate-1080.744efb18.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1099,
+        "height": 1600,
+        "bytes": 148045,
+        "src": "/media/modules/shuk/gan-hatut-gate-1600.c589d0e8.avif"
+      }
+    ]
+  },
+  {
+    "id": "levin-mural",
+    "module": "shuk",
+    "legacySrc": "/shuk/levin-mural.jpg",
+    "kind": "photo",
+    "width": 1024,
+    "height": 1819,
+    "sourceFile": "levin-mural.jpg",
+    "sourceSha256": "95ff3915ac6e96dcd9876e3d6ec7d5979255931871bbd4cda3ce05eb810ea2e0",
+    "credit": "The owner's photograph",
+    "licence": "Own photo",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 568,
+        "bytes": 29672,
+        "src": "/media/modules/shuk/levin-mural-320.4718db1d.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 1137,
+        "bytes": 87356,
+        "src": "/media/modules/shuk/levin-mural-640.c72119b8.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 1137,
+        "bytes": 109922,
+        "src": "/media/modules/shuk/levin-mural-640.f4ab25f5.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1024,
+        "height": 1819,
+        "bytes": 214590,
+        "src": "/media/modules/shuk/levin-mural-1080.48a626ab.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1024,
+        "height": 1819,
+        "bytes": 246516,
+        "src": "/media/modules/shuk/levin-mural-1080.7d8782ae.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1024,
+        "height": 1819,
+        "bytes": 257200,
+        "src": "/media/modules/shuk/levin-mural-1600.a0cafce8.avif"
+      }
+    ]
+  },
+  {
+    "id": "marzipan-rugelach",
+    "module": "shuk",
+    "legacySrc": "/shuk/marzipan-rugelach.jpg",
+    "kind": "photo",
+    "width": 1280,
+    "height": 853,
+    "sourceFile": "marzipan-rugelach.jpg",
+    "sourceSha256": "08b6609a3abfce1a378830f3781e42845d942392cee329f3d7a6080fb99561ee",
+    "credit": "Photo: Benjamin Lipsman, CC BY 2.0, via Wikimedia Commons",
+    "licence": "CC BY 2.0",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 213,
+        "bytes": 14097,
+        "src": "/media/modules/shuk/marzipan-rugelach-320.deb69f5f.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 427,
+        "bytes": 40131,
+        "src": "/media/modules/shuk/marzipan-rugelach-640.004412ff.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 427,
+        "bytes": 68846,
+        "src": "/media/modules/shuk/marzipan-rugelach-640.3beca562.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1080,
+        "height": 720,
+        "bytes": 99215,
+        "src": "/media/modules/shuk/marzipan-rugelach-1080.35b360ac.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1080,
+        "height": 720,
+        "bytes": 142552,
+        "src": "/media/modules/shuk/marzipan-rugelach-1080.c8748eec.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1280,
+        "height": 853,
+        "bytes": 136075,
+        "src": "/media/modules/shuk/marzipan-rugelach-1600.6bca9f69.avif"
+      }
+    ]
+  },
+  {
+    "id": "mural-before",
+    "module": "shuk",
+    "legacySrc": "/shuk/mural-before.jpg",
+    "kind": "photo",
+    "width": 1023,
+    "height": 1537,
+    "sourceFile": "mural-before.jpg",
+    "sourceSha256": "3917d369289d1163274993366d2defe3246cdba3ed876036b945e0b15f8e7d0f",
+    "credit": "unrecorded",
+    "licence": "unrecorded",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 481,
+        "bytes": 17903,
+        "src": "/media/modules/shuk/mural-before-320.1439b698.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 962,
+        "bytes": 61663,
+        "src": "/media/modules/shuk/mural-before-640.1eec362c.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 962,
+        "bytes": 92094,
+        "src": "/media/modules/shuk/mural-before-640.d0a23e3d.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1023,
+        "height": 1537,
+        "bytes": 142571,
+        "src": "/media/modules/shuk/mural-before-1080.1ad843b2.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1023,
+        "height": 1537,
+        "bytes": 199872,
+        "src": "/media/modules/shuk/mural-before-1080.31e4ab27.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1023,
+        "height": 1537,
+        "bytes": 142571,
+        "src": "/media/modules/shuk/mural-before-1600.1ad843b2.avif"
+      }
+    ]
+  },
+  {
+    "id": "mural-street",
+    "module": "shuk",
+    "legacySrc": "/shuk/mural-street.jpg",
+    "kind": "photo",
+    "width": 901,
+    "height": 1600,
+    "sourceFile": "mural-street.jpg",
+    "sourceSha256": "2fec8bb07b4b6374b44e5b71d847957f9119bc833f967ba1d8ba955a95d2fa70",
+    "credit": "The owner's photograph",
+    "licence": "Own photo",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 568,
+        "bytes": 28419,
+        "src": "/media/modules/shuk/mural-street-320.b5c03fdd.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 1137,
+        "bytes": 95856,
+        "src": "/media/modules/shuk/mural-street-640.85fce8bc.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 1137,
+        "bytes": 100582,
+        "src": "/media/modules/shuk/mural-street-640.f169d0c4.webp"
+      },
+      {
+        "format": "avif",
+        "width": 901,
+        "height": 1600,
+        "bytes": 180666,
+        "src": "/media/modules/shuk/mural-street-1080.ce5a541c.avif"
+      },
+      {
+        "format": "webp",
+        "width": 901,
+        "height": 1600,
+        "bytes": 210044,
+        "src": "/media/modules/shuk/mural-street-1080.940dadf6.webp"
+      },
+      {
+        "format": "avif",
+        "width": 901,
+        "height": 1600,
+        "bytes": 180666,
+        "src": "/media/modules/shuk/mural-street-1600.ce5a541c.avif"
+      }
+    ]
+  },
+  {
+    "id": "synagogue-facade",
+    "module": "shuk",
+    "legacySrc": "/shuk/synagogue-facade.jpg",
+    "kind": "photo",
+    "width": 1400,
+    "height": 1050,
+    "sourceFile": "synagogue-facade.jpg",
+    "sourceSha256": "334a855ffd01045d137e182c91e9fdef8194a669d441b46559009f15043be57d",
+    "credit": "The owner's photograph",
+    "licence": "Own photo",
+    "variants": [
+      {
+        "format": "avif",
+        "width": 320,
+        "height": 240,
+        "bytes": 14468,
+        "src": "/media/modules/shuk/synagogue-facade-320.e5004be9.avif"
+      },
+      {
+        "format": "avif",
+        "width": 640,
+        "height": 480,
+        "bytes": 41060,
+        "src": "/media/modules/shuk/synagogue-facade-640.d6668744.avif"
+      },
+      {
+        "format": "webp",
+        "width": 640,
+        "height": 480,
+        "bytes": 70578,
+        "src": "/media/modules/shuk/synagogue-facade-640.d446d4a3.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1080,
+        "height": 810,
+        "bytes": 110361,
+        "src": "/media/modules/shuk/synagogue-facade-1080.8eb82ca8.avif"
+      },
+      {
+        "format": "webp",
+        "width": 1080,
+        "height": 810,
+        "bytes": 181386,
+        "src": "/media/modules/shuk/synagogue-facade-1080.a8c3b4d1.webp"
+      },
+      {
+        "format": "avif",
+        "width": 1400,
+        "height": 1050,
+        "bytes": 215425,
+        "src": "/media/modules/shuk/synagogue-facade-1600.877b98c2.avif"
+      }
+    ]
+  }
+]

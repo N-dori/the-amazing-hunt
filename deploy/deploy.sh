@@ -12,6 +12,8 @@ set -euo pipefail
 REPO=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 BRANCH=main
 KEEP=3
+# The image pipeline's variants on this host (docs/images-howto.md), bind-mounted into both game containers.
+MEDIA_DIR=/srv/dori/game-media
 TARGET=${1:-game}
 case "$TARGET" in
   game) COMPOSE=$REPO/deploy/compose.yml IMAGE=dori-game CONTAINER=dori-game SERVICE=game BUILD_ARGS=() ;;
@@ -100,6 +102,11 @@ else
   echo "no origin remote: building local HEAD"
 fi
 commit=$(git -C "$REPO" rev-parse --short HEAD)
+
+step "Check images"
+# Every image the code refers to must be in public/ or in the media folder, within its size cap and without
+# metadata, and no raster image may go through next/image (deploy/check-assets.mjs, no dependencies).
+node "$REPO/deploy/check-assets.mjs" "$REPO" --media "$MEDIA_DIR" || die "image check failed: copy the variants to $MEDIA_DIR first (docs/images-howto.md)"
 
 step "Build image"
 tag="$(date +%Y%m%d-%H%M%S)-$commit"

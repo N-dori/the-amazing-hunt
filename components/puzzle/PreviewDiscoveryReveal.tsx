@@ -2,7 +2,7 @@ import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
 import EvidenceTag from "@/components/ui/EvidenceTag";
 import StatusTag from "@/components/ui/StatusTag";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import type { ClaimType, Copy } from "@/lib/game/types";
 import styles from "./PreviewDiscoveryReveal.module.scss";
 
@@ -39,7 +39,7 @@ export default function PreviewDiscoveryReveal({ view: v, onContinue }: { view: 
       </header>
 
       <figure className={styles.figure}>
-        <img src={`${BASE_PATH}${v.photo.src}`} alt={v.photo.alt} className={styles.figureImage} />
+        <Picture src={v.photo.src} alt={v.photo.alt} className={styles.figureImage} loading="eager" />
         <figcaption className={styles.figureCaption}>
           {v.photo.caption.text}
           <StatusTag status={v.photo.caption.status} tone="dark" />

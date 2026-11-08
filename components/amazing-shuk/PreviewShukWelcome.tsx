@@ -1,7 +1,6 @@
-import Image from "next/image";
+import Picture from "@/components/media/Picture";
 import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
-import { BASE_PATH } from "@/lib/base-path";
 import { ILLUSTRATED_MARKET_MAP } from "@/lib/map/image-map";
 import type { WelcomeCopy } from "@/lib/amazing-shuk/welcome-copy";
 import styles from "./PreviewShukWelcome.module.scss";
@@ -12,8 +11,8 @@ type Props = { copy: WelcomeCopy; message: string; busy: boolean; onStart?: () =
 export default function PreviewShukWelcome({ copy, message, busy, onStart, signedOut }: Props) {
   return <main className={styles.welcome}>
     <div className={styles.hero}>
-      <Image src={BASE_PATH + ILLUSTRATED_MARKET_MAP.src} alt="" width={ILLUSTRATED_MARKET_MAP.width} height={ILLUSTRATED_MARKET_MAP.height}
-        sizes="(min-width: 48rem) 30rem, 100vw" priority className={styles.map} />
+      <Picture src={ILLUSTRATED_MARKET_MAP.src} alt="" width={ILLUSTRATED_MARKET_MAP.width} height={ILLUSTRATED_MARKET_MAP.height}
+        sizes="(min-width: 48rem) 30rem, 100vw" loading="eager" fetchPriority="high" className={styles.map} />
       <span className={styles.pin} aria-hidden="true"><Icon name="mapMarker" className={styles.pinIcon} /></span>
     </div>
     <div className={styles.body}>

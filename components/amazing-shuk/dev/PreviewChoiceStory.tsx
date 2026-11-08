@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
 import styles from "./PreviewChoiceStory.module.scss";
 type Props = {
@@ -13,7 +12,7 @@ export default function PreviewChoiceStory({ instruction, title, paragraphs, ima
   const body = <>
     <div className={styles.prose}>{paragraphs.map(paragraph => <p key={paragraph.text}>{paragraph.text}</p>)}</div>
     {image ? <figure className={styles.figure}>
-      <Image src={BASE_PATH + image.src} width={image.width} height={image.height} alt={image.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
+      <Picture src={image.src} width={image.width} height={image.height} alt={image.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
       <figcaption className={styles.caption}>{image.caption}</figcaption>
     </figure> : null}
   </>;

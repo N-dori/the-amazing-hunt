@@ -1,12 +1,12 @@
 # The Amazing Shuk — Current Implementation State
 
-**Updated: 5 Nov 2026 (Claude).** **Live since 5 Nov 2026, 21:16 UTC: `15cc9db`** (no app change since `193873f`: docs and research only), image `dori-shuk:20261105-211524-15cc9db`. Rollback: `previous` = `193873f` (the pasted sign-in link fix).
-- **Links:** `host-player-1.txt`, `guide.txt` and `player-2.txt` in `.local/amazing-shuk/live-links/`, issued 5 Nov at about 21:17 UTC and valid 24 h; the host and player-2 links were used in the owner's phone-and-PC test. **Join links are off.**
-- **The phone-and-PC test ran on 5 Nov 2026:** results and the owner's notes are the top entry of the [handoff](agent-handoff.md).
-- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261105T211500Z.json`, the only one.
-- **Safety copies:** eleven in `/data`, kept until the owner decides.
-- **Disk: 70% after the deploy** (the owner approved clearing the build cache, the npm cache and the journal on 5 Nov; it was 89%).
-- **Since 3 Nov:** content and research only (the mural rework, below); no code change.
+**Updated: 6 Nov 2026 (Claude).** **Live since 6 Nov 2026, 00:45 UTC: `5c4e027`** (onboarding and roles, both builds), image `dori-shuk:20261106-004445-5c4e027`. Rollback: `previous` = `8001e8f` (the first onboarding build).
+- **Committed, not deployed:** `b4d2298` (the guide no longer counted as a player; clearer emblems) and `bcc3e2c` (the 5 Nov challenge notes; multi-team play, I7a). **Not pushed:** 5 commits, `8001e8f` to `bcc3e2c`.
+- **Links:** `host-player-1.txt`, `guide.txt` and `player-2.txt` in `.local/amazing-shuk/live-links/`, issued 6 Nov about 00:46 UTC, valid 24 h. **Join links are off**; multi-team play needs them on (owner's decision).
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261106T004444Z.json`, the only one.
+- **Safety copies:** 13 in `/data`, kept until the owner decides.
+- **Disk:** 77%.
+- **The session's handoff and next steps:** the top entry of the [handoff](agent-handoff.md).
 
 ## Progressive challenges and Market Surprise: Phase 1 LIVE, phases 2–5 planned (owner, 2 Nov 2026)
 

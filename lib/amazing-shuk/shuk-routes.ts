@@ -4,8 +4,9 @@
  */
 export type ShukRoute = "allow" | "home" | "block";
 const EXACT: ReadonlySet<string> = new Set(["/amazing-shuk", "/api/health", "/manifest.webmanifest", "/favicon.ico"]);
-// Next's own files, the Shuk API, and the public folders the Shuk uses (mission photos, the illustrated map).
-const PREFIXES = ["/_next/", "/api/amazing-shuk/", "/shuk/", "/map/"] as const;
+// Next's own files, the Shuk API, and the public folders the Shuk uses (mission photos, the illustrated map), plus the image
+// pipeline's copies of exactly those two (docs/images-howto.md). The Memory Protocol's library copies stay blocked.
+const PREFIXES = ["/_next/", "/api/amazing-shuk/", "/shuk/", "/map/", "/media/modules/shuk/", "/media/modules/map/"] as const;
 
 export function shukRoute(pathname: string): ShukRoute {
   if (pathname === "" || pathname === "/") return "home";

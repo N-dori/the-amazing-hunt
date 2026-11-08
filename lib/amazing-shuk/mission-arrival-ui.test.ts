@@ -27,6 +27,10 @@ function load(path: string, reactOverride?: object, mocks: Record<string, Compon
     if (mocks[id]) return { __esModule: true, default: mocks[id] };
     // Map/browser and identity subtrees are outside this static content/access test.
     if (["@/components/map/LeafletBaseMap", "@/components/amazing-shuk/IndexParticipantMenu", "@/components/amazing-shuk/ListParticipantBadges", "./IndexGuideWaterTask"].includes(id)) return { __esModule: true, default: () => null };
+    // <Picture> (components/media) has its own test (lib/media); here it stands in as what it renders for a path outside the image
+    // manifest: a plain <img> under the base path.
+    if (id === "@/components/media/Picture") return { __esModule: true, default: ({ src, ...props }: Record<string, unknown>) =>
+      nativeRequire("react").createElement("img", { loading: "lazy", ...props, src: nativeRequire(resolve("lib/base-path.ts")).BASE_PATH + String(src) }) };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     if (id.startsWith("@/components/")) return { __esModule: true, default: load(id.replace("@/", "") + ".tsx", reactOverride, mocks) };
     if (id.startsWith("./") || id.startsWith("../")) return { __esModule: true, default: load(resolve(dirname(path), id + ".tsx"), reactOverride, mocks) };
@@ -61,7 +65,7 @@ test("find this place reads in order for every mission: progress, strip, clue, p
     // The heading stays for screen readers, though the header shows "Find …".
     assert.ok(html.includes(`<h2 id="mission-location-title" class="srOnly">${escapeText(definition.name)}</h2>`), definition.id);
     const at = (text: string) => { const i = html.indexOf(text); assert.ok(i >= 0, `${definition.id}: ${text}`); return i; };
-    // next/image encodes the path, so find the photo by its file name.
+    // Find the photo by its file name.
     const photo = definition.photo ? at(definition.photo.src.split("/").pop()!) : at("Reference photograph not yet available");
     const order = [at("Finding the place"), at('id="strip"'), at("What to look for"), at(escapeText(definition.clue)), photo, at("Landmarks"), at("About this place"), at("Check our location"), at("Open Challenge")];
     assert.deepEqual(order, [...order].sort((a, b) => a - b), `${definition.id} order`);
@@ -128,7 +132,8 @@ test("an approved photo replaces the gap notice in the preview and location view
   for (const html of [renderToStaticMarkup(createElement(Card, { view, stage: "find", onViewLocation() {}, onClose() {} })),
     renderToStaticMarkup(createElement(Location, { view, guide: false, busy: false, feedback: "", ...callbacks }))]) {
     assert.match(html, /alt="Example location"/);
-    assert.match(html, /memory-protocol%2Fshuk%2Fexample-location\.jpg/);
+    // <Picture> (the image pipeline): the path under the base path, never through /_next/image.
+    assert.match(html, /src="\/memory-protocol\/shuk\/example-location\.jpg"/);
     assert.doesNotMatch(html, /Reference photograph not yet available/);
   }
   // Without a photo, both views fall back to the notice.

@@ -1,8 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent } from "react";
-import Image from "next/image";
+import Picture from "@/components/media/Picture";
 import ActionButton from "@/components/ui/ActionButton";
 import { Icon } from "@/components/icons";
-import { BASE_PATH } from "@/lib/base-path";
 import { previewDestinationTitle, type MissionPresentation, type MissionProgressStage } from "@/lib/amazing-shuk/mission-arrival";
 import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProgress";
 import styles from "./PreviewMissionCard.module.scss";
@@ -35,7 +34,7 @@ export default function PreviewMissionCard({ view, stage, onViewLocation, onClos
       {/* The challenge's own name, as a promise of what waits there: secondary to the destination. */}
       <p className={styles.place}><Icon name="puzzle" className={styles.placeIcon} /><span>{view.title}</span></p>
       <div className={styles.teaser}>
-        {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={144} height={144} sizes="4rem" className={styles.thumb} />
+        {view.photo ? <Picture src={view.photo.src} alt={view.photo.alt} width={144} height={144} sizes="4rem" className={styles.thumb} />
           : <p className={styles.thumbGap}><Icon name="camera" className={styles.icon} /><span className="srOnly">Reference photograph not yet available.</span></p>}
         <p className={styles.summary}>{view.location.summary}</p>
       </div>

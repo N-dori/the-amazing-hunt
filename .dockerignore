@@ -10,6 +10,10 @@ README.md
 CLAUDE.md
 # Owner originals are left untracked in public/shuk/; only the app's web copies may enter the image.
 public/shuk/*
+# The image pipeline's variants never enter the image: on the server they are bind-mounted from /srv/dori/game-media
+# (docs/images-howto.md). Originals stay on disk only.
+public/media
+media-originals
 !public/shuk/gan-hatut-cistern.jpg
 !public/shuk/gan-hatut-gate.jpg
 !public/shuk/mural-before.jpg

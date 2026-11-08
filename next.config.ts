@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // Don't advertise the framework (security review, 25 Oct 2026).
   poweredByHeader: false,
+  // The image pipeline's variants (docs/images-howto.md): every file under /media has a content hash in its name
+  // (deploy/check-assets.mjs enforces it), so browsers may keep it for a year. Next adds the base path itself.
+  async headers() {
+    return [{ source: "/media/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] }];
+  },
 };
 
 export default nextConfig;

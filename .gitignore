@@ -31,6 +31,14 @@ docs/**/*.webp
 docs/**/*.heic
 docs/**/*.zip
 
+# The image pipeline (docs/images-howto.md): originals and generated variants are never committed; only each
+# folder's sources.json and the manifest data/module-images.json are.
+media-originals/*
+!media-originals/modules/
+media-originals/modules/*/*
+!media-originals/modules/*/sources.json
+public/media/
+
 # Local Shuk credentials and shared progress
 .local/
 

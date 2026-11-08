@@ -29,6 +29,10 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
     if (id === "@/components/icons") return { Icon: () => null };
     if (id === "./ParticipantAvatar") return { __esModule: true, default: Avatar };
     if (id === "./PreviewBottomSheet") return { __esModule: true, default: Sheet };
+    // <Picture> (components/media) has its own test (lib/media); here it stands in as what it renders for a path outside the image
+    // manifest: a plain <img> under the base path.
+    if (id === "@/components/media/Picture") return { __esModule: true, default: ({ src, ...props }: Record<string, unknown>) =>
+      nativeRequire("react").createElement("img", { loading: "lazy", ...props, src: nativeRequire(resolve("lib/base-path.ts")).BASE_PATH + String(src) }) };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
     if (id.startsWith("./")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx")) };
     return nativeRequire(id);
