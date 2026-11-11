@@ -1,24 +1,68 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
-## The Nahlaot OSM map, steps 1–2 (data only): 11 Nov 2026
+## The Nahlaot OSM map: handover for the next map session (11 Nov 2026)
 
-**At the owner's request, the Type B map's data** ([how it's made](../map/nahlaot-osm-map.md)). Not committed, not drawn in the game, nothing live.
-- **Two frames, set by the owner:** Jaffa Road (north), King George (east), Ben Zvi (west), and Bezalel (small) or Ramban (large) to the south. The corners close via HaRav Shmuel Baruch and Sha'arei Tzedek (north-west), Ben Yehuda (small, south-east) and Ruppin (large, south-west). The owner approved both street sketches (11 Nov 2026).
-- **Built:**
-  - `scripts/map/build-shuk-map.mjs` (`npm run map:build`), adapted from the platform's Old City script;
-  - `data/shuk-map-nahlaot-{small,large}.json` (87 KB and 135 KB; the limit is 150 KB);
-  - `lib/map/osm-projection.ts` (`geoToMap`, `mapToGeo`, types) with tests (36 across `lib/map` with the label checks);
-  - the generated [street-name list](../map/nahlaot-street-names.md): 156 names, 96 in the small frame, 6 missing a Hebrew or English name, none checked on site yet.
-  - **Place labels** for every named park, square, market and synagogue outline: 40 in the large frame. The owner added "Gan ha'toot" as a second name for HaBustan HaSefaradi (between HaGilboa and HaHermon, touching HaCarmel); its Hebrew form hasn't been given yet.
-  - The OSM download and the preview SVGs are in `media-originals/maps/` (ignored by git).
-- **Labels that never overlap (owner's rules, 11 Nov 2026):**
-  - main roads show `English · עברית` side by side and only where the text fits inside the road's real width; alleys show the game's language only, in a smaller font, and may overflow the road;
+**Where it stands:** steps 1–2 are done as **data only**, committed in `b512149` and pushed. The game still shows the illustrated prototype; nothing about the new map is live. Next is **step 3: drawing it in the game**, after the owner's answers below.
+
+The method and rebuild instructions are in [nahlaot-osm-map.md](../map/nahlaot-osm-map.md). The names to check on site are in [nahlaot-street-names.md](../map/nahlaot-street-names.md). The target is the [map-types spec](../design/map-types-spec.md), Type B.
+
+### What exists
+| File | What it is |
+|---|---|
+| `scripts/map/build-shuk-map.mjs` | `npm run map:build`, on the host, under 1 s, no dependencies. The CURATION block at the top holds every hand decision: frames, corners, road widths, label styles, zooms, `NAME_OVERRIDES`, `CHECKED_ON_SITE`, `PLACE_ALT_NAMES` and `COURTYARDS`. |
+| `scripts/map/label-layout.mjs` | The label placement: measuring, straight stretches, rotated-box overlap test, `minZoom` per label. Accepts `reserved` boxes (for markers), unused so far. |
+| `scripts/map/plex-widths.json` | IBM Plex glyph widths used to measure the labels |
+| `data/shuk-map-nahlaot-{small,large}.json` | Roads (by class and real width), buildings, areas, names, places, neighbourhoods, projection, credit. 87 KB and 135 KB. |
+| `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json` | The labels, one file per frame and game language (55–87 KB) |
+| `lib/map/osm-projection.ts` | `geoToMap`, `mapToGeo`, `metresToUnits` and all the data types |
+| `lib/map/osm-projection.test.ts`, `osm-labels.test.ts` | 36 map tests: projection, file sizes, no overlaps at any zoom, road and stretch fit, languages, courtyard positions |
+| `media-originals/maps/` (not in git) | `nahlaot.osm` (the 11 Nov download) and the review previews `nahlaot-{small,large}-z{-1.5,0.5,2.5}-en.svg` and `-z2.5-he.svg` |
+| `media-originals/fonts/` (not in git) | The Plex woff files, embedded in the previews |
+
+### The owner's decisions (all 11 Nov 2026)
+- **Frames:**
+  - small: Jaffa Road, King George, Ben Zvi, Bezalel;
+  - large: the same, with Ramban as the south edge;
+  - corners: Sha'arei Tzedek and HaRav Shmuel Baruch (north-west), Ben Yehuda (small, south-east), Ruppin (large, south-west).
+  Both street sketches were approved.
+- **Names:** "look OK"; none checked on site yet. Gan ha'toot was added to HaBustan HaSefaradi.
+- **Courtyards at the owner's positions:** Knesset Yisrael A and B, Batei Broida, Batei Rand. Spelling: my suggestion, approved.
+- **Labels:**
+  - main roads: `English · עברית` on one line (Hebrew first in the Hebrew game), inside the road's width;
+  - alleys: the game's language only, a slightly smaller font, may overflow the road;
   - roads are never widened;
-  - the layout (`scripts/map/label-layout.mjs`) gives each label a `minZoom` and writes `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json`;
-  - text is measured with IBM Plex's glyph widths (`scripts/map/plex-widths.json`).
-  Also added: OSM's neighbourhood names, and the owner's courtyards Knesset Yisrael A and B, Batei Broida and Batei Rand (the Hebrew for Batei Rand is a draft). Knesset Yisrael C and Batei Munkatch wait for a position. Main-road names show only from zoom 0.5 or 1 under the "inside the road" rule. `lib/map/osm-labels.test.ts` checks no overlaps at any zoom, the road fit, the stretch fit, the languages, the courtyard positions and the file sizes. A planted overlap and a planted narrow road both made it fail.
-- **Checked:** the map tests (36 after the label work) on the host; ESLint on `scripts/map` and `lib/map` (two unused-variable warnings, fixed, with the output byte-for-byte the same) and `tsc --noEmit` clean in the one-shot container. **`npm test` on the host: 74/75**, because `lib/media/media-images.test.ts` imports `react` and the host has no `node_modules`. That failure isn't from this work. Not checked in a browser; the owner reviews the preview SVGs.
-- **Next:** the owner reviews the full preview (buildings, areas, names) and the name list (Part 7 of the plan). Then step 3: draw the map in the game's Leaflet map with names that appear as players zoom in. After that, mission positions and checking the names on site.
+  - labels never overlap.
+
+### Waiting on the owner
+1. **Main-road names only from zoom 0.5 or 1.** At real widths a 10 m road holds 11 px text only from zoom 1, so zoomed out there are no main-road names. The choices: accept it, or put the name beside the road when zoomed out and inside it once it fits. Asked; not yet answered.
+2. **The zoom previews:** the owner hasn't looked at them yet. (The earlier street and name preview got "looks promising".)
+3. **Positions** for Knesset Yisrael C and Batei Munkatch. They are pending and not drawn.
+4. **Hebrew** for Batei Rand (בתי רנד is a draft) and for Gan ha'toot.
+5. **OSM's Hebrew for Sha'arei Yerushalayim** reads "אבו בסל (שערי ירושלים)". Keep it or override it?
+6. **Which frame the game uses:** small or large.
+7. **Checking names on site:** the owner's walk, against the signs. Corrections go into `NAME_OVERRIDES` and `CHECKED_ON_SITE`, never from Google.
+8. **Never placed** at any zoom: כיכר הרב יעקב ברוך and HaAfarsek in both frames; KKL and Be'eri in the large frame (listed in each label file's `meta.unplaced`).
+
+### Step 3: what the next session builds (plan it with the owner first)
+- **Base layer:** replace the `L.imageOverlay` in `components/map/LeafletBaseMap.tsx` with the OSM data drawn as SVG, using roads as bands at their real width, then buildings, areas and the credit.
+  - Map units are artboard units, and Leaflet `CRS.Simple` zoom z means 2^z px per unit. The labels' `minZoom` relies on exactly this, so don't rescale the data.
+  - y points down in the data. Use the same `[height − y, x]` flip as `imageToLatLng` in `lib/map/image-map.ts`.
+- **Labels:** a separate layer, with text at a fixed pixel size, showing the labels where `minZoom ≤ zoom ≤ maxZoom`.
+  - HTML labels are probably safer than SVG text for mixed Hebrew and English (bidi), especially in iOS Safari. Decide and test.
+  - Use the label file for the game's language (English today).
+- **Zoom range:** raise the map's maximum zoom from about +0.1 to 2.5 (street level). Set `zoomSnap` so the labels' 0.5 steps line up, or show labels by the nearest step.
+- **Mission markers:** place them with `geoToMap` from each task's `destination` (lat/lon in `lib/amazing-shuk/*-task.ts`). Marzipan has no position yet. Pass the markers to `layoutLabels` as `reserved` so names never cover a marker.
+- **Credit:** "© OpenStreetMap contributors", visible on the map, not behind a tap.
+- **Copy (`TODO(copy)`):** the map notice (`MAP_NOTICE`, "Illustrated prototype…") no longer fits; new wording comes from the owner. Also `docs/map/nahlaot-map-audit.md` describes the old image.
+- **Coding rules:** `Index → List → Preview`; SCSS tokens only; touch targets ≥ 3 rem on outdoor screens; a reduced-motion override for any animation.
+
+### Gotchas
+- **Rebuilding needs `media-originals/maps/nahlaot.osm`**, which isn't in git. A fresh download changes the data, so regenerate and review. The download command is in the map doc.
+- **The previews look right only with the fonts** in `media-originals/fonts/`. If they're missing, the script says so and falls back to system fonts. To get them again, copy them from the `@ibm/plex-sans` and `@ibm/plex-sans-hebrew` npm packages inside a throwaway container.
+- **On the host,** `npm test` fails one file (`lib/media/media-images.test.ts` needs `react`), and the UI tests in `test:shuk` need `node_modules`. Run the full suites in the one-shot container (`verify.md`): on 11 Nov, test:shuk was 330/330 and npm test 99/99.
+- **Map tests alone on the host:** `node --experimental-strip-types --test lib/map/*.test.ts`.
+- **Containers:** long work goes in tmux. Remove the root-owned `.next/`, `next-env.d.ts` and `tsconfig.tsbuildinfo` they leave, but only while `shuk-dev` isn't running.
+- **Real names:** no participant's real name in a file. The commit scanner blocks them; two role-moment docs needed cleaning on 11 Nov.
 
 ## From the platform's map work; Build 1 checks: 11 Nov 2026
 
