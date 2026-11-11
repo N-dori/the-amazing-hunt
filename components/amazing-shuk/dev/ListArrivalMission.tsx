@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import LeafletBaseMap, { type MapView } from "@/components/map/LeafletBaseMap";
 import { ILLUSTRATED_MARKET_MAP } from "@/lib/map/image-map";
+import { NOTICE_AUTO_FOLD_MS } from "@/lib/map/notice-fold";
 import { buildMissionPresentation, finaleLocked, type MissionProgressStage, type MissionView } from "@/lib/amazing-shuk/mission-arrival";
 import { findMission, SHUK_MISSIONS } from "@/lib/amazing-shuk/missions";
 import PreviewArrivalMission from "./PreviewArrivalMission";
@@ -43,7 +44,7 @@ export default function ListArrivalMission({ missions, mission, stage, progress,
     return view ? <PreviewArrivalMission view={view} stage={progress} guide={props.guide} busy={props.busy} feedback={props.feedback}
       canSelfArrive={props.canSelfArrive} solo={props.solo} onSelfArrive={props.onSelfArrive}
       map={<LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt={`Illustrated market map with the marker for ${view.shortName}`}
-        markers={destination} selectedId={view.id} focusId={view.id} memoryLayers={NO_MEMORY_LAYERS} attribution={null} notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL}
+        markers={destination} selectedId={view.id} focusId={view.id} memoryLayers={NO_MEMORY_LAYERS} attribution={null} notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL} noticeAutoFoldMs={NOTICE_AUTO_FOLD_MS}
         onSelect={noop} onBackground={noop} frameClassName={styles.strip} showLabels={false} twoFingerHint={TWO_FINGER_HINT_TEXT} />}
       onArrival={props.onArrival} onConfirm={props.onConfirm} onOpenChallenge={props.onOpenChallenge} /> : null;
   }
@@ -52,7 +53,7 @@ export default function ListArrivalMission({ missions, mission, stage, progress,
   return <div className={styles.stage}>
     <LeafletBaseMap baseMap={ILLUSTRATED_MARKET_MAP} touchSize={48} alt="Illustrated market map with mission markers"
       markers={markers} selectedId={sheet ? mission.id : null} memoryLayers={NO_MEMORY_LAYERS} attribution={null}
-      notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL}
+      notice={MAP_NOTICE} noticeToggleLabel={MAP_NOTICE_LABEL} noticeAutoFoldMs={NOTICE_AUTO_FOLD_MS}
       initialView={mapView} onViewChange={onMapViewChange} onSelect={props.onSelect} onBackground={props.onDismiss}
       frameClassName={styles.mapCard} keepSelectedVisible={SHEET_OVERLAP} showLabels={false} zoomOutBy={1} openOnMarkers
       twoFingerHint={TWO_FINGER_HINT_TEXT} />

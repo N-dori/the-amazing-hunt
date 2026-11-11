@@ -45,7 +45,8 @@ export default function PreviewChoiceTask({ view, question, lead, performance, r
     {/* Focusable so the phone that pressed Start lands on the question (UX-3). */}
     <h2 id="mural-task-title" tabIndex={-1} className={styles.question}>{question}</h2>
     {!performance.started && !view.completed ? startArea : null}
-    <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} />
+    {/* The choices only once the challenge has started (owner, 8 Nov 2026): before Start the group reads the question and talks. */}
+    {performance.started || view.completed ? <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} /> : null}
     {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
       <h3>{performance.revealed ? "Here's the answer" : completionTitle}</h3>
       {performance.revealed && answer?.length ? <div className={styles.answer}>

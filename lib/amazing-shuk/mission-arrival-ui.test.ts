@@ -92,14 +92,16 @@ test("first tap shows the destination as a task: Find … (short form), the chal
   }
 });
 
-test("the preview keeps Find this place in its own action row outside the scrolling body, with a thumbnail, inside the map stage", () => {
+test("the preview keeps Find this place in its own action row outside the scrolling body, with its photo, inside the map stage", () => {
   const Card = load("components/amazing-shuk/dev/PreviewMissionCard.tsx");
   const view = buildMissionPresentation(GAN_HATUT_MISSION, { id: GAN_HATUT_MISSION.id, state: "available", arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }, 1);
   const html = renderToStaticMarkup(createElement(Card, { view, stage: "find", onViewLocation() {}, onClose() {} }));
   // Three rows in order: the pill and close button, the body (title, place, teaser), then the action.
   assert.match(html, /<div class="top">.*Close preview.*<\/div><div class="body"><h2 id="mission-preview-title".*<\/div><div class="action"><button[^>]*><span>Find this place<\/span>/);
   assert.doesNotMatch(html.slice(html.indexOf('class="body"'), html.indexOf('class="action"')), /Find this place/);
-  assert.match(html, /class="thumb"/); assert.match(html, /sizes="4rem"/);
+  // The photo across the card, sized for the card's width, and the teaser under it (owner, 8 Nov 2026: the thumbnail was too small).
+  assert.match(html, /<div class="teaser"><img[^>]*class="thumb"[^>]*><p class="summary">/); assert.match(html, /sizes="\(min-width: 48rem\) 42rem, 100vw"/);
+  assert.doesNotMatch(html, /sizes="4rem"/);
   // The map and the sheet share one stage, so the sheet can overlap the map's lower edge.
   const List = load("components/amazing-shuk/dev/ListArrivalMission.tsx");
   const missions = SHUK_MISSIONS.map(definition => ({ id: definition.id, state: "available" as const, arrivalPoints: 0, arrivalMethod: null, gpsEnabled: false }));
@@ -229,6 +231,9 @@ test("the progress line marks each step in words and shape, not colour alone", (
   const complete = renderToStaticMarkup(createElement(Progress, { stage: "complete" }));
   assert.equal((complete.match(/\(done\)/g) ?? []).length, 3); assert.match(complete, /Mission complete<\/p>/);
   assert.doesNotMatch(solve + complete, /location|GPS|arriv/i);
+  // On the challenge screen it sticks under the header (owner, 8 Nov 2026); elsewhere it stays in the flow.
+  assert.match(solve, /^<div class="progress">/);
+  assert.match(renderToStaticMarkup(createElement(Progress, { stage: "solve", sticky: true })), /^<div class="progress sticky">/);
 });
 
 test("find this place shows a strip of the illustrated map with only the selected marker, two-finger mode on", () => {
@@ -244,9 +249,12 @@ test("find this place shows a strip of the illustrated map with only the selecte
   assert.deepEqual((strip.markers as { id: string }[]).map(marker => marker.id), [missions[1].id]);
   assert.equal(strip.focusId, missions[1].id); assert.equal(strip.twoFingerHint, "Use two fingers to move the map.");
   assert.equal(strip.onViewChange, undefined, "the strip never overwrites the Map tab's saved view");
+  // The notice is nonessential guidance (the clue and the guide say the same), so it may fold itself after 30 s (owner, 8–9 Nov 2026).
+  assert.equal(strip.noticeAutoFoldMs, 30_000); assert.equal(strip.noticeToggleLabel, "About this map");
   // The Map tab still shows every marker.
   renderToStaticMarkup(createElement(List, { ...props, stage: "map" }));
   assert.equal((seen.at(-1)!.markers as unknown[]).length, SHUK_MISSIONS.length);
+  assert.equal(seen.at(-1)!.noticeAutoFoldMs, 30_000);
 });
 
 test("the reference photo enlarges in a closed-by-default sheet, and the location screen keeps its free help visible", () => {

@@ -1,35 +1,54 @@
-// The hint icon: a 3rem outdoor touch target with its count, quiet so it never competes with the answer.
+// The hint icon (owner, 8 Nov 2026): a 3rem circle with the hints left on its corner and the word under it, quiet so it never competes
+// with the answer. It matches the lifebuoy beside it (PreviewStuckConfirm).
 .trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  min-height: 3rem;
-  padding: .5rem 1rem;
-  border: 1.5px solid var(--line-stone);
-  border-radius: 9999px;
-  background: var(--surface-raised);
+  display: inline-grid;
+  justify-items: center;
+  gap: .125rem;
+  min-width: 3rem;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink);
   font: inherit;
   cursor: pointer;
 
-  &:hover { background: var(--chalk-shade); }
-  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  &:hover .circle { background: var(--chalk-shade); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: .75rem; }
 }
 
-.icon { width: 1.25rem; height: 1.25rem; }
-
-.badge {
+.circle {
+  position: relative;
   display: grid;
   place-items: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding-inline: .375rem;
+  width: 3rem;
+  height: 3rem;
+  border: 1.5px solid var(--line-stone);
+  border-radius: 50%;
+  background: var(--surface-raised);
+}
+
+.icon { width: 1.5rem; height: 1.5rem; }
+
+// The count sits on the circle's corner, like a notification badge.
+.badge {
+  position: absolute;
+  inset-block-start: -.25rem;
+  inset-inline-end: -.375rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding-inline: .3125rem;
+  border: 2px solid var(--chalk);
   border-radius: 9999px;
   background: var(--zaatar);
   color: var(--chalk);
-  font-size: .875rem;
-  font-weight: 600;
+  font-size: .8125rem;
+  font-weight: 700;
+  line-height: 1;
 }
+
+.caption { font-size: .8125rem; font-weight: 600; line-height: 1.2; }
 
 .list { list-style: none; padding: 0; margin: 0; }
 .list li { margin-block: 1rem; padding-inline-start: .75rem; border-inline-start: 2px solid var(--zaatar); line-height: 1.6; }

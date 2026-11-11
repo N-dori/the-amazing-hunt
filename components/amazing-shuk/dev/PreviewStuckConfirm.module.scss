@@ -1,18 +1,24 @@
-// A real button in a strong colour, beside the hints (owner, 5 Nov 2026). The confirmation still guards against a mis-tap.
+// A lifebuoy in a strong colour beside the hints (owner, 5 and 8 Nov 2026), with a short caption under it so the symbol is never
+// the only clue. The whole column is the 3rem+ target. The confirmation still guards against a mis-tap.
 .stuck {
-  min-height: 3rem;
-  padding: .5rem 1.125rem;
+  display: inline-grid;
+  justify-items: center;
+  gap: .125rem;
+  min-width: 3rem;
+  padding: 0;
   border: 0;
-  border-radius: 9999px;
-  background: var(--sumac);
-  color: var(--chalk);
+  background: none;
+  color: var(--ink);
   font: inherit;
-  font-weight: 700;
   cursor: pointer;
 
-  &:hover { filter: brightness(1.08); }
-  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  &:hover .stuckCircle { filter: brightness(1.08); }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; border-radius: .75rem; }
 }
+
+.stuckCircle { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--sumac); color: var(--chalk); }
+.stuckIcon { width: 1.5rem; height: 1.5rem; }
+.caption { font-size: .8125rem; font-weight: 600; line-height: 1.2; }
 
 .text { margin-block: .75rem; line-height: 1.6; }
 
@@ -34,3 +40,5 @@
   &:hover { background: var(--chalk-shade); }
   &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 }
+
+@media (forced-colors: active) { .stuckCircle { border: 2px solid CanvasText; } }

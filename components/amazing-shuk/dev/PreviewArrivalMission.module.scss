@@ -4,8 +4,21 @@
 .preview p { line-height: 1.5; max-width: 42rem; }
 .icon { flex: none; width: 1.25rem; height: 1.25rem; }
 
-// The mission's number and where it stands, on one row (it wraps under large text).
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+// The mission's number and where it stands, on one row (it wraps under large text). It sticks under the game's header while the
+// screen scrolls (owner, 8 Nov 2026), above the map strip's panes (Leaflet's controls are 1000) and below the header (1040).
+.top {
+  position: sticky;
+  inset-block-start: var(--shuk-header-height, 0px);
+  z-index: 1030;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  margin-inline: -.25rem;
+  padding: .5rem .25rem;
+  border-block-end: 1px solid var(--line-stone);
+  background: var(--background);
+}
 .pill { padding: .375rem .875rem; border-radius: 9999px; background: var(--surface-recessed); font-size: .8125rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 
 // The whole photo, never cropped, right under the clue: tall phone shots are capped by height so the landmarks and actions stay close.

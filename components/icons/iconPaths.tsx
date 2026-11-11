@@ -34,6 +34,8 @@ export const iconPaths = {
   dossier: <><path d="M3 7a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" /></>,
 
   // Play
+  // A lifebuoy: "I'm completely stuck", the help of last resort (owner, 8 Nov 2026). Two rings joined by four bands.
+  lifebuoy: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" /><path d="M5.6 5.6l3.6 3.6" /><path d="M18.4 5.6l-3.6 3.6" /><path d="M5.6 18.4l3.6-3.6" /><path d="M18.4 18.4l-3.6-3.6" /></>,
   hint: <><path d="M9 18h6" /><path d="M10 21h4" /><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" /></>,
   puzzle: <><path d="M5 8h3a2 2 0 1 1 4 0h3v3a2 2 0 1 1 0 4v3h-3a2 2 0 1 0-4 0H5v-3a2 2 0 1 0 0-4z" /></>,
   timer: <><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 2.5" /><path d="M9.5 2.5h5" /></>,

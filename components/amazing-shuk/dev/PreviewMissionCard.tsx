@@ -34,7 +34,8 @@ export default function PreviewMissionCard({ view, stage, onViewLocation, onClos
       {/* The challenge's own name, as a promise of what waits there: secondary to the destination. */}
       <p className={styles.place}><Icon name="puzzle" className={styles.placeIcon} /><span>{view.title}</span></p>
       <div className={styles.teaser}>
-        {view.photo ? <Picture src={view.photo.src} alt={view.photo.alt} width={144} height={144} sizes="4rem" className={styles.thumb} />
+        {/* The photo across the card (owner, 8 Nov 2026: the thumbnail was too small), the teaser under it. */}
+        {view.photo ? <Picture src={view.photo.src} alt={view.photo.alt} width={640} height={360} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.thumb} />
           : <p className={styles.thumbGap}><Icon name="camera" className={styles.icon} /><span className="srOnly">Reference photograph not yet available.</span></p>}
         <p className={styles.summary}>{view.location.summary}</p>
       </div>

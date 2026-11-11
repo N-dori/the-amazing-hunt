@@ -6,6 +6,7 @@ import type * as Leaflet from "leaflet";
 import { Icon } from "@/components/icons";
 import { BASE_PATH } from "@/lib/base-path";
 import { imageToLatLng, type ImageBaseMap } from "@/lib/map/image-map";
+import { shouldAutoFoldNotice } from "@/lib/map/notice-fold";
 import { NEW_HINT_MEMORY, shouldShowTwoFingerHint, TWO_FINGER_HINT, type TwoFingerHintMemory } from "@/lib/map/two-finger-hint";
 import styles from "./LeafletBaseMap.module.scss";
 
@@ -45,6 +46,9 @@ type LeafletBaseMapProps = {
   // Folds the notice behind a small info button with this name (The Amazing Shuk): open on the page's first map, then folded
   // once someone closes it, so the warning is read once and stays one tap away without covering the artwork and markers.
   noticeToggleLabel?: string;
+  // Folds the open notice by itself after this many ms, with one gentle pulse of its (i) button to show where it went (owner, 8 Nov
+  // 2026). Pass it only when the notice is nonessential guidance (9 Nov 2026); a warning the player must read never folds on its own.
+  noticeAutoFoldMs?: number;
   // Marker to centre on when there is no saved view.
   focusId?: string | null;
   initialView?: MapView | null;
@@ -87,6 +91,21 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   // Open on the page's first map (as rendered on the server); later maps mount on the client and remember a fold.
   const [noticeOpen, setNoticeOpen] = useState(() => !noticeFolded);
   const noticeId = `${useId()}-notice`;
+  // The player's own use of the (i) button on this map: then the timer leaves the notice as they set it.
+  const noticeTouched = useRef(false);
+  // One pulse of the (i) button when the notice folds by itself; it ends with its animation.
+  const [noticeNudge, setNoticeNudge] = useState(false);
+  const { noticeAutoFoldMs } = props;
+  useEffect(() => {
+    if (!notice || !noticeToggleLabel || !shouldAutoFoldNotice({ autoFoldMs: noticeAutoFoldMs, open: noticeOpen, touched: noticeTouched.current })) return;
+    const timer = window.setTimeout(() => {
+      if (noticeTouched.current) return;
+      noticeFolded = true;
+      setNoticeOpen(false);
+      setNoticeNudge(true);
+    }, noticeAutoFoldMs);
+    return () => window.clearTimeout(timer);
+  }, [notice, noticeToggleLabel, noticeAutoFoldMs, noticeOpen]);
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<MapHandle | null>(null);
@@ -284,8 +303,9 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
     <div ref={frameRef} className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
       <div ref={containerRef} className={`${styles.map} ${twoFinger ? styles.twoFinger : ""}`} role="region" aria-label={alt} />
       {notice && noticeToggleLabel ? <div className={styles.noticeFold}>
-        <button type="button" className={styles.noticeToggle} aria-label={noticeToggleLabel} aria-expanded={noticeOpen} aria-controls={noticeId}
-          onClick={() => { noticeFolded = noticeOpen; setNoticeOpen(!noticeOpen); }}>
+        <button type="button" className={noticeNudge ? `${styles.noticeToggle} ${styles.noticeNudge}` : styles.noticeToggle} aria-label={noticeToggleLabel}
+          aria-expanded={noticeOpen} aria-controls={noticeId} onAnimationEnd={() => setNoticeNudge(false)}
+          onClick={() => { noticeTouched.current = true; setNoticeNudge(false); noticeFolded = noticeOpen; setNoticeOpen(!noticeOpen); }}>
           <Icon name={noticeOpen ? "close" : "info"} className={styles.noticeIcon} />
         </button>
         <p id={noticeId} className={styles.noticeText} hidden={!noticeOpen}>{notice}</p>

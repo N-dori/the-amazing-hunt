@@ -15,22 +15,23 @@ import { MURAL_MISSION_ID } from "./mural-task.ts";
 
 const nativeRequire = createRequire(import.meta.url);
 // Render the actual TSX (the same loader as mural-task-ui.test.ts, plus the parent folder's sheet) without a browser or CSS loader.
-function loadComponent(path: string): ComponentType<Record<string, unknown>> {
+// `icon`: what <Icon> renders. Nothing by default; the icon-button tests pass one that names the icon.
+function loadComponent(path: string, icon: (props: { name: string }) => unknown = () => null): ComponentType<Record<string, unknown>> {
   const output = ts.transpileModule(readFileSync(resolve(path), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true },
   }).outputText;
   const exports: { default?: ComponentType<Record<string, unknown>> } = {};
   const localRequire = (id: string) => {
     if (id.endsWith(".scss")) return { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) };
-    if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx") };
-    if (id === "@/components/icons") return { Icon: () => null };
+    if (id === "@/components/ui/ActionButton") return { __esModule: true, default: loadComponent("components/ui/ActionButton.tsx", icon) };
+    if (id === "@/components/icons") return { Icon: icon };
     if (id === "next/image") return { __esModule: true, default: () => null };
     // <Picture> (components/media) has its own test (lib/media); here it stands in as what it renders for a path outside the image
     // manifest: a plain <img> under the base path.
     if (id === "@/components/media/Picture") return { __esModule: true, default: ({ src, ...props }: Record<string, unknown>) =>
       nativeRequire("react").createElement("img", { loading: "lazy", ...props, src: nativeRequire(resolve("lib/base-path.ts")).BASE_PATH + String(src) }) };
     if (id.startsWith("@/lib/")) return nativeRequire(resolve(id.replace("@/", "") + ".ts"));
-    if (id.startsWith("./") || id.startsWith("../")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx")) };
+    if (id.startsWith("./") || id.startsWith("../")) return { __esModule: true, default: loadComponent(resolve(dirname(path), id + ".tsx"), icon) };
     return nativeRequire(id);
   };
   new Function("require", "exports", output)(localRequire, exports);
@@ -121,9 +122,11 @@ test("UX-3: before the accepted Start a choice challenge shows only Start; the q
   const after = renderToStaticMarkup(createElement(Choice, { ...choiceProps, view: buildChoiceTaskView(MURAL_CHALLENGE, [], false, "answerSubmitter", false, true), performance: { ...notStarted, started: true } }));
   assert.match(after, /id="mural-task-title" tabindex="-1"/); assert.equal((after.match(/type="checkbox"/g) ?? []).length, MURAL_CHALLENGE.options.length);
   assert.doesNotMatch(after, /Start challenge/);
-  // Without the gate (Marzipan, until its rework) the old screen stays: the question and options before Start.
+  // Without the gate (Marzipan, until its rework) the question shows before Start, but its choices don't (owner, 8 Nov 2026).
   const old = renderToStaticMarkup(createElement(Choice, { ...choiceProps, storyFirst: false, view: buildChoiceTaskView(MURAL_CHALLENGE, [], false, "answerSubmitter", false, false), performance: notStarted }));
-  assert.match(old, /Start challenge/); assert.match(old, /type="checkbox"/);
+  assert.match(old, /Start challenge/); assert.match(old, new RegExp(MURAL_TASK.question.replace(/[?]/g, "\\?")));
+  assert.doesNotMatch(old, /type="checkbox"|<fieldset/);
+  for (const option of MURAL_CHALLENGE.options) assert.ok(!old.includes(`>${option.label}<`), option.label);
 });
 
 test("UX-3: before the accepted Start the well shows only Start, not the puzzle statement or the containers", () => {
@@ -158,4 +161,18 @@ test("I'm completely stuck is a real button, no longer a link at the foot; the c
   const other = renderToStaticMarkup(createElement(Cheer, { ...base, canGoOn: false, instruction: NEXT_STOP_COPY.others }));
   assert.match(other, /Your Navigator takes the group/); assert.match(other, /aria-disabled="true"[^>]*><span>Go to the next stop/);
   assert.match(other, /Back to the map/);
+});
+
+test("hints and I'm completely stuck are icons with their names for screen readers and a caption to find them (owner, 8 Nov 2026)", () => {
+  const named = ({ name }: { name: string }) => createElement("i", { "data-icon": name });
+  const StuckIcon = loadComponent("components/amazing-shuk/dev/PreviewStuckConfirm.tsx", named);
+  const HintIcon = loadComponent("components/amazing-shuk/dev/PreviewHintSheet.tsx", named);
+  const stuck = renderToStaticMarkup(createElement(StuckIcon, { open: false, busy: false, foodTokens: 0, onOpen: noop, onKeepTrying: noop, onReveal: noop, canReveal: true }));
+  assert.match(stuck, /^<button type="button" class="stuck" aria-label="I&#x27;m completely stuck" title="I&#x27;m completely stuck" aria-haspopup="dialog">/);
+  assert.match(stuck, /data-icon="lifebuoy"/);
+  // The caption is visible but hidden from screen readers, which hear the full name once.
+  assert.match(stuck, /<span class="caption" aria-hidden="true">Stuck\?<\/span>/);
+  const hints = renderToStaticMarkup(createElement(HintIcon, { ...sheetProps, view: view(1), open: false }));
+  assert.match(hints, /aria-label="Hints, 1 of 2 left" title="Hints, 1 of 2 left"/); assert.match(hints, /data-icon="hint"/);
+  assert.match(hints, /<span class="badge" aria-hidden="true">1<\/span>/); assert.match(hints, /<span class="caption" aria-hidden="true">Hints<\/span>/);
 });

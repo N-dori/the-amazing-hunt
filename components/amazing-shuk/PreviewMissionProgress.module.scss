@@ -1,5 +1,8 @@
 // Three small numbered dots joined by a line, then the current stage in words: one short row above the content.
 .progress { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .75rem; min-width: 0; }
+// The challenge screen's stepper: it sticks under the game's header (whose height IndexWaterTask measures into --shuk-header-height).
+.sticky { position: sticky; inset-block-start: var(--shuk-header-height, 0px); z-index: 1030; padding-block: .5rem; border-block-end: 1px solid var(--line-stone);
+  background: var(--background); }
 .steps { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
 .step { display: flex; align-items: center; }
 // The joining line before every step but the first.

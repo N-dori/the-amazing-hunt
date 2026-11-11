@@ -28,10 +28,13 @@ export default function PreviewHintSheet({ view, open, pending, offline, busy, o
   const label = view.remaining > 0 ? `Hints, ${view.remaining} of ${view.total} left` : "Hints, all used";
   const next = view.next;
   return <>
-    <button type="button" className={styles.trigger} aria-label={label} aria-haspopup="dialog" onClick={onOpen}>
-      <Icon name="hint" className={styles.icon} />
-      <span aria-hidden="true">Hints</span>
-      <span className={styles.badge} aria-hidden="true">{view.remaining}</span>
+    {/* An icon with its count (owner, 8 Nov 2026), and the word under it so it stays discoverable. The label says it all. */}
+    <button type="button" className={styles.trigger} aria-label={label} title={label} aria-haspopup="dialog" onClick={onOpen}>
+      <span className={styles.circle}>
+        <Icon name="hint" className={styles.icon} />
+        <span className={styles.badge} aria-hidden="true">{view.remaining}</span>
+      </span>
+      <span className={styles.caption} aria-hidden="true">Hints</span>
     </button>
     <PreviewBottomSheet open={open} title="Hints" closeLabel="Close hints" onClose={onClose} afterClose={afterClose}
       footer={next || view.offerAnswer ? <div className={styles.footer}>

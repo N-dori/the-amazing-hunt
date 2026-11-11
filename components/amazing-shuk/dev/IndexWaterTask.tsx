@@ -465,7 +465,7 @@ export default function IndexWaterTask({ mode }: Props) {
         onSelfArrive={() => void act({ type: "self-arrival", missionId })}
         onConfirm={() => void act({ type: "confirm-arrival", missionId })} /> : null}
       {/* UX-4 (owner, 2 Nov 2026): no Back buttons on the challenge; the phone's Back and the Map tab lead away. */}
-      {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId ? <PreviewMissionProgress stage={progress} /> : null}
+      {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId ? <PreviewMissionProgress stage={progress} sticky /> : null}
       {nav.area === "journey" && journeyStage === "challenge" && view.mission.id === missionId && view.session.kind === "choice" && choiceTask ? <>
       <h2>{choiceTask.task.title}</h2>
       <PreviewChoiceStory {...choiceTask.task.story} instruction={solo ? choiceTask.task.instructionSolo ?? choiceTask.task.instruction : choiceTask.task.instruction} open={storyOpen} onToggle={toggleStory} collapsible={phase !== "story"} />
