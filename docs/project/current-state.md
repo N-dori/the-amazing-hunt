@@ -6,6 +6,7 @@
 - **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261106T004444Z.json`, the only one.
 - **Safety copies:** 13 in `/data`, kept until the owner decides.
 - **Disk:** 77%.
+- **The Nahlaot OSM map (11 Nov 2026):** steps 1–2 done as data only (two frames, map data, street-name list), not yet in the game; see [nahlaot-osm-map.md](../map/nahlaot-osm-map.md) and the top of the handoff.
 - **The session's handoff and next steps:** the top entry of the [handoff](agent-handoff.md).
 - **The Memory Protocol is paused (owner, 8 Nov 2026):** it's stale, so it is not deployed for now. `dori-game` keeps running its current image at `/memory-protocol`, untouched; its code stays in the repo. Releases are `/deploy` (the Shuk) only, until the owner resumes it. **Archiving it is planned and deferred (owner, 8 Nov 2026):** tag `archive/memory-protocol`, keep the story and plan as Markdown, move the map's parts of `lib/game` into `lib/map/`, then delete the Memory Protocol's code (about 80 files) from `main`.
 

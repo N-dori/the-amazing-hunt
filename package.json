@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "images": "node scripts/images/build-images.mjs",
+    "map:build": "node scripts/map/build-shuk-map.mjs",
     "images:prune": "node deploy/prune-media.mjs public/media data/module-images.json",
     "shuk:invite": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-invite.ts",
     "shuk:dev-reset": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-dev-reset.ts",

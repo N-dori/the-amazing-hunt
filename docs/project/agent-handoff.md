@@ -1,5 +1,25 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+## The Nahlaot OSM map, steps 1–2 (data only): 11 Nov 2026
+
+**At the owner's request, the Type B map's data** ([how it's made](../map/nahlaot-osm-map.md)). Not committed, not drawn in the game, nothing live.
+- **Two frames, set by the owner:** Jaffa Road (north), King George (east), Ben Zvi (west), and Bezalel (small) or Ramban (large) to the south. The corners close via HaRav Shmuel Baruch and Sha'arei Tzedek (north-west), Ben Yehuda (small, south-east) and Ruppin (large, south-west). The owner approved both street sketches (11 Nov 2026).
+- **Built:**
+  - `scripts/map/build-shuk-map.mjs` (`npm run map:build`), adapted from the platform's Old City script;
+  - `data/shuk-map-nahlaot-{small,large}.json` (87 KB and 135 KB; the limit is 150 KB);
+  - `lib/map/osm-projection.ts` (`geoToMap`, `mapToGeo`, types) with tests (36 across `lib/map` with the label checks);
+  - the generated [street-name list](../map/nahlaot-street-names.md): 156 names, 96 in the small frame, 6 missing a Hebrew or English name, none checked on site yet.
+  - **Place labels** for every named park, square, market and synagogue outline: 40 in the large frame. The owner added "Gan ha'toot" as a second name for HaBustan HaSefaradi (between HaGilboa and HaHermon, touching HaCarmel); its Hebrew form hasn't been given yet.
+  - The OSM download and the preview SVGs are in `media-originals/maps/` (ignored by git).
+- **Labels that never overlap (owner's rules, 11 Nov 2026):**
+  - main roads show `English · עברית` side by side and only where the text fits inside the road's real width; alleys show the game's language only, in a smaller font, and may overflow the road;
+  - roads are never widened;
+  - the layout (`scripts/map/label-layout.mjs`) gives each label a `minZoom` and writes `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json`;
+  - text is measured with IBM Plex's glyph widths (`scripts/map/plex-widths.json`).
+  Also added: OSM's neighbourhood names, and the owner's courtyards Knesset Yisrael A and B, Batei Broida and Batei Rand (the Hebrew for Batei Rand is a draft). Knesset Yisrael C and Batei Munkatch wait for a position. Main-road names show only from zoom 0.5 or 1 under the "inside the road" rule. `lib/map/osm-labels.test.ts` checks no overlaps at any zoom, the road fit, the stretch fit, the languages, the courtyard positions and the file sizes. A planted overlap and a planted narrow road both made it fail.
+- **Checked:** the map tests (36 after the label work) on the host; ESLint on `scripts/map` and `lib/map` (two unused-variable warnings, fixed, with the output byte-for-byte the same) and `tsc --noEmit` clean in the one-shot container. **`npm test` on the host: 74/75**, because `lib/media/media-images.test.ts` imports `react` and the host has no `node_modules`. That failure isn't from this work. Not checked in a browser; the owner reviews the preview SVGs.
+- **Next:** the owner reviews the full preview (buildings, areas, names) and the name list (Part 7 of the plan). Then step 3: draw the map in the game's Leaflet map with names that appear as players zoom in. After that, mission positions and checking the names on site.
+
 ## The DORI image pipeline, brought into the game: built, not committed, nothing on the server yet: 8 Nov 2026
 
 At the owner's request ("reuse the platform's implementation; don't redesign it"). How-to: [images-howto.md](../images-howto.md); decisions: [images-research.md](../images-research.md).
