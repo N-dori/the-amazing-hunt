@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Copied from the DORI platform repo (scripts/images/build-images.mjs) on 8 Nov 2026, unchanged apart from this line.
+// Copied from the DORI platform repo (scripts/images/build-images.mjs) on 8 Nov 2026, unchanged apart from this line; the caps
+// scaled by height (platform 6db470b) were brought over on 11 Nov 2026.
 // Image pipeline for every raster image on the site: /places and the older modules. Runs on the laptop only
 // (sharp is a devDependency).
 //
@@ -59,7 +60,7 @@ const ENCODERS = {
 const QUALITY_FLOOR = { avif: 44, webp: 66 };
 const CAP_FLOOR = { avif: 36, webp: 58 };
 const QUALITY_STEP = 4;
-// Targets assume a 4:3 landscape frame; taller images get a proportionally larger target.
+// Targets and caps assume a 4:3 landscape frame; taller images get a proportionally larger target and cap.
 const areaScale = (width, height) => Math.max(1, height / (width * 0.75));
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const GID = /^G\d+b?$/;
@@ -180,9 +181,12 @@ for (const image of images) {
         quality -= QUALITY_STEP;
         ({ data, info } = await encode(quality));
       }
-      while (!options.lossless && data.length > CAP_KB[width] * 1024 && quality - QUALITY_STEP >= CAP_FLOOR[format]) {
+      // Caps scale like targets: a portrait has more pixels at the same width (deploy/check-assets.mjs does the same).
+      const cap = CAP_KB[width] * areaScale(info.width, info.height);
+      while (!options.lossless && data.length > cap * 1024 && quality - QUALITY_STEP >= CAP_FLOOR[format]) {
         quality -= QUALITY_STEP;
         ({ data, info } = await encode(quality));
+        if (quality < QUALITY_FLOOR[format]) console.warn(`images: warning: ${image.id} ${format} ${width} went below the quality floor (q${quality}) to meet the cap`);
       }
       const fileName = `${image.id}-${width}.${shortHash(data)}.${format}`;
       writeFileSync(join(outDir, fileName), data);
@@ -190,7 +194,7 @@ for (const image of images) {
       variants.push({ format, width: info.width, height: info.height, bytes: data.length, src });
       const kb = data.length / 1024;
       rows.push({ id: image.id, originalKb: master.sourceBytes / 1024, format, width: info.width, height: info.height, kb, quality: options.lossless ? "lossless" : quality, target: target ? target / 1024 : undefined });
-      if (kb > CAP_KB[width]) overCap.push(`${src}: ${kb.toFixed(0)} KB > cap ${CAP_KB[width]} KB`);
+      if (kb > cap) overCap.push(`${src}: ${kb.toFixed(0)} KB > cap ${cap.toFixed(0)} KB`);
     }
   }
   if (type === "place") {

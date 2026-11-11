@@ -59,9 +59,11 @@ const availableLower = new Map([...available].map((p) => [p.toLowerCase(), p]));
 
 // Older modules: legacy /public path -> its variant URLs (data/module-images.json, written by npm run images).
 const moduleManifestPath = join(appDir, "data", "module-images.json");
-const legacy = new Map(existsSync(moduleManifestPath)
-  ? JSON.parse(readFileSync(moduleManifestPath, "utf8")).map((entry) => [entry.legacySrc, entry.variants.map((v) => v.src)])
-  : []);
+const moduleManifest = existsSync(moduleManifestPath) ? JSON.parse(readFileSync(moduleManifestPath, "utf8")) : [];
+const legacy = new Map(moduleManifest.map((entry) => [entry.legacySrc, entry.variants.map((v) => v.src)]));
+// Variant dimensions: caps scale with height, as in the pipeline (platform 6db470b, brought over 11 Nov 2026). Game: there is no
+// places-images.json here, so only the module manifest is read.
+const variantSize = new Map(moduleManifest.flatMap((entry) => entry.variants.map((v) => [v.src, v])));
 
 const referenced = new Map(); // path -> first file that references it
 const templated = [];
@@ -100,7 +102,10 @@ for (const file of mediaFiles) {
   const shape = name.match(VARIANT_NAME);
   if (!shape) { budget.push(`${url}: name is not <id>-<320|640|1080|1600>.<hash8>.<avif|webp>`); continue; }
   const width = Number(shape[1]);
-  if (bytes > CAP[width]) budget.push(`${url}: ${(bytes / KB).toFixed(0)} KB > cap ${CAP[width] / KB} KB`);
+  // A 4:3 frame gets the base cap; a taller image proportionally more (same rule as scripts/images/build-images.mjs).
+  const size = variantSize.get(url);
+  const cap = CAP[width] * (size ? Math.max(1, size.height / (size.width * 0.75)) : 1);
+  if (bytes > cap) budget.push(`${url}: ${(bytes / KB).toFixed(0)} KB > cap ${(cap / KB).toFixed(0)} KB`);
   const head = readFileSync(file);
   // RIFF/ISOBMFF chunk names sit in the container header, so scan the whole (small) file.
   const marker = METADATA_MARKERS.find((m) => head.includes(m));
