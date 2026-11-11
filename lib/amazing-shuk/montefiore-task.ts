@@ -4,7 +4,7 @@ import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
 
 export const MONTEFIORE_MISSION_ID = "montefiore-testimonial-gate";
 
-// The gate itself, owner's photo #05 (design/inputs/photos, public/shuk/MY_ohel-moshe_gate_montefiore-testimonial-inscription_05.jpg),
+// The gate itself, owner's photo #05 (design/inputs/photos, media-originals/reference/shuk/MY_ohel-moshe_gate_montefiore-testimonial-inscription_05.jpg),
 // read at 4x zoom on 25 Oct 2026: an English panel, an Arabic-script panel and a Hebrew dedication. Not yet checked on site.
 const GATE = "Ohel Moshe gate, owner's photo #05: English panel \"SIR MOSES MONTEFIORE TESTIMONIAL\"; Arabic-script panel; Hebrew dedication \"אבני זכרון מזכרת לכבוד ולתפארת לזכר עולם…\"";
 // The "Photograph in Stone" plaque beside the gate, owner's photo #02 (Avraham H. Elhanani, In the Light of Jerusalem; This is Jerusalem, vol. 2).

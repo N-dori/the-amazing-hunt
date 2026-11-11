@@ -127,7 +127,7 @@ export const SYNAGOGUE_MISSION = Object.freeze({
   }),
   // The sign describes the door ("decorated with symbols of the twelve biblical tribes"); the tiles are in photos #21 and #48.
   clue: "Look for a tiled panel with Hebrew lettering over the entrance, and a colourful door decorated with the symbols of the twelve tribes.",
-  // Owner's daylight photo (public/shuk/Hesed_va_Rahamim.jpg, added 24 Oct 2026): no people, and the heritage sign is out of frame,
+  // Owner's daylight photo (media-originals/reference/shuk/Hesed_va_Rahamim.jpg, added 24 Oct 2026): no people, and the heritage sign is out of frame,
   // so it can't give the answer away. Web copy, metadata stripped.
   photo: Object.freeze({ src: "/shuk/synagogue-facade.jpg", alt: "The synagogue's entrance: a tiled panel with Hebrew lettering above a colourful door covered in raised pictures, beside a hammered metal door." }),
   cluePhoto: null,
