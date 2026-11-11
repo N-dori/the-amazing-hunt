@@ -16,7 +16,7 @@ Where two edge streets don't meet, the owner chose how to close the corner:
 - **Small frame, south-east:** Ben Yehuda, from the end of Bezalel to King George.
 - **Large frame, south-west:** Ruppin, from the end of Ramban to the southern end of Ben Zvi.
 
-The outline follows the centrelines of these streets. The drawing adds a 60 m margin, where streets and buildings are drawn faded so players never reach a blank edge. The map itself shows no frame line; the preview's dashed line is only for review.
+The outline follows the centrelines of these streets. The drawing adds a 60 m margin, where streets and buildings are drawn faded so players never reach a blank edge. The map itself shows no frame line. The game uses the **small** frame (owner, 11 Nov 2026); the large one stays built, to switch to later.
 
 ## Files
 
@@ -26,10 +26,11 @@ The outline follows the centrelines of these streets. The drawing adds a 60 m ma
 | `scripts/map/label-layout.mjs` | yes | The label layout: measuring text, straight stretches, the overlap test and the placement |
 | `scripts/map/plex-widths.json` | yes | The IBM Plex glyph widths that labels are measured with (read once from the fonts, OFL) |
 | `media-originals/maps/nahlaot.osm` | no | The OSM download, about 6.5 MB |
-| `media-originals/maps/nahlaot-{small,large}-z{-1.5,0.5}-en.svg`; `…-phone-z{zoom}-en.svg` (every zoom), `…-phone-z{0.5,2.5}-he.svg` | no | The review pictures: the whole map at two zooms, and a phone screen (390 × 844) at 1:1 at each zoom |
-| `media-originals/fonts/*.woff` | no | IBM Plex, embedded in the previews if present |
-| `data/shuk-map-nahlaot-{small,large}.json` | yes | The map data for the game: layers, names, places, neighbourhoods, projection and credit. At most 150 KB each. |
-| `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json` | yes | The labels, one file per frame and game language. At most 150 KB each. |
+| `media-originals/icons/dori-v4/`, `media-originals/icons/osmic/` | no | The originals of the map icons: the owner's set V4 (7 icons and the sheet) and OSMIC's synagogue star (CC0). The code's versions are in `components/icons/iconPaths.tsx`. |
+| `media-originals/fonts/*.woff` | no | IBM Plex. Unused since the review previews were retired on 11 Nov 2026 (the dev page `/dev/osm-map` draws the map itself). |
+| `data/shuk-map-nahlaot-{small,large}.json` | yes | The map data for the game: layers, buildings by tone, trees, names, places, neighbourhoods, map layers, projection and credit. At most 256 KB each (the large one is about 165 KB, 59 KB gzipped). |
+| `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json` | yes | The labels, one file per frame and game language. At most 256 KB each. |
+| `public/map/paper-grain.svg` | yes | The illustrated look's paper grain (generated noise) |
 | `docs/map/nahlaot-street-names.md` | yes | The generated list of street and place names for checking on site |
 | `lib/map/osm-projection.ts` | yes | GPS ↔ map conversion, used by the game |
 
@@ -43,7 +44,7 @@ The outline follows the centrelines of these streets. The drawing adds a 60 m ma
 2. Run `npm run map:build`, or `node scripts/map/build-shuk-map.mjs --frame small|large|both`. It runs on the host in a few seconds.
 3. Read its report: each frame's edges (with any gaps of up to 25 m bridged inside an edge street), the scale, the layer sizes, and the named streets that are missing a name.
 
-The script stops if a corner is more than 40 m from its streets, if an edge has no path, or if a data file goes over 150 KB.
+The script stops if a corner is more than 40 m from its streets, if an edge has no path, or if a data file goes over 256 KB.
 
 ## Names
 
@@ -59,22 +60,32 @@ Then re-run the script. A wrong name can also be fixed in OSM itself, after walk
   - `main`: OSM's primary, secondary and tertiary roads, plus any street listed in `EXTRA_MAIN_STREETS`;
   - `street`: residential and service roads;
   - `path`: footpaths, pedestrian lanes and steps.
-- **Buildings:** footprints, inside the frame and in the margin.
+- **Buildings:** footprints, inside the frame and in the margin. Inside the frame they're split into `BUILDING_TONES` (5) groups, by a hash of each building's OSM id, so each building keeps its tone between builds.
+- **Trees (the illustrated look):** canopies of three circles, **only where OSM has trees** (owner, 11 Nov 2026: "not every courtyard has trees"):
+  - at each single tree (`natural=tree`);
+  - on a loose grid inside parks, gardens and woods within the frame (`TREE`, `TREE_AREAS`).
+  In the margin, only single trees are drawn. On 11 Nov: 21 trees inside the small frame, 108 inside the large one.
 - **Areas:** `green` (parks, gardens and playgrounds), `square`, `market` (Mahane Yehuda and the Georgian market) and `worship`. Most synagogues are mapped in OSM as points, not outlines, so `worship` holds only a few.
-- **Places:** every named park, square, market and synagogue outline in OSM gets a label at its centre. A name the owner adds goes into `PLACE_ALT_NAMES` and shows as a second line. The first one: HaBustan HaSefaradi, which the owner also calls Gan ha'toot (11 Nov 2026).
-- **Map layers (owner, 11 Nov 2026), drawn as icons** from the game's icon set: synagogues (a Star of David), toilets, drinking water and light-rail stations (a tram). `POI_KINDS` in the script sets each one's OSM tags, how near duplicates merge, and the zoom its icon and name first show at:
-  - synagogues are OSM's `place_of_worship` with `religion=jewish` (or no religion). Outlines and points both count, and a point inside its outline merges into it. The outline stays drawn as a worship area, and the synagogue's name now comes from this layer instead of a place label;
-  - a station is mapped as one stop per direction, merged by name into one icon.
-  On 11 Nov the large frame's drawing held 48 synagogues (42 inside the frame; three graves OSM tags as places of worship are left out), 10 toilets, 14 drinking-water points and 3 stations (Mahane Yehuda inside the frame). OSM misses many of Nahlaot's synagogues: see [research 15](../../research/results/shuk-places/15_nahlaot_synagogues.md).
+- **Places:** every named park, square, market and synagogue outline in OSM gets a label at its centre. A name the owner adds goes into `PLACE_ALT_NAMES` and shows below the names: HaBustan HaSefaradi is also Gan HaTut (Mulberry Garden) / גן התות (owner, 11 Nov 2026). A place OSM doesn't have goes into `OWNER_PLACES`, at the owner's position: the Iraqi Market / השוק העיראקי, at 31.785401, 35.212146 (owner, 11 Nov 2026); it shows from zoom 1.
+- **Map layers (owner, 11 Nov 2026), drawn as icons:** synagogues, toilets, light-rail stations and benches. Drinking water was dropped the same day. `POI_KINDS` in the script sets each one's OSM tags, how near duplicates merge, and the zoom its icon and name first show at:
+  - **synagogues** are OSM's `place_of_worship` with `religion=jewish` (or no religion, but not a grave named "קבר …"):
+    - outlines and points both count, and a point inside its outline merges into it;
+    - the outline stays drawn as a worship area, and the synagogue's name comes from this layer;
+    - the owner's own positions go into `OWNER_SYNAGOGUES`: **Ohel Moshe**, 31.782575, 35.21320. An OSM synagogue within 12 m would win;
+  - **toilets:** one icon for all. The men-only and women-only data stays (OSM's tags, and the owner's corrections in `TOILET_SEX_OVERRIDES`: the one nearest Agripas is men only, the one on HaShazif women only), unused for now;
+  - **stations:** each is mapped as one stop per direction, merged by name into one icon;
+  - **benches:** from zoom 2 only. A bench may give way where street level is full.
+  On 11 Nov the large frame's drawing held 49 synagogues (43 inside the frame), 10 toilets, 21 benches and 3 stations (Mahane Yehuda inside the frame). OSM misses many of Nahlaot's synagogues: see [research 15](../../research/results/shuk-places/15_nahlaot_synagogues.md).
 - **Neighbourhoods and courtyards:**
   - OSM's neighbourhood names (tagged points): Nahlaot, Sha'arei Hesed, Zikhron Moshe, Sha'arei Yerushalayim, Rehavia;
-  - the courtyards the owner placed (`COURTYARDS`, 11 Nov 2026): Knesset Yisrael A and B, Batei Broida and Batei Rand. The Hebrew for Batei Rand is a draft. Knesset Yisrael C and Batei Munkatch are pending until they have a position.
+  - the courtyards the owner placed (`COURTYARDS`, 11 Nov 2026): Knesset Yisrael A and B, Batei Broida, Batei Rand (בתי ראנד, the owner's Hebrew), and Batei Munkatch (it shows from zoom 2). Knesset Yisrael C is pending until it has a position, which must be inside its own neighbourhood.
+  - OSM's Hebrew for Sha'arei Yerushalayim, "אבו בסל (שערי ירושלים)", is overridden to שערי ירושלים (`NEIGHBOURHOOD_OVERRIDES`, owner, 11 Nov 2026).
 
 ## Labels (owner's rules, 11 Nov 2026)
 
 | | Main roads | Main roads, zoomed out (`mainBrief`) | Alleys and other streets | Places | Neighbourhoods / courtyards |
 |---|---|---|---|---|---|
-| Text | both languages side by side on one line: `English · עברית` in the English game, `עברית · English` in the Hebrew game | the game's language only | the game's language only | both side by side; the owner's added name in the game's language on a second line | both side by side |
+| Text | both languages side by side on one line: `English · עברית` in the English game, `עברית · English` in the Hebrew game | the game's language only | the game's language only | both, stacked: the game's language on top (owner, 11 Nov 2026); the owner's added name in the game's language below them | both side by side |
 | Size | 11 px | 11 px | 9.5 px | 10 px italic | 12 / 10 px, letter-spaced |
 | Width | inside the road once its drawn width on screen is at least 11 px (the font size; the halo may spill a pixel or two past the edges) | inside the road where it is 11 px wide, otherwise beside it, 2 px clear of its edge | may overflow the road | — | — |
 | Length | a straight stretch (bending under 20°) at least 1.1 × the text width | the same | at least 0.6 × the text width | — | — |
@@ -82,16 +93,36 @@ Then re-run the script. A wrong name can also be fixed in OSM itself, after walk
 
 The zoomed-out labels, the slight overflow and the wider main roads are the owner's choice of 11 Nov 2026 (after the first zoom previews), so main roads are named at every zoom.
 
-**Map-layer icons** are 18 px discs, placed like the point labels: from their kind's first zoom, wherever they don't overlap. An icon also keeps clear of a place's name that is still waiting for room, except at street level, so every icon shows by then. The names of synagogues (from zoom 1.5) and stations (from 0) are 10 px and are placed afresh at each zoom: below the icon, else to its right, its left or above it.
+**Map-layer icons** are bare icons in their own box (18 px; toilets 22 px; the synagogue's arch 22 px), placed like the point labels: from their kind's first zoom, wherever they don't overlap. An icon also keeps clear of a place's name that is still waiting for room, except at street level, so every icon shows by then. The names of synagogues (from zoom 1.5) and stations (from 0) are 10 px and are placed afresh at each zoom: below the icon, else to its right, its left or above it. A synagogue's two names stack, the game's language on top; a station's sit on one line (owner, 11 Nov 2026).
 
-**Street level reads larger** (owner, 11 Nov 2026: "for zoom 2.5 the font can be a bit larger, 13 or 14 px"; zooms 0 to 2 "very good"). At zoom 2.5 every text size is multiplied by 13/11, so main roads are 13 px; icons keep their size. Street level has a layout of its own (`STREET_LEVEL`), so the labels up to zoom 2 stop there (`maxZoom` 2). The label files carry `meta.streetLevel`. With this second set the large frame's files are about 200 KB raw and 30 KB gzipped, and the size cap is 256 KB.
+**The icons are the owner's set V4** (11 Nov 2026, drawn by ChatGPT for the owner; originals in `media-originals/icons/dori-v4/`). Their colours come from Jerusalem's Armenian ceramics: new tokens, not yet confirmed against the brand book.
+- **Synagogue:** V4's stone arch, the only framed icon, with OSMIC's filled star (CC0) in cobalt. V4's own outline star disappears at map size. Every synagogue looks the same (`LANDMARK_SYNAGOGUES` stays empty).
+- **Toilets:** V4's M + F figures, in teal.
+- **Tram:** in ink, so cobalt means synagogues only.
+- **Bench:** in ceramic green. Our own drawing, a front view with a backrest, because V4's read as a table.
+- The set also holds V4's **tree**, **mission flag** and **"show our location"** crosshair, for later.
+Each icon has a chalk halo, so it reads over streets.
+
+**The two looks** (the dev page's switch):
+- **Plain:** the look the map started with.
+- **Illustrated** (owner, 11 Nov 2026, chosen from the illustrated map's techniques):
+  - warm building tones;
+  - a soft shadow to the south-east;
+  - OSM's trees;
+  - paper grain and a vignette;
+  - a title cartouche ("Nahlaot / נחלאות, Jerusalem / ירושלים");
+  - stacked English/Hebrew place names;
+  - a warm street casing.
+  Not done: tile roofs, ridge lines, landmark tones, and baking the base into per-zoom images (phase 2).
+
+**Street level reads larger** (owner, 11 Nov 2026: "for zoom 2.5 the font can be a bit larger, 13 or 14 px"; zooms 0 to 2 "very good"). At zoom 2.5 every text size is multiplied by 15/11, so main roads are 15 px; icons keep their size. (13 px at first; then "larger font on 2.5 zoom", the same day. In the large frame, two short alleys no longer fit: R. Yaakov Bei Rav and Eliyahu Banai.) Street level has a layout of its own (`STREET_LEVEL`), so the labels up to zoom 2 stop there (`maxZoom` 2). The label files carry `meta.streetLevel`. With this second set the large frame's files are about 200 KB raw and 30 KB gzipped, and the size cap is 256 KB.
 
 **No overlaps.** Each label is a rotated box (text plus a 2 px margin). Placement runs from the farthest zoom to the nearest. Text keeps its pixel size while the map zooms, so a label placed at one zoom never overlaps anything at a closer zoom. Each label therefore carries `minZoom`, the zoom it first appears at, and the game shows the labels whose range contains its zoom.
 
 The order of placement:
 1. neighbourhoods and courtyards;
 2. places, then the station icons;
-3. synagogue, toilet and drinking-water icons;
+3. synagogue, toilet and bench icons;
 4. main roads (full labels);
 5. main roads' zoomed-out labels;
 6. station names, then synagogue names;

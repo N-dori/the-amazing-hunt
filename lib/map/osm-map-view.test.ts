@@ -69,3 +69,22 @@ test("road bands use the drawn width; the casing adds a hairline that stays the 
     assert.ok(Math.abs((casingWidth(main, upm, z) - roadWidth(main, upm, z)) * s - CASING_PX) < 1e-9);
   }
 });
+
+test("buildings come in warm tones, each building in one tone, and the shadow repeats them all", () => {
+  const layers = svgLayers(small);
+  const tones = layers.filter((l) => l.kind === "fill" && /^building\d$/.test(l.style));
+  assert.equal(tones.length, small.buildings.inside.length);
+  assert.ok(tones.length >= 4 && tones.length <= 5);
+  const shadow = layers.find((l) => l.kind === "fill" && l.style === "shadow");
+  assert.equal(shadow?.d, small.buildings.inside.join(""));
+  assert.ok(shadow?.kind === "fill" && (shadow.offset ?? 0) > 0);
+  // Under the buildings, and trees above them, all below the roads.
+  const at = (style: string) => layers.findIndex((l) => l.kind === "fill" && l.style === style);
+  assert.ok(at("shadow") < at("building0") && at("building0") < at("trees"));
+});
+
+test("trees are drawn only where OSM has them, as canopies of three circles", () => {
+  const canopies = (d: string) => (d.match(/M/g) ?? []).length;
+  assert.equal(canopies(small.trees.inside) % 3, 0);
+  assert.ok(canopies(small.trees.inside) > 0);
+});

@@ -49,6 +49,10 @@ The courtyard synagogues (Batei Rand, Batei Broida) sit at or near the owner's c
 
 OSM tags three graves as places of worship with no religion: קבר בנימין בן יעקב (חדש), קבר הפני מנחם, קבר האדמו"ר מגור. All three are in the faded margin. The build now leaves out any worship place whose name starts "קבר".
 
+## Update, 11 Nov 2026: Ohel Moshe is on the map
+
+The owner gave its position: 31.782575, 35.21320. The longitude was first sent as 35.32020, about 10 km east, and confirmed as 35.21320. It is in the build script's `OWNER_SYNAGOGUES` list, with the source "owner, 11 Nov 2026", and is merged into the synagogue layer: 43 synagogues inside the large frame. The others below still wait for positions.
+
 ## How to add the missing ones (a proposal, not built)
 
 1. On the owner's walk, take a position (lat/lon) at each candidate's door, and correct the name from its sign.

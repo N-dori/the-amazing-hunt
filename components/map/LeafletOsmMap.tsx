@@ -1,8 +1,9 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { Icon, type IconName } from "@/components/icons";
+import { BASE_PATH } from "@/lib/base-path";
 import { labelsAt, labelStyle, labelTransform, snapZoom } from "@/lib/map/osm-label-view";
 import type { OsmMapGeometry, OsmMapLabel, OsmMapLabelFile, OsmMapPoi } from "@/lib/map/osm-projection";
 import { casingWidth, roadWidth, svgLayers } from "@/lib/map/osm-svg";
@@ -14,11 +15,20 @@ type Props = {
   alt: string;
   // The label step the map shows and how many labels it holds, after every zoom.
   onZoomChange?: (step: number, labelCount: number) => void;
+  // The plain look, or the illustrated one (owner, 11 Nov 2026): warm building tones and shadows, OSM's trees, paper grain
+  // and a vignette, a title cartouche, and a warm street casing.
+  look?: OsmMapLook;
 };
 
+export type OsmMapLook = "plain" | "illustrated";
+const LOOK_CLASS: Record<OsmMapLook, string> = { plain: styles.lookPlain, illustrated: styles.lookIllustrated };
+// The paper grain is an asset under public/, so its URL needs the base path (lib/base-path.ts).
+const PAPER: CSSProperties = { "--map-paper": `url("${BASE_PATH}/map/paper-grain.svg")` } as CSSProperties;
+
 const SVG_NS = "http://www.w3.org/2000/svg";
-// The map layers' icons, from the game's icon set (components/icons/iconPaths.tsx).
-const POI_ICONS: Record<OsmMapPoi["kind"], IconName> = { synagogue: "starOfDavid", toilets: "toilets", drinkingWater: "drinkingWater", tram: "tram" };
+// The map layers' icons, from the owner's icon set V4 in the game's icon set (components/icons/iconPaths.tsx). Bare:
+// only the synagogue carries its stone arch.
+const POI_ICONS: Record<OsmMapPoi["kind"], IconName> = { synagogue: "synagogue", toilets: "toilets", tram: "tram", bench: "bench" };
 const POI_KINDS = Object.keys(POI_ICONS) as OsmMapPoi["kind"][];
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
@@ -26,7 +36,7 @@ const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt
 // streets, buildings and areas as one SVG overlay in map units, and the names as HTML text at a fixed pixel size in a
 // pane above it, redrawn at each label step. Leaflet CRS.Simple: zoom z shows 2^z pixels per map unit, which is what the
 // labels' minZoom was computed for (scripts/map/label-layout.mjs), so the data is never rescaled.
-export default function LeafletOsmMap({ map: geo, labels, alt, onZoomChange }: Props) {
+export default function LeafletOsmMap({ map: geo, labels, alt, onZoomChange, look = "illustrated" }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The icons rendered once by React, hidden; each map-layer marker on the map is a copy.
   const spriteRef = useRef<HTMLDivElement>(null);
@@ -67,7 +77,9 @@ export default function LeafletOsmMap({ map: geo, labels, alt, onZoomChange }: P
         const path = document.createElementNS(SVG_NS, "path");
         path.setAttribute("d", layer.d);
         if (layer.kind === "fill") {
-          path.setAttribute("class", styles[layer.style]);
+          path.setAttribute("class", styles[layer.style] ?? "");
+          // The buildings' shadow: the same shapes, moved to the south-east.
+          if (layer.offset) path.setAttribute("transform", `translate(${layer.offset} ${layer.offset})`);
           svg.appendChild(path);
         } else {
           path.setAttribute("class", layer.style === "casing" ? styles.casing : styles.band);
@@ -94,7 +106,8 @@ export default function LeafletOsmMap({ map: geo, labels, alt, onZoomChange }: P
       for (const [name, px] of [["main", s.main.fontPx], ["brief", s.mainBrief.fontPx], ["alley", s.alley.fontPx], ["place", s.place.fontPx],
         ["placeAlt", s.place.altFontPx ?? s.place.fontPx], ["neighbourhood", s.neighbourhood.fontPx], ["courtyard", s.courtyard.fontPx],
         ["neighbourhoodLetter", s.neighbourhood.letterPx ?? 0], ["courtyardLetter", s.courtyard.letterPx ?? 0],
-        ["poiName", s.poiName.fontPx], ["poiIcon", s.poi.iconPx]] as const) {
+        ["poiName", s.poiName.fontPx], ["poiIcon", s.poi.iconPx], ["poiToilets", s.poi.toiletsPx ?? s.poi.iconPx],
+        ["poiSynagogue", s.poi.synagoguePx ?? s.poi.iconPx]] as const) {
         pane.style.setProperty(`--label-${name}`, `${px}px`);
       }
       const iconOf = (kind: OsmMapPoi["kind"]) => spriteRef.current?.querySelector(`[data-poi="${kind}"] svg`)?.cloneNode(true) ?? null;
@@ -155,8 +168,18 @@ export default function LeafletOsmMap({ map: geo, labels, alt, onZoomChange }: P
     };
   }, [geo, labels]);
 
-  return <>
+  // The vignette and the cartouche sit over the map and never take a tap. The cartouche's words are place names.
+  return <div className={`${styles.frame} ${LOOK_CLASS[look]}`} style={PAPER}>
     <div ref={containerRef} className={styles.map} role="region" aria-label={alt} />
+    {look === "illustrated" ? <>
+      <div className={styles.vignette} aria-hidden="true" />
+      <div className={styles.cartouche} aria-hidden="true">
+        <span className={styles.cartoucheTitle}>Nahlaot</span>
+        <span className={`${styles.cartoucheTitleHe} rtl`} lang="he">נחלאות</span>
+        <span className={styles.cartoucheRule} />
+        <span className={styles.cartoucheCity}>Jerusalem / <span className="rtl" lang="he">ירושלים</span></span>
+      </div>
+    </> : null}
     <div ref={spriteRef} hidden>{POI_KINDS.map((kind) => <span key={kind} data-poi={kind}><Icon name={POI_ICONS[kind]} /></span>)}</div>
-  </>;
+  </div>;
 }

@@ -38,13 +38,14 @@ for (const frame of FRAMES) {
     assert.ok(geoToMap(projection, centre.lat, centre.lon + 0.001).x > p.x);
   });
 
-  test(`${frame}: the data carries the OSM credit, stays under 150 KB, and every place is on the drawing`, () => {
+  // Raw size; served compressed it is about a third (11 Nov 2026, with the building tones and trees: 59 KB gzipped).
+  test(`${frame}: the data carries the OSM credit, stays under 256 KB, and every place is on the drawing`, () => {
     assert.match(map.meta.credit, /OpenStreetMap contributors/);
     assert.equal(map.meta.licence, "ODbL 1.0");
-    assert.ok(statSync(file(frame)).size <= 150 * 1024);
+    assert.ok(statSync(file(frame)).size <= 256 * 1024);
     assert.ok(map.roads.some((r) => r.class === "main" && r.inside.length > 0));
     for (const place of map.places) {
-      assert.ok(place.he || place.en, `${place.osm} has no name`);
+      assert.ok(place.he || place.en, `${place.osm ?? place.source} has no name`);
       assert.ok(place.x >= 0 && place.x <= artboard.width && place.y >= 0 && place.y <= artboard.height);
     }
   });

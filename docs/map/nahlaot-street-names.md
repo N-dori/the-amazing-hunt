@@ -177,7 +177,7 @@ aren't here). A second name is one the owner added (`PLACE_ALT_NAMES`).
 |---|---|---|---|---|---|
 | <span dir="rtl">כיכר משה ברעם - גן הסוס</span> | Moshe Baram | — | green | no | way/44123753 |
 | <span dir="rtl">שוק מחנה יהודה</span> | Machane Yehuda Market | — | market | yes | way/44123755 |
-| <span dir="rtl">הבוסתן הספרדי</span> | HaBustan HaSefaradi | Gan ha'toot | green | yes | way/121760440 |
+| <span dir="rtl">הבוסתן הספרדי</span> | HaBustan HaSefaradi | גן התות / Gan HaTut (Mulberry Garden) | green | yes | way/121760440 |
 | <span dir="rtl">גן-עד</span> | Gan-Ed Garden | — | green | no | way/159144304 |
 | <span dir="rtl">גינת לוד</span> | Ginat Lod | — | green | no | way/159549810 |
 | <span dir="rtl">בית הבפטיסטים</span> | Baptist House | — | worship | no | way/159993329 |
@@ -187,6 +187,7 @@ aren't here). A second name is one the owner added (`PLACE_ALT_NAMES`).
 | <span dir="rtl">בוסתן נרקיס</span> | — | — | green | no | way/582644343 |
 | <span dir="rtl">שוק מחנה יהודה</span> | Machane Yehuda Shuk | — | market | yes | way/1078567519 |
 | <span dir="rtl">כיכר הרב יעקב ברוך</span> | — | — | green | yes | way/1554602151 |
+| <span dir="rtl">השוק העיראקי</span> | Iraqi Market | — | market | yes | undefined |
 
 ## Neighbourhoods and courtyards
 
@@ -199,22 +200,22 @@ to the middle zoom; courtyards from the middle zoom to street level.
 | <span dir="rtl">נחלאות</span> | Nahlaot | neighbourhood | node/2081525620 | 31.783145, 35.212397 | yes |
 | <span dir="rtl">שערי חסד</span> | Shaarei Hesed | neighbourhood | node/2081525627 | 31.777414, 35.211642 | no |
 | <span dir="rtl">זכרון משה</span> | Zikhron Moshe | neighbourhood | node/11915685239 | 31.786776, 35.215634 | no |
-| <span dir="rtl">אבו בסל (שערי ירושלים)</span> | Sha'arei Yerushalayim | neighbourhood | node/11935174548 | 31.787198, 35.210375 | no |
+| <span dir="rtl">שערי ירושלים</span> | Sha'arei Yerushalayim | neighbourhood | node/11935174548 | 31.787198, 35.210375 | no |
 | <span dir="rtl">כנסת ישראל א׳</span> | Knesset Yisrael A | courtyard | owner, 11 Nov 2026 | 31.781284, 35.213069 | yes |
 | <span dir="rtl">כנסת ישראל ב׳</span> | Knesset Yisrael B | courtyard | owner, 11 Nov 2026 | 31.781803, 35.212507 | yes |
 | <span dir="rtl">בתי ברוידא</span> | Batei Broida | courtyard | owner, 11 Nov 2026 | 31.781612, 35.213003 | yes |
-| <span dir="rtl">בתי רנד</span> (draft) | Batei Rand | courtyard | owner, 11 Nov 2026 | 31.781870, 35.213985 | yes |
+| <span dir="rtl">בתי ראנד</span> | Batei Rand | courtyard | owner, 11 Nov 2026 | 31.781870, 35.213985 | yes |
+| <span dir="rtl">בתי מונקאטש</span> | Batei Munkatch | courtyard | owner, 11 Nov 2026 | 31.781248, 35.213605 | yes |
 | <span dir="rtl">כנסת ישראל ג׳</span> | Knesset Yisrael C | courtyard | owner | **pending: no position yet, not drawn** | — |
-| <span dir="rtl">בתי מונקאטש</span> | Batei Munkatch | courtyard | owner | **pending: no position yet, not drawn** | — |
 
 ## Labels that found no place
 
 Inside the frame but not placed at any zoom, because there wasn't room or the street is too short for its name. They
 are still in the tables above.
 
-- **small, en:** כיכר הרב יעקב ברוך · HaAfarsek · HaShuk HaGruzini
+- **small, en:** כיכר הרב יעקב ברוך · HaAfarsek · Eliyahu Banai · HaShuk HaGruzini
 - **small, he:** כיכר הרב יעקב ברוך · האפרסק
-- **large, en:** כיכר הרב יעקב ברוך · HaKeren HaKayemet LeIsrael · הקרן הקיימת לישראל · Beeri · בארי · HaAfarsek · HaShuk HaGruzini
-- **large, he:** כיכר הרב יעקב ברוך · הקרן הקיימת לישראל · HaKeren HaKayemet LeIsrael · בארי · Beeri · האפרסק
+- **large, en:** כיכר הרב יעקב ברוך · HaKeren HaKayemet LeIsrael · הקרן הקיימת לישראל · Beeri · בארי · R. Yaakov Bei Rav · HaAfarsek · Eliyahu Banai · Mevo Izhar Armoni · HaShuk HaGruzini
+- **large, he:** כיכר הרב יעקב ברוך · הקרן הקיימת לישראל · HaKeren HaKayemet LeIsrael · בארי · Beeri · האפרסק · מבוא יזהר ערמוני
 
 Data © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright).

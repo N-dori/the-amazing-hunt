@@ -92,9 +92,18 @@ const NAME_OVERRIDES = {};
 const CHECKED_ON_SITE = [];
 // Names the owner adds to a place, beside OSM's own name: OSM id → { he?, en? }. Shown as a second line.
 const PLACE_ALT_NAMES = {
-  // HaBustan HaSefaradi, between HaGilboa and HaHermon, touching HaCarmel (owner, 11 Nov 2026). Hebrew not yet given.
-  "way/121760440": { en: "Gan ha'toot" },
+  // HaBustan HaSefaradi, between HaGilboa and HaHermon, touching HaCarmel (owner, 11 Nov 2026; names approved the same day).
+  "way/121760440": { en: "Gan HaTut (Mulberry Garden)", he: "גן התות" },
 };
+// The owner's corrections to OSM's neighbourhood names: OSM id → { he?, en? } (owner, 11 Nov 2026).
+const NEIGHBOURHOOD_OVERRIDES = {
+  // OSM's Hebrew is "אבו בסל (שערי ירושלים)": keep the historical name, without the parenthetical.
+  "node/11935174548": { he: "שערי ירושלים" },
+};
+// Places OSM doesn't have, named at the position the owner gave: drawn like OSM's places (kind sets the colour).
+const OWNER_PLACES = [
+  { he: "השוק העיראקי", en: "Iraqi Market", kind: "market", lat: 31.785401, lon: 35.212146, source: "owner, 11 Nov 2026" },
+];
 // Open areas, drawn under the buildings (places of worship over them, tinted). First match wins.
 const AREA_KINDS = [
   { kind: "market", test: (t) => t.amenity === "marketplace" },
@@ -110,11 +119,30 @@ const AREA_KINDS = [
 // iconZoom: the first zoom the icon may show at; nameZoom: the first its name may (no name for toilets and water).
 // Not a tomb: OSM tags three graves (names starting "קבר", "tomb of") as places of worship with no religion.
 const IS_SYNAGOGUE = (t) => t.amenity === "place_of_worship" && (t.religion ?? "jewish") === "jewish" && !/^קבר /.test(t["name:he"] ?? t.name ?? "");
+// Toilets for men or women only: from OSM's male/female tags, unless the owner corrected them on site.
+const TOILET_SEX_OVERRIDES = {
+  // Owner, 11 Nov 2026: "the one closest to Agripas is men only, on HaShazif women only". OSM had them the other way:
+  // the Agripas one (6 m from the street) female=yes male=no, the HaShazif one (5 m) for both.
+  "node/11207289138": "men",
+  "node/14094014982": "women",
+};
+const toiletSex = (t) => (t.male === "only" || (t.male === "yes" && t.female === "no") ? "men"
+  : t.female === "only" || (t.female === "yes" && t.male === "no") ? "women" : null);
+// Landmark synagogues, by OSM's Hebrew name: a larger icon, shown sooner. Empty: the owner chose one look for every
+// synagogue ("treat all synagogue SVGs the same", 11 Nov 2026), after first trying Ades and Hesed ve-Rahamim here.
+const LANDMARK_SYNAGOGUES = [];
+const LANDMARK = { iconZoom: 0, nameZoom: 1 };
+// Synagogues OSM doesn't have, at the owner's positions (research 15). An OSM synagogue within its kind's mergeM wins.
+const OWNER_SYNAGOGUES = [
+  // Owner, 11 Nov 2026 (the longitude confirmed as 35.21320; first sent as 35.32020).
+  { he: "בית הכנסת אהל משה", en: "Ohel Moshe Synagogue", lat: 31.782575, lon: 35.2132, source: "owner, 11 Nov 2026" },
+];
 const POI_KINDS = [
   { kind: "tram", test: (t) => t.railway === "tram_stop", mergeM: 120, byName: true, iconZoom: -1.5, nameZoom: 0, prio: 1.2 },
   { kind: "synagogue", test: IS_SYNAGOGUE, mergeM: 12, iconZoom: 0.5, nameZoom: 1.5, prio: 1.5 },
   { kind: "toilets", test: (t) => t.amenity === "toilets", mergeM: 8, iconZoom: 1, prio: 1.6 },
-  { kind: "drinkingWater", test: (t) => t.amenity === "drinking_water", mergeM: 5, iconZoom: 1.5, prio: 1.7 },
+  // Benches (the approved icon set V4, 11 Nov 2026), near street level only. Drinking water was dropped the same day.
+  { kind: "bench", test: (t) => t.amenity === "bench", mergeM: 3, iconZoom: 2, prio: 1.8 },
 ];
 
 // Courtyards and small neighbourhoods OSM doesn't have, at the positions the owner gave (11 Nov 2026). Spelling: the
@@ -124,10 +152,11 @@ const COURTYARDS = [
   // Sent as "31.781803.35.212507", read as 31.781803, 35.212507.
   { en: "Knesset Yisrael B", he: "כנסת ישראל ב׳", lat: 31.781803, lon: 35.212507 },
   { en: "Batei Broida", he: "בתי ברוידא", lat: 31.781612, lon: 35.213003 },
-  // The owner gave the English only; the Hebrew is a draft.
-  { en: "Batei Rand", he: "בתי רנד", heDraft: true, lat: 31.78187, lon: 35.213985 },
+  // The Hebrew approved by the owner, 11 Nov 2026 (it replaces the draft בתי רנד).
+  { en: "Batei Rand", he: "בתי ראנד", lat: 31.78187, lon: 35.213985 },
   { en: "Knesset Yisrael C", he: "כנסת ישראל ג׳", pending: true },
-  { en: "Batei Munkatch", he: "בתי מונקאטש", pending: true },
+  // Position from the owner, 11 Nov 2026 (later the same day).
+  { en: "Batei Munkatch", he: "בתי מונקאטש", lat: 31.781248, lon: 35.213605 },
 ];
 // Real road widths in metres, by OSM class, where the way has no `width` tag. Streets and paths are drawn at these
 // widths. Main roads are drawn MAIN_ROAD_SCALE times wider, so their names fit inside sooner (owner, 11 Nov 2026,
@@ -152,22 +181,28 @@ const LABEL = {
   neighbourhood: { fontPx: 12, letterPx: 1.2, zooms: [-1.5, 0.5] },
   courtyard: { fontPx: 10, letterPx: 0.8, zooms: [0.5, 2.5] },
   // Map-layer icons (a disc this wide) and their names, placed beside the icon afresh at each zoom.
-  poi: { iconPx: 18 },
+  // The synagogue icon sits in a stone arch (taller than wide), so its box is larger than the bare icons'.
+  poi: { iconPx: 18, toiletsPx: 22, landmarkPx: 28, synagoguePx: 22 },
   poiName: { fontPx: 10, gapPx: 1 },
   lineHeight: 1.25, marginPx: 2, repeatPx: 250, maxBendDeg: 20,
 };
 // Zoom levels (Leaflet CRS.Simple: 2^z pixels per map unit, about 1.1 m per unit), from the whole frame on a phone to
-// street level; and the three the previews show.
+// street level.
 const ZOOMS = [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5];
-const PREVIEW_ZOOMS = [-1.5, 0.5];
 // Street level reads larger (owner, 11 Nov 2026: "for zoom 2.5 the font can be a bit larger, 13 or 14 px"): at this zoom
-// every text size is multiplied by `scale` (main roads 11 → 13 px; icons keep their size), and the labels there get a
+// every text size is multiplied by `scale` (main roads 11 → 15 px; icons keep their size), and the labels there get a
 // layout of their own, so the larger text never overlaps.
-const STREET_LEVEL = { zoom: 2.5, scale: 13 / 11 };
-// Phone previews: a phone screen's window (CSS pixels) at every zoom, at 1:1, centred on PHONE_CENTRE.
-const PHONE = { width: 390, height: 844 };
-const PHONE_CENTRE = { lat: 31.78350, lon: 35.21300 }; // Nahlaot, between the courtyards and the market
+// Owner, later the same day: "larger font on 2.5 zoom", so 15 px main roads.
+const STREET_LEVEL = { zoom: 2.5, scale: 15 / 11 };
 const LANGUAGES = ["en", "he"];
+
+// The illustrated look (owner, 11 Nov 2026): buildings in BUILDING_TONES warm tones, each chosen from a hash of its OSM id
+// (so it never changes between builds); trees only where OSM has them: single trees (natural=tree) and inside parks,
+// gardens and woods (TREE_AREAS), never scattered into courtyards ("not every courtyard has trees"). Sizes in metres.
+const BUILDING_TONES = 5;
+// Parks are filled inside the frame only; in the faded margin only OSM's single trees are drawn (file size).
+const TREE = { canopyM: 2.6, areaSpacingM: 12, areaKeep: 0.6, jitterM: 3 };
+const TREE_AREAS = (t) => ["park", "garden"].includes(t.leisure) || ["forest", "wood"].includes(t.landuse) || t.natural === "wood";
 
 // Streets drawn beyond the frame, so players never reach a blank edge (drawn faded).
 const MARGIN_M = 60;
@@ -319,6 +354,24 @@ function simplify(points, tolerance) { // Douglas–Peucker
 }
 
 const r1 = (n) => Math.round(n * 10) / 10;
+// A stable number from an id (FNV-1a), and a small seeded random generator (mulberry32), so the drawing is the same on
+// every build.
+function hashOf(id) {
+  let h = 0x811c9dc5;
+  for (const ch of id) h = Math.imul(h ^ ch.charCodeAt(0), 0x01000193) >>> 0;
+  return h;
+}
+function seeded(id) {
+  let a = hashOf(id);
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+// Circles as compact path data (two arcs each).
+const circlesPath = (circles) => circles.map(({ x, y, r }) => `M${num(x - r)} ${num(y)}a${num(r)} ${num(r)} 0 1 0 ${num(2 * r)} 0a${num(r)} ${num(r)} 0 1 0 ${num(-2 * r)} 0z`).join("");
 // SVG path data, compact: an absolute move, then relative steps between the rounded points (no drift, about half
 // the size of absolute coordinates). Repeated points are dropped.
 const num = (n) => String(Math.round(n * 10) / 10).replace(/^(-?)0\./, "$1.");
@@ -507,8 +560,9 @@ function buildFrame(id, frame) {
     const p = project(n);
     if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) continue;
     const name = n.tags.name ?? "";
+    const fix = NEIGHBOURHOOD_OVERRIDES[`node/${nid}`] ?? {};
     neighbourhoods.push({
-      he: n.tags["name:he"] ?? (/[\u0590-\u05FF]/.test(name) ? name : null), en: n.tags["name:en"] ?? null,
+      he: fix.he ?? n.tags["name:he"] ?? (/[\u0590-\u05FF]/.test(name) ? name : null), en: fix.en ?? n.tags["name:en"] ?? null,
       lat: n.lat, lon: n.lon, x: Math.round(p.x), y: Math.round(p.y), scale: "neighbourhood", source: "osm", osm: `node/${nid}`,
       ...(inFrame(p) ? {} : { inFrame: false }),
     });
@@ -528,9 +582,11 @@ function buildFrame(id, frame) {
     .map((r) => ({ d: pathOf(simplifyRing(r, tolerance), true), inside: inFrame(r[0]) })).filter((s) => s.d);
   const areas = Object.fromEntries(AREA_KINDS.map((k) => [k.kind, []]));
   const places = [];
+  const treeAreas = [];
   for (const a of areaRings((t) => AREA_KINDS.some((k) => k.test(t)))) {
     const kind = AREA_KINDS.find((k) => k.test(a.tags)).kind;
     for (const s of shapeD(a.rings, TOLERANCE.area)) areas[kind].push(s.d);
+    if (TREE_AREAS(a.tags)) treeAreas.push({ osm: a.osm, rings: a.rings.map((r) => r.map(project)) });
     // A named place gets a label at the centre of its largest ring, if that is on the drawing.
     const he = a.tags["name:he"] ?? (/[\u0590-\u05FF]/.test(a.tags.name ?? "") ? a.tags.name : null);
     const en = a.tags["name:en"] ?? (a.tags.name && !/[\u0590-\u05FF]/.test(a.tags.name) ? a.tags.name : null);
@@ -542,9 +598,42 @@ function buildFrame(id, frame) {
     const alt = PLACE_ALT_NAMES[a.osm];
     places.push({ osm: a.osm, kind, he, en, ...(alt ? { alt } : {}), x: Math.round(c.x), y: Math.round(c.y), ...(inFrame(c) ? {} : { inFrame: false }) });
   }
-  const buildings = { inside: [], outside: [] };
+  for (const op of OWNER_PLACES) {
+    const c = project(op);
+    if (c.x < 0 || c.x > W || c.y < 0 || c.y > H) continue;
+    places.push({ source: op.source, kind: op.kind, he: op.he, en: op.en, x: Math.round(c.x), y: Math.round(c.y), ...(inFrame(c) ? {} : { inFrame: false }) });
+  }
+  // Buildings: inside the frame by tone (a hash of the OSM id), the margin's all in one (drawn faded).
+  const buildings = { inside: Array.from({ length: BUILDING_TONES }, () => []), outside: [] };
   for (const b of areaRings((t) => t.building && t.building !== "no" && t.amenity !== "place_of_worship")) {
-    for (const s of shapeD(b.rings, TOLERANCE.building)) buildings[s.inside ? "inside" : "outside"].push(s.d);
+    const tone = hashOf(b.osm) % BUILDING_TONES;
+    for (const s of shapeD(b.rings, TOLERANCE.building)) (s.inside ? buildings.inside[tone] : buildings.outside).push(s.d);
+  }
+
+  // Trees: a canopy of three circles at each OSM tree, and a loose grid of canopies inside each park, garden or wood.
+  const upm = constants.unitsPerMetre;
+  const trees = { inside: [], outside: [] };
+  const canopy = (x, y, rand) => {
+    const r = TREE.canopyM * upm;
+    return [0, 1, 2].map((i) => ({ x: x + (rand() - 0.5) * r * (i ? 1 : 0.3), y: y + (rand() - 0.5) * r * (i ? 1 : 0.3), r: r * (i ? 0.62 + rand() * 0.2 : 0.8) }));
+  };
+  const addTree = (p, id) => {
+    if (p.x < 0 || p.x > W || p.y < 0 || p.y > H) return;
+    trees[inFrame(p) ? "inside" : "outside"].push(...canopy(p.x, p.y, seeded(id)));
+  };
+  for (const [nid, n] of nodes) if (n.tags?.natural === "tree") addTree(project(n), `node/${nid}`);
+  for (const area of treeAreas) {
+    const rand = seeded(area.osm), step = TREE.areaSpacingM * upm, jitter = TREE.jitterM * upm;
+    for (const ring of area.rings) {
+      const xs = ring.map((p) => p.x), ys = ring.map((p) => p.y);
+      for (let x = Math.min(...xs) + step / 2; x < Math.max(...xs); x += step) {
+        for (let y = Math.min(...ys) + step / 2; y < Math.max(...ys); y += step) {
+          if (rand() > TREE.areaKeep) continue;
+          const p = { x: x + (rand() - 0.5) * 2 * jitter, y: y + (rand() - 0.5) * 2 * jitter };
+          if (pointInRing(p, ring) && inFrame(p)) addTree(p, `${area.osm}@${Math.round(x)},${Math.round(y)}`);
+        }
+      }
+    }
   }
 
   // Map layers: outlines first (their centre), then points; duplicates merged (POI_KINDS).
@@ -557,12 +646,19 @@ function buildFrame(id, frame) {
     const found = [];
     for (const a of areaRings(k.test)) {
       const largest = a.rings.map((r) => r.map(project)).reduce((best, r) => (ringArea(r) > ringArea(best) ? r : best));
-      found.push({ ...centroid(largest), ...nameOf(a.tags), osm: [a.osm] });
+      found.push({ ...centroid(largest), ...nameOf(a.tags), osm: [a.osm], sex: k.kind === "toilets" ? TOILET_SEX_OVERRIDES[a.osm] ?? toiletSex(a.tags) : null });
     }
-    for (const [nid, n] of nodes) if (n.tags && k.test(n.tags)) found.push({ ...project(n), ...nameOf(n.tags), osm: [`node/${nid}`] });
+    for (const [nid, n] of nodes) {
+      if (!n.tags || !k.test(n.tags)) continue;
+      const osm = `node/${nid}`;
+      found.push({ ...project(n), ...nameOf(n.tags), osm: [osm], sex: k.kind === "toilets" ? TOILET_SEX_OVERRIDES[osm] ?? toiletSex(n.tags) : null });
+    }
+    // The owner's synagogues come last, and are left out where OSM already has one within mergeM.
+    if (k.kind === "synagogue") for (const o of OWNER_SYNAGOGUES) found.push({ ...project(o), he: o.he, en: o.en, osm: [], source: o.source, sex: null, owner: true });
     const kept = [];
     for (const f of found) {
-      const same = kept.find((o) => metres(Math.hypot(o.x - f.x, o.y - f.y)) <= k.mergeM
+      if (f.owner && kept.some((o) => metres(Math.hypot(o.x - f.x, o.y - f.y)) <= k.mergeM)) continue;
+      const same = kept.find((o) => metres(Math.hypot(o.x - f.x, o.y - f.y)) <= k.mergeM && o.sex === f.sex
         && (k.byName ? o.he === f.he && o.en === f.en : !(o.he ?? o.en) || !(f.he ?? f.en) || (o.he ?? o.en) === (f.he ?? f.en)));
       if (!same) { kept.push({ ...f, n: 1 }); continue; }
       // A station's stops are averaged; an outline keeps its centre over a point inside it.
@@ -571,7 +667,8 @@ function buildFrame(id, frame) {
     }
     for (const f of kept) {
       if (f.x < 0 || f.x > W || f.y < 0 || f.y > H) continue;
-      pois.push({ kind: k.kind, he: f.he, en: f.en, x: r1(f.x), y: r1(f.y), osm: f.osm, ...(inFrame(f) ? {} : { inFrame: false }) });
+      const landmark = k.kind === "synagogue" && LANDMARK_SYNAGOGUES.includes(f.he);
+      pois.push({ kind: k.kind, he: f.he, en: f.en, ...(f.source ? { source: f.source } : {}), ...(f.sex ? { sex: f.sex } : {}), ...(landmark ? { landmark: true } : {}), x: r1(f.x), y: r1(f.y), osm: f.osm, ...(inFrame(f) ? {} : { inFrame: false }) });
     }
   }
 
@@ -591,7 +688,7 @@ function buildFrame(id, frame) {
   }).sort((a, b) => a.street.localeCompare(b.street, "he"));
 
   const roadList = [...roads.values()].sort((a, b) => ["path", "street", "main"].indexOf(a.class) - ["path", "street", "main"].indexOf(b.class) || a.widthM - b.widthM);
-  return { id, title: frame.title, legs, projection, ring, roads: roadList, streetRuns, neighbourhoods, areas, buildings, nameRows, places, pois };
+  return { id, title: frame.title, legs, projection, ring, roads: roadList, streetRuns, neighbourhoods, areas, buildings, trees, nameRows, places, pois };
 }
 
 // ---- Outputs ------------------------------------------------------------------------------------------------------
@@ -619,7 +716,10 @@ function mapData(built) {
     projection: constants,
     artboard,
     areas: Object.fromEntries(Object.entries(built.areas).map(([k, list]) => [k, join(list)])),
-    buildings: { inside: join(built.buildings.inside), outside: join(built.buildings.outside) },
+    // Buildings inside the frame, one path per warm tone (BUILDING_TONES), and the margin's in one.
+    buildings: { inside: built.buildings.inside.map(join), outside: join(built.buildings.outside) },
+    // Tree canopies (circles), only where OSM has trees: single trees, parks, gardens and woods.
+    trees: { inside: circlesPath(built.trees.inside), outside: circlesPath(built.trees.outside) },
     // Roads by class and real width (metres), drawn as bands drawM wide (main roads wider than real, MAIN_ROAD_SCALE);
     // painted path, street, main.
     roads: built.roads.map((r) => ({ class: r.class, widthM: r.widthM, drawM: r.drawM, inside: join(r.inside), outside: join(r.outside) })),
@@ -667,13 +767,16 @@ function labelData(built, lang) {
     });
   });
   built.places.forEach((pl, i) => {
-    const first = both(pl.en, pl.he), alt = pl.alt?.[lang];
-    if (!first) return;
-    const style = S.place, text = alt ? [first, alt] : [first];
+    // The two names stack, the game's language first (owner, 11 Nov 2026: "English/Hebrew labels", as on the
+    // illustrated map); the owner's added name, if any, below them.
+    const names2 = (lang === "he" ? [pl.he, pl.en] : [pl.en, pl.he]).filter(Boolean);
+    if (!names2.length) return;
+    const alt = pl.alt?.[lang];
+    const style = S.place, text = alt ? [...names2, alt] : names2;
     items.push({
       id: `p:${i}`, prio: 1, inside: pl.inFrame !== false, length: 0, minZoom: ZOOMS[0],
-      w: Math.max(measure(first, style.fontPx, { italic: true }), alt ? measure(alt, style.altFontPx, { italic: true }) : 0),
-      h: (style.fontPx + (alt ? style.altFontPx : 0)) * lh,
+      w: Math.max(measure(text[0], style.fontPx, { italic: true }), ...text.slice(1).map((t) => measure(t, style.altFontPx, { italic: true }))),
+      h: (style.fontPx + (text.length - 1) * style.altFontPx) * lh,
       fixed: { x: pl.x, y: pl.y, angle: 0 }, out: { kind: "place", text, p: i, ...(pl.inFrame === false ? { inFrame: false } : {}) },
     });
   });
@@ -682,20 +785,27 @@ function labelData(built, lang) {
     const kind = POI_KINDS.find((x) => x.kind === poi.kind);
     const inside = poi.inFrame !== false, frameFlag = inside ? {} : { inFrame: false };
     const iconId = `poi:${i}`;
+    // Toilets are drawn larger (owner, 11 Nov 2026: "make the toilet icon bigger").
+    const iconPx = poi.kind === "toilets" ? poiStyle.toiletsPx : poi.landmark ? poiStyle.landmarkPx
+      : poi.kind === "synagogue" ? poiStyle.synagoguePx : poiStyle.iconPx;
+    const zoomsOf = poi.landmark ? LANDMARK : kind;
     items.push({
-      id: iconId, prio: kind.prio, inside, length: 0, minZoom: kind.iconZoom, w: poiStyle.iconPx, h: poiStyle.iconPx,
+      id: iconId, prio: poi.landmark ? 1.3 : kind.prio, inside, length: 0, minZoom: zoomsOf.iconZoom, w: iconPx, h: iconPx,
       fixed: { x: poi.x, y: poi.y, angle: 0 }, out: { kind: "poi", text: [], poi: i, ...frameFlag },
     });
-    const text = kind.nameZoom !== undefined ? both(poi.en, poi.he) : null;
-    if (!text) return;
+    if (zoomsOf.nameZoom === undefined || !(poi.en || poi.he)) return;
+    // A synagogue's two names stack, the game's language first (owner, 11 Nov 2026); a station's sit on one line.
+    const own2 = lang === "he" ? [poi.he, poi.en] : [poi.en, poi.he];
+    const lines = poi.kind === "synagogue" ? own2.filter(Boolean) : [both(poi.en, poi.he)];
     // Clear of the icon's box: both boxes carry the layout margin.
-    const w = measure(text, nameStyle.fontPx), h = nameStyle.fontPx * lh, gap = poiStyle.iconPx / 2 + 2 * LABEL.marginPx + nameStyle.gapPx;
+    const w = Math.max(...lines.map((t) => measure(t, nameStyle.fontPx))), h = nameStyle.fontPx * lh * lines.length;
+    const gap = iconPx / 2 + 2 * LABEL.marginPx + nameStyle.gapPx;
     items.push({
-      id: `pn:${i}`, prio: kind.kind === "tram" ? 3.4 : 3.5, inside, length: 0, minZoom: kind.nameZoom, w, h,
+      id: `pn:${i}`, prio: kind.kind === "tram" || poi.landmark ? 3.4 : 3.5, inside, length: 0, minZoom: zoomsOf.nameZoom, w, h,
       fixed: { x: poi.x, y: poi.y, angle: 0 }, needs: iconId,
       // Below the icon, then to its right, left, or above it.
       perZoom: [{ dx: 0, dy: gap + h / 2 }, { dx: gap + w / 2, dy: 0 }, { dx: -(gap + w / 2), dy: 0 }, { dx: 0, dy: -(gap + h / 2) }],
-      out: { kind: "poiName", text: [text], poi: i, ...frameFlag },
+      out: { kind: "poiName", text: lines, poi: i, ...frameFlag },
     });
   });
   for (const g of built.streetRuns) {
@@ -750,87 +860,6 @@ function labelData(built, lang) {
     },
     labels: labels.map((l) => ({ ...l, w: r1w(l.w), h: r1w(l.h) })),
   };
-}
-
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-// Review previews: what a phone shows at one zoom level, for the owner's review only (the game draws the map itself in
-// step 3). Roads are bands at their real width, text at its pixel size. If the Plex fonts are in media-originals/fonts/
-// (not in git), they are embedded so the preview uses the same fonts the labels were measured with.
-// Colours are the DORI tokens from app/globals.scss: chalk, chalk-shade, chalk-highlight, line-stone, ink, ink-subdued,
-// zaatar, sumac, amber.
-const FONT_FILES = [
-  ["IBM Plex Sans", "normal", "media-originals/fonts/IBMPlexSans-Regular.woff"],
-  ["IBM Plex Sans", "italic", "media-originals/fonts/IBMPlexSans-Italic.woff"],
-  ["IBM Plex Sans Hebrew", "normal", "media-originals/fonts/IBMPlexSansHebrew-Regular.woff"],
-];
-const fontFaces = (() => {
-  try {
-    return FONT_FILES.map(([family, style, file]) => `@font-face{font-family:"${family}";font-style:${style};src:url(data:font/woff;base64,${readFileSync(file).toString("base64")}) format("woff")}`).join("");
-  } catch { return null; }
-})();
-
-// With `phone`, only a phone screen's window around PHONE_CENTRE, at 1:1 (one CSS pixel per pixel).
-function previewSvg(built, data, labelFile, z, phone = false) {
-  const { artboard } = data;
-  const s = 2 ** z, px = (v) => v / s, upm = data.projection.unitsPerMetre;
-  const roadW = (r) => Math.max(r.drawM * upm, px(1.5));
-  const roadsG = (side) => `
-  <g stroke="#54514d">${data.roads.map((r) => `<path d="${r[side]}" stroke-width="${(roadW(r) + px(1.2)).toFixed(2)}"/>`).join("")}</g>
-  <g stroke="#eee9df">${data.roads.map((r) => `<path d="${r[side]}" stroke-width="${roadW(r).toFixed(2)}"/>`).join("")}</g>`;
-  const styleOf = (l) => {
-    if (l.kind === "main") return { size: LABEL.main.fontPx, fill: "#252b2a", halo: "#eee9df" };
-    if (l.kind === "mainBrief") return { size: LABEL.mainBrief.fontPx, fill: "#252b2a", halo: l.beside ? "#f3efe6" : "#eee9df" };
-    if (l.kind === "alley") return { size: LABEL.alley.fontPx, fill: "#252b2a", halo: "#f3efe6" };
-    if (l.kind === "place") {
-      const kind = data.places[l.p].kind;
-      return { size: LABEL.place.fontPx, alt: LABEL.place.altFontPx, italic: true, halo: "#f3efe6",
-        fill: kind === "worship" ? "#934a3a" : kind === "market" ? "#c07a2e" : "#667054" };
-    }
-    return { size: LABEL[l.kind].fontPx, letter: LABEL[l.kind].letterPx, fill: "#54514d", halo: "#f3efe6" };
-  };
-  const f = z === STREET_LEVEL.zoom ? STREET_LEVEL.scale : 1;
-  const label = (l) => {
-    const st = styleOf(l), lh = LABEL.lineHeight;
-    const sizes = l.text.map((_, i) => (i && st.alt ? st.alt : st.size) * f);
-    const total = sizes.reduce((t, v) => t + v * lh, 0);
-    let y = -total / 2;
-    const lines = l.text.map((t, i) => { const mid = y + (sizes[i] * lh) / 2; y += sizes[i] * lh; return `<tspan x="0" y="${px(mid).toFixed(2)}" font-size="${px(sizes[i]).toFixed(2)}">${esc(t)}</tspan>`; });
-    const attrs = [`fill="${st.fill}"`, `stroke="${st.halo}"`, st.italic ? `font-style="italic"` : "", st.letter ? `letter-spacing="${px(st.letter * f).toFixed(2)}"` : "", l.inFrame === false ? `opacity=".55"` : ""].filter(Boolean).join(" ");
-    return `<text transform="translate(${l.x} ${l.y}) rotate(${l.angle})" ${attrs}>${lines.join("")}</text>`;
-  };
-  // The map layers (icons and their names) are reviewed on the dev page (/dev/osm-map), not in these previews.
-  const shown = labelFile.labels.filter((l) => l.minZoom <= z && (l.maxZoom ?? Infinity) >= z && l.kind !== "poi" && l.kind !== "poiName");
-  const c = built.projection.project(PHONE_CENTRE);
-  const view = phone
-    ? { x: c.x - PHONE.width / 2 / s, y: c.y - PHONE.height / 2 / s, w: PHONE.width / s, h: PHONE.height / s, pw: PHONE.width, ph: PHONE.height }
-    : { x: 0, y: 0, w: artboard.width, h: artboard.height, pw: Math.round(artboard.width * s), ph: Math.round(artboard.height * s) };
-  const f2 = (n) => n.toFixed(2);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f2(view.x)} ${f2(view.y)} ${f2(view.w)} ${f2(view.h)}" width="${view.pw}" height="${view.ph}">
-<title>${esc(built.title)}: zoom ${z}, ${labelFile.meta.lang}, ${phone ? "phone screen at 1:1" : "whole map"}, review preview</title>
-${fontFaces ? `<style>${fontFaces}</style>` : ""}
-<rect x="${f2(view.x)}" y="${f2(view.y)}" width="${f2(view.w)}" height="${f2(view.h)}" fill="#f3efe6"/>
-<g id="areas" stroke="none">
-  <path d="${data.areas.green}" fill="#667054" fill-opacity=".2"/>
-  <path d="${data.areas.square}" fill="#d9cfbe"/>
-  <path d="${data.areas.market}" fill="#c07a2e" fill-opacity=".18"/>
-</g>
-<g id="buildings" fill="#ddd7cb" stroke="#d9cfbe" stroke-width="${px(0.6).toFixed(2)}">
-  <path d="${data.buildings.inside}"/>
-  <path d="${data.buildings.outside}" opacity=".45"/>
-</g>
-<g id="worship" fill="#934a3a" fill-opacity=".3" stroke="none"><path d="${data.areas.worship}"/></g>
-<g id="roads-margin" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".4">${roadsG("outside")}
-</g>
-<g id="roads" fill="none" stroke-linecap="round" stroke-linejoin="round">${roadsG("inside")}
-</g>
-<g id="frame-review-only" fill="none" stroke="#934a3a" stroke-width="${px(1.5).toFixed(2)}" stroke-dasharray="${px(6).toFixed(1)} ${px(4).toFixed(1)}"><path d="${data.frame.outline}"/></g>
-<g id="labels" font-family="IBM Plex Sans, IBM Plex Sans Hebrew, sans-serif" text-anchor="middle" dominant-baseline="central" stroke-width="${px(2.4).toFixed(2)}" stroke-linejoin="round" paint-order="stroke">
-${shown.map(label).join("\n")}
-</g>
-<text x="${f2(Math.min(view.x + view.w, artboard.width) - px(6))}" y="${f2(Math.min(view.y + view.h, artboard.height) - px(6))}" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="${px(10).toFixed(2)}" fill="#54514d">${CREDIT}</text>
-</svg>
-`;
 }
 
 function namesMarkdown(frames) {
@@ -916,14 +945,13 @@ for (const id of wanted) {
     write(file, text);
     const counts = ZOOMS.map((z) => lf.labels.filter((l) => l.minZoom <= z && (l.maxZoom ?? Infinity) >= z).length);
     console.log(`  ${file} ${kb(text).toFixed(0)} KB · labels by zoom ${ZOOMS.map((z, i) => `${z}:${counts[i]}`).join(" ")} · never placed ${lf.meta.unplaced.length} · no ${lang} name ${lf.meta.noNameInLanguage.length}`);
-    if (lang === "en") for (const z of PREVIEW_ZOOMS) write(`media-originals/maps/nahlaot-${id}-z${z}-${lang}.svg`, previewSvg(b, data, lf, z));
-    for (const z of lang === "en" ? ZOOMS : [0.5, 2.5]) write(`media-originals/maps/nahlaot-${id}-phone-z${z}-${lang}.svg`, previewSvg(b, data, lf, z, true));
   }
 }
 if (built.small && built.large) {
   write("docs/map/nahlaot-street-names.md", namesMarkdown(built));
   console.log("\nNames list: docs/map/nahlaot-street-names.md");
 }
-console.log(`Previews: media-originals/maps/nahlaot-{small,large}-z{${PREVIEW_ZOOMS.join(",")}}-en.svg (whole map), -phone-z{${ZOOMS.join(",")}}-en.svg and -phone-z{0.5,2.5}-he.svg (a phone screen, 1:1)${fontFaces ? " (Plex embedded)" : " (Plex not found in media-originals/fonts: system fonts)"}`);
+// The review previews (SVG files in media-originals/maps/) were retired on 11 Nov 2026: the dev page /dev/osm-map
+// draws the map itself.
 console.log(`Extract: ${IN} (${extractDate})`);
 if (tooBig.length) { console.error(`Over ${MAX_DATA_KB} KB, not written: ${tooBig.join(", ")}`); process.exit(1); }

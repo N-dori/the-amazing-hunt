@@ -23,9 +23,11 @@ export type FramedPaths = Readonly<{ inside: string; outside: string }>;
 /** One street's names. `he`/`en` are null where OSM has none (see docs/map/nahlaot-street-names.md). */
 export type OsmMapName = Readonly<{ he: string | null; en: string | null; checkedOnSite: boolean; inFrame: boolean }>;
 
-/** A named park, square, market or synagogue outline, labelled at its centre; `alt` holds a name the owner added. */
+/** A named park, square, market or synagogue outline, labelled at its centre; `alt` holds a name the owner added. A place
+ * OSM doesn't have carries `source` (the owner and date) instead of `osm`. */
 export type OsmMapPlace = Readonly<{
-  osm: string;
+  osm?: string;
+  source?: string;
   kind: "market" | "worship" | "square" | "green";
   he: string | null;
   en: string | null;
@@ -52,12 +54,18 @@ export type OsmMapNeighbourhood = Readonly<{
 
 /** A map-layer feature drawn as an icon (owner, 11 Nov 2026), from OSM outlines and points merged into one each. */
 export type OsmMapPoi = Readonly<{
-  kind: "synagogue" | "toilets" | "drinkingWater" | "tram";
+  kind: "synagogue" | "toilets" | "tram" | "bench";
+  // Toilets for one sex only (OSM's tags, or the owner's correction on site).
+  sex?: "men" | "women";
+  // A landmark synagogue: a larger badge, shown sooner (LANDMARK_SYNAGOGUES in the build script).
+  landmark?: true;
   he: string | null;
   en: string | null;
   x: number;
   y: number;
   osm: ReadonlyArray<string>;
+  // A synagogue the owner placed (OSM doesn't have it): who and when.
+  source?: string;
   inFrame?: false;
 }>;
 
@@ -92,7 +100,7 @@ export type OsmMapLabel = Readonly<{
   inFrame?: false;
 }>;
 
-export type OsmMapLabelStyle = Readonly<{ fontPx?: number; iconPx?: number; minRoadPx?: number; gapPx?: number; fit?: number; altFontPx?: number; letterPx?: number; zooms?: readonly [number, number] }>;
+export type OsmMapLabelStyle = Readonly<{ fontPx?: number; iconPx?: number; toiletsPx?: number; landmarkPx?: number; synagoguePx?: number; minRoadPx?: number; gapPx?: number; fit?: number; altFontPx?: number; letterPx?: number; zooms?: readonly [number, number] }>;
 
 export type OsmMapLabelFile = Readonly<{
   meta: Readonly<{
@@ -113,7 +121,10 @@ export type OsmMapGeometry = Readonly<{
   projection: OsmMapProjection;
   artboard: Readonly<{ width: number; height: number }>;
   areas: Readonly<{ market: string; worship: string; square: string; green: string }>;
-  buildings: FramedPaths;
+  // Inside the frame one path per warm tone (the build's BUILDING_TONES); the margin's in one, drawn faded.
+  buildings: Readonly<{ inside: ReadonlyArray<string>; outside: string }>;
+  // Tree canopies, only where OSM has trees (single trees, and inside parks, gardens and woods within the frame).
+  trees: FramedPaths;
   roads: ReadonlyArray<OsmMapRoad>;
   names: ReadonlyArray<OsmMapName>;
   places: ReadonlyArray<OsmMapPlace>;

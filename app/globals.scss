@@ -22,6 +22,14 @@
   --ink-subdued: #54514d;
   --shadow-float: 0 2px 4px rgb(31 31 30 / 8%);
 
+  // Map-layer colours after Jerusalem's Armenian ceramics, from the owner's icon set V4 (11 Nov 2026); not yet confirmed
+  // against the brand book. --stone is V4's #a69070 darkened to 3.4:1 on the map's ground.
+  --cobalt: #24418b;
+  --teal: #226774;
+  --ceramic-green: #41634b;
+  --stone: #8f7a5b;
+  --stone-ground: #f7f0df;
+
   --background: var(--chalk);
   --foreground: var(--ink);
   // IBM Plex per the brand rules. Hebrew falls back to Plex Sans Hebrew inside the same stack, so

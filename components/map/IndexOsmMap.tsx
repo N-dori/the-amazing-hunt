@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { OsmMapGeometry, OsmMapLabelFile } from "@/lib/map/osm-projection";
-import LeafletOsmMap from "./LeafletOsmMap";
+import LeafletOsmMap, { type OsmMapLook } from "./LeafletOsmMap";
 import styles from "./IndexOsmMap.module.scss";
 
 type Frame = "small" | "large";
@@ -25,11 +25,14 @@ const json = <T,>(mod: unknown) => (mod as { default: T }).default;
 // The controls' wording is for the owner's review on this dev page only, not visitor copy.
 const FRAMES: { id: Frame; label: string }[] = [{ id: "small", label: "Small (Bezalel)" }, { id: "large", label: "Large (Ramban)" }];
 const LANGS: { id: Lang; label: string }[] = [{ id: "en", label: "English" }, { id: "he", label: "עברית" }];
+const LOOKS: { id: OsmMapLook; label: string }[] = [{ id: "plain", label: "Plain" }, { id: "illustrated", label: "Illustrated" }];
 
-// Development page for the OSM navigation map on its own: no markers, no challenge. The owner picks the frame here.
+// Development page for the OSM navigation map on its own: no markers, no challenge. It opens on the small frame, the
+// game's (owner, 11 Nov 2026); the large one stays here to switch to later.
 export default function IndexOsmMap() {
   const [frame, setFrame] = useState<Frame>("small");
   const [lang, setLang] = useState<Lang>("en");
+  const [look, setLook] = useState<OsmMapLook>("illustrated");
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [zoom, setZoom] = useState<{ step: number; count: number } | null>(null);
@@ -65,12 +68,21 @@ export default function IndexOsmMap() {
             </label>
           ))}
         </fieldset>
+        <fieldset className={styles.switch}>
+          <legend className="srOnly">Look</legend>
+          {LOOKS.map((o) => (
+            <label key={o.id} className={`${styles.option} ${o.id === look ? styles.optionOn : ""}`}>
+              <input type="radio" name="look" value={o.id} checked={o.id === look} onChange={() => setLook(o.id)} className="srOnly" />
+              {o.label}
+            </label>
+          ))}
+        </fieldset>
         <p className={styles.readout} aria-live="polite">{zoom ? `Zoom ${zoom.step} · ${zoom.count} names` : ""}</p>
       </header>
       <div className={styles.stage}>
         {failed === key ? <p className={styles.status}>The map data for {key} didn’t load.</p>
           : ready ? <LeafletOsmMap key={key} map={ready.map} labels={ready.labels} alt={`Nahlaot street map, ${frame} frame`}
-            onZoomChange={(step, count) => setZoom({ step, count })} />
+            look={look} onZoomChange={(step, count) => setZoom({ step, count })} />
           : <p className={styles.status}>Loading the map…</p>}
       </div>
     </main>

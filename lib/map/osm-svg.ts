@@ -11,21 +11,33 @@ import type { OsmMapGeometry, OsmMapRoad } from "./osm-projection.ts";
 export const CASING_PX = 1.2;
 export const MIN_ROAD_PX = 1.5;
 
+/** The building shadow's offset to the south-east, in map units (the illustrated look). */
+export const SHADOW_OFFSET = 0.6;
+
+export type OsmFillStyle = "green" | "square" | "market" | "worship" | "shadow" | `building${number}` | "buildingsMargin" | "trees" | "treesMargin";
+
 export type OsmSvgLayer =
-  | Readonly<{ kind: "fill"; style: "green" | "square" | "market" | "worship" | "buildings" | "buildingsMargin"; d: string }>
+  | Readonly<{ kind: "fill"; style: OsmFillStyle; d: string; offset?: number }>
   | Readonly<{ kind: "road"; style: "casing" | "fill"; margin: boolean; road: number; d: string }>;
 
-/** The layers in paint order: areas, buildings, places of worship, then the roads (the margin's first, faded). */
-export function svgLayers(map: Pick<OsmMapGeometry, "areas" | "buildings" | "roads">): OsmSvgLayer[] {
+/**
+ * The layers in paint order: areas; the buildings' shadow (offset), the buildings by tone and the margin's; places of
+ * worship; trees; then the roads (the margin's first, faded). The plain look hides the shadow and trees and draws every
+ * tone alike (LeafletOsmMap.module.scss).
+ */
+export function svgLayers(map: Pick<OsmMapGeometry, "areas" | "buildings" | "trees" | "roads">): OsmSvgLayer[] {
   const roadsOf = (margin: boolean): OsmSvgLayer[] => (["casing", "fill"] as const).flatMap((style) =>
     map.roads.map((r, road) => ({ kind: "road" as const, style, margin, road, d: margin ? r.outside : r.inside })).filter((l) => l.d));
   const fills: OsmSvgLayer[] = [
     { kind: "fill", style: "green", d: map.areas.green },
     { kind: "fill", style: "square", d: map.areas.square },
     { kind: "fill", style: "market", d: map.areas.market },
-    { kind: "fill", style: "buildings", d: map.buildings.inside },
+    { kind: "fill", style: "shadow", d: map.buildings.inside.join(""), offset: SHADOW_OFFSET },
+    ...map.buildings.inside.map((d, tone): OsmSvgLayer => ({ kind: "fill", style: `building${tone}`, d })),
     { kind: "fill", style: "buildingsMargin", d: map.buildings.outside },
     { kind: "fill", style: "worship", d: map.areas.worship },
+    { kind: "fill", style: "treesMargin", d: map.trees.outside },
+    { kind: "fill", style: "trees", d: map.trees.inside },
   ];
   return [...fills.filter((l) => l.d), ...roadsOf(true), ...roadsOf(false)];
 }

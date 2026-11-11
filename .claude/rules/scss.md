@@ -34,6 +34,7 @@ Same conventions as the editorial platform (the platform repo's `app/globals.scs
 
 - Use `<Icon name="…" />` from `@/components/icons` for every UI icon. Never paste an inline `<svg>` into a component.
 - A new icon is a new entry in `components/icons/iconPaths.tsx`: 24 × 24 grid, stroke only (the component supplies `currentColor`, 1.75 width, round caps and joins), and a zero-length `h.01` path for a dot.
+- The exception is the **map-layer icons** (owner, 11 Nov 2026): the owner's icon set V4. Its shapes keep their 64 grid inside `scale(0.375)`, and some are filled (the toilet figures, the tree's canopy, OSMIC's synagogue star, CC0). The synagogue's stone arch takes its colours from `Icon.module.scss` classes (`--stone`, `--stone-ground`), never from hex in the icon.
 - Size an icon from the parent module with `className` (e.g. `width: 1.25rem; height: 1.25rem;`); colour comes from the text colour.
 - Icons are decorative by default. Pass `label` only when an icon stands alone and carries meaning, using approved copy. An icon-only button puts its label on the button.
 - Illustrations (map, characters, puzzle artwork) are not icons; they are assets under `public/`.

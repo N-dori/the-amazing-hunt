@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import styles from "./Icon.module.scss";
 
 // Shape data for the game's line icons, drawn on a 24 × 24 grid and stroked by <Icon>
 // (currentColor, 1.75 stroke, round caps and joins), the same style as the platform's
@@ -22,14 +23,41 @@ export const iconPaths = {
   compass: <><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></>,
   // A magnifier: what to look for at a place.
   search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L20 20" /></>,
-  // Map layers (the OSM map, 11 Nov 2026). A Star of David: two triangles on a circle of radius 9 for a synagogue.
-  starOfDavid: <><path d="M12 3l7.8 13.5H4.2z" /><path d="M12 21L4.2 7.5h15.6z" /></>,
-  // Toilets: a man and a woman either side of a divider.
-  toilets: <><circle cx="6.5" cy="5" r="1.75" /><path d="M4.5 10h4v5h-1v5h-2v-5h-1z" /><path d="M12 3v18" /><circle cx="17.5" cy="5" r="1.75" /><path d="M17.5 9.5l3 6.5h-6z" /><path d="M16.5 16v4" /><path d="M18.5 16v4" /></>,
-  // A light-rail tram from the front: pantograph, windscreen, lights, and the wheels on the rails.
-  tram: <><path d="M10 2.5h4" /><path d="M12 2.5V5" /><path d="M7 5h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" /><path d="M5 11h14" /><path d="M8.5 14.5h.01" /><path d="M15.5 14.5h.01" /><path d="M8 18l-2 3.5" /><path d="M16 18l2 3.5" /></>,
-  // Drinking water: a drop.
-  drinkingWater: <><path d="M12 3.5s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z" /><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5" /></>,
+  // Map layers: the owner's icon set V4 (drawn by ChatGPT for the owner, 11 Nov 2026; the originals are in
+  // media-originals/icons/dori-v4/, not in git). Its shapes are on a 64 grid, kept as given inside scale(0.375), with
+  // line widths raised to read at 16–22 px. The owner's exceptions to "stroke only" (scss.md): filled shapes and the
+  // stone arch, whose colours come from Icon.module.scss classes.
+  // A synagogue: the stone arch (V4), with OSMIC's filled star inside (github.com/gmgeo/osmic, CC0; the owner's choice,
+  // because V4's outline star disappears at map size).
+  synagogue: (
+    <g transform="scale(0.375)">
+      <path className={styles.archGround} d="M12 58V27C12 2 52 2 52 27V58Z" strokeWidth={3} />
+      <path className={styles.archInner} d="M16 54V27C16 9 48 9 48 27V54" fill="none" strokeWidth={1.2} />
+      <path fill="currentColor" stroke="none" transform="translate(18 18) scale(2)" d="M7.031 0L5 3.469H1l2 3.5l-2 3.5h4L7.031 14l2-3.531H13l-1.969-3.5L13 3.469H9.031zm0 2.438l.594 1.03H6.438zM3.125 4.624h1.219l-.625 1.063zm2.656 0h2.5l1.313 2.344L8.28 9.312h-2.5L4.47 6.97zm3.907 0h1.25l-.626 1.094zm.624 3.594l.626 1.094h-1.25zM3.72 8.25l.625 1.063h-1.22zm2.719 2.219h1.187L7.031 11.5z" />
+    </g>
+  ),
+  // Toilets for men and women (V4): two filled figures, the woman's legs centred under her skirt.
+  toilets: (
+    <g transform="scale(0.375)" fill="currentColor" stroke="none">
+      <circle cx="23" cy="22" r="3.5" /><path d="M19 29h8l1.8 14h-3.6v11h-2.1V43h-1.8v11h-2.1V43h-2.4z" />
+      <circle cx="41" cy="22" r="3.5" /><path d="M37 29h8l4.2 15H45v10h-2.2V44h-3.6v10H37V44h-4.2z" />
+    </g>
+  ),
+  // A light-rail tram from the front (V4).
+  tram: <g transform="scale(0.375)" strokeWidth={4}><rect x="19" y="19" width="26" height="29" rx="5" /><path d="M23 26h18v11H23zM23 48l-3 5m21-5 3 5" /><path d="M24 42h3m10 0h3" /></g>,
+  // A park bench from the front, with a slatted backrest (our own drawing: V4's read as a table).
+  bench: <><path d="M5 6.5h14" /><path d="M5 9.5h14" /><path d="M3.5 13h17" /><path d="M6.5 6.5V19" /><path d="M17.5 6.5V19" /></>,
+  // A tree for shade (V4): a filled canopy on a trunk.
+  tree: (
+    <g transform="scale(0.375)">
+      <path d="M32 42v12" strokeWidth={4} />
+      <path d="M18 33c-5-7 1-15 9-15 3-8 15-7 18 1 10 0 11 14 3 18-4 5-11 4-16 4-8 3-16-1-14-8Z" fill="currentColor" strokeWidth={1.2} />
+    </g>
+  ),
+  // A mission marker (V4): a flag on a pole.
+  missionFlag: <g transform="scale(0.375)" strokeWidth={4}><path d="M24 53V14M24 16q9-5 17 0l-3 9 3 8q-9-5-17 0" /><circle cx="24" cy="54" r="2.5" fill="currentColor" stroke="none" /></g>,
+  // Show our location (V4): a crosshair, for the Navigator's button. On the map the position itself is a dot.
+  gpsLocate: <g transform="scale(0.375)"><circle cx="32" cy="32" r="15" strokeWidth={3.5} /><circle cx="32" cy="32" r="5" fill="currentColor" stroke="none" /><path d="M32 11v9m0 24v9M11 32h9m24 0h9" strokeWidth={3.5} /></g>,
 
   // Answer inputs
   camera: <><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="13.5" r="3.5" /></>,

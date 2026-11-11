@@ -77,6 +77,36 @@ The 5 Nov notes are in the [handoff](agent-handoff.md), in the entry "Deployed `
 - **A short design pass** (`/experience-design`, then the `dori-ux-designer` agent) before code.
 - The copy.
 
+### The two-map idea (owner, 11 Nov 2026): to verify
+
+The owner's idea, "to be verified, not a decision yet":
+1. The **illustrated map** is the game's cover and is used for **picking a challenge**.
+2. For **real navigation**, the OSM map (the dev page `/dev/osm-map`) is shown full screen, or nearly.
+3. The **Navigator** can tap "we are here", and "show our location". Showing the location **costs points** and lasts **one minute** each time.
+
+**Claude's assessment (11 Nov 2026):**
+- **For it:**
+  - Each map does what it's good at. The illustration is the game's face, and choosing a challenge doesn't need an exact pin.
+  - The OSM map is exact, which is what walking there needs.
+  - It also settles Build 4's "the Map button shows it full screen".
+- **Risks, and how to meet them:**
+  - **Two maps can confuse.** Make it one clear step, "choose" (illustrated) then "go" (OSM). Give a challenge the same number and colour on both maps, and a plain way back to choosing.
+  - **The illustrated map's pins stay approximate** ([map audit](../map/nahlaot-map-audit.md)). That's fine for choosing; never use it to walk.
+  - **A full-screen map hides the bottom bar and the challenge card.** Keep a slim "back" control, and the challenge's title in sight.
+- **"We are here"** already exists: the `self-arrival` action (D6) for the Navigator or the guide. It records arrival once, with GPS where a stop has it switched on, otherwise trusting the group or the guide. Never GPS only (content rules).
+- **"Show our location":**
+  - It fits the approved rule that revealing the address costs points (20 → 15). Code computes the cost and queues it offline, so a dropped connection doesn't lose it.
+  - The position stays on the Navigator's phone; it is never stored or sent.
+  - GPS is watched only during the minute (battery).
+  - In Nahlaot's narrow alleys GPS is off by 10–30 m, so show the dot with its accuracy ring, and expect "it says we're in the wall".
+  - Safety and accessibility directions stay free (9 Nov).
+- **Questions for the owner:**
+  - the cost per use;
+  - whether the first use is free;
+  - whether the rest of the group sees the Navigator's dot;
+  - whether the minute can be cut short.
+- **Next, if approved:** a short design pass (`/experience-design`, then `dori-ux-designer`) together with Build 4, before any code.
+
 ## Build 5: the role moment
 
 The general pattern for when a challenge needs one role to act. **Approved direction (owner, 8 Nov 2026, confirmed 9 Nov): the emblem cue.** A subtle animated emblem replaces the original automatic card; a tap opens the role's information and optional, progressive coaching.
