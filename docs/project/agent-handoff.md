@@ -20,7 +20,44 @@
 - **Checked:** the map tests (36 after the label work) on the host; ESLint on `scripts/map` and `lib/map` (two unused-variable warnings, fixed, with the output byte-for-byte the same) and `tsc --noEmit` clean in the one-shot container. **`npm test` on the host: 74/75**, because `lib/media/media-images.test.ts` imports `react` and the host has no `node_modules`. That failure isn't from this work. Not checked in a browser; the owner reviews the preview SVGs.
 - **Next:** the owner reviews the full preview (buildings, areas, names) and the name list (Part 7 of the plan). Then step 3: draw the map in the game's Leaflet map with names that appear as players zoom in. After that, mission positions and checking the names on site.
 
-## The DORI image pipeline, brought into the game: built, not committed, nothing on the server yet: 8 Nov 2026
+## From the platform's map work; Build 1 checks: 11 Nov 2026
+
+**Brought over from the DORI platform repo (`Tour-Tech/TourTechToolBox`, at `ddf0b38`), at the owner's request ("bring over what is relevant for the game"):**
+- **[The map-types spec](../design/map-types-spec.md)** (owner's decision, 10 Nov 2026; a reference copy, the platform holds the original). Every map is either Type A, illustration (schematic, redrawn from a reference picture), or Type B, navigation (OpenStreetMap geometry, every alley, names checked on site, zoom to street level). **The Amazing Shuk map is Type B.** Today's illustrated map is a prototype, not in operational use (owner, 11 Nov 2026): the spec is the target for later, not a current blocker.
+- **[Research 14](../../research/results/shuk-places/14_historical_city_maps_leads.md):** city-scale historical maps that may reach Nahlaot and Mahane Yehuda, as leads for a then-and-now idea; none checked for the area.
+- **A worked example of the Type B method, not copied:** the platform's Old City map (`scripts/map/build-old-city-map.mjs`, no dependencies) turns an Overpass extract (gitignored, a generic client name, no email) into projected SVG data, with a hand CURATION block, a local equirectangular projection and `geoToMap` / `mapToGeo` for GPS and Google Maps links, and a route computed as the shortest walk on OSM footpaths. Its plan cites this repo's map audit as its lessons. When the Shuk map is redrawn, start there.
+- **Ported at the owner's request: the caps scaled by height.** The platform's `6db470b` (8 Nov) scales the size caps with an image's height, in both `scripts/images/build-images.mjs` and `deploy/check-assets.mjs` (a 4:3 frame gets the base cap, a taller image proportionally more), and warns when a copy goes below the quality floor. The game had copied the pipeline before it, which is why the Levin portrait needed a crop (the crop stays). `check-assets` reads the dimensions from `data/module-images.json` only (no `places-images.json` here). Checked: `node --check` on both, and `check-assets --media /srv/dori/game-media` OK; the pipeline itself wasn't rerun, and no copy changed. As on the platform, the cap scales by the copy's shape against the nominal width, so a narrow original (e.g. `travelers-prayer-panel`, 532 × 1290) gets a generous cap.
+- The rest of the platform's map work (the Old City quarters, the 1949 line, the Jaffa Gate references) is for the Old City tour, not the game.
+
+**Build 1 checks (local only, not committed), 11 Nov 2026:**
+- `npm test` 68/68 in a throwaway container.
+- `test:shuk`: 323/330 at first. The 7 failures (`reveal.test.ts`, `timing-record.test.ts`, "Invitation login required") weren't Build 1's: `seatIds` in `seat-fixture.ts` read the sessions on the real clock, and sessions signed in at the tests' fixed 2 Nov date expired on 9 Nov. Fixed by passing the test's `now` through `seatIds`; the two files then pass 11/11 on the host. The full suite wasn't rerun after the fix.
+- `tsc --noEmit` clean.
+- ESLint, the whole repo: 3 errors, all in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs` (`require()`, from `599ad4d`, 24 Oct), and 4 old warnings in the Memory Protocol's `MissionMap` and `WelcomeScreen`. None in Build 1's files.
+- **Not run:** `/game-verify shuk`. **Not checked in a browser.**
+- Also this session: the seven unused photos moved from `public/shuk` to `media-originals/reference/shuk/` (entry below); the map notice's auto-fold confirmed by the owner as nonessential ([plan](live-test-8-nov-plan.md)).
+
+## Deployed `e5f15ff`; the owner's live test notes: 8 Nov 2026
+
+- **Live since 8 Nov 2026, 15:40 UTC:** `dori-shuk:20261108-153927-e5f15ff` (rollback `previous` = `5c4e027`). It ships `b4d2298`, `bcc3e2c`, the image pipeline (`cb4a381`) and the Levin crop B (`3ebda14`). The copies are in `/srv/dori/game-media`, mounted read-only; a Levin AVIF is served live with `immutable`, and the library copies are a 404 on the Shuk. Fresh adventure; links `host-player-1`, `guide`, `player-2` until about 9 Nov 15:40 UTC; join links off; backup `live-state-before-deploy-20261108T153918Z.json`; 14 safety copies in `/data`.
+- **The Memory Protocol is paused** (not deployed; archive plan deferred): see `current-state.md`.
+- **The owner's notes from the live test (8 Nov), recorded for the plan, not built:**
+  1. **Role pop-up:** add a line saying what it means to be a ___ (each role). `TODO(copy)`: the owner approves the wording.
+  2. **The count step:** instead of the question "How many are playing?", show a summary: "You will be 2 …" (`TODO(copy)`).
+  3. **Passed:** the stepper, and roles updating on both devices; after Start, the role by the avatar looks good.
+  4. **The map notice** ("Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."): it should close by itself after 30 s; the circle (the marker) gently animated.
+  5. **"Find the place":** the picture is too small; in its pop-up the text is out of place.
+  6. **The navigation screen** (adds to the 5 Nov notes below): no Hebrew title; "mission" becomes "challenge"; remove the map from this screen (the Map button shows it full screen); a title saying what to look for, with the images of what they're looking for; **revealing the address costs points.**
+  7. **The stepper:** at the top, and sticky.
+  8. **Pop-ups: a different animation for each kind of result**; success (e.g. "Group arrival confirmed! 20 arrival points earned.") scales up from the centre. Not in the docs before; now in [the plan §8a](progressive-challenges-plan.md#8a-reward-celebrations-owner-direction-2-nov-2026).
+  9. **Hints and "I'm completely stuck" as icons:** each can be just an icon with a small number (e.g. hints left); "I'm completely stuck" uses a lifebuoy (life-ring) icon. Recorded, not built; the icon is a new entry in `components/icons/iconPaths.tsx` when built.
+  10. **Hide the answer choices before the challenge starts:** players see the question, but not its options, until the challenge is started. Recorded, not built.
+  11. **The role moment:** when a challenge needs one role to act, remind them of the role and how it's done, and push them on how to start (first case: the Researcher at the mural, searching for the artists' photo). **Direction approved (owner, 8 Nov 2026): the emblem cue.** The holder's emblem highlights once; a tap opens the role pop-up (purpose, task, why, guidance on request, the link last); teammates get a quiet line and an observation task; no new server action; Submit is never blocked. Pilot: the Researcher at Something's Missing. Treatment: [role-moment-treatment.md](role-moment-treatment.md); mobile design in `design/output/role-moment-emblem-cue-2026-11-08.md`. Not built.
+- **Implementation plan for items 1–11:** [live-test-8-nov-plan.md](live-test-8-nov-plan.md), in five builds (quick fixes; copy; the result animations; the navigation rework; the role moment). Not started; each build waits for the owner.
+
+## The DORI image pipeline, brought into the game: committed `cb4a381`, live on the Shuk in `e5f15ff`: 8 Nov 2026
+
+*Brought up to date 11 Nov 2026: this entry was written before the commit, the crop and the deploy.*
 
 At the owner's request ("reuse the platform's implementation; don't redesign it"). How-to: [images-howto.md](../images-howto.md); decisions: [images-research.md](../images-research.md).
 - **Copied from the platform** (each file names its source): `scripts/images/build-images.mjs`, `deploy/check-assets.mjs`, `deploy/prune-media.mjs`, `types/media-images.ts`, `data/media-images.ts`, `data/module-images.ts`, `components/media/Picture.tsx`.
@@ -28,10 +65,15 @@ At the owner's request ("reuse the platform's implementation; don't redesign it"
 - **Switched to `<Picture>`:** every raster image (the Shuk's 5 screens with `next/image`, the Memory Protocol's 7 `<img>`). The map JPEG stays in `public/map` for Leaflet.
 - **Serving:** `/srv/dori/game-media` (the game's own root, never the platform's `/srv/dori/media`) bind-mounted read-only at `/app/public/media` in both compose files; the Dockerfile makes the mount point; `deploy.sh` runs `check-assets --media /srv/dori/game-media` before building.
 - **First run** (throwaway container, from the current web JPEGs as originals): 16 images, 96 copies, 6.9 MB, metadata stripped. The 1080 AVIFs are 20–210 KB, within their caps.
-- **Blocked: the Levin mural's WebP fallbacks are over their hard caps** (107 KB > 100 at 640; 241 KB > 220 at 1080). It's a tall, detailed portrait (1024 × 1819); its AVIFs are fine. The platform's fix is a `crop` in `media-originals/modules/shuk/sources.json`: **the owner chooses the crop.** Until then, `check-assets` fails, so a deploy would stop at "Check images".
+- **The Levin mural, resolved (`3ebda14`):** its WebP fallbacks were over their hard caps (107 KB > 100 at 640; 241 KB > 220 at 1080; original 1024 × 1819). The owner chose **crop B** (774 × 1500 from 250,0): the mural only, without the air conditioner, bars and gas cylinder. The 1080 WebP is now 209.6 KB, and `check-assets` passes on the repo and on `/srv/dori/game-media`.
 - **Credits:** the Shuk's are filled from the data files; the library and map are "unrecorded".
 - **Checks:** `test:shuk` 329/329, `npm test` 65/65 (new `lib/media/media-images.test.ts`), `tsc` clean, ESLint with no new warnings; both images build; with the copies mounted, the Memory Protocol and the Shuk each serve their copies with `public, max-age=31536000, immutable`, the Shuk's smoke routes pass 10/10 and the library copies are a 404 there. **Not checked in a browser.**
-- **Waiting on the owner, in order:** the Levin crop; then creating `/srv/dori/game-media` and copying the copies in; the commit; a deploy of each app (it recreates the containers with the new mount: a live restart). After that, the JPEGs can leave `public/library` and `public/shuk` (and the `.dockerignore` photo lines).
+- **Done, 8 Nov 2026:** `/srv/dori/game-media` created and filled (`library`, `map`, `shuk`; 6.7 MB on 11 Nov); the commits `cb4a381` and `3ebda14`; the Shuk deployed (`dori-shuk:20261108-153927-e5f15ff`, the mount at `/app/public/media`, read-only). Live: a Levin AVIF is served with `immutable`, and the library copies are a 404 on the Shuk.
+- **Not deployed: the Memory Protocol.** It is paused (owner, 8 Nov 2026), so `dori-game` still runs its old image without the mount and serves its JPEGs from `public/library`. It gets the pipeline whenever it is next deployed.
+- **Still open (owner's call):**
+  - The JPEGs can leave `public/shuk` and `public/library` (and their `.dockerignore` photo lines): new builds of both apps read the copies through the mount, and the running `dori-game` image has its own JPEGs built in. `public/map/nahlaot-illustrated-candidate.jpg` always stays (Leaflet).
+  - **Done (owner, 11 Nov 2026):** the seven unused photos that sat loose in `public/shuk` (`and Flor .png`, the Armuza studio portrait, `cistren_gan_ha_tot.png`, `Hesed_va_Rahamim.jpg` and three `MY_*` photos) moved to `media-originals/reference/shuk/` for reference: ignored by git and Docker, never read by the pipeline. A challenge that uses one first gets a `sources.json` entry in `media-originals/modules/shuk/`.
+  - Credits still "unrecorded": the library, the map and `mural-before`.
 
 ## Session handoff, 5–6 Nov 2026: start here
 

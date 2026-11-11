@@ -60,7 +60,7 @@ English first. The guide's sequence and humour are kept, and the hedges are in t
 - **The check:** the tiered checker's code tiers. First normalise (case, accents, spaces, hyphens) and match exactly; then accept a near-miss.
 - **The reveal** opens with the right spelling, so a near-miss sees it: "CitéCréation:" before v2's reveal text.
 
-**Something's Missing** (Medium, 2 hints, choose 1 of 3):
+**Something's Missing** (Medium, 2 hints, choose 1 of 3). *The Researcher's search for the artists' photo is the worked example of the [role moment](role-moment-treatment.md#8-worked-example-the-researcher-at-the-mural) (the pilot, owner's approved direction, 8 Nov 2026): the Researcher's emblem lights once; a tap opens the role pop-up, with search guidance and the link only on request; the others hold the wall.*
 - **Prompt:**
   > Researcher: open the artists' photo of their finished wall. Something stood at the corner then that isn't there now. What was it?
 - **Options:**

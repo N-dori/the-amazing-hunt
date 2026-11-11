@@ -10,6 +10,7 @@ The DORI platform's image pipeline, brought into this repo on 8 Nov 2026 and reu
 |---|---|---|
 | Originals | `media-originals/modules/<name>/` (`library`, `map`, `shuk`) | **No** |
 | Each original's description (`sources.json`) | the same folder | **Yes** |
+| Reference photos the game doesn't use (kept for later) | `media-originals/reference/<name>/`; the pipeline never reads it | **No** |
 | The copies ("variants": content-hashed AVIF and WebP) | `public/media/modules/…` locally; **`/srv/dori/game-media/`** on the server, bind-mounted read-only into `dori-game` and `dori-shuk` | **No** |
 | The manifest | `data/module-images.json` (generated; don't edit by hand) | **Yes** |
 
@@ -51,7 +52,7 @@ The pipeline does everything the platform's does:
 - strips all metadata, GPS included;
 - makes AVIF at 320/640/1080/1600 and WebP at 640/1080;
 - steps the quality down to meet the targets;
-- **stops on anything over its hard cap** (100 KB at 640, 220 KB at 1080, 400 KB at 1600).
+- **stops on anything over its hard cap** (100 KB at 640, 220 KB at 1080, 400 KB at 1600, for a 4:3 frame; a taller image gets a proportionally larger cap, as its target does, and `check-assets` applies the same rule; ported from the platform on 11 Nov 2026). It warns when a copy has to go below the quality floor to meet its cap.
 
 ## Putting images on the server
 
