@@ -104,6 +104,19 @@ const AREA_KINDS = [
     || ["grass", "forest", "meadow", "recreation_ground", "cemetery"].includes(t.landuse) },
 ];
 
+// Map layers drawn as icons (owner, 11 Nov 2026): synagogues, toilets, drinking water and light-rail stations. OSM maps a
+// feature as an outline or a point (or both, or one stop per direction): within mergeM of one already kept, a feature is
+// the same one if the names agree or either has none (byName: only if the names agree, e.g. a station's two stops).
+// iconZoom: the first zoom the icon may show at; nameZoom: the first its name may (no name for toilets and water).
+// Not a tomb: OSM tags three graves (names starting "קבר", "tomb of") as places of worship with no religion.
+const IS_SYNAGOGUE = (t) => t.amenity === "place_of_worship" && (t.religion ?? "jewish") === "jewish" && !/^קבר /.test(t["name:he"] ?? t.name ?? "");
+const POI_KINDS = [
+  { kind: "tram", test: (t) => t.railway === "tram_stop", mergeM: 120, byName: true, iconZoom: -1.5, nameZoom: 0, prio: 1.2 },
+  { kind: "synagogue", test: IS_SYNAGOGUE, mergeM: 12, iconZoom: 0.5, nameZoom: 1.5, prio: 1.5 },
+  { kind: "toilets", test: (t) => t.amenity === "toilets", mergeM: 8, iconZoom: 1, prio: 1.6 },
+  { kind: "drinkingWater", test: (t) => t.amenity === "drinking_water", mergeM: 5, iconZoom: 1.5, prio: 1.7 },
+];
+
 // Courtyards and small neighbourhoods OSM doesn't have, at the positions the owner gave (11 Nov 2026). Spelling: the
 // suggestion the owner approved. `pending`: no position yet, so not drawn (listed in the names document).
 const COURTYARDS = [
@@ -116,28 +129,44 @@ const COURTYARDS = [
   { en: "Knesset Yisrael C", he: "כנסת ישראל ג׳", pending: true },
   { en: "Batei Munkatch", he: "בתי מונקאטש", pending: true },
 ];
-// Real road widths in metres, by OSM class, where the way has no `width` tag. Roads are drawn at these widths, never
-// widened (owner, 11 Nov 2026).
+// Real road widths in metres, by OSM class, where the way has no `width` tag. Streets and paths are drawn at these
+// widths. Main roads are drawn MAIN_ROAD_SCALE times wider, so their names fit inside sooner (owner, 11 Nov 2026,
+// replacing "roads are never widened" of the same day).
 const ROAD_WIDTH_M = {
   primary: 14, secondary: 14, tertiary: 10, primary_link: 8, secondary_link: 8, tertiary_link: 7,
   unclassified: 6, residential: 6, living_street: 5, service: 4, track: 3,
   pedestrian: 3, footway: 3, path: 2, steps: 2.5, corridor: 2, cycleway: 2,
 };
-// Label styles (owner, 11 Nov 2026). Main roads: English and Hebrew side by side on one line, inside the road's width.
-// Alleys: one language (the game's), a slightly smaller font, may overflow the width. Sizes in screen pixels.
-// fit: the share of the text width a straight stretch must have. zooms: the range a label kind is shown in.
+const MAIN_ROAD_SCALE = 1.5;
+// Label styles (owner, 11 Nov 2026). Main roads: English and Hebrew side by side on one line, inside the road once its
+// drawn width on screen reaches minRoadPx (the font size: the halo may spill a pixel or two past the edges). Until then,
+// a brief label: the game's language only, beside the road (gapPx clear of its edge) or inside it where it fits,
+// placed afresh at each zoom. Alleys: one language (the game's), a slightly smaller font, may overflow the width.
+// Sizes in screen pixels. fit: the share of the text width a straight stretch must have. zooms: the range a label kind
+// is shown in.
 const LABEL = {
-  main: { fontPx: 11, padPx: 2, fit: 1.1 },
+  main: { fontPx: 11, minRoadPx: 11, fit: 1.1 },
+  mainBrief: { fontPx: 11, minRoadPx: 11, fit: 1.1, gapPx: 2 },
   alley: { fontPx: 9.5, fit: 0.6 },
   place: { fontPx: 10, altFontPx: 9 },
   neighbourhood: { fontPx: 12, letterPx: 1.2, zooms: [-1.5, 0.5] },
   courtyard: { fontPx: 10, letterPx: 0.8, zooms: [0.5, 2.5] },
+  // Map-layer icons (a disc this wide) and their names, placed beside the icon afresh at each zoom.
+  poi: { iconPx: 18 },
+  poiName: { fontPx: 10, gapPx: 1 },
   lineHeight: 1.25, marginPx: 2, repeatPx: 250, maxBendDeg: 20,
 };
 // Zoom levels (Leaflet CRS.Simple: 2^z pixels per map unit, about 1.1 m per unit), from the whole frame on a phone to
 // street level; and the three the previews show.
 const ZOOMS = [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5];
-const PREVIEW_ZOOMS = [-1.5, 0.5, 2.5];
+const PREVIEW_ZOOMS = [-1.5, 0.5];
+// Street level reads larger (owner, 11 Nov 2026: "for zoom 2.5 the font can be a bit larger, 13 or 14 px"): at this zoom
+// every text size is multiplied by `scale` (main roads 11 → 13 px; icons keep their size), and the labels there get a
+// layout of their own, so the larger text never overlaps.
+const STREET_LEVEL = { zoom: 2.5, scale: 13 / 11 };
+// Phone previews: a phone screen's window (CSS pixels) at every zoom, at 1:1, centred on PHONE_CENTRE.
+const PHONE = { width: 390, height: 844 };
+const PHONE_CENTRE = { lat: 31.78350, lon: 35.21300 }; // Nahlaot, between the courtyards and the market
 const LANGUAGES = ["en", "he"];
 
 // Streets drawn beyond the frame, so players never reach a blank edge (drawn faded).
@@ -442,16 +471,16 @@ function buildFrame(id, frame) {
       const d = pathOf(simplify(piece, TOLERANCE.street));
       if (!d) continue;
       const inside = inFrame(piece[Math.floor(piece.length / 2)]);
-      const cls = streetClass(w), widthM = roadWidthM(w);
-      if (!roads.has(`${cls}|${widthM}`)) roads.set(`${cls}|${widthM}`, { class: cls, widthM, inside: [], outside: [] });
+      const cls = streetClass(w), widthM = roadWidthM(w), drawM = widthM * (cls === "main" ? MAIN_ROAD_SCALE : 1);
+      if (!roads.has(`${cls}|${widthM}`)) roads.set(`${cls}|${widthM}`, { class: cls, widthM, drawM, inside: [], outside: [] });
       roads.get(`${cls}|${widthM}`)[inside ? "inside" : "outside"].push(d);
       const key = streetKey(w.tags);
       if (!key) continue;
       const gKey = `${key}|${cls === "main"}`;
-      if (!streetGroups.has(gKey)) streetGroups.set(gKey, { key, main: cls === "main", ways: new Set(), widthM: Infinity });
+      if (!streetGroups.has(gKey)) streetGroups.set(gKey, { key, main: cls === "main", ways: new Set(), drawM: Infinity });
       const group = streetGroups.get(gKey);
       group.ways.add(w);
-      group.widthM = Math.min(group.widthM, widthM);
+      group.drawM = Math.min(group.drawM, drawM);
       if (!names.has(key)) names.set(key, { he: w.tags["name:he"] ?? null, en: new Set(), osmName: new Set(), wayIds: new Set(), insideM: 0, marginM: 0 });
       const entry = names.get(key);
       if (w.tags["name:en"]) entry.en.add(w.tags["name:en"]);
@@ -468,7 +497,7 @@ function buildFrame(id, frame) {
     const runs = joinRefChains([...g.ways]).flatMap((chain) => clipLine(chain.map(project), W, H))
       .flatMap((piece) => straightRuns(piece, LABEL.maxBendDeg));
     const inside = runs.some((r) => inFrame(r.pts[Math.floor(r.pts.length / 2)]));
-    return { key: g.key, main: g.main, widthM: g.widthM, runs, inside, length: runs.reduce((t, r) => t + r.length, 0) };
+    return { key: g.key, main: g.main, drawM: g.drawM, runs, inside, length: runs.reduce((t, r) => t + r.length, 0) };
   });
 
   // Neighbourhood names OSM has (tagged points) and the owner's courtyards.
@@ -509,12 +538,41 @@ function buildFrame(id, frame) {
     const largest = a.rings.map((r) => r.map(project)).reduce((best, r) => (ringArea(r) > ringArea(best) ? r : best));
     const c = centroid(largest);
     if (c.x < 0 || c.x > W || c.y < 0 || c.y > H) continue;
+    if (kind === "worship" && IS_SYNAGOGUE(a.tags)) continue; // named by the synagogue layer (pois)
     const alt = PLACE_ALT_NAMES[a.osm];
     places.push({ osm: a.osm, kind, he, en, ...(alt ? { alt } : {}), x: Math.round(c.x), y: Math.round(c.y), ...(inFrame(c) ? {} : { inFrame: false }) });
   }
   const buildings = { inside: [], outside: [] };
   for (const b of areaRings((t) => t.building && t.building !== "no" && t.amenity !== "place_of_worship")) {
     for (const s of shapeD(b.rings, TOLERANCE.building)) buildings[s.inside ? "inside" : "outside"].push(s.d);
+  }
+
+  // Map layers: outlines first (their centre), then points; duplicates merged (POI_KINDS).
+  const nameOf = (t) => ({
+    he: t["name:he"] ?? (/[\u0590-\u05FF]/.test(t.name ?? "") ? t.name : null),
+    en: t["name:en"] ?? (t.name && !/[\u0590-\u05FF]/.test(t.name) ? t.name : null),
+  });
+  const pois = [];
+  for (const k of POI_KINDS) {
+    const found = [];
+    for (const a of areaRings(k.test)) {
+      const largest = a.rings.map((r) => r.map(project)).reduce((best, r) => (ringArea(r) > ringArea(best) ? r : best));
+      found.push({ ...centroid(largest), ...nameOf(a.tags), osm: [a.osm] });
+    }
+    for (const [nid, n] of nodes) if (n.tags && k.test(n.tags)) found.push({ ...project(n), ...nameOf(n.tags), osm: [`node/${nid}`] });
+    const kept = [];
+    for (const f of found) {
+      const same = kept.find((o) => metres(Math.hypot(o.x - f.x, o.y - f.y)) <= k.mergeM
+        && (k.byName ? o.he === f.he && o.en === f.en : !(o.he ?? o.en) || !(f.he ?? f.en) || (o.he ?? o.en) === (f.he ?? f.en)));
+      if (!same) { kept.push({ ...f, n: 1 }); continue; }
+      // A station's stops are averaged; an outline keeps its centre over a point inside it.
+      if (k.byName) { same.x = (same.x * same.n + f.x) / (same.n + 1); same.y = (same.y * same.n + f.y) / (same.n + 1); same.n += 1; }
+      same.he ??= f.he; same.en ??= f.en; same.osm.push(...f.osm);
+    }
+    for (const f of kept) {
+      if (f.x < 0 || f.x > W || f.y < 0 || f.y > H) continue;
+      pois.push({ kind: k.kind, he: f.he, en: f.en, x: r1(f.x), y: r1(f.y), osm: f.osm, ...(inFrame(f) ? {} : { inFrame: false }) });
+    }
   }
 
   const nameRows = [...names.entries()].map(([key, n]) => {
@@ -533,7 +591,7 @@ function buildFrame(id, frame) {
   }).sort((a, b) => a.street.localeCompare(b.street, "he"));
 
   const roadList = [...roads.values()].sort((a, b) => ["path", "street", "main"].indexOf(a.class) - ["path", "street", "main"].indexOf(b.class) || a.widthM - b.widthM);
-  return { id, title: frame.title, legs, projection, ring, roads: roadList, streetRuns, neighbourhoods, areas, buildings, nameRows, places };
+  return { id, title: frame.title, legs, projection, ring, roads: roadList, streetRuns, neighbourhoods, areas, buildings, nameRows, places, pois };
 }
 
 // ---- Outputs ------------------------------------------------------------------------------------------------------
@@ -562,19 +620,29 @@ function mapData(built) {
     artboard,
     areas: Object.fromEntries(Object.entries(built.areas).map(([k, list]) => [k, join(list)])),
     buildings: { inside: join(built.buildings.inside), outside: join(built.buildings.outside) },
-    // Roads by class and real width (metres), drawn as bands at that width; painted path, street, main.
-    roads: built.roads.map((r) => ({ class: r.class, widthM: r.widthM, inside: join(r.inside), outside: join(r.outside) })),
+    // Roads by class and real width (metres), drawn as bands drawM wide (main roads wider than real, MAIN_ROAD_SCALE);
+    // painted path, street, main.
+    roads: built.roads.map((r) => ({ class: r.class, widthM: r.widthM, drawM: r.drawM, inside: join(r.inside), outside: join(r.outside) })),
     names: namesOut,
     // Named parks, squares, the market and synagogues (outlines only), with any name the owner added (alt).
     places: built.places,
     // OSM's neighbourhood names and the owner's courtyards. Their labels, like the streets', are in the label files.
     neighbourhoods: built.neighbourhoods,
+    // Map layers drawn as icons: synagogues, toilets, drinking water and light-rail stations (POI_KINDS).
+    pois: built.pois,
   };
 }
 
 // ---- Label files: one per frame and language (label-layout.mjs does the placing) ----------------------------------
 const measure = makeMeasurer(JSON.parse(readFileSync(new URL("./plex-widths.json", import.meta.url), "utf8")));
 const r1w = (n) => Math.round(n * 10) / 10;
+
+// The label styles with every text size (fonts, letter spacing, the road width a name needs, gaps) multiplied by k.
+function scaledLabel(k) {
+  const scale = (style) => Object.fromEntries(Object.entries(style).map(([key, v]) =>
+    [key, typeof v === "number" && /(font|Font|letter|minRoad|gap)Px$/.test(key) ? v * k : v]));
+  return Object.fromEntries(Object.entries(LABEL).map(([key, v]) => [key, v && typeof v === "object" && !Array.isArray(v) ? scale(v) : v]));
+}
 
 function labelData(built, lang) {
   const upm = built.projection.constants.unitsPerMetre;
@@ -583,11 +651,14 @@ function labelData(built, lang) {
   const names = built.nameRows.filter((r) => r.he || r.en);
   const nameIndex = new Map(names.map((r, i) => [r.street, i]));
   const lh = LABEL.lineHeight;
-  const items = [];
   const missing = [];
+  // The items to place, with every text size multiplied by k (1, or STREET_LEVEL.scale); icons keep their size.
+  const makeItems = (k) => {
+  const items = [];
+  const S = scaledLabel(k);
 
   built.neighbourhoods.forEach((nb, i) => {
-    const style = LABEL[nb.scale], text = both(nb.en, nb.he);
+    const style = S[nb.scale], text = both(nb.en, nb.he);
     if (!text) return;
     items.push({
       id: `nb:${i}`, prio: 0, inside: nb.inFrame !== false, length: 0, minZoom: style.zooms[0], maxZoom: style.zooms[1],
@@ -598,7 +669,7 @@ function labelData(built, lang) {
   built.places.forEach((pl, i) => {
     const first = both(pl.en, pl.he), alt = pl.alt?.[lang];
     if (!first) return;
-    const style = LABEL.place, text = alt ? [first, alt] : [first];
+    const style = S.place, text = alt ? [first, alt] : [first];
     items.push({
       id: `p:${i}`, prio: 1, inside: pl.inFrame !== false, length: 0, minZoom: ZOOMS[0],
       w: Math.max(measure(first, style.fontPx, { italic: true }), alt ? measure(alt, style.altFontPx, { italic: true }) : 0),
@@ -606,30 +677,75 @@ function labelData(built, lang) {
       fixed: { x: pl.x, y: pl.y, angle: 0 }, out: { kind: "place", text, p: i, ...(pl.inFrame === false ? { inFrame: false } : {}) },
     });
   });
+  const poiStyle = LABEL.poi, nameStyle = S.poiName;
+  built.pois.forEach((poi, i) => {
+    const kind = POI_KINDS.find((x) => x.kind === poi.kind);
+    const inside = poi.inFrame !== false, frameFlag = inside ? {} : { inFrame: false };
+    const iconId = `poi:${i}`;
+    items.push({
+      id: iconId, prio: kind.prio, inside, length: 0, minZoom: kind.iconZoom, w: poiStyle.iconPx, h: poiStyle.iconPx,
+      fixed: { x: poi.x, y: poi.y, angle: 0 }, out: { kind: "poi", text: [], poi: i, ...frameFlag },
+    });
+    const text = kind.nameZoom !== undefined ? both(poi.en, poi.he) : null;
+    if (!text) return;
+    // Clear of the icon's box: both boxes carry the layout margin.
+    const w = measure(text, nameStyle.fontPx), h = nameStyle.fontPx * lh, gap = poiStyle.iconPx / 2 + 2 * LABEL.marginPx + nameStyle.gapPx;
+    items.push({
+      id: `pn:${i}`, prio: kind.kind === "tram" ? 3.4 : 3.5, inside, length: 0, minZoom: kind.nameZoom, w, h,
+      fixed: { x: poi.x, y: poi.y, angle: 0 }, needs: iconId,
+      // Below the icon, then to its right, left, or above it.
+      perZoom: [{ dx: 0, dy: gap + h / 2 }, { dx: gap + w / 2, dy: 0 }, { dx: -(gap + w / 2), dy: 0 }, { dx: 0, dy: -(gap + h / 2) }],
+      out: { kind: "poiName", text: [text], poi: i, ...frameFlag },
+    });
+  });
   for (const g of built.streetRuns) {
     const row = names[nameIndex.get(g.key)];
     if (!row) continue;
     const text = g.main ? both(row.en, row.he) : own(row.en, row.he);
-    if (!text) { if (g.inside) missing.push(g.key); continue; }
-    const style = g.main ? LABEL.main : LABEL.alley;
+    if (!text) { if (g.inside && k === 1) missing.push(g.key); continue; }
+    const style = g.main ? S.main : S.alley;
+    const frameFlag = g.inside ? {} : { inFrame: false };
     items.push({
-      id: `st:${g.key}|${g.main}`, sid: g.key, prio: g.main ? 2 : 3, inside: g.inside, length: g.length, minZoom: ZOOMS[0],
-      w: measure(text, style.fontPx), h: style.fontPx * lh, fontPx: style.fontPx, padPx: style.padPx ?? 0, fit: style.fit,
-      ...(g.main ? { roadUnits: g.widthM * upm } : {}), runs: g.runs,
-      out: { kind: g.main ? "main" : "alley", text: [text], n: nameIndex.get(g.key), ...(g.main ? { roadM: g.widthM } : {}), ...(g.inside ? {} : { inFrame: false }) },
+      id: `st:${g.key}|${g.main}`, sid: g.key, prio: g.main ? 2 : 4, inside: g.inside, length: g.length, minZoom: ZOOMS[0],
+      w: measure(text, style.fontPx), h: style.fontPx * lh, fit: style.fit,
+      ...(g.main ? { roadUnits: g.drawM * upm, minRoadPx: style.minRoadPx } : {}), runs: g.runs,
+      out: { kind: g.main ? "main" : "alley", text: [text], n: nameIndex.get(g.key), ...(g.main ? { roadM: g.drawM } : {}), ...frameFlag },
     });
+    // A main road's brief label, for the zooms before its full label fits: the game's language only.
+    const brief = g.main ? own(row.en, row.he) : null;
+    if (brief) {
+      const st = S.mainBrief;
+      items.push({
+        id: `sb:${g.key}`, sid: g.key, prio: 3, inside: g.inside, length: g.length, minZoom: ZOOMS[0],
+        w: measure(brief, st.fontPx), h: st.fontPx * lh, fit: st.fit, roadUnits: g.drawM * upm, minRoadPx: st.minRoadPx,
+        brief: { gapPx: st.gapPx }, runs: g.runs,
+        out: { kind: "mainBrief", text: [brief], n: nameIndex.get(g.key), roadM: g.drawM, ...frameFlag },
+      });
+    }
   }
+  // Sizes are written to 0.1 px: round them up before the layout, so the files hold exactly the sizes it placed.
+  for (const item of items) { item.w = Math.ceil(item.w * 10) / 10; item.h = Math.ceil(item.h * 10) / 10; }
   items.sort((a, b) => a.prio - b.prio || Number(b.inside) - Number(a.inside) || b.length - a.length);
+  return items;
+  };
 
-  const { labels, unplaced } = layoutLabels({ zooms: ZOOMS, items, marginPx: LABEL.marginPx, repeatPx: LABEL.repeatPx });
-  const byId = new Map(items.map((i) => [i.id, i]));
+  // Up to street level at the base sizes; street level on its own, at the larger sizes.
+  const near = ZOOMS.filter((z) => z < STREET_LEVEL.zoom), top = STREET_LEVEL.zoom;
+  const opts = { marginPx: LABEL.marginPx, repeatPx: LABEL.repeatPx };
+  const baseRun = layoutLabels({ zooms: near, items: makeItems(1), ...opts });
+  const streetItems = makeItems(STREET_LEVEL.scale);
+  const streetRun = layoutLabels({ zooms: [top], items: streetItems, ...opts });
+  const labels = [...baseRun.labels.map((l) => ({ ...l, maxZoom: Math.min(l.maxZoom ?? Infinity, near.at(-1)) })), ...streetRun.labels];
+  const unplaced = streetRun.unplaced;
+  const byId = new Map(streetItems.map((i) => [i.id, i]));
   return {
     meta: {
       note: "Generated by scripts/map/build-shuk-map.mjs (layout: scripts/map/label-layout.mjs). Do not edit by hand.",
       credit: CREDIT, creditUrl: CREDIT_URL, licence: "ODbL 1.0", frame: built.id, lang,
-      zooms: ZOOMS, styles: LABEL,
+      zooms: ZOOMS, styles: LABEL, streetLevel: STREET_LEVEL,
       // Inside the frame but never placed at any zoom, and named streets with no name in this language.
-      unplaced: unplaced.map((id) => byId.get(id)).filter((i) => i.inside).map((i) => ({ kind: i.out.kind, text: i.out.text })),
+      // (At street level, the last zoom: what shows there is what the map names at all.)
+      unplaced: unplaced.map((id) => byId.get(id)).filter((i) => i.inside && !i.brief && !i.perZoom && i.out.kind !== "poi" && (i.maxZoom ?? Infinity) >= top).map((i) => ({ kind: i.out.kind, text: i.out.text })),
       noNameInLanguage: [...new Set(missing)],
     },
     labels: labels.map((l) => ({ ...l, w: r1w(l.w), h: r1w(l.h) })),
@@ -654,15 +770,17 @@ const fontFaces = (() => {
   } catch { return null; }
 })();
 
-function previewSvg(built, data, labelFile, z) {
+// With `phone`, only a phone screen's window around PHONE_CENTRE, at 1:1 (one CSS pixel per pixel).
+function previewSvg(built, data, labelFile, z, phone = false) {
   const { artboard } = data;
   const s = 2 ** z, px = (v) => v / s, upm = data.projection.unitsPerMetre;
-  const roadW = (r) => Math.max(r.widthM * upm, px(1.5));
+  const roadW = (r) => Math.max(r.drawM * upm, px(1.5));
   const roadsG = (side) => `
   <g stroke="#54514d">${data.roads.map((r) => `<path d="${r[side]}" stroke-width="${(roadW(r) + px(1.2)).toFixed(2)}"/>`).join("")}</g>
   <g stroke="#eee9df">${data.roads.map((r) => `<path d="${r[side]}" stroke-width="${roadW(r).toFixed(2)}"/>`).join("")}</g>`;
   const styleOf = (l) => {
     if (l.kind === "main") return { size: LABEL.main.fontPx, fill: "#252b2a", halo: "#eee9df" };
+    if (l.kind === "mainBrief") return { size: LABEL.mainBrief.fontPx, fill: "#252b2a", halo: l.beside ? "#f3efe6" : "#eee9df" };
     if (l.kind === "alley") return { size: LABEL.alley.fontPx, fill: "#252b2a", halo: "#f3efe6" };
     if (l.kind === "place") {
       const kind = data.places[l.p].kind;
@@ -671,20 +789,27 @@ function previewSvg(built, data, labelFile, z) {
     }
     return { size: LABEL[l.kind].fontPx, letter: LABEL[l.kind].letterPx, fill: "#54514d", halo: "#f3efe6" };
   };
+  const f = z === STREET_LEVEL.zoom ? STREET_LEVEL.scale : 1;
   const label = (l) => {
     const st = styleOf(l), lh = LABEL.lineHeight;
-    const sizes = l.text.map((_, i) => (i && st.alt ? st.alt : st.size));
+    const sizes = l.text.map((_, i) => (i && st.alt ? st.alt : st.size) * f);
     const total = sizes.reduce((t, v) => t + v * lh, 0);
     let y = -total / 2;
     const lines = l.text.map((t, i) => { const mid = y + (sizes[i] * lh) / 2; y += sizes[i] * lh; return `<tspan x="0" y="${px(mid).toFixed(2)}" font-size="${px(sizes[i]).toFixed(2)}">${esc(t)}</tspan>`; });
-    const attrs = [`fill="${st.fill}"`, `stroke="${st.halo}"`, st.italic ? `font-style="italic"` : "", st.letter ? `letter-spacing="${px(st.letter).toFixed(2)}"` : "", l.inFrame === false ? `opacity=".55"` : ""].filter(Boolean).join(" ");
+    const attrs = [`fill="${st.fill}"`, `stroke="${st.halo}"`, st.italic ? `font-style="italic"` : "", st.letter ? `letter-spacing="${px(st.letter * f).toFixed(2)}"` : "", l.inFrame === false ? `opacity=".55"` : ""].filter(Boolean).join(" ");
     return `<text transform="translate(${l.x} ${l.y}) rotate(${l.angle})" ${attrs}>${lines.join("")}</text>`;
   };
-  const shown = labelFile.labels.filter((l) => l.minZoom <= z && (l.maxZoom ?? Infinity) >= z);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${artboard.width} ${artboard.height}" width="${Math.round(artboard.width * s)}" height="${Math.round(artboard.height * s)}">
-<title>${esc(built.title)}: zoom ${z}, ${labelFile.meta.lang}, review preview</title>
+  // The map layers (icons and their names) are reviewed on the dev page (/dev/osm-map), not in these previews.
+  const shown = labelFile.labels.filter((l) => l.minZoom <= z && (l.maxZoom ?? Infinity) >= z && l.kind !== "poi" && l.kind !== "poiName");
+  const c = built.projection.project(PHONE_CENTRE);
+  const view = phone
+    ? { x: c.x - PHONE.width / 2 / s, y: c.y - PHONE.height / 2 / s, w: PHONE.width / s, h: PHONE.height / s, pw: PHONE.width, ph: PHONE.height }
+    : { x: 0, y: 0, w: artboard.width, h: artboard.height, pw: Math.round(artboard.width * s), ph: Math.round(artboard.height * s) };
+  const f2 = (n) => n.toFixed(2);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f2(view.x)} ${f2(view.y)} ${f2(view.w)} ${f2(view.h)}" width="${view.pw}" height="${view.ph}">
+<title>${esc(built.title)}: zoom ${z}, ${labelFile.meta.lang}, ${phone ? "phone screen at 1:1" : "whole map"}, review preview</title>
 ${fontFaces ? `<style>${fontFaces}</style>` : ""}
-<rect width="100%" height="100%" fill="#f3efe6"/>
+<rect x="${f2(view.x)}" y="${f2(view.y)}" width="${f2(view.w)}" height="${f2(view.h)}" fill="#f3efe6"/>
 <g id="areas" stroke="none">
   <path d="${data.areas.green}" fill="#667054" fill-opacity=".2"/>
   <path d="${data.areas.square}" fill="#d9cfbe"/>
@@ -703,7 +828,7 @@ ${fontFaces ? `<style>${fontFaces}</style>` : ""}
 <g id="labels" font-family="IBM Plex Sans, IBM Plex Sans Hebrew, sans-serif" text-anchor="middle" dominant-baseline="central" stroke-width="${px(2.4).toFixed(2)}" stroke-linejoin="round" paint-order="stroke">
 ${shown.map(label).join("\n")}
 </g>
-<text x="${artboard.width - px(6)}" y="${artboard.height - px(6)}" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="${px(10).toFixed(2)}" fill="#54514d">${CREDIT}</text>
+<text x="${f2(Math.min(view.x + view.w, artboard.width) - px(6))}" y="${f2(Math.min(view.y + view.h, artboard.height) - px(6))}" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="${px(10).toFixed(2)}" fill="#54514d">${CREDIT}</text>
 </svg>
 `;
 }
@@ -762,7 +887,7 @@ Data © OpenStreetMap contributors, ODbL (${CREDIT_URL}).
 }
 
 // ---- Run ----------------------------------------------------------------------------------------------------------
-const MAX_DATA_KB = 150;
+const MAX_DATA_KB = 256;
 const kb = (s) => Buffer.byteLength(s) / 1024;
 const wanted = FRAME_ARG === "both" ? Object.keys(FRAMES) : [FRAME_ARG];
 const built = {};
@@ -780,6 +905,7 @@ for (const id of wanted) {
   console.log(`  Artboard ${artboard.width}×${artboard.height}, 1 unit ≈ ${(1 / constants.unitsPerMetre).toFixed(2)} m · frame about ${sizeM.width} × ${sizeM.height} m, plus ${MARGIN_M} m margin`);
   for (const leg of b.legs) console.log(`  Edge: ${leg.names.join(" → ")} (${Math.round(leg.metres)} m${leg.bridges.length ? `; gaps bridged: ${leg.bridges.map((m) => `${m} m`).join(", ")}` : ""})`);
   const roadKb = (side) => kb(data.roads.map((r) => r[side]).join("")).toFixed(0);
+  console.log(`  Map layers: ${POI_KINDS.map((k) => `${k.kind} ${b.pois.filter((p) => p.kind === k.kind).length} (${b.pois.filter((p) => p.kind === k.kind && p.inFrame !== false).length} in the frame)`).join(", ")}`);
   console.log(`  data/shuk-map-nahlaot-${id}.json ${kb(json).toFixed(0)} KB: roads ${roadKb("inside")}+${roadKb("outside")} KB, buildings ${kb(data.buildings.inside + data.buildings.outside).toFixed(0)} KB, ${data.places.length} places, ${data.neighbourhoods.length} neighbourhoods and courtyards`);
 
   labelFiles[id] = {};
@@ -790,14 +916,14 @@ for (const id of wanted) {
     write(file, text);
     const counts = ZOOMS.map((z) => lf.labels.filter((l) => l.minZoom <= z && (l.maxZoom ?? Infinity) >= z).length);
     console.log(`  ${file} ${kb(text).toFixed(0)} KB · labels by zoom ${ZOOMS.map((z, i) => `${z}:${counts[i]}`).join(" ")} · never placed ${lf.meta.unplaced.length} · no ${lang} name ${lf.meta.noNameInLanguage.length}`);
-    const zooms = lang === "en" ? PREVIEW_ZOOMS : [PREVIEW_ZOOMS.at(-1)];
-    for (const z of zooms) write(`media-originals/maps/nahlaot-${id}-z${z}-${lang}.svg`, previewSvg(b, data, lf, z));
+    if (lang === "en") for (const z of PREVIEW_ZOOMS) write(`media-originals/maps/nahlaot-${id}-z${z}-${lang}.svg`, previewSvg(b, data, lf, z));
+    for (const z of lang === "en" ? ZOOMS : [0.5, 2.5]) write(`media-originals/maps/nahlaot-${id}-phone-z${z}-${lang}.svg`, previewSvg(b, data, lf, z, true));
   }
 }
 if (built.small && built.large) {
   write("docs/map/nahlaot-street-names.md", namesMarkdown(built));
   console.log("\nNames list: docs/map/nahlaot-street-names.md");
 }
-console.log(`Previews: media-originals/maps/nahlaot-{small,large}-z{${PREVIEW_ZOOMS.join(",")}}-en.svg and the street-level -he.svg${fontFaces ? " (Plex embedded)" : " (Plex not found in media-originals/fonts: system fonts)"}`);
+console.log(`Previews: media-originals/maps/nahlaot-{small,large}-z{${PREVIEW_ZOOMS.join(",")}}-en.svg (whole map), -phone-z{${ZOOMS.join(",")}}-en.svg and -phone-z{0.5,2.5}-he.svg (a phone screen, 1:1)${fontFaces ? " (Plex embedded)" : " (Plex not found in media-originals/fonts: system fonts)"}`);
 console.log(`Extract: ${IN} (${extractDate})`);
 if (tooBig.length) { console.error(`Over ${MAX_DATA_KB} KB, not written: ${tooBig.join(", ")}`); process.exit(1); }

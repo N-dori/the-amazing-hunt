@@ -101,14 +101,21 @@ const visibleAt = (label, z) => label.minZoom <= z && (label.maxZoom ?? Infinity
  * items, in priority order: { id, sid?, kind, text, w, h, minZoom, maxZoom?, ...extra } and either
  *   fixed: { x, y, angle }                      a point label (place, neighbourhood, courtyard), or
  *   runs: [{ pts, cum, length }], fit,          a street label along its straight stretches; `fit` is the share of
- *   roadUnits?, fontPx, padPx                   the text width a stretch must have; roadUnits, if set, is the road's
- *                                               width in map units, which must hold fontPx plus padPx on each side.
+ *   roadUnits?, minRoadPx                       the text width a stretch must have; roadUnits, if set, is the road's
+ *                                               drawn width in map units, which must be at least minRoadPx on screen.
+ *   brief: { gapPx }                            (with runs) a zoomed-out label: placed afresh at every zoom and shown
+ *                                               at that zoom only. Inside the road where it is wide enough, otherwise
+ *                                               beside it, gapPx clear of the road's edge, on either side.
+ *   fixed + perZoom: [{ dx, dy }], needs?     a point label placed afresh at each zoom and shown at that zoom only, at
+ *                                               the first free offset (screen pixels) from its point, and only while the
+ *                                               item `needs` (an icon) is shown: e.g. a synagogue's name beside its icon.
  * reserved: boxes (corners in map units) nothing may cover, e.g. mission markers.
  * Returns the placed labels (each with the zoom it first shows at) and the ids of items never placed.
  */
 export function layoutLabels({ zooms, items, marginPx, repeatPx, reserved = [] }) {
   const placed = [];
   const bySid = new Map();
+  const itemById = new Map(items.map((i) => [i.id, i]));
   for (const z of zooms) {
     const s = 2 ** z;
     // A uniform grid of the boxes shown at this zoom, so each test looks at its neighbours only.
@@ -138,7 +145,8 @@ export function layoutLabels({ zooms, items, marginPx, repeatPx, reserved = [] }
     for (const label of placed) if (visibleAt(label, z)) insert(labelBox(label, z, marginPx));
 
     const take = (item, at) => {
-      const label = { ...item.out, x: at.x, y: at.y, angle: at.angle, w: item.w, h: item.h, minZoom: z, ...(item.maxZoom !== undefined ? { maxZoom: item.maxZoom } : {}), ...(at.run !== undefined ? { run: at.run } : {}) };
+      const maxZoom = item.brief || item.perZoom ? z : item.maxZoom;
+      const label = { ...item.out, x: at.x, y: at.y, angle: at.angle, w: item.w, h: item.h, minZoom: z, ...(maxZoom !== undefined ? { maxZoom } : {}), ...(at.run !== undefined ? { run: at.run } : {}), ...(at.beside ? { beside: true } : {}) };
       placed.push(label);
       item.placed = true;
       if (item.sid !== undefined) { if (!bySid.has(item.sid)) bySid.set(item.sid, []); bySid.get(item.sid).push(label); }
@@ -147,24 +155,41 @@ export function layoutLabels({ zooms, items, marginPx, repeatPx, reserved = [] }
 
     for (const item of items) {
       if (z < item.minZoom || z > (item.maxZoom ?? Infinity)) continue;
+      if (item.fixed && item.perZoom) {
+        if (item.needs && !itemById.get(item.needs)?.placed) continue;
+        for (const o of item.perZoom) {
+          const at = { x: Math.round((item.fixed.x + o.dx / s) * 100) / 100, y: Math.round((item.fixed.y + o.dy / s) * 100) / 100, angle: 0 };
+          if (!collides(labelBox({ ...at, w: item.w, h: item.h }, z, marginPx))) { take(item, at); break; }
+        }
+        continue;
+      }
       if (item.fixed) {
         if (item.placed) continue;
         const at = item.fixed;
-        if (!collides(labelBox({ ...at, w: item.w, h: item.h }, z, marginPx))) take(item, at);
+        // Nor may it take the spot of a point label before it in the order that is still waiting for room (an icon
+        // must not push a place's name off the map), except at the last zoom, so every point label shows by then.
+        const order = items.indexOf(item);
+        const blocks = z < zooms.at(-1) && items.slice(0, order).some((f) => f.fixed && !f.perZoom && !f.placed && f.minZoom <= z
+          && (f.maxZoom ?? Infinity) >= z
+          && boxesOverlap(labelBox({ ...at, w: item.w, h: item.h }, z, marginPx), labelBox({ ...f.fixed, w: f.w, h: f.h }, z, marginPx)));
+        if (!blocks && !collides(labelBox({ ...at, w: item.w, h: item.h }, z, marginPx))) take(item, at);
         continue;
       }
-      // A street: the road must be wide enough on screen for the text, if the item asks for that.
-      if (item.roadUnits !== undefined && item.roadUnits * s < item.fontPx + 2 * item.padPx) continue;
+      // A street: the road must be wide enough on screen for the text, if the item asks for that. A brief label goes
+      // beside a road that is too narrow.
+      const fitsInside = item.roadUnits === undefined || item.roadUnits * s >= item.minRoadPx;
+      if (!fitsInside && !item.brief) continue;
+      const offsets = fitsInside ? [0] : [1, -1].map((side) => side * (item.roadUnits / 2 + (item.brief.gapPx + item.h / 2) / s));
       // Point labels not yet placed (a place hidden for now under a neighbourhood name, a courtyard that starts at a
       // closer zoom) keep their spot: a street label may not cover one at the zoom that label could first show at.
       // Both boxes scale alike, so clear there means clear at every closer zoom too.
-      const waiting = items.filter((f) => f.fixed && !f.placed && (f.maxZoom ?? Infinity) >= z);
+      const waiting = items.filter((f) => f.fixed && !f.perZoom && !f.placed && (f.maxZoom ?? Infinity) >= z);
       const coversWaiting = (cand) => waiting.some((f) => {
         const zz = Math.max(z, f.minZoom);
         return boxesOverlap(labelBox({ ...cand, w: item.w, h: item.h }, zz, marginPx), labelBox({ ...f.fixed, w: f.w, h: f.h }, zz, marginPx));
       });
       const wU = item.w / s, spacing = repeatPx / s;
-      const same = () => bySid.get(item.sid) ?? [];
+      const same = () => (bySid.get(item.sid) ?? []).filter((o) => visibleAt(o, z));
       for (const run of item.runs) {
         if (run.length < item.fit * wU) continue;
         // Positions: the centre first, then outwards, keeping the text on the stretch (or centred on a short one).
@@ -178,10 +203,16 @@ export function layoutLabels({ zooms, items, marginPx, repeatPx, reserved = [] }
           const p = pointAt(run, at);
           if (same().some((o) => Math.hypot(o.x - p.x, o.y - p.y) < spacing)) continue;
           const a = pointAt(run, at - wU / 2), b = pointAt(run, at + wU / 2);
-          const angle = Math.round(upright((Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI));
-          const candidate = { x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10, angle, run: Math.round(run.length * 10) / 10 };
-          if (collides(labelBox({ ...candidate, w: item.w, h: item.h }, z, marginPx)) || coversWaiting(candidate)) continue;
-          take(item, candidate);
+          const heading = Math.atan2(b.y - a.y, b.x - a.x);
+          const angle = Math.round(upright((heading * 180) / Math.PI));
+          for (const off of offsets) {
+            // Beside the road: moved along the stretch's normal, clear of the road's drawn edge.
+            const x = p.x - Math.sin(heading) * off, y = p.y + Math.cos(heading) * off;
+            const candidate = { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, angle, run: Math.round(run.length * 10) / 10, ...(off ? { beside: true } : {}) };
+            if (collides(labelBox({ ...candidate, w: item.w, h: item.h }, z, marginPx)) || coversWaiting(candidate)) continue;
+            take(item, candidate);
+            break;
+          }
         }
       }
     }

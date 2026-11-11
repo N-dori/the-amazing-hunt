@@ -22,6 +22,14 @@ export const iconPaths = {
   compass: <><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5z" /></>,
   // A magnifier: what to look for at a place.
   search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L20 20" /></>,
+  // Map layers (the OSM map, 11 Nov 2026). A Star of David: two triangles on a circle of radius 9 for a synagogue.
+  starOfDavid: <><path d="M12 3l7.8 13.5H4.2z" /><path d="M12 21L4.2 7.5h15.6z" /></>,
+  // Toilets: a man and a woman either side of a divider.
+  toilets: <><circle cx="6.5" cy="5" r="1.75" /><path d="M4.5 10h4v5h-1v5h-2v-5h-1z" /><path d="M12 3v18" /><circle cx="17.5" cy="5" r="1.75" /><path d="M17.5 9.5l3 6.5h-6z" /><path d="M16.5 16v4" /><path d="M18.5 16v4" /></>,
+  // A light-rail tram from the front: pantograph, windscreen, lights, and the wheels on the rails.
+  tram: <><path d="M10 2.5h4" /><path d="M12 2.5V5" /><path d="M7 5h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" /><path d="M5 11h14" /><path d="M8.5 14.5h.01" /><path d="M15.5 14.5h.01" /><path d="M8 18l-2 3.5" /><path d="M16 18l2 3.5" /></>,
+  // Drinking water: a drop.
+  drinkingWater: <><path d="M12 3.5s-6 6.6-6 11a6 6 0 0 0 12 0c0-4.4-6-11-6-11z" /><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5" /></>,
 
   // Answer inputs
   camera: <><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="13.5" r="3.5" /></>,

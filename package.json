@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:docker": "docker run --rm -it --name shuk-dev --network host -v \"$PWD\":/w -v /w/node_modules -w /w -e NEXT_TELEMETRY_DISABLED=1 -e SHUK_DEV_SIMULATION=1 --memory 1536m node:22-alpine sh -c 'npm ci --no-audit --no-fund && npx next dev --hostname 127.0.0.1 --port 3300'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

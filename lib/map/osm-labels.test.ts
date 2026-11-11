@@ -59,24 +59,40 @@ for (const frame of FRAMES) {
       }
     });
 
-    test(`${frame}/${lang}: main-road names sit inside the road, and every street name fits its stretch`, () => {
+    test(`${frame}/${lang}: labels shown up to street level stop before it; street level has its own, larger labels`, () => {
+      const top = file.meta.streetLevel.zoom;
+      assert.ok(file.meta.streetLevel.scale > 1);
+      for (const l of file.labels) assert.ok(l.minZoom === top ? l.maxZoom === undefined || l.maxZoom >= top : (l.maxZoom ?? Infinity) < top, `"${l.text.join(" ")}" spans street level`);
+      const main = file.labels.find((l) => l.kind === "main" && l.minZoom === top), before = file.labels.find((l) => l.kind === "main" && l.text[0] === main?.text[0] && l.minZoom < top);
+      if (main && before) assert.ok(main.w > before.w, "street-level text is not larger");
+    });
+
+    test(`${frame}/${lang}: main-road names sit inside the road once it is wide enough, beside it before; every street name fits its stretch`, () => {
       for (const l of file.labels) {
-        if (l.kind !== "main" && l.kind !== "alley") continue;
+        if (l.kind !== "main" && l.kind !== "mainBrief" && l.kind !== "alley") continue;
         const s = 2 ** l.minZoom;
-        if (l.kind === "main") {
+        if (l.kind !== "alley") {
+          const style = l.kind === "main" ? styles.main : styles.mainBrief;
           assert.equal(l.text.length, 1);
-          assert.ok(l.roadM !== undefined && l.roadM * upm * s >= styles.main.fontPx + 2 * (styles.main.padPx ?? 0) - 1e-6, `"${l.text[0]}" is taller than its road at zoom ${l.minZoom}`);
+          assert.ok(l.roadM !== undefined);
+          // Street level reads larger: there the name needs a proportionally wider road.
+          const k = l.minZoom === file.meta.streetLevel.zoom ? file.meta.streetLevel.scale : 1;
+          const wide = l.roadM * upm * s >= (style.minRoadPx ?? Infinity) * k - 1e-6;
+          if (l.kind === "main" || !l.beside) assert.ok(wide, `"${l.text[0]}" is taller than its road at zoom ${l.minZoom}`);
+          else assert.ok(!wide, `"${l.text[0]}" is beside a road it would fit inside, at zoom ${l.minZoom}`);
         }
-        const fit = (l.kind === "main" ? styles.main.fit : styles.alley.fit) ?? 1;
+        if (l.kind === "mainBrief") assert.equal(l.maxZoom, l.minZoom, `"${l.text[0]}" is a brief label shown beyond its zoom`);
+        const fit = (l.kind === "alley" ? styles.alley.fit : styles[l.kind].fit) ?? 1;
         assert.ok(l.run !== undefined && (l.w / s) * fit <= l.run + 0.15, `"${l.text[0]}" is longer than its stretch at zoom ${l.minZoom}`);
       }
     });
 
-    test(`${frame}/${lang}: main roads show both languages side by side; alleys only the game's language`, () => {
+    test(`${frame}/${lang}: main roads show both languages side by side; brief labels and alleys only the game's language`, () => {
       const hebrew = /[֐-׿]/, latin = /[A-Za-z]/;
       for (const l of file.labels) {
         const n = l.n !== undefined ? map.names[l.n] : undefined;
         if (l.kind === "main" && n?.en && n.he) assert.equal(l.text[0], lang === "en" ? `${n.en} · ${n.he}` : `${n.he} · ${n.en}`);
+        if (l.kind === "mainBrief") assert.equal(l.text[0], (lang === "en" ? n?.en : n?.he) ?? undefined);
         if (l.kind === "alley") assert.ok(lang === "en" ? !hebrew.test(l.text[0]) : !latin.test(l.text[0]) || !n?.he, `"${l.text[0]}" in the ${lang} set`);
       }
     });
@@ -93,8 +109,31 @@ for (const frame of FRAMES) {
       });
     });
 
-    test(`${frame}/${lang}: the label file stays under 150 KB`, () => {
-      assert.ok(statSync(url(name)).size <= 150 * 1024);
+    test(`${frame}/${lang}: every map-layer icon shows by street level, and each name only beside its shown icon`, () => {
+      const top = Math.max(...zooms);
+      map.pois.forEach((poi, i) => {
+        const icon = file.labels.find((l) => l.kind === "poi" && l.poi === i);
+        assert.ok(icon && icon.minZoom <= top, `the ${poi.kind} icon ${poi.he ?? poi.en ?? i} never shows`);
+        assert.equal(icon.x, poi.x);
+        assert.equal(icon.y, poi.y);
+        const named = (poi.kind === "synagogue" || poi.kind === "tram") && (poi.he || poi.en);
+        const names = file.labels.filter((l) => l.kind === "poiName" && l.poi === i);
+        if (!named) assert.equal(names.length, 0);
+        else if (poi.inFrame !== false) assert.ok(names.some((l) => l.minZoom === top), `${poi.he ?? poi.en} has no name at street level`);
+        for (const l of names) {
+          assert.equal(l.maxZoom, l.minZoom);
+          assert.ok(l.minZoom >= icon.minZoom, `${l.text[0]} shows before its icon`);
+          // Beside the icon: its centre within the icon's half-width, the gap and the text's own size, in screen pixels.
+          const s = 2 ** l.minZoom, d = Math.hypot(l.x - poi.x, l.y - poi.y) * s;
+          const k = l.minZoom === file.meta.streetLevel.zoom ? file.meta.streetLevel.scale : 1;
+          assert.ok(d <= (styles.poi.iconPx ?? 0) / 2 + 2 * styles.marginPx + (styles.poiName.gapPx ?? 0) * k + Math.max(l.w, l.h) / 2 + 0.5, `${l.text[0]} is ${d.toFixed(1)} px from its icon`);
+        }
+      });
+    });
+
+    // Raw size; served compressed it is about a sixth (11 Nov 2026: 20–32 KB gzipped).
+    test(`${frame}/${lang}: the label file stays under 256 KB`, () => {
+      assert.ok(statSync(url(name)).size <= 256 * 1024);
     });
   }
 
@@ -115,4 +154,18 @@ for (const frame of FRAMES) {
 
 test("the owner's courtyards lie inside the small frame", () => {
   for (const c of small.neighbourhoods.filter((n) => n.scale === "courtyard")) assert.notEqual(c.inFrame, false, c.en ?? "");
+});
+
+test("the map layers hold the synagogues, toilets, drinking water and light-rail stations, one icon each", () => {
+  const large = json<OsmMapGeometry>("shuk-map-nahlaot-large.json");
+  for (const map of [small, large]) {
+    const kinds = new Set(map.pois.map((p) => p.kind));
+    for (const k of ["synagogue", "toilets", "tram"]) assert.ok(kinds.has(k as never), `no ${k} in the ${map.frame.id} frame`);
+    // A station's two stops (one per direction) are one icon.
+    const trams = map.pois.filter((p) => p.kind === "tram").map((p) => p.he);
+    assert.equal(new Set(trams).size, trams.length);
+    // Synagogue outlines are named by their icon, not also as a place.
+    assert.ok(!map.places.some((p) => p.kind === "worship" && map.pois.some((s) => s.kind === "synagogue" && s.he === p.he && p.he)));
+  }
+  assert.ok(large.pois.filter((p) => p.kind === "synagogue").length >= 40);
 });

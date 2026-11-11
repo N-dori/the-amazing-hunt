@@ -65,6 +65,8 @@ Content sources, not approved copy. Check each claim's evidence status before us
 | [The Armoza family](../../../../docs/armoza/Armoza_fam.md) | Background for Chesed VeRachamim (family consent first) |
 | [Photo index](../../../../design/inputs/content/photo_index_ALL.csv) | What each owner photo shows, faces and consent, rights; photos stay on disk |
 | [Map audit](../../../../docs/map/nahlaot-map-audit.md) | How the illustrated map lines up with the real streets |
+| [OSM map](../../../../docs/map/nahlaot-osm-map.md), [street names](../../../../docs/map/nahlaot-street-names.md) | The navigation map (Type B) that will replace it: real streets, names still to be checked on site, and synagogues, toilets, water and the light rail as layers |
+| [Research 15: Nahlaot's synagogues](../../../../research/results/shuk-places/15_nahlaot_synagogues.md) | Synagogues named with their streets and communities (Ohel Moshe, the Yanina synagogue, the Bibas St three…): leads for challenges, unverified |
 
 ## Feasibility references for step 9
 

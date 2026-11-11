@@ -2,7 +2,17 @@
 
 ## The Nahlaot OSM map: handover for the next map session (11 Nov 2026)
 
-**Where it stands:** steps 1–2 are done as **data only**, committed in `b512149` and pushed. The game still shows the illustrated prototype; nothing about the new map is live. Next is **step 3: drawing it in the game**, after the owner's answers below.
+**Where it stands:** steps 1–2 are done as **data only**, committed in `b512149` and pushed. The game still shows the illustrated prototype; nothing about the new map is live.
+
+**Step 3a, built 11 Nov 2026:** the map drawn in Leaflet on a **development-only page with no challenge**, `/memory-protocol/dev/osm-map` in `next dev` (404 in production unless `MP_DEV_PREVIEW=1`), with switches for the frame and the language. The owner picks the frame there ("TBD, I would like to see the map on the page without any challenge"). Files: `app/dev/osm-map/page.tsx`, `components/map/IndexOsmMap.tsx` and `LeafletOsmMap.tsx` (+ `.module.scss`), and the tested helpers `lib/map/osm-label-view.ts` and `lib/map/osm-svg.ts` (`osm-map-view.test.ts`). `LeafletBaseMap` and the game are untouched.
+
+**Owner's review of the dev page (11 Nov 2026):** "the map looks very good". Added at the owner's request:
+- map layers as icons: synagogues (Star of David), toilets, drinking water, light-rail stations (tram), as new entries in `components/icons/iconPaths.tsx` (`starOfDavid`, `toilets`, `tram`, `drinkingWater`);
+- larger text at zoom 2.5 only (13 px main roads; "zoom 2 is very good, so as 1.5, 1, 0.5 and 0");
+- `npm run dev:docker`: the dev server in a throwaway container (`127.0.0.1:3300`, run it in tmux).
+- Research on the synagogues OSM misses: [research 15](../../research/results/shuk-places/15_nahlaot_synagogues.md). About ten named synagogues are missing, Ohel Moshe first. The proposal is a CURATION list of positions from the owner's walk; not built.
+
+**Decided for step 3b (owner, 11 Nov 2026):** the map notice is removed; Marzipan gets no marker until it has a position. Step 3b, wiring the map into the game, waits for the frame.
 
 The method and rebuild instructions are in [nahlaot-osm-map.md](../map/nahlaot-osm-map.md). The names to check on site are in [nahlaot-street-names.md](../map/nahlaot-street-names.md). The target is the [map-types spec](../design/map-types-spec.md), Type B.
 
@@ -10,13 +20,15 @@ The method and rebuild instructions are in [nahlaot-osm-map.md](../map/nahlaot-o
 | File | What it is |
 |---|---|
 | `scripts/map/build-shuk-map.mjs` | `npm run map:build`, on the host, under 1 s, no dependencies. The CURATION block at the top holds every hand decision: frames, corners, road widths, label styles, zooms, `NAME_OVERRIDES`, `CHECKED_ON_SITE`, `PLACE_ALT_NAMES` and `COURTYARDS`. |
-| `scripts/map/label-layout.mjs` | The label placement: measuring, straight stretches, rotated-box overlap test, `minZoom` per label. Accepts `reserved` boxes (for markers), unused so far. |
+| `scripts/map/label-layout.mjs` | The label placement: measuring, straight stretches, rotated-box overlap test, `minZoom` per label; brief and per-zoom labels (shown at one zoom); street level as a separate run. Accepts `reserved` boxes (for markers), unused so far. |
+| `app/dev/osm-map/page.tsx`, `components/map/IndexOsmMap.tsx`, `LeafletOsmMap.tsx` | Step 3a: the map drawn in Leaflet on a dev page (frame and language switches), with the map-layer icons from `components/icons` |
+| `lib/map/osm-label-view.ts`, `lib/map/osm-svg.ts` | Pure helpers for drawing it (which labels show at a zoom; SVG layers and stroke widths), reusable in step 3b |
 | `scripts/map/plex-widths.json` | IBM Plex glyph widths used to measure the labels |
 | `data/shuk-map-nahlaot-{small,large}.json` | Roads (by class and real width), buildings, areas, names, places, neighbourhoods, projection, credit. 87 KB and 135 KB. |
 | `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json` | The labels, one file per frame and game language (55–87 KB) |
 | `lib/map/osm-projection.ts` | `geoToMap`, `mapToGeo`, `metresToUnits` and all the data types |
 | `lib/map/osm-projection.test.ts`, `osm-labels.test.ts` | 36 map tests: projection, file sizes, no overlaps at any zoom, road and stretch fit, languages, courtyard positions |
-| `media-originals/maps/` (not in git) | `nahlaot.osm` (the 11 Nov download) and the review previews `nahlaot-{small,large}-z{-1.5,0.5,2.5}-en.svg` and `-z2.5-he.svg` |
+| `media-originals/maps/` (not in git) | `nahlaot.osm` (the 11 Nov download) and the review previews: whole map `nahlaot-{small,large}-z{-1.5,0.5}-en.svg`, phone screen at 1:1 `nahlaot-{small,large}-phone-z{zoom}-{en,he}.svg` |
 | `media-originals/fonts/` (not in git) | The Plex woff files, embedded in the previews |
 
 ### The owner's decisions (all 11 Nov 2026)
@@ -30,12 +42,20 @@ The method and rebuild instructions are in [nahlaot-osm-map.md](../map/nahlaot-o
 - **Labels:**
   - main roads: `English · עברית` on one line (Hebrew first in the Hebrew game), inside the road's width;
   - alleys: the game's language only, a slightly smaller font, may overflow the road;
-  - roads are never widened;
   - labels never overlap.
+- **Zoomed-out main-road names (later the same day, after the first zoom previews):** the owner took all five proposed compromises. Built, not committed:
+  1. a zoomed-out label (`mainBrief`) beside the road, moving inside once it fits;
+  2. a slight overflow: inside once the road is 11 px on screen (was 15);
+  3. the game's language only for the zoomed-out label;
+  4. main roads drawn 1.5 times wider than real (`MAIN_ROAD_SCALE`), replacing "roads are never widened";
+  5. shorter names: nothing to shorten, OSM's names carry no "St" or "רחוב".
+  Main roads are now named at every zoom (small frame: 3 at −1.5, 15 at 0, 24 at 2.5; before: none until 0.5).
+- **The owner's preview notes:** 2.5 "font too small", −1.5 "no street names at all", 0.5 "best so far but missing street names". The whole-map 2.5 preview was 5,657 px wide, so a viewer that fits it to the screen shrinks the 11 px text to about 2–3 px. It was replaced by phone-window previews at 1:1 (`nahlaot-{frame}-phone-z{zoom}-{lang}.svg`, 390 × 844, every zoom).
 
 ### Waiting on the owner
-1. **Main-road names only from zoom 0.5 or 1.** At real widths a 10 m road holds 11 px text only from zoom 1, so zoomed out there are no main-road names. The choices: accept it, or put the name beside the road when zoomed out and inside it once it fits. Asked; not yet answered.
-2. **The zoom previews:** the owner hasn't looked at them yet. (The earlier street and name preview got "looks promising".)
+0. **Synagogue positions** for the ones OSM misses ([research 15](../../research/results/shuk-places/15_nahlaot_synagogues.md)), if they should be on the map.
+1. ~~Main-road names when zoomed out~~: decided (above).
+2. **The phone previews:** the new 1:1 phone-window previews, to judge the text size at street level as a phone shows it.
 3. **Positions** for Knesset Yisrael C and Batei Munkatch. They are pending and not drawn.
 4. **Hebrew** for Batei Rand (בתי רנד is a draft) and for Gan ha'toot.
 5. **OSM's Hebrew for Sha'arei Yerushalayim** reads "אבו בסל (שערי ירושלים)". Keep it or override it?

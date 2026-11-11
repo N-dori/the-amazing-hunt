@@ -50,21 +50,35 @@ export type OsmMapNeighbourhood = Readonly<{
   inFrame?: false;
 }>;
 
-/** A road class at one real width (metres), drawn as a band at that width. */
-export type OsmMapRoad = Readonly<{ class: "main" | "street" | "path"; widthM: number; inside: string; outside: string }>;
+/** A map-layer feature drawn as an icon (owner, 11 Nov 2026), from OSM outlines and points merged into one each. */
+export type OsmMapPoi = Readonly<{
+  kind: "synagogue" | "toilets" | "drinkingWater" | "tram";
+  he: string | null;
+  en: string | null;
+  x: number;
+  y: number;
+  osm: ReadonlyArray<string>;
+  inFrame?: false;
+}>;
+
+/** A road class at one real width (metres), drawn as a band `drawM` wide (main roads wider than real). */
+export type OsmMapRoad = Readonly<{ class: "main" | "street" | "path"; widthM: number; drawM: number; inside: string; outside: string }>;
 
 /**
  * One label, from data/shuk-map-nahlaot-<frame>.labels-<lang>.json. Shown from `minZoom` (Leaflet CRS.Simple zoom:
  * 2^z pixels per map unit) up to `maxZoom` if set. `w`/`h` are its size in screen pixels, `angle` in degrees (upright).
  * It refers to `names` (n), `places` (p) or `neighbourhoods` (nb) in the map data. `run` is the straight stretch it sits
- * on (map units) and `roadM` the road's width, for street labels.
+ * on (map units) and `roadM` the road's drawn width, for street labels. `mainBrief` is a main road's zoomed-out label
+ * (the game's language only, one zoom step), inside the road or, with `beside`, next to it. `poi` is a map-layer icon
+ * (`pois[poi]`, no text) and `poiName` its name beside it, placed afresh at each zoom step.
  */
 export type OsmMapLabel = Readonly<{
-  kind: "main" | "alley" | "place" | "neighbourhood" | "courtyard";
+  kind: "main" | "mainBrief" | "alley" | "place" | "neighbourhood" | "courtyard" | "poi" | "poiName";
   text: ReadonlyArray<string>;
   n?: number;
   p?: number;
   nb?: number;
+  poi?: number;
   x: number;
   y: number;
   angle: number;
@@ -74,16 +88,19 @@ export type OsmMapLabel = Readonly<{
   maxZoom?: number;
   run?: number;
   roadM?: number;
+  beside?: true;
   inFrame?: false;
 }>;
 
-export type OsmMapLabelStyle = Readonly<{ fontPx: number; padPx?: number; fit?: number; altFontPx?: number; letterPx?: number; zooms?: readonly [number, number] }>;
+export type OsmMapLabelStyle = Readonly<{ fontPx?: number; iconPx?: number; minRoadPx?: number; gapPx?: number; fit?: number; altFontPx?: number; letterPx?: number; zooms?: readonly [number, number] }>;
 
 export type OsmMapLabelFile = Readonly<{
   meta: Readonly<{
     note: string; credit: string; creditUrl: string; licence: string; frame: string; lang: "en" | "he";
     zooms: ReadonlyArray<number>;
-    styles: Readonly<{ main: OsmMapLabelStyle; alley: OsmMapLabelStyle; place: OsmMapLabelStyle; neighbourhood: OsmMapLabelStyle; courtyard: OsmMapLabelStyle; lineHeight: number; marginPx: number; repeatPx: number; maxBendDeg: number }>;
+    // At this zoom every text size is multiplied by `scale`, and the labels there are laid out on their own.
+    streetLevel: Readonly<{ zoom: number; scale: number }>;
+    styles: Readonly<{ main: OsmMapLabelStyle; mainBrief: OsmMapLabelStyle; alley: OsmMapLabelStyle; place: OsmMapLabelStyle; neighbourhood: OsmMapLabelStyle; courtyard: OsmMapLabelStyle; poi: OsmMapLabelStyle; poiName: OsmMapLabelStyle; lineHeight: number; marginPx: number; repeatPx: number; maxBendDeg: number }>;
     unplaced: ReadonlyArray<Readonly<{ kind: OsmMapLabel["kind"]; text: ReadonlyArray<string> }>>;
     noNameInLanguage: ReadonlyArray<string>;
   }>;
@@ -101,6 +118,7 @@ export type OsmMapGeometry = Readonly<{
   names: ReadonlyArray<OsmMapName>;
   places: ReadonlyArray<OsmMapPlace>;
   neighbourhoods: ReadonlyArray<OsmMapNeighbourhood>;
+  pois: ReadonlyArray<OsmMapPoi>;
 }>;
 
 export type MapPoint = Readonly<{ x: number; y: number }>;

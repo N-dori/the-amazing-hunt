@@ -1,0 +1,60 @@
+// Dev page for the OSM map: a bar of switches, then the map filling the rest of the screen.
+
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 1rem;
+  border-block-end: 1px solid var(--ink);
+}
+
+.switch {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.option {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  padding-inline: 0.875rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  & + & { border-inline-start: 1px solid var(--ink); }
+
+  &:focus-within { outline: 2px solid var(--amber); outline-offset: -2px; }
+}
+
+.optionOn {
+  background: var(--ink);
+  color: var(--chalk);
+}
+
+.readout {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.stage {
+  position: relative;
+  min-height: 0;
+}
+
+.status {
+  padding: 1rem;
+}

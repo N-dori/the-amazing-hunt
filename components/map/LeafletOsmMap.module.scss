@@ -1,0 +1,165 @@
+// The OSM navigation map (LeafletOsmMap.tsx). Colours are the DORI tokens, as in the review previews
+// (scripts/map/build-shuk-map.mjs, previewSvg). Label sizes come from the label file (custom properties set on the
+// pane) and stay in px: the layout measured the text in px.
+
+.map {
+  width: 100%;
+  height: 100%;
+  background: var(--chalk);
+  font-family: var(--font-body);
+
+  :global(.leaflet-control-zoom) {
+    border: 1px solid var(--ink);
+    border-radius: 0.25rem;
+    box-shadow: none;
+  }
+
+  // Outdoor screen: 3rem targets.
+  :global(.leaflet-control-zoom a) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 1.375rem;
+    line-height: 3rem;
+  }
+
+  // The OSM credit stays visible on the map, never behind a tap.
+  :global(.leaflet-control-attribution) {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--chalk) 88%, transparent);
+    font-size: 0.6875rem;
+  }
+
+  :global(.leaflet-control-attribution a) {
+    color: var(--ink);
+  }
+}
+
+// ---- Base layer (SVG in map units) ----
+
+.base {
+  pointer-events: none;
+}
+
+.green { fill: color-mix(in srgb, var(--zaatar) 20%, transparent); }
+.square { fill: var(--line-stone); }
+.market { fill: color-mix(in srgb, var(--amber) 18%, transparent); }
+.worship { fill: color-mix(in srgb, var(--sumac) 30%, transparent); }
+
+.buildings,
+.buildingsMargin {
+  fill: var(--chalk-shade);
+  stroke: var(--line-stone);
+  stroke-width: 0.6px;
+  vector-effect: non-scaling-stroke;
+}
+
+.buildingsMargin { opacity: 0.45; }
+
+.roads {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.margin { opacity: 0.4; }
+.casing { stroke: var(--ink-subdued); }
+.band { stroke: var(--chalk-highlight); }
+
+// ---- Labels (HTML, fixed pixel size) ----
+
+.labels {
+  z-index: 450;
+  pointer-events: none;
+}
+
+.labelsHidden { visibility: hidden; }
+
+.label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.25;
+  white-space: nowrap;
+  text-shadow:
+    1px 0 0 var(--label-halo, var(--chalk)), -1px 0 0 var(--label-halo, var(--chalk)),
+    0 1px 0 var(--label-halo, var(--chalk)), 0 -1px 0 var(--label-halo, var(--chalk)),
+    1px 1px 0 var(--label-halo, var(--chalk)), -1px -1px 0 var(--label-halo, var(--chalk)),
+    1px -1px 0 var(--label-halo, var(--chalk)), -1px 1px 0 var(--label-halo, var(--chalk));
+}
+
+.line,
+.altLine { display: block; }
+
+// Inside a road: the road's own colour as the halo.
+.main { --label-halo: var(--chalk-highlight); font-size: calc(var(--label-main) * var(--label-scale, 1)); }
+.mainBrief { --label-halo: var(--chalk-highlight); font-size: calc(var(--label-brief) * var(--label-scale, 1)); }
+.mainBeside { font-size: calc(var(--label-brief) * var(--label-scale, 1)); }
+.alley { font-size: calc(var(--label-alley) * var(--label-scale, 1)); }
+
+.place {
+  font-size: calc(var(--label-place) * var(--label-scale, 1));
+  font-style: italic;
+
+  .altLine { font-size: calc(var(--label-placeAlt) * var(--label-scale, 1)); }
+}
+
+.place_green { color: var(--zaatar); }
+.place_square { color: var(--zaatar); }
+.place_market { color: var(--amber); }
+.place_worship { color: var(--sumac); }
+
+.neighbourhood {
+  color: var(--ink-subdued);
+  font-size: calc(var(--label-neighbourhood) * var(--label-scale, 1));
+  letter-spacing: calc(var(--label-neighbourhoodLetter) * var(--label-scale, 1));
+}
+
+.courtyard {
+  color: var(--ink-subdued);
+  font-size: calc(var(--label-courtyard) * var(--label-scale, 1));
+  letter-spacing: calc(var(--label-courtyardLetter) * var(--label-scale, 1));
+}
+
+// ---- Map layers: icons on a small disc, and their names ----
+
+// The disc is the size the layout reserved (poi.iconPx); the icon sits inside it, coloured by the layer.
+.poi {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--label-poiIcon);
+  height: var(--label-poiIcon);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: var(--chalk-highlight);
+  transform: translate(-50%, -50%);
+
+  svg {
+    width: 72%;
+    height: 72%;
+    stroke-width: 2;
+  }
+}
+
+.poi_synagogue,
+.poiName_synagogue { color: var(--sumac); }
+
+.poi_tram,
+.poiName_tram { color: var(--ink); }
+
+.poi_toilets { color: var(--ink-subdued); }
+.poi_drinkingWater { color: var(--zaatar); }
+
+.poiName { font-size: calc(var(--label-poiName) * var(--label-scale, 1)); }
+
+// Names in the faded margin, beyond the frame.
+.outside { opacity: 0.55; }
+
+@media (forced-colors: active) {
+  .label { text-shadow: none; }
+}

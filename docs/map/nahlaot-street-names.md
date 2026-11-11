@@ -177,32 +177,15 @@ aren't here). A second name is one the owner added (`PLACE_ALT_NAMES`).
 |---|---|---|---|---|---|
 | <span dir="rtl">כיכר משה ברעם - גן הסוס</span> | Moshe Baram | — | green | no | way/44123753 |
 | <span dir="rtl">שוק מחנה יהודה</span> | Machane Yehuda Market | — | market | yes | way/44123755 |
-| <span dir="rtl">בית הכנסת הגדול</span> | Great Synagogue | — | worship | no | way/119441045 |
-| <span dir="rtl">ישורון</span> | Yeshurun | — | worship | no | way/119441054 |
 | <span dir="rtl">הבוסתן הספרדי</span> | HaBustan HaSefaradi | Gan ha'toot | green | yes | way/121760440 |
-| <span dir="rtl">חורב</span> | Horev | — | worship | no | way/159082541 |
 | <span dir="rtl">גן-עד</span> | Gan-Ed Garden | — | green | no | way/159144304 |
-| <span dir="rtl">הנשיא</span> | HaNasi | — | worship | no | way/159144311 |
-| <span dir="rtl">נצח ישראל</span> | — | — | worship | no | way/159144637 |
-| <span dir="rtl">אוהל אברהם</span> | Ohel Avraham | — | worship | no | way/159155321 |
-| <span dir="rtl">ישיבת קהל חסידים</span> | Kehal Hasidim | — | worship | no | way/159164647 |
-| <span dir="rtl">רבי מאיר בעל הנס</span> | Rabbi Meir Ba'al Hanes | — | worship | no | way/159166914 |
-| <span dir="rtl">הגר"א</span> | HaGra | — | worship | no | way/159166916 |
 | <span dir="rtl">גינת לוד</span> | Ginat Lod | — | green | no | way/159549810 |
-| <span dir="rtl">מעיינות</span> | MaAyanot | — | worship | no | way/159685038 |
-| <span dir="rtl">בית כנסת של עדת האורפלים</span> | — | — | worship | no | way/159709582 |
-| <span dir="rtl">ויאמר אברהם</span> | Vayomer Avraham | — | worship | no | way/159711674 |
-| <span dir="rtl">אור זרוע</span> | Or Zaruah | — | worship | no | way/159990584 |
-| <span dir="rtl">הר אל</span> | Har El | — | worship | no | way/159993313 |
 | <span dir="rtl">בית הבפטיסטים</span> | Baptist House | — | worship | no | way/159993329 |
 | <span dir="rtl">פארק שריזלי</span> | Sharizli Park | — | green | yes | way/160667762 |
 | <span dir="rtl">כיכר הדוידקה</span> | Davidka Square | — | square | yes | way/263353098 |
 | <span dir="rtl">השוק הגרוזיני</span> | — | — | market | yes | way/401390177 |
 | <span dir="rtl">בוסתן נרקיס</span> | — | — | green | no | way/582644343 |
 | <span dir="rtl">שוק מחנה יהודה</span> | Machane Yehuda Shuk | — | market | yes | way/1078567519 |
-| <span dir="rtl">מעלות התורה</span> | Ma'alos Hatorah | — | worship | no | way/1340362654 |
-| <span dir="rtl">בית זבול - מנחת חמוך</span> | Beit Zvul - Minchat Chanoch | — | worship | no | way/1341535171 |
-| <span dir="rtl">ברסלב - אוהל אסתר</span> | Breslev - Ohel Esther | — | worship | no | way/1341535178 |
 | <span dir="rtl">כיכר הרב יעקב ברוך</span> | — | — | green | yes | way/1554602151 |
 
 ## Neighbourhoods and courtyards
@@ -229,9 +212,9 @@ to the middle zoom; courtyards from the middle zoom to street level.
 Inside the frame but not placed at any zoom, because there wasn't room or the street is too short for its name. They
 are still in the tables above.
 
-- **small, en:** כיכר הרב יעקב ברוך · HaAfarsek
+- **small, en:** כיכר הרב יעקב ברוך · HaAfarsek · HaShuk HaGruzini
 - **small, he:** כיכר הרב יעקב ברוך · האפרסק
-- **large, en:** כיכר הרב יעקב ברוך · HaKeren HaKayemet LeIsrael · הקרן הקיימת לישראל · Beeri · בארי · HaAfarsek
+- **large, en:** כיכר הרב יעקב ברוך · HaKeren HaKayemet LeIsrael · הקרן הקיימת לישראל · Beeri · בארי · HaAfarsek · HaShuk HaGruzini
 - **large, he:** כיכר הרב יעקב ברוך · הקרן הקיימת לישראל · HaKeren HaKayemet LeIsrael · בארי · Beeri · האפרסק
 
 Data © OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright).
