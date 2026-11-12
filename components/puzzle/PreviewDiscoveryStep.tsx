@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
 import StatusTag from "@/components/ui/StatusTag";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import type { Copy } from "@/lib/game/types";
 import styles from "./PreviewDiscoveryStep.module.scss";
 
@@ -39,7 +39,7 @@ export default function PreviewDiscoveryStep({ view: v, onAction }: { view: Disc
 
       {v.photo ? (
         <figure className={v.photo.framed ? styles.clue : styles.locator}>
-          <img src={`${BASE_PATH}${v.photo.src}`} alt={v.photo.alt} className={v.photo.framed ? styles.clueImage : styles.photo} />
+          <Picture src={v.photo.src} alt={v.photo.alt} className={v.photo.framed ? styles.clueImage : styles.photo} loading="eager" />
           <figcaption className={v.photo.framed ? styles.clueCaption : styles.caption}>
             {v.photo.caption.text}
             <StatusTag status={v.photo.caption.status} tone={v.photo.framed ? "dark" : "light"} />

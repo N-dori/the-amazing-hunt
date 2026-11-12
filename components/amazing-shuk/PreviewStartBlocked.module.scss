@@ -1,0 +1,5 @@
+// Shared with the stuck confirmation: two equal 3rem choices side by side, the quiet one outlined (`.keep`).
+@forward "./dev/PreviewStuckConfirm.module";
+
+// Only "Set the roles" when the person starting isn't the team's leader (the guide with no host).
+.single { grid-template-columns: minmax(0, 1fr); }

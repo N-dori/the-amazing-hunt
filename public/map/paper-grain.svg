@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <!-- Paper grain for the OSM map's illustrated look (components/map/LeafletOsmMap.module.scss): faint dark speckle with
+       transparency, tiled over the map's chalk ground. Generated noise, no artwork; tiles seamlessly (stitchTiles). -->
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" stitchTiles="stitch" />
+    <feColorMatrix type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.17  0 0 0 0 0.16  0 0 0 0.09 -0.02" />
+  </filter>
+  <rect width="240" height="240" filter="url(#grain)" />
+</svg>

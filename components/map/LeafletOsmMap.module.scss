@@ -1,0 +1,264 @@
+// The OSM navigation map (LeafletOsmMap.tsx), in two looks: plain, and illustrated (owner, 11 Nov 2026). Colours are
+// the DORI tokens. Label sizes come from the label file (custom properties set on the pane) and stay in px: the layout
+// measured the text in px.
+
+// isolation keeps Leaflet's z-indexes inside the frame; the vignette and cartouche sit above the map, below its controls.
+.frame {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+  background: var(--chalk);
+  font-family: var(--font-body);
+
+  :global(.leaflet-control-zoom) {
+    border: 1px solid var(--ink);
+    border-radius: 0.25rem;
+    box-shadow: none;
+  }
+
+  // Outdoor screen: 3rem targets.
+  :global(.leaflet-control-zoom a) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--ink);
+    background: var(--chalk);
+    font-size: 1.375rem;
+    line-height: 3rem;
+  }
+
+  // The OSM credit stays visible on the map, never behind a tap.
+  :global(.leaflet-control-attribution) {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--chalk) 88%, transparent);
+    font-size: 0.6875rem;
+  }
+
+  :global(.leaflet-control-attribution a) {
+    color: var(--ink);
+  }
+}
+
+// ---- Base layer (SVG in map units) ----
+
+.base {
+  pointer-events: none;
+}
+
+.green { fill: color-mix(in srgb, var(--zaatar) 20%, transparent); }
+.square { fill: var(--line-stone); }
+.market { fill: color-mix(in srgb, var(--amber) 18%, transparent); }
+.worship { fill: color-mix(in srgb, var(--sumac) 30%, transparent); }
+
+// Buildings, one class per warm tone (the build's BUILDING_TONES); the plain look draws them all alike.
+.building0,
+.building1,
+.building2,
+.building3,
+.building4,
+.buildingsMargin {
+  fill: var(--chalk-shade);
+  stroke: var(--line-stone);
+  stroke-width: 0.6px;
+  vector-effect: non-scaling-stroke;
+}
+
+.buildingsMargin { opacity: 0.45; }
+
+// The shadow and the trees belong to the illustrated look only.
+.shadow,
+.trees,
+.treesMargin { display: none; }
+
+.roads {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.margin { opacity: 0.4; }
+.casing { stroke: var(--ink-subdued); }
+.band { stroke: var(--chalk-highlight); }
+
+// ---- The illustrated look ----
+
+.lookPlain { --map-look: plain; }
+
+.lookIllustrated {
+  // Paper: the chalk ground with a faint grain (public/map/paper-grain.svg, set inline with the base path).
+  .map { background: var(--map-paper), var(--chalk); }
+
+  // Warm building tones: sand to terracotta, all mixed from the brand's colours.
+  .building0 { fill: color-mix(in srgb, var(--amber) 14%, var(--chalk-shade)); }
+  .building1 { fill: color-mix(in srgb, var(--amber) 24%, var(--chalk-shade)); }
+  .building2 { fill: color-mix(in srgb, var(--amber) 34%, var(--chalk-shade)); }
+  .building3 { fill: color-mix(in srgb, var(--sumac) 30%, var(--chalk-shade)); }
+  .building4 { fill: color-mix(in srgb, var(--line-stone) 70%, var(--chalk-shade)); }
+
+  .building0,
+  .building1,
+  .building2,
+  .building3,
+  .building4 { stroke: color-mix(in srgb, var(--sumac-deep) 35%, var(--chalk-shade)); }
+
+  .shadow {
+    display: inline;
+    fill: color-mix(in srgb, var(--ink) 16%, transparent);
+  }
+
+  .trees,
+  .treesMargin {
+    display: inline;
+    fill: color-mix(in srgb, var(--ceramic-green) 75%, var(--zaatar));
+    stroke: color-mix(in srgb, var(--ceramic-green) 60%, var(--ink));
+    stroke-width: 0.5px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .treesMargin { opacity: 0.5; }
+
+  // A warm street edge instead of grey.
+  .casing { stroke: color-mix(in srgb, var(--amber) 40%, var(--ink-subdued)); }
+}
+
+// A soft darkening at the edges; it takes no taps.
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  background: radial-gradient(ellipse at center, transparent 62%, color-mix(in srgb, var(--ink) 14%, transparent) 100%);
+  pointer-events: none;
+}
+
+// The title cartouche (top end corner: Leaflet's zoom buttons hold the start corner).
+.cartouche {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 600;
+  display: grid;
+  justify-items: center;
+  padding: 0.5rem 0.875rem 0.625rem;
+  border: 1px solid var(--stone);
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 3px var(--stone-ground), inset 0 0 0 4px color-mix(in srgb, var(--stone) 50%, transparent);
+  background: var(--stone-ground);
+  color: var(--ink);
+  font-family: var(--font-display);
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+.cartoucheTitle { font-size: clamp(1.25rem, 5vw, 1.75rem); }
+.cartoucheTitleHe { font-size: clamp(1.125rem, 4.5vw, 1.5rem); color: var(--sumac-deep); }
+
+.cartoucheRule {
+  width: 70%;
+  margin-block: 0.25rem;
+  border-block-start: 1px solid var(--stone);
+}
+
+.cartoucheCity {
+  font-size: 0.8125rem;
+  font-style: italic;
+}
+
+// ---- Labels (HTML, fixed pixel size) ----
+
+.labels {
+  z-index: 450;
+  pointer-events: none;
+}
+
+.labelsHidden { visibility: hidden; }
+
+.label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.25;
+  white-space: nowrap;
+  text-shadow:
+    1px 0 0 var(--label-halo, var(--chalk)), -1px 0 0 var(--label-halo, var(--chalk)),
+    0 1px 0 var(--label-halo, var(--chalk)), 0 -1px 0 var(--label-halo, var(--chalk)),
+    1px 1px 0 var(--label-halo, var(--chalk)), -1px -1px 0 var(--label-halo, var(--chalk)),
+    1px -1px 0 var(--label-halo, var(--chalk)), -1px 1px 0 var(--label-halo, var(--chalk));
+}
+
+.line,
+.altLine { display: block; }
+
+// Inside a road: the road's own colour as the halo.
+.main { --label-halo: var(--chalk-highlight); font-size: calc(var(--label-main) * var(--label-scale, 1)); }
+.mainBrief { --label-halo: var(--chalk-highlight); font-size: calc(var(--label-brief) * var(--label-scale, 1)); }
+.mainBeside { font-size: calc(var(--label-brief) * var(--label-scale, 1)); }
+.alley { font-size: calc(var(--label-alley) * var(--label-scale, 1)); }
+
+.place {
+  font-size: calc(var(--label-place) * var(--label-scale, 1));
+  font-style: italic;
+
+  .altLine { font-size: calc(var(--label-placeAlt) * var(--label-scale, 1)); }
+}
+
+.place_green { color: var(--zaatar); }
+.place_square { color: var(--zaatar); }
+.place_market { color: var(--amber); }
+.place_worship { color: var(--sumac); }
+
+.neighbourhood {
+  color: var(--ink-subdued);
+  font-size: calc(var(--label-neighbourhood) * var(--label-scale, 1));
+  letter-spacing: calc(var(--label-neighbourhoodLetter) * var(--label-scale, 1));
+}
+
+.courtyard {
+  color: var(--ink-subdued);
+  font-size: calc(var(--label-courtyard) * var(--label-scale, 1));
+  letter-spacing: calc(var(--label-courtyardLetter) * var(--label-scale, 1));
+}
+
+// ---- Map layers: the owner's icons V4, bare (only the synagogue has its stone arch, inside the icon) ----
+
+// Each icon fills the box the layout reserved for it (poi.iconPx and the per-kind sizes), with a chalk halo so it reads
+// over streets and buildings. Colours after Armenian ceramics (tokens in app/globals.scss, not yet confirmed).
+.poi {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: var(--label-poiIcon);
+  height: var(--label-poiIcon);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 1px var(--chalk)) drop-shadow(0 0 1px var(--chalk));
+
+  svg { width: 100%; height: 100%; }
+}
+
+.poi_synagogue { width: var(--label-poiSynagogue); height: var(--label-poiSynagogue); }
+.poi_toilets { width: var(--label-poiToilets); height: var(--label-poiToilets); }
+
+.poi_synagogue,
+.poiName_synagogue { color: var(--cobalt); }
+
+.poi_toilets { color: var(--teal); }
+.poi_bench { color: var(--ceramic-green); }
+
+.poi_tram,
+.poiName_tram { color: var(--ink); }
+
+.poiName { font-size: calc(var(--label-poiName) * var(--label-scale, 1)); }
+
+// Names in the faded margin, beyond the frame.
+.outside { opacity: 0.55; }
+
+@media (forced-colors: active) {
+  .label { text-shadow: none; }
+}

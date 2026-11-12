@@ -7,10 +7,12 @@ import PreviewChoiceBonus from "./PreviewChoiceBonus";
 type Props = {
   content: BonusContent; challenge: ChoiceChallenge; state: { selected: readonly string[]; completed: boolean; points: number };
   activeRole: WaterSubmissionRole; busy: boolean; feedback: string;
+  // False while someone else is the Submitter: the picks show read-only (owner, 5 Nov 2026).
+  canAnswer?: boolean;
   onToggle: (optionId: string) => void; onSubmit: () => void; onReset: () => void;
 };
 /** The bonus opens once the main answer is accepted, so it's always "started": no Start button and no timing. */
-export default function ListChoiceBonus({ content, challenge, state, activeRole, busy, ...rest }: Props) {
+export default function ListChoiceBonus({ content, challenge, state, activeRole, busy, canAnswer = true, ...rest }: Props) {
   return <PreviewChoiceBonus content={content} points={state.points}
-    view={buildChoiceTaskView(challenge, state.selected, state.completed, activeRole, busy, true)} {...rest} />;
+    view={buildChoiceTaskView(challenge, state.selected, state.completed, activeRole, busy, true, canAnswer)} {...rest} />;
 }

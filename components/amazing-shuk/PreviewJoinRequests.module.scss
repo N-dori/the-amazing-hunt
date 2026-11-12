@@ -1,0 +1,22 @@
+// The leader's membership panel, below the Group tab's roster: the same rhythm as the group overview.
+.panel { display: grid; gap: 1rem; margin-block: 1.5rem 1rem; padding-block-start: 1.5rem; border-block-start: 1px solid var(--neutral-line); color: var(--ink); }
+.heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .25rem .75rem; }
+.title { font-size: clamp(1.25rem, 5vw, 1.5rem); font-weight: 500; line-height: 1.2; }
+.space { font-weight: 600; }
+.subtitle { font-size: 1.0625rem; font-weight: 600; line-height: 1.3; }
+.help { color: var(--ink-subdued); font-size: .9375rem; line-height: 1.45; }
+.card { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--line-stone); border-radius: 1rem; background: var(--surface-raised); }
+.notice { color: var(--sumac); font-size: .9375rem; }
+.notice:empty { display: none; }
+// Outdoor targets: every button here is at least 3rem high.
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.actions > button, .row > button { min-height: 3rem; }
+.list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; min-width: 0; padding: .75rem;
+  border-radius: .75rem; background: var(--chalk-tint); }
+.who { display: grid; gap: .25rem; min-width: 0; }
+.name { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+// The check code in the mono face, as on the joining phone, so the two are easy to compare.
+.code { font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; letter-spacing: .15em; }
+.codeLabel { font-family: var(--font-body); font-size: .8125rem; font-weight: 600; letter-spacing: normal; color: var(--ink-subdued); }
+.tag { padding: .125rem .5rem; border-radius: 9999px; background: var(--chalk); color: var(--ink-subdued); font-size: .8125rem; font-weight: 600; }

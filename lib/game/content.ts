@@ -2,7 +2,7 @@
 //   approved: quoted from Story V1 or the approved build spec without change
 //   draft:    written for the prototype from approved facts; wording needs the owner's approval
 //   fixture:  a stand-in for something not yet verified (asset, location, answer, clue)
-// Sources: docs/scavenger_hunt/The_Memory_Protocol_Story_V1(1).md and
+// Sources: docs/knowledge/The_Memory_Protocol_Story_V1(1).md and
 // docs/DORI_Memory_Protocol_Approved_Build_Spec_v1.md (sections in brackets below).
 
 import type { ArchiveSource, ArchiveTrack, Copy, Crisis, Question, Site, SiteId, TeamId } from "./types.ts";

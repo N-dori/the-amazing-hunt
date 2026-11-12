@@ -44,16 +44,21 @@ test("story is short, labels each statement and has no Hebrew; the street photo 
   assert.ok(words <= 40, `${words} words`);
   assert.deepEqual(MURAL_TASK.story.paragraphs.map(paragraph => paragraph.label), ["Historical fact", "Attributed tradition"]);
   assert.ok(!/[֐-׿]/.test(JSON.stringify(MURAL_TASK)));
-  assert.equal(MURAL_TASK.hints.length, 3);
-  assert.ok(MURAL_TASK.reveal.image.alt && MURAL_TASK.reveal.image.caption);
-  assert.ok(!("image" in MURAL_TASK.story));
+  assert.equal(MURAL_TASK.hints.length, 2);
+  // The before photo sits with the story (owner's request, 26 Oct 2026), not in the reveal.
+  assert.ok(MURAL_TASK.story.image.alt && MURAL_TASK.story.image.caption);
+  assert.equal(MURAL_TASK.reveal.image, null);
   // The owner chose a street view of the whole wall (24 Oct 2026); its name and alt text must not point at any option.
-  assert.ok(MURAL_MISSION.photo && MURAL_MISSION.photo.src !== MURAL_TASK.reveal.image.src);
+  assert.ok(MURAL_MISSION.photo && MURAL_MISSION.photo.src !== MURAL_TASK.story.image.src);
   assert.doesNotMatch(`${MURAL_MISSION.photo.src} ${MURAL_MISSION.photo.alt}`, /vent|plaque|treble|clef|103|box|carton|phone|antenna|bicycle|laundry/i);
   assert.equal(MURAL_MISSION.arrival.destination.verified, true);
   assert.equal(MURAL_MISSION.placement.verified, false);
   assert.equal(findMission(MURAL_MISSION.id), MURAL_MISSION);
+<<<<<<< HEAD
   assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["water", "choice", "choice", "gateway"]);
+=======
+  assert.deepEqual(SHUK_MISSIONS.map(mission => mission.challenge.kind), ["choice", "choice", "water", "choice", "choice", "choice"]);
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
 });
 
 test("view: followers discuss but can't submit; a full selection locks the other options", () => {

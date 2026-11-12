@@ -1,7 +1,7 @@
 # The Memory Protocol: its own repo - 2026-10-20
 
 - The game moved out of the DORI platform monorepo (`apps/memory-protocol/`, branch `scavenger_hunt`) into this repo, `/root/projects/The-Amazing-Hunt`, at the repo root, on branch `main`. Image, container, compose project, `dori_net`, `game_data` and the `/memory-protocol` basePath are unchanged.
-- Copied in: the owner's source photos (`docs/National_library/`, `docs/Nahlaot_Map/`), the story and tour texts (`docs/scavenger_hunt/`), the research prompts, results and runner (`research/`), and the platform documents the rules cite. Paths in older entries below refer to the monorepo layout.
+- Copied in: the owner's source photos (`docs/National_library/`, `docs/Nahlaot_Map/`), the story and tour texts (`docs/knowledge/`), the research prompts, results and runner (`research/`), and the platform documents the rules cite. Paths in older entries below refer to the monorepo layout.
 
 # The Memory Protocol: game foundation in its own container - 2026-10-16
 

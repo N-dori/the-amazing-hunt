@@ -9,7 +9,7 @@ The file has two parts:
 **Inputs to place before running**
 ```
 design/inputs/brand/     DORI_Final_Brand_Book.pdf, DORI_logo_full_sumac.pdf
-design/inputs/content/   Mission_Task_Ideas.md (export of the ideas doc), photo_index_ALL.csv,
+design/inputs/content/   challenge-ideas/Mission_Task_Ideas.md (export of the ideas doc), photo_index_ALL.csv,
                          DORI_Digital_Platform_Research.md, Cognitive_Load.md,
                          Audience_Engagement_Mechanics.md
 design/inputs/photos/    field photo batches 01–05, mural (3), Rachmo menu + wall (2)
@@ -91,7 +91,7 @@ For The Amazing Shuk:
 
 ### Working in Claude Code
 - **Read what you need to design**, in the order `design/inputs/content/README.md` gives:
-  - In full: `Mission_Task_Ideas.md`, `photo_index_ALL.csv` (if present), `Cognitive_Load.md`, `Audience_Engagement_Mechanics.md`, `DORI_Digital_Platform_Research.md`, the two place files, and the brand book and logo.
+  - In full: `challenge-ideas/Mission_Task_Ideas.md`, `photo_index_ALL.csv` (if present), `Cognitive_Load.md`, `Audience_Engagement_Mechanics.md`, `DORI_Digital_Platform_Research.md`, the two place files, and the brand book and logo.
   - Look at each photo before you cite it or plan a crop from it.
   - Consult the methodology, guiding methods and research runs only when a deliverable needs them, and name what you used.
 - **Write only** under `design/output/`.

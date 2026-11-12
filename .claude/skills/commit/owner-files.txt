@@ -1,0 +1,7 @@
+# The owner's files: never staged, committed or pushed by Claude. One path or glob per line, from the repo root.
+# RUN_PREVIEW holds the owner's invite links; the rest are the owner's undecided or reference material.
+docs/RUN_PREVIEW.md
+docs/project/trip-doriisrael-paths.md
+design/output/deferred-ux-backlog-*.md
+docs/design/stitch*
+public/shuk/*

@@ -1,5 +1,5 @@
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import ActionButton from "@/components/ui/ActionButton";
 import type { WaterTaskView, WaterActionView, WaterContainerId } from "@/lib/amazing-shuk/water-task-view";
 import type { WaterMove } from "@/lib/amazing-shuk/water-measurement";
@@ -9,23 +9,45 @@ import PreviewMissionVictory from "./PreviewMissionVictory";
 import PreviewMissionDiscovery from "./PreviewMissionDiscovery";
 type Props = {
   view: WaterTaskView; performance: WaterPerformanceView; narrative: readonly string[];
+<<<<<<< HEAD
   victory: MissionVictoryCopy; discovery: MissionDiscovery; onExplore: () => void;
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
+=======
+  // The hint sheet and "I'm completely stuck", during play (IndexChallengeHelp).
+  help?: ReactNode;
+  // After "I'm completely stuck": the intended solution, one step per line.
+  answer?: readonly string[];
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   onSelect: (id: WaterContainerId, move: WaterMove | null) => void;
   onAction: (id: WaterActionView["id"]) => void; onCancelPour: () => void;
-  onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  onStart: () => void; onSubmit: () => void; onReset: () => void;
+  // Only while a role is free (it opens the Group tab).
+  onOpenRoles?: () => void;
+  // UX-3: before the server's accepted Start, only the Start area shows; the puzzle (its statement included) comes after.
+  storyFirst?: boolean;
 };
+<<<<<<< HEAD
 export default function PreviewWaterTask({ view, performance, narrative, victory, discovery, onExplore, hints, hasMoreHints, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onHint }: Props) {
   if (view.completed) return <PreviewMissionVictory {...victory} reward={performance.reward} onExplore={onExplore}><PreviewMissionDiscovery {...discovery} /></PreviewMissionVictory>;
+=======
+// TODO(copy): "Here's the answer" and "One way to do it" are drafts (Phase 2c).
+export default function PreviewWaterTask({ view, performance, narrative, help, answer, onSelect, onAction, onCancelPour, onStart, onSubmit, onReset, onOpenRoles, storyFirst = true }: Props) {
+  const startArea = <div className={styles.actions}>
+    {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+    {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+    {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
+  </div>;
+  if (storyFirst && !performance.started && !view.completed) return <section className={styles.task}>{startArea}</section>;
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   return <section className={styles.task} aria-labelledby="water-task-title">
+    {/* Help sits just above the title (owner, 5 Nov 2026): the hints and "I'm completely stuck", side by side. */}
+    {help ? <div className={styles.helpBar}>{help}</div> : null}
     <div className={styles.taskIntro}>
-      <p className={styles.evidenceLabel}>Fiction · Puzzle scenario</p>
-      <h2 id="water-task-title">Fill your family&apos;s jar</h2>
+      {/* Focusable so the phone that pressed Start lands on the puzzle (UX-3). */}
+      <h2 id="water-task-title" tabIndex={-1}>Fill your family&apos;s jar</h2>
       {narrative.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
     </div>
-    {!performance.started && !view.completed ? <div className={styles.actions}>
-      {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
-    </div> : null}
+    {!performance.started && !view.completed ? startArea : null}
     <div className={styles.containers}>
       {view.containers.map(container => <figure key={container.id} className={[container.id === "jar" ? styles.goal : styles.container, container.selected ? styles.selected : "", container.destinationMove ? styles.destination : ""].filter(Boolean).join(" ")}>
         <button type="button" id={`water-container-${container.id}`} className={styles.containerButton}
@@ -49,6 +71,22 @@ export default function PreviewWaterTask({ view, performance, narrative, victory
         <meter className="srOnly" min={0} max={container.capacity} value={container.amount} aria-label={container.label} aria-valuetext={`${container.amount} of ${container.capacity} liters`}>{container.amount} of {container.capacity} liters</meter>
       </figure>)}
     </div>
+<<<<<<< HEAD
+=======
+    {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
+      <h3>{performance.revealed ? "Here's the answer" : "Challenge completed!"}</h3>
+      {performance.revealed && answer?.length ? <div className={styles.answer}>
+        <h4>One way to do it</h4>
+        <ol>{answer.map(step => <li key={step}>{step}</li>)}</ol>
+      </div> : null}
+      {performance.reward ? <dl className={styles.reward}>
+        <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
+        <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
+        <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
+      </dl> : null}
+    </section> : null}
+    {view.readOnlyNote ? <p className={styles.readOnly} role="status">{view.readOnlyNote}</p> : null}
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
     {view.status && !view.completed ? <p id="water-puzzle-status" tabIndex={-1} className={styles.success} role="status" aria-live="polite">{view.status}</p> : null}
     <div className={styles.contextControls}>
       {view.prompt ? <p id="water-controls-heading" tabIndex={-1} className={styles.prompt} aria-live="polite">{view.prompt}</p> : null}
@@ -59,11 +97,5 @@ export default function PreviewWaterTask({ view, performance, narrative, victory
       {view.canSubmit && view.solved && !view.completed ? <ActionButton disabled={view.submitDisabled} onClick={onSubmit}>Submit Group Answer</ActionButton> : view.solved && !view.completed ? <p>Your answer-submitter or guide can submit.</p> : null}
       <ActionButton variant="quiet" className={styles.reset} disabled={!view.canReset} onClick={onReset}>Reset puzzle</ActionButton>
     </div>
-    <aside className={styles.hints} aria-label="Optional puzzle hints">
-      {hasMoreHints ? <ActionButton variant="quiet" className={styles.reset} disabled={view.busy} onClick={onHint}>{hints.length ? "Another hint?" : "Need a hint?"}</ActionButton> : null}
-      <ol aria-live="polite" aria-relevant="additions" className={styles.hintList}>
-        {hints.map(hint => <li key={hint.title}><strong>{hint.title}</strong><p>{hint.text}</p></li>)}
-      </ol>
-    </aside>
   </section>;
 }

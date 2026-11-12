@@ -1,0 +1,17 @@
+// The emblem drops in and settles, then the one line on the job.
+.card { display: grid; justify-items: center; gap: 1rem; padding-block: .5rem 1rem; text-align: center; }
+.card:focus { outline: none; }
+
+.emblem { display: grid; place-items: center; width: 5rem; height: 5rem; border: 3px solid var(--zaatar); border-radius: 50%;
+  background: var(--chalk-tint); color: var(--zaatar); animation: settle 700ms var(--ease-out) both; }
+.emblemIcon { width: 2.25rem; height: 2.25rem; }
+
+.text { max-width: 22rem; font-size: 1.0625rem; line-height: 1.55; }
+
+@keyframes settle {
+  0% { opacity: 0; transform: translateY(-1.5rem) scale(.6) rotate(-12deg); }
+  60% { opacity: 1; transform: translateY(.25rem) scale(1.08) rotate(4deg); }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) { .emblem { animation: none; } }

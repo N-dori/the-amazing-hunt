@@ -1,10 +1,13 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import type * as Leaflet from "leaflet";
+import { Icon } from "@/components/icons";
 import { BASE_PATH } from "@/lib/base-path";
 import { imageToLatLng, type ImageBaseMap } from "@/lib/map/image-map";
+import { shouldAutoFoldNotice } from "@/lib/map/notice-fold";
+import { NEW_HINT_MEMORY, shouldShowTwoFingerHint, TWO_FINGER_HINT, type TwoFingerHintMemory } from "@/lib/map/two-finger-hint";
 import styles from "./LeafletBaseMap.module.scss";
 
 export type MapMarkerState = "active" | "locked" | "conditional" | "completed";
@@ -40,6 +43,12 @@ type LeafletBaseMapProps = {
   attribution: string | null;
   // A small notice over the map, e.g. "Concept map — not for navigation".
   notice?: string | null;
+  // Folds the notice behind a small info button with this name (The Amazing Shuk): open on the page's first map, then folded
+  // once someone closes it, so the warning is read once and stays one tap away without covering the artwork and markers.
+  noticeToggleLabel?: string;
+  // Folds the open notice by itself after this many ms, with one gentle pulse of its (i) button to show where it went (owner, 8 Nov
+  // 2026). Pass it only when the notice is nonessential guidance (9 Nov 2026); a warning the player must read never folds on its own.
+  noticeAutoFoldMs?: number;
   // Marker to centre on when there is no saved view.
   focusId?: string | null;
   initialView?: MapView | null;
@@ -47,26 +56,83 @@ type LeafletBaseMapProps = {
   onImageError?: () => void;
   onSelect: (id: string) => void;
   onBackground: () => void;
+  // Optional frame styling from the caller (The Amazing Shuk's field card); it may set --map-height and --map-border.
+  frameClassName?: string;
+  // Pan just enough to keep the selected marker in view when it changes or the frame resizes. `bottomInset` is the
+  // height (px) of anything overlapping the frame's lower edge, such as The Amazing Shuk's preview sheet.
+  keepSelectedVisible?: { bottomInset: number };
+  // Names under the pins; on by default. The Amazing Shuk hides them: the pin's number and its preview name the place.
+  showLabels?: boolean;
+  // Zoom levels to allow below "contain", so the group can pinch out further.
+  zoomOutBy?: number;
+  // Open on all the markers, as close as fits them (with a pin's margin), instead of "cover" around `focusId`.
+  openOnMarkers?: boolean;
+  // Two-finger mode (The Amazing Shuk): one finger scrolls the page, two fingers pan and pinch, a mouse still drags. The text is
+  // the hint shown when a finger tries to drag the map alone.
+  twoFingerHint?: string;
 };
 
 type MapHandle = { L: typeof Leaflet; map: Leaflet.Map; markers: Leaflet.LayerGroup; memory: Leaflet.LayerGroup };
 
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
+// Kept for the page's life, across the map's remounts (map → location → map), so the hint's cooldown holds.
+let hintMemory: TwoFingerHintMemory = NEW_HINT_MEMORY;
+// Likewise for the folding notice: once closed, it stays folded on later maps (the destination strip, the map again).
+let noticeFolded = false;
+const pageScroll = () => document.scrollingElement?.scrollTop ?? 0;
+
 // A static base map (Leaflet CRS.Simple + ImageOverlay) with separate layers for mission
 // markers and historical memory overlays. One image pixel is one map unit, so marker points
 // come straight from the base map's placement records, never from the artwork. Pan,
 // pinch-zoom and keyboard come from Leaflet.
 export default function LeafletBaseMap(props: LeafletBaseMapProps) {
-  const { baseMap, alt, markers, selectedId, memoryLayers, attribution, notice } = props;
+  const { baseMap, alt, markers, selectedId, memoryLayers, attribution, notice, noticeToggleLabel } = props;
+  // Open on the page's first map (as rendered on the server); later maps mount on the client and remember a fold.
+  const [noticeOpen, setNoticeOpen] = useState(() => !noticeFolded);
+  const noticeId = `${useId()}-notice`;
+  // The player's own use of the (i) button on this map: then the timer leaves the notice as they set it.
+  const noticeTouched = useRef(false);
+  // One pulse of the (i) button when the notice folds by itself; it ends with its animation.
+  const [noticeNudge, setNoticeNudge] = useState(false);
+  const { noticeAutoFoldMs } = props;
+  useEffect(() => {
+    if (!notice || !noticeToggleLabel || !shouldAutoFoldNotice({ autoFoldMs: noticeAutoFoldMs, open: noticeOpen, touched: noticeTouched.current })) return;
+    const timer = window.setTimeout(() => {
+      if (noticeTouched.current) return;
+      noticeFolded = true;
+      setNoticeOpen(false);
+      setNoticeNudge(true);
+    }, noticeAutoFoldMs);
+    return () => window.clearTimeout(timer);
+  }, [notice, noticeToggleLabel, noticeAutoFoldMs, noticeOpen]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<MapHandle | null>(null);
   const [ready, setReady] = useState(0);
+  const [hintVisible, setHintVisible] = useState(false);
+  const twoFinger = Boolean(props.twoFingerHint);
   // Latest props for Leaflet's listeners and the one-time setup, so they never go stale.
   const latest = useRef(props);
   useEffect(() => {
     latest.current = props;
   });
+
+  // Pans only if the selected marker (with its label) would sit under the edges or the overlapping sheet.
+  function revealSelected() {
+    const h = handleRef.current;
+    const { keepSelectedVisible, selectedId: id, markers: current } = latest.current;
+    const selected = keepSelectedVisible && id ? current.find((m) => m.id === id) : undefined;
+    if (!h || !keepSelectedVisible || !selected) return;
+    const size = selected.size ?? 44;
+    const reduceMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    h.map.panInside(imageToLatLng(baseMap, selected.x, selected.y), {
+      paddingTopLeft: [size, size],
+      // The label sits under the pin, so leave room for it as well as the overlap.
+      paddingBottomRight: [size, keepSelectedVisible.bottomInset + size * 1.5],
+      animate: !reduceMotion,
+    });
+  }
 
   // Create the map once per base map. Leaflet touches `window`, so it loads in the browser only.
   useEffect(() => {
@@ -86,12 +152,16 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       // Contain: the whole map fits. Cover: the map fills the frame (phones in portrait).
       const contain = m.getBoundsZoom(bounds, false);
       const cover = m.getBoundsZoom(bounds, true);
-      m.setMinZoom(contain);
+      const zoomOutBy = p.zoomOutBy ?? 0;
+      m.setMinZoom(contain - zoomOutBy);
       m.setMaxZoom(Math.max(cover, contain) + 1.5);
       m.setMaxBounds(bounds.pad(0.1));
       const focus = p.markers.find((mk) => mk.id === p.focusId);
       if (p.initialView) m.setView(p.initialView.center, p.initialView.zoom, { animate: false });
-      else m.setView(focus ? imageToLatLng(baseMap, focus.x, focus.y) : bounds.getCenter(), cover, { animate: false });
+      else if (p.openOnMarkers && p.markers.length > 1) {
+        const pin = Math.max(...p.markers.map((mk) => mk.size ?? 44));
+        m.fitBounds(L.latLngBounds(p.markers.map((mk) => imageToLatLng(baseMap, mk.x, mk.y))), { padding: [pin, pin], maxZoom: cover + 1, animate: false });
+      } else m.setView(focus ? imageToLatLng(baseMap, focus.x, focus.y) : bounds.getCenter(), cover, { animate: false });
       m.on("moveend zoomend", () => {
         const c = m.getCenter();
         latest.current.onViewChange?.({ center: [c.lat, c.lng], zoom: m.getZoom() });
@@ -126,7 +196,7 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       const classes = [styles.pin, styles[m.state] ?? "", m.provisional ? styles.provisional : "", m.id === selectedId ? styles.selected : ""].join(" ");
       const icon = h.L.divIcon({
         className: `${styles.markerIcon} ${m.offMap ? styles.markerIconOffMap : ""}`,
-        html: `<span class="${classes}" style="width:${m.size ?? 44}px;height:${m.size ?? 44}px">${escapeHtml(m.symbol ?? String(m.order))}</span><span class="${styles.label}">${escapeHtml(m.label)}</span>`,
+        html: `<span class="${classes}" style="width:${m.size ?? 44}px;height:${m.size ?? 44}px">${escapeHtml(m.symbol ?? String(m.order))}</span>${latest.current.showLabels === false ? "" : `<span class="${styles.label}">${escapeHtml(m.label)}</span>`}`,
         iconSize: [m.size ?? 44, m.size ?? 44],
         iconAnchor: [(m.size ?? 44) / 2, (m.size ?? 44) / 2],
       });
@@ -142,6 +212,77 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
       marker.addTo(h.markers);
     }
   }, [ready, markers, selectedId, baseMap]);
+
+  // Leaflet only re-measures on window resize; a caller's layout can also resize the frame (e.g. a sheet opening below it).
+  useEffect(() => {
+    const h = handleRef.current;
+    const el = containerRef.current;
+    if (!h || !el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      h.map.invalidateSize({ pan: false });
+      revealSelected();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+    // revealSelected reads the latest props through `latest`, so it needn't re-subscribe the observer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
+  useEffect(() => { revealSelected(); }, [ready, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Two-finger mode. Leaflet's two-finger handler already pans with the fingers' midpoint while it pinches, so only its one-finger
+  // drag has to step aside: it is turned off for touch and back on for a mouse or pen. The listeners capture on the frame, so they
+  // run before Leaflet's own on the map container; the stylesheet lets the browser scroll the page under one finger.
+  useEffect(() => {
+    const h = handleRef.current;
+    const frame = frameRef.current;
+    if (!h || !frame || !twoFinger) return;
+    const { map } = h;
+    let gesture: { x: number; y: number; scroll: number; shown: boolean } | null = null;
+    let timer: number | undefined;
+    const hide = () => { window.clearTimeout(timer); setHintVisible(false); };
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") map.dragging.disable();
+      else map.dragging.enable();
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      map.dragging.disable();
+      if (e.touches.length > 1) {
+        // Two fingers: the player knows the gesture, so the hint goes and doesn't come back.
+        gesture = null;
+        hintMemory = { ...hintMemory, learned: true };
+        hide();
+        return;
+      }
+      gesture = { x: e.touches[0].clientX, y: e.touches[0].clientY, scroll: pageScroll(), shown: false };
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!gesture || e.touches.length !== 1) return;
+      const distance = Math.hypot(e.touches[0].clientX - gesture.x, e.touches[0].clientY - gesture.y);
+      const now = Date.now();
+      if (!shouldShowTwoFingerHint({ distance, pageScrolled: pageScroll() !== gesture.scroll, alreadyShown: gesture.shown }, hintMemory, now)) return;
+      gesture.shown = true;
+      hintMemory = { ...hintMemory, lastShownAt: now };
+      window.clearTimeout(timer);
+      setHintVisible(true);
+      timer = window.setTimeout(() => setHintVisible(false), TWO_FINGER_HINT.showFor);
+    };
+    const onTouchEnd = (e: TouchEvent) => { if (e.touches.length === 0) gesture = null; };
+    const passive = { capture: true, passive: true } as const;
+    frame.addEventListener("pointerdown", onPointerDown, true);
+    frame.addEventListener("touchstart", onTouchStart, passive);
+    frame.addEventListener("touchmove", onTouchMove, passive);
+    frame.addEventListener("touchend", onTouchEnd, passive);
+    frame.addEventListener("touchcancel", onTouchEnd, passive);
+    return () => {
+      frame.removeEventListener("pointerdown", onPointerDown, true);
+      frame.removeEventListener("touchstart", onTouchStart, passive);
+      frame.removeEventListener("touchmove", onTouchMove, passive);
+      frame.removeEventListener("touchend", onTouchEnd, passive);
+      frame.removeEventListener("touchcancel", onTouchEnd, passive);
+      hide();
+    };
+  }, [ready, twoFinger]);
 
   // Historical memory layer.
   useEffect(() => {
@@ -159,9 +300,18 @@ export default function LeafletBaseMap(props: LeafletBaseMapProps) {
   }, [ready, memoryLayers, baseMap]);
 
   return (
-    <div className={styles.frame} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
-      <div ref={containerRef} className={styles.map} role="region" aria-label={alt} />
-      {notice ? <p className={styles.notice}>{notice}</p> : null}
+    <div ref={frameRef} className={`${styles.frame} ${props.frameClassName ?? ""}`} style={{ "--map-control-size": props.touchSize ? `${props.touchSize}px` : undefined } as CSSProperties}>
+      <div ref={containerRef} className={`${styles.map} ${twoFinger ? styles.twoFinger : ""}`} role="region" aria-label={alt} />
+      {notice && noticeToggleLabel ? <div className={styles.noticeFold}>
+        <button type="button" className={noticeNudge ? `${styles.noticeToggle} ${styles.noticeNudge}` : styles.noticeToggle} aria-label={noticeToggleLabel}
+          aria-expanded={noticeOpen} aria-controls={noticeId} onAnimationEnd={() => setNoticeNudge(false)}
+          onClick={() => { noticeTouched.current = true; setNoticeNudge(false); noticeFolded = noticeOpen; setNoticeOpen(!noticeOpen); }}>
+          <Icon name={noticeOpen ? "close" : "info"} className={styles.noticeIcon} />
+        </button>
+        <p id={noticeId} className={styles.noticeText} hidden={!noticeOpen}>{notice}</p>
+      </div> : notice ? <p className={styles.notice}>{notice}</p> : null}
+      {/* Always in the page, so a screen reader announces the hint when it appears; it never takes a tap. */}
+      {twoFinger ? <p className={`${styles.gestureHint} ${hintVisible ? styles.gestureHintVisible : ""}`} role="status">{hintVisible ? props.twoFingerHint : ""}</p> : null}
     </div>
   );
 }

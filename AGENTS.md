@@ -15,11 +15,11 @@ Run lint and relevant tests for code changes; build after route, asset or deploy
 
 ## Coding Style
 
-Use TypeScript, typed props and existing ESLint conventions. Import app modules through `@/`. Keep domain types and non-trivial pure helpers in `lib/`; do not mutate inputs. Use stable IDs instead of duplicate domain objects. Keep components focused and files reviewable. Only `lib/base-path.ts` may contain `/memory-protocol`; use `next/link` for links and prefix `next/image` sources and manifest URLs manually. Keep owner photos out of Git; version only the photo index CSV.
+Use TypeScript, typed props and existing ESLint conventions. Import app modules through `@/`. Keep domain types and non-trivial pure helpers in `lib/`; do not mutate inputs. Use stable IDs instead of duplicate domain objects. Keep components focused and files reviewable. Only `lib/base-path.ts` may contain `/memory-protocol` or `/shuk` (the Shuk build's prefix); use `next/link` for links and prefix `next/image` sources and manifest URLs manually. Keep owner photos out of Git; version only the photo index CSV.
 
 ## Game Architecture and Rules
 
-Routes (`app/**/page.tsx`) compose features and metadata only. `Index<Entity>` assembles data and owns loading, error and empty states. `List<Entity>` uses pure, typed functions to filter, sort, group and map view models; it never fetches. `Preview<Entity>` renders props and emits callbacks; it never fetches, handles raw domain objects or invents copy. Use `IndexMission -> ListMission -> PreviewMission` and the same pattern for Evidence (shared dossier), Puzzle and Group (the single group, participant roles and shared progress). Do not build team-count selection or competing-team UI for The Amazing Shuk. Keep the guide dashboard in its own `IndexGuide...` feature, separate from player UI.
+Routes (`app/**/page.tsx`) compose features and metadata only. `Index<Entity>` assembles data and owns loading, error and empty states. `List<Entity>` uses pure, typed functions to filter, sort, group and map view models; it never fetches. `Preview<Entity>` renders props and emits callbacks; it never fetches, handles raw domain objects or invents copy. Use `IndexMission -> ListMission -> PreviewMission` and the same pattern for Evidence (shared dossier), Puzzle and Group (a team: its participant roles and shared progress). For The Amazing Shuk, an adventure holds teams of about five, recommended from the host's count (`docs/project/product-decisions.md`, 29 Oct 2026): build no team-format selection screen, and build multi-team or competition features only in the increments of `docs/project/multiplayer-plan.md`. Keep the guide dashboard in its own `IndexGuide...` feature, separate from player UI.
 
 Use focused typed React Context near `Index<Entity>` for stable state or actions shared by nested components. Memoise values; expose a `use<Entity>Context` hook that throws outside its provider. Use props for direct parent-child data. Do not use Context to hide dependencies or replace data boundaries.
 
@@ -32,7 +32,11 @@ Add or update `*.test.ts` coverage for game logic, especially scoring, unlocks a
 
 ### Sources of Truth
 
-The repository contains two separate games with separate sources. For **The Memory Protocol**, docs/scavenger_hunt/The_Memory_Protocol_Story_V1(1).md is locked: do not rewrite it, rename the Israelianes or HARMONY, or change its premise without explicit user approval. Use docs/scavenger_hunt/Memory_Protocol_New_Chat_Handoff_v02.md for gameplay, scoring proposals, evidence boundaries and open questions.
+**Ways to answer and ways to verify (top-level rule, owner, 3 Nov 2026):** how a group answers should be unexpected, never always the same; taking a photo is one form among many. Each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API for a photo), chosen with the owner; points and unlocks are still computed by code. Group roles: Navigator, Answer Submitter and Researcher, assigned by the group leader during onboarding; a player can hold more than one. The game requires mobile data.
+
+**The knowledge folder (top-level rule, owner, 3 Nov 2026):** docs/knowledge/ is where the games get their useful facts from. A piece of knowledge belongs there because it can serve a purpose for a challenge. Once written it is locked: do not rewrite or delete it without explicit owner approval. Research in research/results/ that can serve a challenge is imported into docs/knowledge/ with its source and evidence label. Being there does not make a claim a fact; every piece keeps its evidence label. See .claude/rules/content.md.
+
+The repository contains two separate games with separate sources. For **The Memory Protocol**, docs/knowledge/The_Memory_Protocol_Story_V1(1).md is locked: do not rewrite it, rename the Israelianes or HARMONY, or change its premise without explicit user approval. Use docs/knowledge/Memory_Protocol_New_Chat_Handoff_v02.md for gameplay, scoring proposals, evidence boundaries and open questions.
 
 For **The Amazing Shuk** (Nahlaot and Mahane Yehuda), use Part 2 of research/prompts/DORI_UXUI_Designer_Agent_Prompt(1).md, plus mission/task ideas and the photo index in design/inputs/content/. Do not use the Memory Protocol story as a source: this game has no HARMONY, Israelianes, parallel Earth, library act or crisis layer. Map idea tags DOC and FIELD to **Historical fact**; map ORAL and FOLK to **Attributed tradition**.
 
@@ -42,7 +46,7 @@ For both games, research/results/ contains research, not approved content; claim
 
 Do not invent or paraphrase visitor-facing copy. If approved wording is missing, mark a content gap (for example, TODO(copy): ... in data) and report it; never show it as final. Write English first. Apply .rtl to Hebrew, Ladino or Arabic text as needed, with transliteration where players need it.
 
-Every content item must have one visible label: **Historical fact** (cited source), **Interpretation** (reasoned reading), **Attributed tradition** (uncorroborated guide/community story), or **Fiction**. Fiction is for the Memory Protocol's HARMONY, Israelianes, parallel Earth and contemporary crisis scenarios. The Amazing Shuk has no fictional frame; use Fiction only for an invented game device, such as an altered "what's missing" image. Never mix labels in one statement. A novel such as *The Beauty Queen of Jerusalem* documents its author's portrayal, not historical events.
+Every content item carries one label in its data: **Historical fact** (cited source), **Interpretation** (reasoned reading), **Attributed tradition** (uncorroborated guide/community story), or **Fiction**. Fiction is for the Memory Protocol's HARMONY, Israelianes, parallel Earth and contemporary crisis scenarios. The Amazing Shuk has no fictional frame; use Fiction only for an invented game device, such as an altered "what's missing" image. The Memory Protocol shows the label; the Amazing Shuk, by the owner's decision of 26 Oct 2026, shows no labels on screen, and the wording carries the hedges (see `docs/project/product-decisions.md`). Never mix labels in one statement. A novel such as *The Beauty Queen of Jerusalem* documents its author's portrayal, not historical events.
 
 ### Evidence, Consent and Play Boundaries
 
@@ -55,6 +59,8 @@ Every content item must have one visible label: **Historical fact** (cited sourc
 ## Shared Project Memory
 
 Before meaningful Amazing Shuk work, read `docs/project/product-decisions.md`, `docs/project/current-state.md`, `docs/project/agent-handoff.md`, and `design/amazing-shuk-roadmap.md`. Follow the decision priority recorded in the product decisions. After meaningful work, update current state and handoff with verified facts only. Keep Shuk production features isolated from the Memory Protocol until a separate protected app boundary is established; the opt-in loopback-only development simulation is the exception. Check Git status and preserve other agents' changes.
+
+Before designing or reworking an Amazing Shuk mission, an interaction or the game-wide arc, follow the experience design process in `.claude/skills/experience-design/SKILL.md` (it is a Claude skill; other agents can read it as a document).
 
 @CLAUDE.md
 

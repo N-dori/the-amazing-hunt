@@ -1,32 +1,48 @@
 import { useEffect, useRef, type KeyboardEvent } from "react";
-import Image from "next/image";
+import Picture from "@/components/media/Picture";
 import ActionButton from "@/components/ui/ActionButton";
 import { Icon } from "@/components/icons";
-import { BASE_PATH } from "@/lib/base-path";
-import type { MissionPresentation } from "@/lib/amazing-shuk/mission-arrival";
+import { previewDestinationTitle, type MissionPresentation, type MissionProgressStage } from "@/lib/amazing-shuk/mission-arrival";
+import PreviewMissionProgress from "@/components/amazing-shuk/PreviewMissionProgress";
 import styles from "./PreviewMissionCard.module.scss";
 
-type Props = { view: MissionPresentation; onViewLocation: () => void; onClose: () => void };
-// The badge repeats the tapped pin (same number or symbol, same state colour), so the sheet reads as that marker's card.
-const BADGE_STATE = { active: styles.badgeActive, conditional: styles.badgeArrived, completed: styles.badgeDone, locked: "" };
-/** First tap on a marker: where is it, and do we want to go? No story, question or answer here. */
-export default function PreviewMissionCard({ view, onViewLocation, onClose }: Props) {
+type Props = { view: MissionPresentation; stage: MissionProgressStage; onViewLocation: () => void; onClose: () => void };
+// The pill repeats the tapped pin (its number and state colour), so the sheet reads as that marker's card. Its words name only the
+// states the progress line doesn't show (locked, arrival confirmed); "Available" and "Completed" are said by the progress line.
+const PILL_STATE = { active: styles.pillActive, conditional: styles.pillArrived, completed: styles.pillDone, locked: "" };
+// TODO(copy): draft from the owner's idea, 26 Oct 2026 ("for earning the best chocolate in the market you have to answer…").
+const LOCKED_NOTE = "To earn the best chocolate in the market, first complete all the other missions. This stop opens last.";
+// TODO(copy): "Find this place" is a draft from the owner's brief (30 Oct 2026); it replaced "View Location".
+const FIND_ACTION = "Find this place";
+/** First tap on a marker: the destination as a task (find this place), where it stands, and the way in. No story, question or answer. */
+export default function PreviewMissionCard({ view, stage, onViewLocation, onClose }: Props) {
   const title = useRef<HTMLHeadingElement>(null);
   // Move focus into the sheet when a marker opens it, so keyboard and screen-reader users land on the mission.
   useEffect(() => { title.current?.focus({ preventScroll: true }); }, [view.id]);
   const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
   return <section className={`${styles.sheet} ${view.state === "completed" ? styles.sheetDone : ""}`} id="mission-preview"
     aria-labelledby="mission-preview-title" onKeyDown={closeOnEscape}>
+    {/* The pin's number and the stage in one row with Close: the card's label, not a block of its own. */}
     <div className={styles.top}>
-      <span className={`${styles.badge} ${BADGE_STATE[view.marker.state]}`} aria-hidden="true">{view.marker.symbol}</span>
-      <p className={styles.status}>{view.status}</p>
+      <p className={`${styles.pill} ${PILL_STATE[view.marker.state]}`}>Mission {view.marker.order}{view.locked || view.state === "arrived" ? ` · ${view.status}` : ""}</p>
+      {view.locked ? null : <PreviewMissionProgress stage={stage} compact className={styles.stage} />}
       <button type="button" className={styles.close} aria-label="Close preview" onClick={onClose}><Icon name="close" className={styles.icon} /></button>
     </div>
-    <h2 id="mission-preview-title" className={styles.title} tabIndex={-1} ref={title}>{view.title}</h2>
-    <p className={styles.place}><Icon name="mapMarker" className={styles.placeIcon} /><span>{view.name}</span></p>
-    {view.photo ? <Image src={BASE_PATH + view.photo.src} alt={view.photo.alt} width={640} height={360} sizes="(min-width: 54rem) 54rem, 100vw" className={styles.photo} />
-      : <p className={styles.photoGap}><Icon name="camera" className={styles.icon} /><span>Reference photograph not yet available.</span></p>}
-    <p className={styles.summary}>{view.location.summary}</p>
-    <ActionButton block icon="arrowForward" onClick={onViewLocation}>View Location</ActionButton>
+    {/* Only this part scrolls, and only when large text makes it taller than the sheet; the action stays in view. */}
+    <div className={styles.body}>
+      <h2 id="mission-preview-title" className={styles.title} tabIndex={-1} ref={title}>{previewDestinationTitle(view)}</h2>
+      {/* The challenge's own name, as a promise of what waits there: secondary to the destination. */}
+      <p className={styles.place}><Icon name="puzzle" className={styles.placeIcon} /><span>{view.title}</span></p>
+      <div className={styles.teaser}>
+        {/* The photo across the card (owner, 8 Nov 2026: the thumbnail was too small), the teaser under it. */}
+        {view.photo ? <Picture src={view.photo.src} alt={view.photo.alt} width={640} height={360} sizes="(min-width: 48rem) 42rem, 100vw" className={styles.thumb} />
+          : <p className={styles.thumbGap}><Icon name="camera" className={styles.icon} /><span className="srOnly">Reference photograph not yet available.</span></p>}
+        <p className={styles.summary}>{view.location.summary}</p>
+      </div>
+    </div>
+    <div className={styles.action}>
+      {view.locked ? <p className={styles.locked} role="status"><Icon name="info" className={styles.icon} /><span>{LOCKED_NOTE}</span></p>
+        : <ActionButton block icon="arrowForward" onClick={onViewLocation}>{FIND_ACTION}</ActionButton>}
+    </div>
   </section>;
 }

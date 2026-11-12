@@ -6,7 +6,7 @@ import ActionButton from "@/components/ui/ActionButton";
 import EvidenceTag from "@/components/ui/EvidenceTag";
 import StatusTag from "@/components/ui/StatusTag";
 import type { MarkerState } from "@/lib/game/missionMap";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import { mapScreen } from "@/lib/game/screens";
 import type { ClaimType, Copy, SiteId } from "@/lib/game/types";
 import styles from "./PreviewMission.module.scss";
@@ -77,7 +77,7 @@ export default function PreviewMission({ destination: d, onClose, onAction }: Pr
 
       {d.photo ? (
         <figure className={styles.photo}>
-          <img src={`${BASE_PATH}${d.photo.src}`} alt={d.photo.alt} className={styles.photoImage} />
+          <Picture src={d.photo.src} alt={d.photo.alt} className={styles.photoImage} loading="eager" />
           <figcaption className={styles.photoCaption}>
             {d.photo.caption.text}
             <StatusTag status={d.photo.caption.status} />
@@ -128,7 +128,7 @@ export default function PreviewMission({ destination: d, onClose, onAction }: Pr
       {d.memory ? (
         <div className={styles.memory} role="status">
           <p className={styles.memoryTitle}>{d.memory.title}</p>
-          {d.memory.image ? <img src={`${BASE_PATH}${d.memory.image.src}`} alt={d.memory.image.alt} className={styles.memoryImage} /> : null}
+          {d.memory.image ? <Picture src={d.memory.image.src} alt={d.memory.image.alt} className={styles.memoryImage} loading="eager" /> : null}
           <p className={styles.memoryChange}>
             <span>{d.memory.before}</span>
             <Icon name="arrowForward" className={styles.memoryArrow} />

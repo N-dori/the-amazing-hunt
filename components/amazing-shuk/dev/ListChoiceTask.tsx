@@ -1,13 +1,19 @@
+import type { ReactNode } from "react";
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
+import { choiceAnswer } from "@/lib/amazing-shuk/challenge-help";
 import type { WaterSubmissionRole } from "@/lib/amazing-shuk/water-measurement";
 import type { ChoiceChallenge } from "@/lib/amazing-shuk/choice-task";
 import type { ChoiceTaskContent } from "@/lib/amazing-shuk/choice-missions";
 import { buildChoiceTaskView } from "@/lib/amazing-shuk/mural-task-view";
+import { soloLine } from "@/lib/amazing-shuk/solo-copy";
 import PreviewChoiceTask from "./PreviewChoiceTask";
 import { buildChoiceDiscovery, MISSION_VICTORY } from "@/lib/amazing-shuk/mission-completion";
 type Props = {
   task: ChoiceTaskContent; challenge: ChoiceChallenge;
+  // The question the group is on: 0 is `challenge`, then `followUps` in order (Marzipan's second question).
+  step: number; followUps?: readonly ChoiceChallenge[];
   selected: readonly string[]; completed: boolean; feedback: string; activeRole: WaterSubmissionRole; busy: boolean; performance: WaterPerformanceView;
+<<<<<<< HEAD
   onExplore: () => void;
   onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
 };
@@ -17,4 +23,22 @@ export default function ListChoiceTask({ task, challenge, selected, completed, a
   return <PreviewChoiceTask view={buildChoiceTaskView(challenge, selected, completed, activeRole, busy, performance.started)}
     question={task.question} performance={performance} victory={MISSION_VICTORY} discovery={buildChoiceDiscovery(task)} hints={hints}
     hasMoreHints={performance.started && !completed && hints.length < task.hints.length} {...rest} />;
+=======
+  // A team of one: personal wording for the question and status lines (owner, 2 Nov 2026).
+  solo?: boolean;
+  // The hint sheet and "I'm completely stuck" (IndexChallengeHelp), shown during play.
+  help?: ReactNode;
+  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onOpenRoles?: () => void;
+  // UX-3: the challenge only after the server's accepted Start (default); `false` keeps the old screen.
+  storyFirst?: boolean;
+};
+/** Any "choose N" mission (the mural, the synagogue): shared picks, help during play, and the reveal once accepted or revealed. */
+export default function ListChoiceTask({ task, challenge, step, followUps, selected, completed, activeRole, busy, performance, solo = false, ...rest }: Props) {
+  const followUp = step > 0 ? task.followUps?.[step - 1] : undefined;
+  const current = step > 0 ? followUps?.[step - 1] ?? challenge : challenge;
+  const view = buildChoiceTaskView(current, selected, completed, activeRole, busy, performance.started, performance.canAnswer ?? true);
+  return <PreviewChoiceTask view={{ ...view, status: soloLine(view.status, solo) }}
+    question={followUp?.question ?? (solo ? task.questionSolo ?? task.question : task.question)} lead={followUp?.lead} performance={performance} reveal={task.reveal} completionTitle={task.completionTitle}
+    answer={performance.revealed ? choiceAnswer(current) : undefined} {...rest} />;
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
 }

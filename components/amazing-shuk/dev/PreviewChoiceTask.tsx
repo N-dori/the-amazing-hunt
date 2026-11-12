@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import Picture from "@/components/media/Picture";
+import type { ReactNode } from "react";
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
 import ActionButton from "@/components/ui/ActionButton";
 import PreviewChoiceOptions from "./PreviewChoiceOptions";
 import type { WaterPerformanceView } from "@/lib/amazing-shuk/water-performance";
@@ -8,21 +13,83 @@ import PreviewMissionDiscovery from "./PreviewMissionDiscovery";
 import styles from "./PreviewChoiceTask.module.scss";
 type Props = {
   view: ChoiceTaskView; question: string; performance: WaterPerformanceView;
+<<<<<<< HEAD
   victory: MissionVictoryCopy; discovery: MissionDiscovery; onExplore: () => void;
   hints: readonly { title: string; text: string }[]; hasMoreHints: boolean;
+=======
+  // On a follow-up question: why the group's last answer was right, shown above the new question.
+  lead?: readonly { label: string; text: string }[];
+  reveal: ChoiceTaskContent["reveal"]; completionTitle?: string;
+  // The hint sheet and "I'm completely stuck", during play (IndexChallengeHelp).
+  help?: ReactNode;
+  // After "I'm completely stuck": the right options, shown under the result.
+  answer?: readonly string[];
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   // The latest reply to this device's action (e.g. a wrong answer), shown beside the submit button.
   feedback: string;
-  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void; onHint: () => void;
+  onToggle: (optionId: string) => void; onStart: () => void; onSubmit: () => void; onReset: () => void;
+  // Only while a role is free (it opens the Group tab).
+  onOpenRoles?: () => void;
+  // UX-3: before the server's accepted Start, only the Start area shows; the question and options come after. `false` keeps
+  // the old screen (Marzipan, until its rework).
+  storyFirst?: boolean;
 };
+<<<<<<< HEAD
 export default function PreviewChoiceTask({ view, question, performance, victory, discovery, onExplore, hints, hasMoreHints, feedback, onToggle, onStart, onSubmit, onReset, onHint }: Props) {
   if (view.completed) return <PreviewMissionVictory {...victory} reward={performance.reward} onExplore={onExplore}><PreviewMissionDiscovery {...discovery} /></PreviewMissionVictory>;
+=======
+// One neutral heading over the text after an answer; evidence labels stay in the data (owner's decision, 26 Oct 2026).
+// TODO(copy): "Behind the answer" is a draft.
+// TODO(copy): "Here's the answer" and "The answer" are drafts (Phase 2c).
+export default function PreviewChoiceTask({ view, question, lead, performance, reveal, completionTitle = "Challenge completed!", help, answer, feedback, onToggle, onStart, onSubmit, onReset, onOpenRoles, storyFirst = true }: Props) {
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   const playing = performance.started && !view.completed;
+  const startArea = <div className={styles.actions}>
+    {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
+    {/* A free role is why nobody here can start: the way to take it, where it blocks. TODO(copy): the group sheet's draft link. */}
+    {!performance.canStart && onOpenRoles ? <ActionButton variant="quiet" icon="arrowForward" onClick={onOpenRoles}>Open the Group tab</ActionButton> : null}
+  </div>;
+  if (storyFirst && !performance.started && !view.completed) return <section className={styles.task}>{startArea}</section>;
   return <section className={styles.task} aria-labelledby="mural-task-title">
+<<<<<<< HEAD
     <h2 id="mural-task-title" className={styles.question}>{question}</h2>
     {!performance.started && !view.completed ? <div className={styles.actions}>
       {performance.canStart ? <ActionButton disabled={view.busy} onClick={onStart}>Start challenge</ActionButton> : <p>Your navigator, answer-submitter or guide can start after the story.</p>}
     </div> : null}
     <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} />
+=======
+    {lead && !view.completed ? <div className={styles.lead} role="status"><h3 className={styles.revealLabel}>Behind the answer</h3>
+      {lead.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
+      <p>{paragraph.text}</p>
+    </div>)}</div> : null}
+    {/* Help sits just above the question (owner, 5 Nov 2026): the hints and "I'm completely stuck", side by side. */}
+    {help ? <div className={styles.helpBar}>{help}</div> : null}
+    {/* Focusable so the phone that pressed Start lands on the question (UX-3). */}
+    <h2 id="mural-task-title" tabIndex={-1} className={styles.question}>{question}</h2>
+    {!performance.started && !view.completed ? startArea : null}
+    {/* The choices only once the challenge has started (owner, 8 Nov 2026): before Start the group reads the question and talks. */}
+    {performance.started || view.completed ? <PreviewChoiceOptions legend={question} options={view.options} onToggle={onToggle} /> : null}
+    {view.completed ? <section className={styles.success} role="status" aria-label="Challenge result">
+      <h3>{performance.revealed ? "Here's the answer" : completionTitle}</h3>
+      {performance.revealed && answer?.length ? <div className={styles.answer}>
+        <h4 className={styles.revealLabel}>The answer</h4>
+        <ul>{answer.map(item => <li key={item}>{item}</li>)}</ul>
+      </div> : null}
+      {performance.reward ? <dl className={styles.reward}>
+        <div><dt>Points earned</dt><dd>{performance.reward.points}</dd></div>
+        <div><dt>Food tokens earned</dt><dd>{performance.reward.foodTokens}</dd></div>
+        <div><dt>Hints used</dt><dd>{performance.reward.hintsUsed}</dd></div>
+      </dl> : null}
+      {reveal.paragraphs?.some(paragraph => paragraph.label) ? <h4 className={styles.revealLabel}>Behind the answer</h4> : null}
+      {reveal.paragraphs?.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
+        <p>{paragraph.text}</p>
+      </div>)}
+      {reveal.image ? <figure className={styles.figure}>
+        <Picture src={reveal.image.src} width={reveal.image.width} height={reveal.image.height} alt={reveal.image.alt} className={styles.image} sizes="(min-width: 48rem) 24rem, 100vw" />
+        <figcaption className={styles.caption}>{reveal.image.caption}</figcaption>
+      </figure> : null}
+    </section> : null}
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
     {!view.completed && !view.answerKeyVerified ? <p className={styles.keyNotice}>Draft: the answer key still needs a field check, so answers can&apos;t be scored yet.</p> : null}
     {/* Sticks to the foot of the screen while the group scrolls the options, and stops at the end of the challenge. */}
     {playing ? <div className={styles.submitBar}>
@@ -36,11 +103,5 @@ export default function PreviewChoiceTask({ view, question, performance, victory
         : <p className={styles.followerNote}>Talk it over. Your answer-submitter or guide submits the group&apos;s answer.</p>}
     </div> : null}
     {!performance.started && !view.canSubmit && !view.completed ? <p>Talk it over. Your answer-submitter or guide submits the group&apos;s answer.</p> : null}
-    <aside className={styles.hints} aria-label="Optional hints">
-      {hasMoreHints ? <ActionButton variant="quiet" className={styles.reset} disabled={view.busy} onClick={onHint}>{hints.length ? "Another hint?" : "Need a hint?"}</ActionButton> : null}
-      <ol aria-live="polite" aria-relevant="additions" className={styles.hintList}>
-        {hints.map(hint => <li key={hint.title}><strong>{hint.title}</strong><p>{hint.text}</p></li>)}
-      </ol>
-    </aside>
   </section>;
 }

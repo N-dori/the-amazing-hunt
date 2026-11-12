@@ -1,12 +1,13 @@
 import type { ChoiceChallenge } from "./choice-task.ts";
 import type { MissionDefinition } from "./mission-arrival.ts";
-import { WELL_REWARDS, type WaterRewardConfig } from "./water-performance.ts";
+import type { WaterRewardConfig } from "./water-performance.ts";
+import { budgetRewards, type BudgetScoring } from "./challenge-scoring.ts";
 
 export const MURAL_MISSION_ID = "mural-real-or-painted";
 
-const IDEAS = "Owner's field notes from photos #103-105, design/inputs/content/Mission_Task_Ideas.md, \"Opening task: the painted market\"";
-const POST = "Israel Post stamp flyer, issue 1171 (S1 in research/results/07_citecreation_market_mural.md)";
-const TOUR = "English tour, Stop 8 (docs/scavenger_hunt/Machane_Yehuda_Tour_EN.md)";
+const IDEAS = "Owner's field notes from photos #103-105, design/inputs/content/challenge-ideas/Mission_Task_Ideas.md, \"Opening task: the painted market\"";
+const POST = "Israel Post stamp flyer, issue 1171 (S1 in research/results/shuk-places/07_citecreation_market_mural.md)";
+const TOUR = "English tour, Stop 8 (docs/knowledge/Machane_Yehuda_Tour_EN.md)";
 const FIELD = "Owner's field check, 24 Oct 2026";
 
 /** "Find 2 things that are real." Every item's real/painted status was field-checked by the owner on 24 Oct 2026. */
@@ -25,14 +26,17 @@ export const MURAL_CHALLENGE: ChoiceChallenge = Object.freeze({
   ]),
 });
 
-// Provisional copy of the well's local-testing values; mural rewards are not approved yet.
-export const MURAL_REWARDS: WaterRewardConfig = WELL_REWARDS;
+// Model B (owner, D1, 2 Nov 2026); speed never changes the points. TODO(values): max 100, a 40 % hint budget and 2 food tokens are proposals pending the
+// owner's approval. With two hints: 100, then 85, then 60 (the floor).
+export const MURAL_SCORING: BudgetScoring = Object.freeze({ maxPoints: 100, budgetShare: 0.4, foodTokens: 2 });
 
 /** Story and question text: source-backed, for owner review. Each paragraph carries its own evidence label. */
 export const MURAL_TASK = Object.freeze({
   id: MURAL_MISSION_ID,
   title: "Is It Real or Is It Painted?",
   instruction: "Choose someone from your group to read this story aloud. Then work together to solve the challenge.",
+  // Approved solo wording (owner, 2 Nov 2026).
+  instructionSolo: "Take a moment to discover this story.",
   story: {
     title: "THE PAINTED MARKET",
     paragraphs: [
@@ -40,23 +44,25 @@ export const MURAL_TASK = Object.freeze({
       { label: "Attributed tradition", text: "The story goes that after the unveiling, people complained about cardboard boxes left near the painting. They were painted." },
     ],
     source: `${TOUR}; ${POST} ("a bare concrete wall"); before photo supplied by the owner, 24 Oct 2026.`,
-  },
-  // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
-  question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
-  // Shown only after the group's answer is accepted, so it can't hint at what was already there.
-  reveal: {
-    paragraphs: [],
+    // Moved from the reveal into the story at the owner's request, 26 Oct 2026: it shows the bare wall the story describes.
     image: { src: "/shuk/mural-before.jpg", width: 1023, height: 1537,
       alt: "Black-and-white photo of the same corner before the mural: a tall, bare, blank building wall above low sheds, a lamp post and a telegraph pole.",
       caption: "The wall before the mural. Photographer and date not yet recorded." },
   },
-  // The tour's own questions for this stop, in order.
+  // The owner's wording, 24 Oct 2026 (replaces "Find 2 things on this wall that are real, not painted.").
+  question: "The artists fooled almost everyone. Can your group spot TWO things that are actually real?",
+  // TODO(copy): draft solo wording for owner review (2 Nov 2026).
+  questionSolo: "The artists fooled almost everyone. Can you spot TWO things that are actually real?",
+  reveal: { paragraphs: [], image: null },
+  // Two hints, each more helpful than the last (plan §4, 2 Nov 2026). They replace the tour's three open questions.
+  // TODO(copy): both are drafts for the owner's approval.
   hints: [
-    { title: "Hint 1 — Gentle", text: "Which lines belong to actual architecture?" },
-    { title: "Hint 2 — More specific", text: "Which stalls or objects are flat paint?" },
-    { title: "Hint 3 — Almost there", text: "Where did the artists use shadows to fool your eye?" },
+    { title: "Hint 1 — Gentle", text: "Look closely at the shop on the ground floor and its awning." },
+    { title: "Hint 2 — More specific", text: "One real thing helps the building breathe." },
   ],
 });
+
+export const MURAL_REWARDS: WaterRewardConfig = budgetRewards(MURAL_SCORING, MURAL_TASK.hints.length);
 
 export const MURAL_MISSION = Object.freeze({
   id: MURAL_MISSION_ID, title: MURAL_TASK.title, name: "The Mahane Yehuda Market Mural", shortName: "Market Mural",
@@ -89,5 +95,6 @@ export const MURAL_MISSION = Object.freeze({
     radiusMeters: 100, maxAccuracyMeters: 50, maxAgeMs: 60_000, futureToleranceMs: 5_000, rewardPoints: 20,
   }),
   challenge: MURAL_CHALLENGE,
+  // Not `timed: false`: the time is still measured silently (analytics only); model B's rewards never score speed.
   rewards: MURAL_REWARDS, hintCount: MURAL_TASK.hints.length,
 }) satisfies MissionDefinition;

@@ -22,12 +22,21 @@ Follow the rules in `.claude/rules/`:
 
 `docs/coding-rules.md`, `docs/content/methodology.md` and `docs/design/` are copies of the platform's documents, kept here for reference; the platform repo holds the originals.
 
+**`docs/knowledge/` is where the games get their useful facts from (top-level rule, owner, 3 Nov 2026).** A piece belongs there because it can serve a purpose for a challenge. Once written it is locked: change it only with the owner's approval. Research results that can serve a challenge are imported into it with their sources and evidence labels. See "The knowledge folder" in `.claude/rules/content.md`. It holds the story and tour texts (the Memory Protocol story and plan, the guide's recorded Hebrew tour, the Mahane Yehuda tours). For designing or improving a mission, an interaction or the whole game's arc, use `/experience-design`; its `references/project-context.md` lists every document it draws on.
+
+**Ways to answer and ways to verify (top-level rule, owner, 3 Nov 2026).** How a group answers should be unexpected, never always the same; taking a photo is one form among many. Each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API for a photo), chosen with the owner. See `.claude/rules/content.md`.
+
+**Group roles and data (owner, 3 Nov 2026).** The roles are Navigator, Answer Submitter and Researcher (who goes online from a URL the app gives). The group leader assigns them during onboarding, and a player can hold more than one. The game requires mobile data; challenges that need the web are not filtered out.
+
 Commands (`.claude/skills/`):
 
 | Command | Does |
 |---|---|
 | `/game-verify` | Builds the game image and smoke-tests it in an isolated container; touches nothing live |
 | `/game-deploy` | Deploys `dori-game` with `deploy/deploy.sh` (pull, build, health, smoke, rollback) |
+| `/commit` | Safe commits and pushes for this public repo: explicit staging, the owner's files left out, a scan for secrets, invite links, real names and media; `secret <NAME>` for adding keys; optional hooks for VS Code commits |
+| `/deploy` | Releases The Amazing Shuk end to end: activity check, backup, `deploy.sh shuk`, old-image cleanup, a fresh adventure and fresh invite links in `.local/` (`keep-game` skips the reset and links) |
+| `/experience-design` | Thinking process for turning historical knowledge into experiences people love: new or improved missions, group interactions, the game-wide arc. Starts from the story, picks mechanics last |
 
 Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit when the user asks, `/game-deploy`.
 
@@ -35,19 +44,11 @@ Usual loop: change code, `npm test`, lint and type-check, `/game-verify`, commit
 
 For Amazing Shuk work, follow the shared memory workflow referenced in `AGENTS.md` and read its linked decisions, current state, handoff, and canonical roadmap before meaningful changes. Keep this separate from the Memory Protocol app and preserve this file's existing instructions and Claude agent roles.
 
-### Where Claude's Shuk work stands (24 Oct 2026, evening)
+### Shuk state
 
-Start from the top entries of `docs/project/agent-handoff.md` and `docs/project/current-state.md`. Committed on `main`, not pushed: three playable missions (the well, the mural, and Chesed VeRachamim with its optional novel bonus and Eshet Chayil moment), the redesigned mission preview, the profile panel and role badges, the bottom navigation bar (Map, Mission, Food, Group), the mural's checkbox-card UX and the owner's location photos. All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.
+What is built, live, next and waiting on the owner: `docs/project/current-state.md`; the latest work: the top of `docs/project/agent-handoff.md`. Facts to hold in every session:
 
-To run it on this server, the dev container must use the host network with Next bound to `127.0.0.1:3300` (`--network host`, `next dev --hostname 127.0.0.1 --port 3300`). With Docker's usual port mapping Next listens on `0.0.0.0`, and the Shuk API's loopback check then returns 404. The dev server writes the repo's `.next/`: don't delete it while `shuk-dev` runs. Invitation links: `docker exec -w /w shuk-dev npm run -s shuk:invite -- <player-1|player-2|…|guide> http://localhost:3300`.
-
-Next: mission 4, Montefiore (iteration C, the three languages; then D, the Hebrew year), then the slim header.
-
-Waiting on the owner:
-- draft copy for all three missions, the UI labels and the alt texts (listed per slice in the handoff); rewards for the mural, the synagogue and its bonus (provisional);
-- mural image rights (product-decisions still says unresolved) and the before photo's source and rights;
-- field checks: every marker placement, and GPS points for Gan HaTut and the synagogue;
-- Luna: no source gives her relationship to Yitzhak Armoza; only the literary version is built;
-- the well: keep the two-move solution? Story wording (cistern vs. well, the question answered too soon, the title)?
-- the original photos left untracked in `public/shuk/` (move them to `design/inputs/photos/`);
-- the app split (option 2 in `design/amazing-shuk-roadmap.md`), planned for before real-phone testing.
+- Live: `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Deploy with `deploy/deploy.sh shuk`, in tmux.
+- Invitation links go into `.local/` and are never printed. Participants' names stay in the server state and `.local/`, never in git.
+- The dev container `shuk-dev` runs with the host network, Next on `127.0.0.1:3300` (otherwise the Shuk API's loopback check returns 404). It writes the repo's `.next/`: don't delete it while `shuk-dev` runs.
+- All missions share the dev page `/memory-protocol/dev/amazing-shuk/water`.

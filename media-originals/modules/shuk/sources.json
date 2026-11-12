@@ -1,0 +1,65 @@
+{
+  "module": "shuk",
+  "images": [
+    {
+      "file": "gan-hatut-cistern.jpg",
+      "id": "gan-hatut-cistern",
+      "legacySrc": "/shuk/gan-hatut-cistern.jpg",
+      "kind": "photo",
+      "credit": "The owner's photograph",
+      "licence": "Own photo"
+    },
+    {
+      "file": "gan-hatut-gate.jpg",
+      "id": "gan-hatut-gate",
+      "legacySrc": "/shuk/gan-hatut-gate.jpg",
+      "kind": "photo",
+      "credit": "The owner's photograph",
+      "licence": "Own photo"
+    },
+    {
+      "file": "mural-before.jpg",
+      "id": "mural-before",
+      "legacySrc": "/shuk/mural-before.jpg",
+      "kind": "photo",
+      "credit": "unrecorded",
+      "licence": "unrecorded",
+      "note": "Photographer and date not recorded; the owner thinks it may have been altered (29 Oct 2026)."
+    },
+    {
+      "file": "mural-street.jpg",
+      "id": "mural-street",
+      "legacySrc": "/shuk/mural-street.jpg",
+      "kind": "photo",
+      "note": "Owner's photograph #103. The mural's own reuse rights are still unresolved (product decisions).",
+      "credit": "The owner's photograph",
+      "licence": "Own photo"
+    },
+    {
+      "file": "synagogue-facade.jpg",
+      "id": "synagogue-facade",
+      "legacySrc": "/shuk/synagogue-facade.jpg",
+      "kind": "photo",
+      "credit": "The owner's photograph",
+      "licence": "Own photo"
+    },
+    {
+      "file": "levin-mural.jpg",
+      "id": "levin-mural",
+      "legacySrc": "/shuk/levin-mural.jpg",
+      "kind": "photo",
+      "note": "Owner's photograph #39 of the Nachlaot mural of Rabbi Aryeh Levin. Cropped to the mural (owner's choice B, 8 Nov 2026): the air conditioner, bars and gas cylinder are left out, and the WebP copies fit their caps.",
+      "credit": "The owner's photograph",
+      "licence": "Own photo",
+      "crop": { "left": 250, "top": 0, "width": 774, "height": 1500 }
+    },
+    {
+      "file": "marzipan-rugelach.jpg",
+      "id": "marzipan-rugelach",
+      "legacySrc": "/shuk/marzipan-rugelach.jpg",
+      "kind": "photo",
+      "credit": "Photo: Benjamin Lipsman, CC BY 2.0, via Wikimedia Commons",
+      "licence": "CC BY 2.0"
+    }
+  ]
+}

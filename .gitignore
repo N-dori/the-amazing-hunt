@@ -31,5 +31,30 @@ docs/**/*.webp
 docs/**/*.heic
 docs/**/*.zip
 
+# The image pipeline (docs/images-howto.md): originals and generated variants are never committed; only each
+# folder's sources.json and the manifest data/module-images.json are.
+media-originals/*
+!media-originals/modules/
+media-originals/modules/*/*
+!media-originals/modules/*/sources.json
+public/media/
+
 # Local Shuk credentials and shared progress
 .local/
+
+# The owner's local files, kept on disk only (owner, 2 Nov 2026)
+# Stitch mockup exports: a visual reference, never app code or copy
+docs/design/stitch*/
+# Local invite links and run notes, and the undecided trip.doriisrael.com paths
+docs/RUN_PREVIEW.md
+docs/project/trip-doriisrael-paths.md
+# The designer agent's deferred UX notes, kept local by the owner
+design/output/deferred-ux-backlog-*.md
+# New photos in public/shuk stay local; the ones already in git are unaffected.
+# A photo the app needs is added on purpose with `git add -f` (and its ! line in .dockerignore).
+public/shuk/*.png
+public/shuk/*.jpg
+public/shuk/*.jpeg
+public/shuk/*.webp
+public/shuk/*.gif
+public/shuk/*.heic

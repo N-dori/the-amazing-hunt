@@ -6,3 +6,11 @@
   height: 1.5rem;
   vertical-align: middle;
 }
+
+// The synagogue's stone arch (map icons, iconPaths.tsx): a cream ground in a stone line, with a fine inner line.
+.archGround {
+  fill: var(--stone-ground);
+  stroke: var(--stone);
+}
+
+.archInner { stroke: var(--neutral-line); }

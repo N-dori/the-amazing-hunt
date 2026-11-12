@@ -1,0 +1,22 @@
+// The badge and its pop-in come from the inline cheer, so the pop-up and the permanent record look like one family.
+@forward "./PreviewMissionCheer.module";
+
+.reward {
+  display: grid;
+  justify-items: center;
+  gap: .75rem;
+  padding-block: .5rem 1rem;
+  text-align: center;
+
+  &:focus { outline: none; }
+  &:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+}
+
+// Even-width digits, so the count-up never makes the line jump.
+.digits { font-variant-numeric: tabular-nums; }
+
+.amounts { display: grid; gap: .25rem; margin: 0; padding: 0; list-style: none; font-size: 1.375rem; font-weight: 600; }
+
+// Weights: a solve in Za'atar; navigation and a revealed answer stay in plain ink.
+.full .amounts { color: var(--zaatar); }
+.light .amounts, .quiet .amounts { color: var(--ink); font-size: 1.125rem; }

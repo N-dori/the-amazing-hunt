@@ -8,7 +8,8 @@ import { sessionAction, sessionView, issueInvitation, redeemInvitation } from ".
 import { GAN_HATUT_MISSION, type ArrivalPolicy } from "./mission-arrival.ts";
 import { handleParticipantRequest } from "./participant-http.ts";
 import { WATER_PUZZLE_REVISION } from "./water-measurement.ts";
-import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { schema4Snapshot, storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 const verified: ArrivalPolicy = { ...GAN_HATUT_MISSION.arrival, destination: { latitude: 0, longitude: 0, verified: true } };
 async function fixture(run: (path: string, tokens: Record<string, string>, now: number) => Promise<void>) {
@@ -17,6 +18,8 @@ async function fixture(run: (path: string, tokens: Record<string, string>, now: 
   try {
     const path = join(directory, "state.json"), tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
@@ -54,7 +57,7 @@ test("fresh mocked GPS awards once across sessions, retries, guide override and 
   const second = await sessionView(path, tokens["player-2"], now);
   assert.deepEqual(second.mission, first.mission); assert.deepEqual(second.sharedBalance, first.sharedBalance);
   const disk = await readFile(path, "utf8"), db = JSON.parse(disk);
-  assert.deepEqual(db.missions[WELL].arrival, { method: "gps", acceptedAt: now, points: 20 });
+  assert.deepEqual(storedTeam(db).missions[WELL].arrival, { method: "gps", acceptedAt: now, points: 20 });
   assert.doesNotMatch(disk, /latitude|longitude|accuracy|reading/);
   const restarted = await promisify(execFile)(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e",
     'import { sessionView } from "./lib/amazing-shuk/participant-store.ts"; process.stdout.write(JSON.stringify(await sessionView(process.argv[1], process.argv[2])));', path, tokens["player-2"]]);
@@ -72,14 +75,15 @@ test("guide confirmation requires guide identity; concurrent confirmations award
   }
   const view = await sessionView(path, tokens["player-1"], now);
   assert.equal(view.sharedBalance.points, 20); assert.equal(view.mission.arrivalMethod, "guide");
-  assert.deepEqual(JSON.parse(await readFile(path, "utf8")).missions[WELL].arrival, { method: "guide", acceptedAt: now, points: 20 });
+  assert.deepEqual(storedTeam(JSON.parse(await readFile(path, "utf8"))).missions[WELL].arrival, { method: "guide", acceptedAt: now, points: 20 });
 }));
 
 test("HTTP keeps CSRF/authentication and rejects unchecked destination evidence without blocking gameplay", () => fixture(async (path, tokens, now) => {
   const origin = "http://127.0.0.1:3000";
+  const playerId = (await sessionView(path, tokens["player-1"])).session.activeActorId;
   const call = (action: object, token = tokens["player-1"]) => handleParticipantRequest(new Request(origin + "/api", {
     method: "POST", headers: { host: "127.0.0.1:3000", origin, "content-type": "application/json", cookie: `shuk_session=${token}` },
-    body: JSON.stringify({ ...action, puzzleRevision: WATER_PUZZLE_REVISION, expectedParticipantId: token === tokens.guide ? "guide" : "player-1", actionId: "http-optional-arrival-001" }),
+    body: JSON.stringify({ ...action, puzzleRevision: WATER_PUZZLE_REVISION, expectedParticipantId: token === tokens.guide ? "guide" : playerId, actionId: "http-optional-arrival-001" }),
   }), path, { NODE_ENV: "development", SHUK_DEV_SIMULATION: "1" });
   assert.equal((await call(gps(now))).status, 403); // destination is deliberately not verified
   assert.equal((await call(guideArrival)).status, 403);
@@ -90,7 +94,7 @@ test("HTTP keeps CSRF/authentication and rejects unchecked destination evidence 
 
 test("schema3 migration preserves completed challenge reward without inventing an arrival bonus", () => fixture(async (path, tokens, now) => {
   await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "start" }, "migration-start-001", now);
-  await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "move", move: "fill-large" }, "migration-fill-001", now + 1);
+  await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "fill-large" }, "migration-fill-001", now + 1);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "migration-pour-001", now + 2);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "submit" }, "migration-submit-001", now + 3);
   const old = schema4Snapshot(JSON.parse(await readFile(path, "utf8"))); old.version = 3; delete old.arrival;
@@ -103,7 +107,7 @@ test("schema3 migration preserves completed challenge reward without inventing a
 
 test("concurrent bonus and official challenge completion preserve both rewards exactly once", () => fixture(async (path, tokens, now) => {
   await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "start" }, "race-start-challenge-001", now);
-  await sessionAction(path, tokens["player-1"], { missionId: WELL, type: "move", move: "fill-large" }, "race-fill-challenge-001", now + 1);
+  await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "fill-large" }, "race-fill-challenge-001", now + 1);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "race-solve-challenge-001", now + 2);
   const operations = [
     () => sessionAction(path, tokens["player-1"], gps(now), "race-optional-arrival-001", now + 3, undefined, verified),

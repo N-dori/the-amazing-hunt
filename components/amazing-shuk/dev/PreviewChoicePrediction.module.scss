@@ -1,0 +1,8 @@
+// The same quiet panel as the appreciation moment: talk first, then open the answer.
+@forward "./PreviewAppreciation.module";
+
+.answer { display: grid; gap: .5rem; }
+// A full-width outdoor target (3rem) with a visible focus ring.
+.summary { display: flex; align-items: center; min-height: 3rem; padding-inline: .75rem; border: 2px solid var(--sumac); border-radius: .5rem; color: var(--sumac); font-weight: 500; cursor: pointer; }
+.summary:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.answer[open] .summary { margin-block-end: .5rem; }

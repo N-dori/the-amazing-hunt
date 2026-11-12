@@ -10,11 +10,13 @@ export type ArrivalPolicy = Readonly<{
   destination: Readonly<{ latitude: number; longitude: number; verified: boolean }> | null;
   radiusMeters: number; maxAccuracyMeters: number; maxAgeMs: number; futureToleranceMs: number; rewardPoints: number;
 }>;
-export type MissionArrival = Readonly<{ method: "gps" | "guide"; acceptedAt: number; points: number }>;
-export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>;
+// "self" is the team's own "We're here" (D6, 2 Nov 2026): an explicit confirmation without GPS or the guide.
+export type MissionArrival = Readonly<{ method: "gps" | "guide" | "self"; acceptedAt: number; points: number }>;
+export type ArrivalAction = Readonly<{ type: "arrival"; missionId: string; reading: ArrivalReading }> | Readonly<{ type: "confirm-arrival"; missionId: string }>
+  | Readonly<{ type: "self-arrival"; missionId: string }>;
 export type MissionState = "available" | "arrived" | "completed";
-/** `src` is a path under `public/`, without the base path. */
-export type MissionPhoto = Readonly<{ src: string; alt: string }>;
+/** `src` is a path under `public/`, without the base path. `credit` is the attribution an openly licensed photo requires. */
+export type MissionPhoto = Readonly<{ src: string; alt: string; credit?: string }>;
 /** A map destination. Its stable ID keys the group's shared progress for that mission. */
 export type MissionDefinition = Readonly<{
   // `title` names the challenge; `name` names the place.
@@ -28,9 +30,25 @@ export type MissionDefinition = Readonly<{
   // The challenge decides the shape of the mission's shared progress.
   challenge: Readonly<{ kind: "water" }> | ChoiceChallenge | GatewayChallenge;
   rewards: WaterRewardConfig; hintCount: number;
+  // `false` for a story that shouldn't run against a clock: the start records the timing as excluded, so the award is untimed.
+  timed?: false;
   // An optional second question, open only after the main answer is accepted; its points never include food tokens.
   bonus?: Readonly<{ challenge: ChoiceChallenge; points: number }>;
+  // Further scored questions after a "choose N" challenge, in order, each with its own hints. The mission completes, and earns
+  // its one award, when the last is accepted. Hints count towards one shared total, so all steps' hints fit the penalty list.
+  followUps?: readonly Readonly<{ challenge: ChoiceChallenge; hintCount: number }>[];
+  // The last stop: locked until the group has completed every other mission (Marzipan, the owner's request, 26 Oct 2026).
+  finale?: true;
+  // `false`: no "I'm completely stuck" on this challenge (Marzipan, owner, 2 Nov 2026: set when Marzipan is reworked).
+  reveal?: false;
+  // `false`: the question shows before Start, as before UX-3 (Marzipan, owner, 2 Nov 2026: left as is until its rework).
+  storyFirst?: false;
 }>;
+/** The question a "choose N" mission is on: step 0 is its challenge, then its follow-ups. Null past the last step. */
+export function choiceStep(definition: MissionDefinition, step: number): Readonly<{ challenge: ChoiceChallenge; hintCount: number }> | null {
+  if (definition.challenge.kind !== "choice" || !Number.isInteger(step) || step < 0) return null;
+  return step === 0 ? { challenge: definition.challenge, hintCount: definition.hintCount } : definition.followUps?.[step - 1] ?? null;
+}
 export const GAN_HATUT_MISSION = Object.freeze({
   id: WATER_TASK_ID, title: WATER_TASK.title, name: "Gan HaTut (Mulberry Garden)", shortName: "Gan HaTut", neighborhood: "Ohel Moshe, Nahlaot, Jerusalem",
   // Hebrew tour, stop 5; landmarks from site research run 06, row 5 (marked verified).
@@ -60,7 +78,7 @@ export const GAN_HATUT_MISSION = Object.freeze({
   challenge: Object.freeze({ kind: "water" as const }),
   rewards: WELL_REWARDS, hintCount: WATER_HINTS.length,
 }) satisfies MissionDefinition;
-// Owner-approved "We're Here?" feedback, 24 Oct 2026.
+// Owner-approved feedback for the optional location check ("Check our location", renamed from "We're Here?" on 30 Oct 2026), 24 Oct 2026.
 export const ARRIVAL_NEARBY = "You're very close! Look around for the destination.";
 export const ARRIVAL_NOT_NEARBY = "Not quite there yet. Use the picture and landmarks to find your way.";
 export const ARRIVAL_UNAVAILABLE = "We couldn't check your location. No problem\u2014you can continue.";
@@ -95,8 +113,15 @@ export function missionState(arrival: MissionArrival | null, completed: boolean)
   return completed ? "completed" : arrival ? "arrived" : "available";
 }
 
-export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean }>;
+// `arrivalAt`: when the navigation points were recorded, so each phone can tell a new award from an old one (Phase 2d).
+export type MissionView = Readonly<{ id: string; state: MissionState; arrivalPoints: number; arrivalMethod: MissionArrival["method"] | null; gpsEnabled: boolean; arrivalAt?: number }>;
+/** A finale stays locked while any other mission in the group's list is unfinished. `alsoDone` counts one as done early
+ * (a mission whose answer was just accepted, before the next refresh). */
+export function finaleLocked(definition: Pick<MissionDefinition, "id" | "finale">, missions: readonly Pick<MissionView, "id" | "state">[], alsoDone?: string): boolean {
+  return definition.finale === true && missions.some(mission => mission.id !== definition.id && mission.id !== alsoDone && mission.state !== "completed");
+}
 /** `order` is the marker's number on the map (catalogue position), not a required route order. */
+<<<<<<< HEAD
 export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number) {
   const status = mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
   return { ...definition, status, arrivedPoints: mission.arrivalPoints, arrivalConfirmed: mission.arrivalMethod !== null,
@@ -104,9 +129,51 @@ export function buildMissionPresentation(definition: MissionDefinition, mission:
       id: mission.id, label: `${definition.shortName} - ${status}`, order,
       x: definition.placement?.x ?? 0, y: definition.placement?.y ?? 0,
       state: mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
+=======
+export function buildMissionPresentation(definition: MissionDefinition, mission: MissionView, order: number, locked = false) {
+  const status = locked ? "Locked" : mission.state === "completed" ? "Completed" : mission.state === "arrived" ? "Arrival confirmed" : "Available";
+  return { ...definition, status, locked, arrivedPoints: mission.arrivalPoints,
+    state: mission.state, gpsEnabled: mission.gpsEnabled, marker: {
+      id: mission.id, label: `${definition.shortName} - ${status}`, order,
+      x: definition.placement.x, y: definition.placement.y,
+      state: locked ? "locked" as const : mission.state === "completed" ? "completed" as const : mission.state === "arrived" ? "conditional" as const : "active" as const,
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
       symbol: mission.state === "completed" ? "\u2713" : mission.state === "arrived" ? "\u25c7" : String(order),
       provisional: !definition.placement?.verified, offMap: definition.placement === null, size: 48 as const,
       ariaLabel: `${definition.shortName}: ${status}.${definition.placement?.verified ? "" : " Approximate marker placement."}`,
     } };
 }
 export type MissionPresentation = ReturnType<typeof buildMissionPresentation>;
+
+/** The destination as a task: "Find the Montefiore Gate". TODO(copy): draft pattern from the owner's brief, 30 Oct 2026. */
+export function destinationTitle(name: string): string {
+  return "Find " + name.replace(/^The /, "the ");
+}
+
+/** The preview card's shorter form: "Find the Market Mural" for "The Mahane Yehuda Market Mural" (owner's brief, 31 Oct 2026).
+ * Only the mission's own short name, and only where it ends the full name, so nothing is invented and "Rabbi Aryeh Levin" never
+ * stands for his home; otherwise the full name. The location screen keeps the full name. */
+export function previewDestinationTitle(definition: Pick<MissionDefinition, "name" | "shortName">): string {
+  const { name, shortName } = definition;
+  if (name === shortName || !name.endsWith(" " + shortName)) return destinationTitle(name);
+  return "Find " + (/^The /.test(name) ? "the " : "") + shortName;
+}
+
+export type MissionProgressStage = "find" | "solve" | "complete";
+// TODO(copy): drafts from the owner's brief, 30 Oct 2026 (stage names, then the line for the current stage).
+export const MISSION_STAGES: readonly Readonly<{ id: MissionProgressStage; label: string; status: string }>[] = Object.freeze([
+  { id: "find", label: "Find the Place", status: "Finding the place" },
+  { id: "solve", label: "Solve the Challenge", status: "Challenge in progress" },
+  { id: "complete", label: "Mission Complete", status: "Mission complete" },
+]);
+/** One line for the preview card: "1 of 3 · Finding the place". */
+export function missionStageLine(stage: MissionProgressStage): string {
+  const index = MISSION_STAGES.findIndex(item => item.id === stage);
+  return `${index + 1} of ${MISSION_STAGES.length} \u00b7 ${MISSION_STAGES[index].status}`;
+}
+/** Where a mission stands, from shared progress and the screen on this phone. An arrival (GPS or the guide's confirmation) never
+ * moves it on: finding the place is the players' judgement, and the challenge opens without it. */
+export function missionStage(mission: Readonly<{ state: MissionState; started: boolean; onChallenge: boolean }>): MissionProgressStage {
+  if (mission.state === "completed") return "complete";
+  return mission.started || mission.onChallenge ? "solve" : "find";
+}

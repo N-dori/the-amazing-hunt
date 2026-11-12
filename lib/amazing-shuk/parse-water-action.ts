@@ -2,12 +2,14 @@ import { validArrivalReading } from "./mission-arrival.ts";
 import type { DevWaterAction } from "./dev-water-session.ts";
 import type { GroupAction, MissionAction } from "./group-action.ts";
 import { WATER_MOVES } from "./water-measurement.ts";
+import { MAIN_ROLES, type AssignableGroupRole } from "./roles.ts";
+const isMainRole = (role: unknown): role is AssignableGroupRole => typeof role === "string" && (MAIN_ROLES as readonly string[]).includes(role);
 function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
-const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice"]);
+const MISSION_SCOPED: ReadonlySet<string> = new Set(["move", "start", "hint", "timing", "submit", "guide-approve", "reset", "toggle-choice", "reveal"]);
 
 const BONUS_ACTIONS: ReadonlySet<string> = new Set(["toggle-choice", "reset", "submit"]);
 
-/** Role changes are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
+/** Role changes and lobby actions are group-wide; every other action must name its mission. Only a toggle, reset or submit may name the bonus. */
 export function parseAction(value: unknown): GroupAction | null {
   if (isRecord(value) && "stage" in value) {
     if ((value.stage !== "languages" && value.stage !== "year") || "part" in value || !["toggle-choice", "set-gateway-year", "submit", "guide-approve", "reset", "hint"].includes(value.type as string)) return null;
@@ -21,12 +23,30 @@ export function parseAction(value: unknown): GroupAction | null {
 }
 
 function parseMissionAction(value: unknown): GroupAction | null {
+<<<<<<< HEAD
   if (isRecord(value) && value.type === "set-gateway-year") {
     return typeof value.missionId === "string" && typeof value.answer === "string" && /^[0-9]{0,4}$/.test(value.answer)
       ? { type: value.type, missionId: value.missionId, answer: value.answer } : null;
   }
   if (isRecord(value) && (value.type === "volunteer-role" || value.type === "withdraw-role" || value.type === "step-down-role")) {
     return value.role === "navigator" || value.role === "answerSubmitter" ? { type: value.type, role: value.role } : null;
+=======
+  if (isRecord(value) && (value.type === "claim-role" || value.type === "release-role")) {
+    return isMainRole(value.role) ? { type: value.type, role: value.role } : null;
+  }
+  if (isRecord(value) && value.type === "set-intended-count") {
+    return Number.isSafeInteger(value.count) ? { type: value.type, count: value.count as number } : null;
+  }
+  if (isRecord(value) && value.type === "start-adventure") return { type: value.type };
+  // I7a: the host accepts the recommended teams; a team's leader (or the guide) names the team. The server checks the name itself.
+  if (isRecord(value) && value.type === "set-teams") return { type: value.type };
+  if (isRecord(value) && value.type === "name-team") return typeof value.name === "string" && value.name.length <= 200 ? { type: value.type, name: value.name } : null;
+  if (isRecord(value) && (value.type === "let-in" || value.type === "decline")) {
+    return typeof value.requestId === "string" && /^r_[A-Za-z0-9_-]{16}$/.test(value.requestId) ? { type: value.type, requestId: value.requestId } : null;
+  }
+  if (isRecord(value) && value.type === "remove-member") {
+    return typeof value.participantId === "string" && value.participantId.length <= 40 ? { type: value.type, participantId: value.participantId } : null;
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   }
   if (isRecord(value) && value.type === "toggle-choice") {
     return typeof value.missionId === "string" && typeof value.optionId === "string" ? { type: "toggle-choice", optionId: value.optionId, missionId: value.missionId } : null;
@@ -40,6 +60,7 @@ function parseActionBody(value: unknown): DevWaterAction | null {
   if (!isRecord(value) || typeof value.type !== "string") return null;
   switch (value.type) {
     case "confirm-arrival":
+    case "self-arrival":
       return typeof value.missionId === "string" ? { type: value.type, missionId: value.missionId } : null;
     case "arrival": {
       if (typeof value.missionId !== "string" || !validArrivalReading(value.reading)) return null;
@@ -49,7 +70,7 @@ function parseActionBody(value: unknown): DevWaterAction | null {
     case "switch-actor":
       return typeof value.actorId === "string" ? { type: value.type, actorId: value.actorId } : null;
     case "assign-role":
-      if ((value.role === "navigator" || value.role === "answerSubmitter") && (value.participantId === null || typeof value.participantId === "string")) {
+      if (isMainRole(value.role) && (value.participantId === null || typeof value.participantId === "string")) {
         return { type: value.type, role: value.role, participantId: value.participantId };
       }
       return null;
@@ -61,12 +82,16 @@ function parseActionBody(value: unknown): DevWaterAction | null {
     case "start":
       return { type: "start" };
     case "hint":
-      return Number.isInteger(value.hint) && (value.hint as number) >= 1 && (value.hint as number) <= 3 ? { type: "hint", hint: value.hint as number } : null;
+      // `step` names the question a hint belongs to, so a hint queued before the group moved on can't open the next question's.
+      if (value.step !== undefined && !(Number.isInteger(value.step) && (value.step as number) >= 0 && (value.step as number) <= 9)) return null;
+      return Number.isInteger(value.hint) && (value.hint as number) >= 1 && (value.hint as number) <= 3
+        ? { type: "hint", hint: value.hint as number, ...(value.step === undefined ? {} : { step: value.step as number }) } : null;
     case "timing":
       return value.operation === "pause" || value.operation === "resume" || value.operation === "reset" || value.operation === "exclude" ? { type: "timing", operation: value.operation } : null;
     case "submit":
     case "guide-approve":
     case "reset":
+    case "reveal":
       return { type: value.type };
     default:
       return null;

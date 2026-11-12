@@ -1,0 +1,14 @@
+{
+  "module": "map",
+  "images": [
+    {
+      "file": "nahlaot-illustrated-candidate.jpg",
+      "id": "nahlaot-illustrated-candidate",
+      "legacySrc": "/map/nahlaot-illustrated-candidate.jpg",
+      "kind": "render",
+      "note": "The illustrated base map. Leaflet still loads the JPEG in public/map; the variants serve the Shuk's welcome screen.",
+      "credit": "unrecorded",
+      "licence": "unrecorded"
+    }
+  ]
+}

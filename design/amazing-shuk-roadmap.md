@@ -20,12 +20,15 @@
 - One additional sourced, deterministic playable market challenge, with approved copy/answer/reward settings and a tested full solution. Target six independently verified playable tasks; ten ideal.
 - Current map-to-mission slice is implemented: Gan HaTut selection opens the same well story/puzzle without GPS. Optional **We're Here?** may award20 group points once; guide confirmation works without GPS. Next: owner confirms the garden photograph, approximate illustrated pin and actual arrival coordinate, then checks mobile/HTTPS behavior. No location dot, georeferencing, routing or GPS gate. See [well/map record](../docs/project/water-task.md).
 - Add shared multi-task progress and guide-controlled food redemption only with approved offers/token costs, preserving existing atomic completion receipts and backend roles.
-- Four-screen onboarding using approved concise copy and the one-group model.
+- Four-screen onboarding using approved concise copy and the one-group model. (Replaced by the multiplayer plan's host, lobby and join flow, increments I2–I3.)
+- **Multiplayer (approved 29 Oct 2026):** adventure of teams of about five (corrected 29 Oct 2026), leader-approved join links, roles and mission parts, Language Explorer, in increments I0–I8 with gates. See the [multiplayer plan](../docs/project/multiplayer-plan.md).
 
 ## Deferred / approval needed
 
+- Staggered team routes converging at Marzipan for a shared finale: approved direction, deferred and not scheduled; revisit after multi-team play works and the route is field-tested. See [product decisions](../docs/project/product-decisions.md).
 - Email magic links/SMTP, external providers/Auth.js, expanded enrollment/authentication; retain implemented manual invitations. Gameplay has priority.
 - Protected Shuk production app boundary, VPS permissions/backups/durability, deployment and public phone access. Deployment requires explicit approval; retain the opt-in loopback development gates.
+  - **Done 25 Oct 2026:** the Shuk is its own app at `https://doriisrael.com/shuk` (container `dori-shuk`, invitation-only). Still open: backups, display names, real-phone testing.
   - **Own app and address (owner decision, 24 Oct 2026: split the Shuk into its own app; not now).** The Shuk still runs inside the Memory Protocol app, so its dev page is `/memory-protocol/dev/amazing-shuk/water` (prefix from `lib/base-path.ts`; the page name dates from the well-only prototype). The owner chose a separate app with its own prefix, image and access gate, not a change to the shared prefix (which would also move the Memory Protocol's image, `deploy/deploy.sh` health checks and Caddy route). Plan it first; do it before real-phone testing.
 - Food/vendor availability, costs, allergens, current offers, content access and image rights require verification; provisional well rewards are not final market-economy settings.
 - Proposed 3-5 available tasks/reveal rules are not approved unlock policy. GPS never gates story/challenge access; optional proximity assistance/bonus supersedes the earlier no-GPS policy. No participant tracking infrastructure or turn-by-turn routing planned.

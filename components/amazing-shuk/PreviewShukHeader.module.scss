@@ -1,0 +1,11 @@
+// Sticky at the top and one row tall, so the map and the destination keep most of the screen.
+.header { position: sticky; inset-block-start: 0; z-index: 1040; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .5rem;
+  margin-inline: -1rem; margin-block-end: 1rem; padding: .5rem 1rem; border-block-end: 1px solid var(--line-stone); background: var(--chalk); }
+.titles { min-width: 0; }
+.eyebrow { color: var(--sumac); font-size: .6875rem; font-weight: 700; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; }
+.title { font-family: var(--font-display); font-size: clamp(1.25rem, 5.5vw, 2rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.15; overflow-wrap: anywhere; }
+@media (min-width: 48rem) { .header { margin-inline: 0; padding-inline: 0; } }
+
+// I7a: the team's initials before its name, until the team avatar artwork exists (owner, 6 Nov 2026).
+.teamBadge { display: inline-grid; place-items: center; width: 1.375rem; height: 1.375rem; margin-inline-end: .375rem; border-radius: 50%;
+  background: var(--ink); color: var(--chalk); font-family: var(--font-mono); font-size: .625rem; letter-spacing: 0; vertical-align: middle; }

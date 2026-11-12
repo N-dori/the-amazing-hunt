@@ -3,7 +3,7 @@
 A minimal runner for Perplexity deep research. It runs in its own container, apart from the live site. It is adapted from mentor's `tools/mentor-research` and uses the same Agent API calls and the same source handling. There are no dependencies and no ports. It uses Node 22 with the built-in `fetch`.
 
 - `ask.mjs`: sends each prompt file as one run, all in parallel. Each answer is saved with its cited sources and the prompt as sent.
-- `compose.yml`: the `scavenger-hunt` job. It reads `research/prompts/` and writes to `research/results/`.
+- `compose.yml`: the `scavenger-hunt` job. It reads `research/prompts/` and writes to the root of `research/results/`. File each new result into its subject folder and add it to the [results index](../results/README.md).
 - `PROMPTING_GUIDE.md`: how to write prompts for it.
 
 ## Run the scavenger hunt research

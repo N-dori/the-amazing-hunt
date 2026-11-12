@@ -1,3 +1,4 @@
+import { buildChoiceTaskView, READ_ONLY_NOTE } from "./mural-task-view.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildWaterTaskView } from "./water-task-view.ts";
@@ -72,4 +73,22 @@ test("optional hints reveal progressively without exceeding three or mutating pu
   assert.equal(visibleWaterHints(-5).length, 0);
   assert.equal(visibleWaterHints(99).length, 3);
   assert.deepEqual(cups, { small: 3, large: 0, jar: 2 });
+});
+
+test("someone else is the Submitter: the vessels and Reset are disabled and the note says who chooses (owner, 5 Nov 2026)", () => {
+  const watching = buildWaterTaskView({ small: 0, large: 5, jar: 0 }, false, "follower", false, { selected: "large", pouring: false }, true, false);
+  assert.ok(watching.containers.every(container => container.disabled));
+  assert.deepEqual([watching.actions.length, watching.canReset, watching.prompt], [0, false, ""]);
+  assert.equal(watching.readOnlyNote, READ_ONLY_NOTE);
+  const answering = buildWaterTaskView({ small: 0, large: 5, jar: 0 }, false, "answerSubmitter", false, { selected: "large", pouring: false }, true, true);
+  assert.equal(answering.readOnlyNote, ""); assert.ok(answering.actions.length > 0);
+});
+
+test("the shared picks are read-only for everyone but the Submitter: options disabled, Clear hidden, the status says why", () => {
+  const challenge = { options: [{ id: "a", label: "A" }, { id: "b", label: "B" }], required: 1, answerKeyVerified: true } as unknown as Parameters<typeof buildChoiceTaskView>[0];
+  const watching = buildChoiceTaskView(challenge, ["a"], false, "navigator", false, true, false);
+  assert.ok(watching.options.every(option => option.disabled));
+  assert.deepEqual([watching.canReset, watching.readOnly], [false, true]);
+  assert.equal(watching.status, `1 of 1 selected. ${READ_ONLY_NOTE}`);
+  assert.equal(buildChoiceTaskView(challenge, ["a"], false, "answerSubmitter", false, true, true).readOnly, false);
 });

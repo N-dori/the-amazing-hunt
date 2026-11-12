@@ -13,9 +13,14 @@ export default function PreviewChoiceBonus({ content, view, points, feedback, on
   return <section className={styles.bonus} aria-labelledby="choice-bonus-title">
     <h3 id="choice-bonus-title" className={styles.bonusTitle}>{content.title}</h3>
     <p className={styles.bonusIntro}>{content.intro}</p>
+    {content.letters ? <p className={`${styles.letters} rtl`} lang="he">
+      {content.letters.map((letter, index) => <span key={index} className={styles.letter}>{letter}</span>)}
+    </p> : null}
+    {content.verse ? <p className={`${styles.verse} rtl`} lang="he">{content.verse}</p> : null}
     <p className={styles.bonusQuestion}>{content.question}</p>
     {view.completed ? <div role="status">
       <p className={styles.bonusPoints}>Bonus points earned: <strong>{points}</strong></p>
+      {content.reveal.length ? <h4 className={styles.revealLabel}>Behind the answer</h4> : null}
       {content.reveal.map(paragraph => <div key={paragraph.text} className={styles.revealText}>
         <p>{paragraph.text}</p>
       </div>)}

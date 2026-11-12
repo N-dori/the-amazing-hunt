@@ -5,7 +5,8 @@ import { join } from "node:path";
 import { issueInvitation, redeemInvitation, sessionView, sessionAction } from "./participant-store.ts";
 import { parseAction } from "./parse-water-action.ts";
 import { GAN_HATUT_MISSION } from "./mission-arrival.ts";
-import { schema4Snapshot } from "./legacy-store-fixture.ts";
+import { schema4Snapshot, storedTeam } from "./legacy-store-fixture.ts";
+import { classicRoles } from "./seat-fixture.ts";
 const WELL = GAN_HATUT_MISSION.id;
 // The well's detail; null if the view is for a "choose N" mission.
 const cupsOf = (view: Awaited<ReturnType<typeof sessionView>>) => "cups" in view.session ? view.session.cups : null;
@@ -16,14 +17,18 @@ async function fixture(run: (path: string, tokens: Record<string, string>, base:
   try {
     const tokens: Record<string, string> = {};
     for (const id of ["player-1", "player-2", "player-3", "guide"]) tokens[id] = await redeemInvitation(path, await issueInvitation(path, id));
+    // Schema 7 starts with no members or roles: the guide gives the roles a fresh file used to have.
+    await classicRoles(path, tokens);
     await run(path, tokens, Date.now());
   } finally { await rm(directory, { recursive: true, force: true }); }
 }
-const snapshot = async (path: string) => JSON.parse(await readFile(path, "utf8"));
+const stored = async (path: string) => JSON.parse(await readFile(path, "utf8"));
+// Team A's stored record: the single group's progress, as the file keeps it.
+const snapshot = async (path: string) => storedTeam(await stored(path));
 
 test("server clock survives devices and stops on solution; rewards issue only once", () => fixture(async (path, tokens, base) => {
   const act = (id: string, action: Parameters<typeof sessionAction>[2], key: string, offset: number) => sessionAction(path, tokens[id], action, key, base + offset);
-  await assert.rejects(act("player-1", { missionId: WELL, type: "move", move: "fill-large" }, "before-start-move-001", 0));
+  await assert.rejects(act("player-2", { missionId: WELL, type: "move", move: "fill-large" }, "before-start-move-001", 0));
   await assert.rejects(act("player-3", { missionId: WELL, type: "start" }, "follower-start-001", 0));
   await act("player-1", { missionId: WELL, type: "start" }, "authorized-start-001", 0);
   await act("player-2", { missionId: WELL, type: "start" }, "other-device-start-001", 60000);
@@ -37,7 +42,7 @@ test("server clock survives devices and stops on solution; rewards issue only on
   assert.equal(before.performance.started, true);
   assert.equal("guideTiming" in before, false);
   assert.doesNotMatch(JSON.stringify(before), /startedAt|solvedAt|elapsedMs|clockStartedAt/);
-  await act("player-3", { missionId: WELL, type: "move", move: "fill-large" }, "follower-fill-large-001", 119000);
+  await act("player-2", { missionId: WELL, type: "move", move: "fill-large" }, "follower-fill-large-001", 119000);
   await act("player-2", { missionId: WELL, type: "move", move: "pour-large-into-jar" }, "submitter-fill-jar-001", 119999);
   const stopped = await sessionView(path, tokens.guide, base + 700000);
   assert.equal(stopped.guideTiming!.startedAt, base);
@@ -47,7 +52,8 @@ test("server clock survives devices and stops on solution; rewards issue only on
   await assert.rejects(act("player-1", { missionId: WELL, type: "submit" }, "unauthorized-submit-001", 700002));
   await act("player-2", { missionId: WELL, type: "submit" }, "authorized-submit-001", 800000);
   const awarded = (await snapshot(path)).missions[WELL].performance.award;
-  assert.deepEqual(awarded, { points: 75, foodTokens: 2, hintsUsed: 2, elapsedMs: 119999, awardedAt: base + 800000 });
+  // Phase 2e adds the silent record: a named solve and its end (this test sends no queue time, so no delay is recorded).
+  assert.deepEqual(awarded, { points: 75, foodTokens: 2, hintsUsed: 2, elapsedMs: 119999, awardedAt: base + 800000, outcome: "solved", endedAt: base + 800000 });
   await act("player-2", { missionId: WELL, type: "submit" }, "authorized-submit-001", 900000);
   await act("guide", { missionId: WELL, type: "submit" }, "guide-duplicate-submit-001", 1000000);
   assert.deepEqual((await snapshot(path)).missions[WELL].performance.award, awarded);
@@ -98,7 +104,7 @@ test("concurrent repeated hints are counted once per shared group", () => fixtur
 }));
 
 test("existing progress migrates without invented timing or retroactive rewards", () => fixture(async (path, tokens, base) => {
-  const old = schema4Snapshot(await snapshot(path));
+  const old = schema4Snapshot(await stored(path));
   old.version = 2;
   delete old.performance;
   old.group.cups = { small: 3, large: 0, jar: 2 };
@@ -109,7 +115,7 @@ test("existing progress migrates without invented timing or retroactive rewards"
   assert.equal(migrated.performance.reward, null);
   await sessionAction(path, tokens["player-2"], { missionId: WELL, type: "start" }, "migrated-start-001", base);
   assert.equal((await snapshot(path)).missions[WELL].performance.excluded, true);
-  const completed = schema4Snapshot(await snapshot(path));
+  const completed = schema4Snapshot(await stored(path));
   completed.version = 2;
   delete completed.performance;
   completed.group.completed = true;

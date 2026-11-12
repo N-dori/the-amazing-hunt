@@ -30,6 +30,15 @@ test("stable IDs give distinct deterministic local SVGs, independent of nickname
   assert.doesNotMatch(decodeURIComponent(untrusted), /<script|alert/);
 });
 
+test("the avatar is the round Thumbs style, coloured only with brand tokens", () => {
+  const svg = decodeURIComponent(createParticipantAvatar("player-1")!.split(",").slice(1).join(","));
+  assert.match(svg, /<dc:title>Thumbs<\/dc:title>/);
+  assert.match(svg, /creativecommons\.org\/publicdomain\/zero/);
+  const shapes = new Set(Array.from({ length: 8 }, (_, index) => createParticipantAvatar(`player-${index + 1}`))
+    .map(source => decodeURIComponent(source!).match(/#(?:934a3a|667054|c07a2e)/)?.[0]));
+  assert.ok(shapes.size > 1, "different players get different token colours");
+});
+
 test("the SVG adapter uses exact existing CSS brand tokens", async () => {
   const css = await readFile("app/globals.scss", "utf8");
   for (const [name, hex] of Object.entries(AVATAR_COLORS)) assert.match(css, new RegExp(`--${name}:\\s*${hex}\\s*;`, "i"));

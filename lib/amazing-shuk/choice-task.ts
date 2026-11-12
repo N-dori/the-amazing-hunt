@@ -1,6 +1,8 @@
 /** A shared "choose N" challenge: the group picks options together, then one official answer is checked. */
 export type ChoiceOption = Readonly<{
   id: string; label: string;
+  // A Hebrew label is shown right to left.
+  lang?: "he";
   // The answer key: true is a correct pick, false a wrong one, null unknown (sources disagree).
   correct: boolean | null;
   source: string;

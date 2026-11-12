@@ -31,22 +31,26 @@ function loadComponent(path: string): ComponentType<Record<string, unknown>> {
   return exports.default;
 }
 const Preview = loadComponent("components/amazing-shuk/dev/PreviewWaterTask.tsx");
+<<<<<<< HEAD
 const callbacks = { victory: MISSION_VICTORY, discovery: WELL_DISCOVERY, onExplore() {}, onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {}, onHint() {} };
+=======
+const callbacks = { onSelect() {}, onAction() {}, onCancelPour() {}, onStart() {}, onSubmit() {}, onReset() {} };
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
 
 test("participant rendering has explicit start but no timer/countdown or live score", () => {
   for (const started of [false, true]) {
     const view = buildWaterTaskView(EMPTY_WATER_CUPS, false, "answerSubmitter", false, INITIAL_WATER_INTERACTION, started);
-    const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, performance: { started, hintsUsed: 0, canStart: true, reward: null }, narrative: ["Fill the family jar."], hints: [], hasMoreHints: started }));
+    const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view, performance: { started, hintsUsed: 0, canStart: true, reward: null }, narrative: ["Fill the family jar."], help: started ? createElement("p", null, "help-slot") : undefined }));
     assert.doesNotMatch(html, /countdown|role="timer"|Points earned|Recorded duration|seconds|elapsed/i);
     assert.equal(html.includes("Start challenge"), !started);
-    assert.equal(html.includes("Need a hint?"), started);
+    assert.equal(html.includes("help-slot"), started);
   }
 });
 
 test("participant sees earned achievements only after official completion", () => {
   const cups = { small: 3, large: 0, jar: 4 };
   const reward = { points: 75, foodTokens: 2, hintsUsed: 2 };
-  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: buildWaterTaskView(cups, true, "answerSubmitter", false), performance: { started: true, hintsUsed: 2, canStart: true, reward }, narrative: [], hints: [], hasMoreHints: false }));
+  const html = renderToStaticMarkup(createElement(Preview, { ...callbacks, view: buildWaterTaskView(cups, true, "answerSubmitter", false), performance: { started: true, hintsUsed: 2, canStart: true, reward }, narrative: [] }));
   assert.match(html, /Challenge completed!/);
   assert.match(html, /Explore Next Mission/);
   assert.doesNotMatch(html, /Fill your family|Reset puzzle|Submit Group Answer|Need a hint|<meter|aria-pressed/);
@@ -66,11 +70,20 @@ test("Hebrew-first brief retains natural attribution and evidence metadata witho
     const html = renderToStaticMarkup(createElement(Story, { ...WATER_TASK.story, instruction: WATER_TASK.instruction, open: true, onToggle() {}, showOriginalHebrew }));
     assert.match(html, /punishment or honor/);
     assert.match(html, /children longed for the cleaning job/);
+<<<<<<< HEAD
     assert.doesNotMatch(html, /Attributed tradition/); assert.match(html, /According to the local account/);
     assert.match(WATER_TASK.story.source, /HE_trans.txt/);
     assert.doesNotMatch(html, /HE_trans.txt|<cite|Source/);
     assert.equal(html.includes('lang="he"'), false);
     assert.equal(html.includes("Source and original Hebrew"), false);
     assert.equal(/[\u0590-\u05ff]/.test(html), false);
+=======
+    assert.doesNotMatch(html, /Historical fact|Attributed tradition|Interpretation|Fiction ·/);
+    // Sources stay in the data for review; players never see them (owner's request, 26 Oct 2026).
+    assert.doesNotMatch(html, /HE_trans.txt|Source/);
+    assert.equal(html.includes('lang="he"'), showOriginalHebrew);
+    assert.equal(html.includes("Original Hebrew"), showOriginalHebrew);
+    assert.equal(/[\u0590-\u05ff]/.test(html), showOriginalHebrew);
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
   }
 });

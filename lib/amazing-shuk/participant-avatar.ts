@@ -1,21 +1,24 @@
 import { BASE_PATH } from "../base-path.ts";
 import { Avatar, Style } from "@dicebear/core";
-import lineFace from "@dicebear/styles/line-face.json" with { type: "json" };
+import thumbs from "@dicebear/styles/thumbs.json" with { type: "json" };
 
-export const PARTICIPANT_AVATAR_STYLE = "line-face@10.6.0/core@10.7.0";
+// Thumbs (CC0 1.0, DiceBear): a round, friendly shape that stays readable at 24px.
+export const PARTICIPANT_AVATAR_STYLE = "thumbs@10.6.0/core@10.7.0";
 // DiceBear's SVG color API requires literal values, not page CSS variables.
 // Exact approved tokens from app/globals.scss; a test prevents palette drift.
-export const AVATAR_COLORS = Object.freeze({ ink: "#252b2a", chalk: "#f3efe6", sumac: "#934a3a" });
-let style: Style<typeof lineFace> | undefined;
+export const AVATAR_COLORS = Object.freeze({ ink: "#252b2a", chalk: "#f3efe6", sumac: "#934a3a", zaatar: "#667054", amber: "#c07a2e" });
+let style: Style<typeof thumbs> | undefined;
 
 /** Only the immutable ID is a seed. Nicknames never enter generated SVG markup. */
 export function createParticipantAvatar(participantId: string): string | null {
   if (!participantId.trim()) return null;
   try {
-    style ??= new Style(lineFace);
+    style ??= new Style(thumbs);
     return new Avatar(style, {
       seed: participantId, size: 96, idRandomization: false,
-      backgroundColor: [AVATAR_COLORS.chalk], inkColor: [AVATAR_COLORS.ink, AVATAR_COLORS.sumac],
+      // The shape colour varies by ID; the face takes whichever of ink or chalk contrasts with it.
+      backgroundColor: [AVATAR_COLORS.chalk], shapeColor: [AVATAR_COLORS.sumac, AVATAR_COLORS.zaatar, AVATAR_COLORS.amber],
+      eyesColor: [AVATAR_COLORS.ink, AVATAR_COLORS.chalk], mouthColor: [AVATAR_COLORS.ink, AVATAR_COLORS.chalk],
     }).toDataUri();
   } catch { return null; }
 }

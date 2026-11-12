@@ -50,7 +50,7 @@ The full list is in [section 12](#12-questions-for-the-user). These seven block 
 **Read in full**, in the order `design/inputs/content/README.md` gives:
 
 - `research/prompts/DORI_UXUI_Designer_Agent_Prompt(1).md` (Parts 1 and 2), plus the user's updated brief for this round
-- `design/inputs/content/Mission_Task_Ideas.md`
+- `design/inputs/content/challenge-ideas/Mission_Task_Ideas.md`
 - `design/inputs/content/photo_index_ALL.csv` (the master, #01–#117, re-read for v0.2)
 - `Cognitive_Load.md`, `Audience_Engagement_Mechanics.md`, `DORI_Digital_Platform_Research.md`
 - The two place files: `machane-yehuda-nachlaot-stories.md` and `06_nahlaot_market_sites_verification.md`
@@ -108,7 +108,7 @@ Every photo with an identifiable person is referred to below by number only.
 
 | Path | What it is | Date | Class | Note |
 |---|---|---|---|---|
-| `design/inputs/content/Mission_Task_Ideas.md` | Bank of stops, tasks, the food-token loop and the start sequence; tagged DOC, FIELD, ORAL or FOLK | 23–24 Oct 2026 | **Adapt** | Raw ideas, not approved missions. Its section "App fit: the existing trivia engine" is about another repo: **Not for this game** |
+| `design/inputs/content/challenge-ideas/Mission_Task_Ideas.md` | Bank of stops, tasks, the food-token loop and the start sequence; tagged DOC, FIELD, ORAL or FOLK | 23–24 Oct 2026 | **Adapt** | Raw ideas, not approved missions. Its section "App fit: the existing trivia engine" is about another repo: **Not for this game** |
 | `design/inputs/content/photo_index_ALL.csv` (untracked) | **Master photo index**, #01–#117, with the new `archive_item_id` and `credit_rights` columns | 23 Oct 2026 | **Reuse** | Identical to `design/inputs/photos/photo_index_ALL.csv` (committed in `8f3a7b2`). If they ever differ, the content copy wins |
 | `design/inputs/content/DORI_Machane_Yehouda__Guiding_Stories.md` (untracked) | Five refined guide scripts, with research notes that separate documented, oral, folklore and interpretation | Oct 2026 | **Adapt** | Background for reveals and labels. **Not approved copy.** Its links to `01_…05_Refined.md` point to files that aren't in the repo |
 | `design/inputs/content/machane-yehuda-nachlaot-stories.md` | Stories from Nadav's Drive, each with its source file | 15 Oct 2026 | **Adapt** | Candidates; each needs a label and approval |
@@ -212,9 +212,9 @@ All are dated 15–20 Oct 2026, except Story V1, which has no date.
 
 | Path | Class | Use |
 |---|---|---|
-| `research/results/01_camera_microphone_pwa.md` (16 Oct 2026) | **Adapt** | Native camera picker; no automatic background upload; a typed or guide path always available |
-| `research/results/03_media_formats_audio_offline.md` (16 Oct 2026) | **Adapt** | Text-complete and offline-capable; a local outbox plus a server event log; about 100 MB per phone |
-| `research/results/02_puzzle_animation_tech.md` (16 Oct 2026) | **Unclear** | Not read |
+| `research/results/app-tech/01_camera_microphone_pwa.md` (16 Oct 2026) | **Adapt** | Native camera picker; no automatic background upload; a typed or guide path always available |
+| `research/results/app-tech/03_media_formats_audio_offline.md` (16 Oct 2026) | **Adapt** | Text-complete and offline-capable; a local outbox plus a server event log; about 100 MB per phone |
+| `research/results/app-tech/02_puzzle_animation_tech.md` (16 Oct 2026) | **Unclear** | Not read |
 | `research/perplexity/*` | **Not for this game** | A tool |
 
 ---

@@ -4,12 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:docker": "docker run --rm -it --name shuk-dev --network host -v \"$PWD\":/w -v /w/node_modules -w /w -e NEXT_TELEMETRY_DISABLED=1 -e SHUK_DEV_SIMULATION=1 --memory 1536m node:22-alpine sh -c 'npm ci --no-audit --no-fund && npx next dev --hostname 127.0.0.1 --port 3300'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "images": "node scripts/images/build-images.mjs",
+    "map:build": "node scripts/map/build-shuk-map.mjs",
+    "images:prune": "node deploy/prune-media.mjs public/media data/module-images.json",
     "shuk:invite": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-invite.ts",
+    "shuk:dev-reset": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-dev-reset.ts",
+    "shuk:new-adventure": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/shuk-new-adventure.ts",
     "test:shuk": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/amazing-shuk/*.test.ts",
-    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/game/*.test.ts"
+    "test": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test lib/game/*.test.ts lib/map/*.test.ts lib/media/*.test.ts"
   },
   "dependencies": {
     "@dicebear/core": "10.7.0",
@@ -27,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "sass": "^1.105.1",
+    "sharp": "0.35.5",
     "typescript": "^5"
   }
 }

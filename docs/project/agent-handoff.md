@@ -1,5 +1,6 @@
 # Amazing Shuk ? Shared Claude/Codex Handoff
 
+<<<<<<< HEAD
 ## Session commit checkpoint - 25 Oct 2026
 
 Owner authorized committing all session changes. This checkpoint accompanies the session commit; use `git log -1` for its current hash rather than the older pre-commit HEAD below. Scope includes accumulated role/gateway/story/victory/Food work, documentation, repository/editor settings, the generated illustration used by the app and the existing library-asset relocation. Private `.local/` runtime state and untracked owner/research originals under `public/Gan_ha_Tot/` remain local and are excluded. Earlier statements that everything is uncommitted/no commit authorized are historical. No push, deployment, server interruption or progress reset is authorized by this commit request. Latest functional checkpoint remains 137 Shuk / 61 Memory Protocol passing tests and the recorded tooling/browser limitations.
@@ -160,6 +161,1878 @@ Private backup: `D:\D_DEV\Shuk-private-backups\sync-20261025-010924`, restricted
 Verified 103/103 Shuk tests, 61/61 Memory Protocol tests, TypeScript without incremental writes, targeted Shuk/page/API lint, and `git diff --check`. Full lint still reports three known prototype require-import errors and eleven Memory Protocol warnings. Read-only use of the updated loader accepted the actual schema-4 JSON in memory as schema 5 with three missions, preserving sessions/invitations/receipts/roles/well progress/timing/arrival/rewards and leaving disk bytes unchanged. No live game action or persistent migration was run by this work.
 
 Isolated production build passed (`npm run build -- --webpack`) using an archive of `83b4451` under the private backup directory and a dependency junction; no live game data copied and no active build output used. Existing development server PID 51480 still uses the nested checkout on port 3000. Page and new synagogue photo return 200; no restart or deletion of active `.next/`. No controlled restart was indicated. Open `http://127.0.0.1:3000/memory-protocol/dev/amazing-shuk/water` and refresh every browser profile for protocol revision 5. Check three missions, profile/nav, independent identities and shared progress in the browser next; then resume Montefiore (three languages, Hebrew year), which is still pending. Rights restrictions remain unresolved as recorded below. No commit, push, deployment or parent edits.
+=======
+## The Nahlaot OSM map: handover for the next map session (11 Nov 2026, brought up to date late that day)
+
+**Where it stands:**
+- **Steps 1–2 (data)** were committed in `b512149`.
+- **Step 3a** (the map drawn in Leaflet on the dev page) and the first map layers were committed in `96491da`.
+- **Later the same day, not committed:**
+  - the owner's answers;
+  - the owner's icon set V4;
+  - the illustrated look;
+  - the cleanup of `media-originals/`.
+
+The game still shows the illustrated prototype; nothing about the new map is live.
+
+**The dev page:** `/memory-protocol/dev/osm-map` in `next dev` (`npm run dev:docker`, in tmux; 404 in production unless `MP_DEV_PREVIEW=1`). Its switches:
+- the frame: **small** by default, large to switch to later;
+- the language: English or עברית;
+- the look: **Illustrated** by default, or Plain.
+
+The game, `LeafletBaseMap` and the Memory Protocol are untouched.
+
+The method and rebuild instructions are in [nahlaot-osm-map.md](../map/nahlaot-osm-map.md). The names to check on site are in [nahlaot-street-names.md](../map/nahlaot-street-names.md). The target is the [map-types spec](../design/map-types-spec.md), Type B.
+
+### The owner's decisions (all 11 Nov 2026)
+- **Frames:**
+  - small: Jaffa Road, King George, Ben Zvi, Bezalel;
+  - large: the same, with Ramban as the south edge.
+  - **The game uses small.** Large stays built, to switch to later.
+- **Labels:**
+  - main roads: `English · עברית` on one line (Hebrew first in the Hebrew game), inside the road. Zoomed out, they show in the game's language only, beside the road.
+  - main roads are drawn 1.5× wider than real;
+  - alleys: the game's language only;
+  - **place, square and synagogue names stack**, the game's language first;
+  - street level (2.5) is larger: 15 px main roads;
+  - labels never overlap.
+- **Names (the owner's table):**
+  - Iraqi Market / השוק העיראקי (`OWNER_PLACES`);
+  - Batei Rand / בתי ראנד;
+  - Gan HaTut (Mulberry Garden) / גן התות;
+  - Sha'arei Yerushalayim / שערי ירושלים (OSM's "אבו בסל (…)" is overridden);
+  - Batei Munkatch, placed;
+  - Knesset Yisrael C: still no position. It must sit inside its own neighbourhood.
+- **Synagogues:**
+  - all from OSM, plus **Ohel Moshe** (בית הכנסת אהל משה) at the owner's position 31.782575, 35.21320 (`OWNER_SYNAGOGUES`);
+  - one look for all, with no landmark level.
+- **Icons: the owner's set V4**, drawn by ChatGPT for the owner. The originals are in `media-originals/icons/dori-v4/`, not in git. They're in `components/icons/iconPaths.tsx`:
+  - **synagogue**: V4's stone arch with OSMIC's filled star (CC0), in cobalt;
+  - **toilets**: M + F, teal;
+  - **tram**: ink, so cobalt means synagogue only;
+  - **bench**: ceramic green. Our own drawing, a front view with a backrest, because V4's read as a table;
+  - **tree**, **missionFlag** and **gpsLocate**, for later.
+  - Only the synagogue has a frame (the arch); all the others are bare.
+  - The colours are new tokens (`--cobalt`, `--teal`, `--ceramic-green`, `--stone`, `--stone-ground`), not yet confirmed against the brand book.
+- **Map layers:**
+  - synagogues;
+  - toilets: one icon; the men-only and women-only data is kept;
+  - light-rail stations;
+  - **benches** from zoom 2.
+  - **Drinking water was dropped.**
+- **The illustrated look (phase 1), the owner's pick:**
+  - 4–5 warm building tones;
+  - building shadows;
+  - **OSM's trees only** ("not every courtyard has trees"): single trees, and parks, gardens and woods inside the frame;
+  - paper grain (`public/map/paper-grain.svg`) and a vignette;
+  - a title cartouche;
+  - stacked English/Hebrew labels;
+  - a warm street casing.
+  Not done: tile roofs, ridge lines, terracotta landmarks, and phase 2 (baking the base into per-zoom images).
+- **For step 3b:** the "Illustrated prototype" map notice is removed, and Marzipan gets no marker until it has a position.
+
+### The owner's two-map idea (to verify with the owner; not a decision)
+The owner, 11 Nov 2026:
+- the illustrated map is the game's cover and is used for picking challenges;
+- the OSM map, full screen or nearly, is used for real navigation;
+- the Navigator can tap "we are here", and "show our location", which costs points and shows for one minute each time.
+
+The assessment is in [live-test-8-nov-plan.md](live-test-8-nov-plan.md#the-two-map-idea-owner-11-nov-2026-to-verify) under "The two-map idea". In short:
+- the split suits each map;
+- "we are here" already exists (`self-arrival`, D6);
+- "show our location" fits the 8 Nov rule that revealing costs points.
+- **Questions for the owner:** the cost, a free first use, who sees the dot, and what the full-screen map hides.
+
+### What exists
+| File | What it is |
+|---|---|
+| `scripts/map/build-shuk-map.mjs` | `npm run map:build`, on the host, about 1 s. The CURATION block holds every hand decision: frames, corners, road widths, label styles, zooms, the name and place lists (`NAME_OVERRIDES`, `NEIGHBOURHOOD_OVERRIDES`, `PLACE_ALT_NAMES`, `OWNER_PLACES`, `COURTYARDS`, `OWNER_SYNAGOGUES`), `CHECKED_ON_SITE`, `TOILET_SEX_OVERRIDES`, `POI_KINDS`, the building tones and trees. |
+| `scripts/map/label-layout.mjs` | The label placement: measuring, straight stretches, a rotated-box overlap test, `minZoom` per label; brief and per-zoom labels; street level as a separate run. Accepts `reserved` boxes (for markers), unused so far. |
+| `app/dev/osm-map/page.tsx`, `components/map/IndexOsmMap.tsx`, `LeafletOsmMap.tsx` (+ `.module.scss`) | The dev page and the Leaflet map (the plain and illustrated looks, the cartouche, the vignette, bare V4 icons) |
+| `lib/map/osm-label-view.ts`, `lib/map/osm-svg.ts` | Pure helpers: which labels show at a zoom; the SVG layers (tones, shadow, trees, roads) and stroke widths. Reusable in step 3b. |
+| `data/shuk-map-nahlaot-{small,large}.json` | Roads, buildings by tone, trees, areas, names, places, neighbourhoods, map layers (`pois`), projection and credit. 95 KB and 165 KB raw; the large one is 59 KB gzipped. |
+| `data/shuk-map-nahlaot-{small,large}.labels-{en,he}.json` | The labels, one file per frame and language (about 125–210 KB raw, 20–32 KB gzipped) |
+| `lib/map/osm-projection.ts` | `geoToMap`, `mapToGeo`, `metresToUnits` and all the data types |
+| `lib/map/*.test.ts` | 56 map tests |
+| `media-originals/maps/nahlaot.osm` (not in git) | The 11 Nov OSM download; the build needs it |
+| `media-originals/icons/` (not in git) | `dori-v4/` (the owner's 7 icons and the sheet) and `osmic/` (the synagogue star, CC0) |
+| `media-originals/fonts/` (not in git) | The Plex woff files. **Unused** since the review previews were retired on 11 Nov (the dev page replaced them). |
+
+### Waiting on the owner
+1. **The two-map idea:** verify it (above).
+2. **Review the illustrated look** on the dev page (Plain against Illustrated).
+3. **Knesset Yisrael C's position**, inside its own neighbourhood.
+4. **Synagogue positions** for the others OSM misses ([research 15](../../research/results/shuk-places/15_nahlaot_synagogues.md)).
+5. **Checking names on site:** the owner's walk, against the signs. Corrections go into `NAME_OVERRIDES` and `CHECKED_ON_SITE`, never from Google.
+6. **Never placed** at any zoom: a few short alleys and squares, listed in each label file's `meta.unplaced`.
+7. **Brand colours:** confirm the five new map tokens, or replace them with the ChatGPT palette research ([prompt 16](../../research/prompts/16_map_icons_armenian_ceramics.md)).
+
+### Step 3b: putting the map into the game (after the owner's go-ahead)
+- **Map:** replace the `L.imageOverlay` in `components/map/LeafletBaseMap.tsx` with the OSM map (reuse `lib/map/osm-svg.ts` and `osm-label-view.ts`), small frame, illustrated look.
+  - Map units are artboard units, and Leaflet `CRS.Simple` zoom z means 2^z px per unit. Don't rescale the data.
+  - y points down. Use the same `[height − y, x]` flip as `imageToLatLng`.
+- **Mission markers:** from each task's `destination` through `geoToMap`. Marzipan gets none until it has a position. Hide the labels under a marker at run time.
+- **Zoom:** `zoomSnap` 0.5, up to 2.5. **Credit:** visible on the map.
+- **The notice:** remove `MAP_NOTICE`. `docs/map/nahlaot-map-audit.md` describes the old image.
+- **Coding rules:** `Index → List → Preview`; tokens only; touch targets ≥ 3 rem outdoors; a reduced-motion override.
+- If the two-map idea is approved, the illustrated image stays for choosing a challenge, and the OSM map takes navigation.
+
+### Gotchas
+- **Rebuilding needs `media-originals/maps/nahlaot.osm`**, which isn't in git. A fresh download changes the data, so regenerate and review. The download command is in the map doc.
+- **On the host,** `npm test` fails one file (`lib/media/media-images.test.ts` needs `react`), and the UI tests in `test:shuk` need `node_modules`. Run the full suites in the one-shot container (`verify.md`): on 11 Nov, test:shuk was 330/330 and npm test 99/99.
+- **Map tests alone on the host:** `node --experimental-strip-types --test lib/map/*.test.ts`.
+- **Containers:** long work goes in tmux. Remove the root-owned `.next/`, `next-env.d.ts` and `tsconfig.tsbuildinfo` they leave, but only while `shuk-dev` isn't running.
+- **Real names:** no participant's real name in a file. The commit scanner blocks them.
+
+## From the platform's map work; Build 1 checks: 11 Nov 2026
+
+**Brought over from the DORI platform repo (`Tour-Tech/TourTechToolBox`, at `ddf0b38`), at the owner's request ("bring over what is relevant for the game"):**
+- **[The map-types spec](../design/map-types-spec.md)** (owner's decision, 10 Nov 2026; a reference copy, the platform holds the original). Every map is either Type A, illustration (schematic, redrawn from a reference picture), or Type B, navigation (OpenStreetMap geometry, every alley, names checked on site, zoom to street level). **The Amazing Shuk map is Type B.** Today's illustrated map is a prototype, not in operational use (owner, 11 Nov 2026): the spec is the target for later, not a current blocker.
+- **[Research 14](../../research/results/shuk-places/14_historical_city_maps_leads.md):** city-scale historical maps that may reach Nahlaot and Mahane Yehuda, as leads for a then-and-now idea; none checked for the area.
+- **A worked example of the Type B method, not copied:** the platform's Old City map (`scripts/map/build-old-city-map.mjs`, no dependencies) turns an Overpass extract (gitignored, a generic client name, no email) into projected SVG data, with a hand CURATION block, a local equirectangular projection and `geoToMap` / `mapToGeo` for GPS and Google Maps links, and a route computed as the shortest walk on OSM footpaths. Its plan cites this repo's map audit as its lessons. When the Shuk map is redrawn, start there.
+- **Ported at the owner's request: the caps scaled by height.** The platform's `6db470b` (8 Nov) scales the size caps with an image's height, in both `scripts/images/build-images.mjs` and `deploy/check-assets.mjs` (a 4:3 frame gets the base cap, a taller image proportionally more), and warns when a copy goes below the quality floor. The game had copied the pipeline before it, which is why the Levin portrait needed a crop (the crop stays). `check-assets` reads the dimensions from `data/module-images.json` only (no `places-images.json` here). Checked: `node --check` on both, and `check-assets --media /srv/dori/game-media` OK; the pipeline itself wasn't rerun, and no copy changed. As on the platform, the cap scales by the copy's shape against the nominal width, so a narrow original (e.g. `travelers-prayer-panel`, 532 × 1290) gets a generous cap.
+- The rest of the platform's map work (the Old City quarters, the 1949 line, the Jaffa Gate references) is for the Old City tour, not the game.
+
+**Build 1 checks (local only, not committed), 11 Nov 2026:**
+- `npm test` 68/68 in a throwaway container.
+- `test:shuk`: 323/330 at first. The 7 failures (`reveal.test.ts`, `timing-record.test.ts`, "Invitation login required") weren't Build 1's: `seatIds` in `seat-fixture.ts` read the sessions on the real clock, and sessions signed in at the tests' fixed 2 Nov date expired on 9 Nov. Fixed by passing the test's `now` through `seatIds`; the two files then pass 11/11 on the host. The full suite wasn't rerun after the fix.
+- `tsc --noEmit` clean.
+- ESLint, the whole repo: 3 errors, all in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs` (`require()`, from `599ad4d`, 24 Oct), and 4 old warnings in the Memory Protocol's `MissionMap` and `WelcomeScreen`. None in Build 1's files.
+- **Not run:** `/game-verify shuk`. **Not checked in a browser.**
+- Also this session: the seven unused photos moved from `public/shuk` to `media-originals/reference/shuk/` (entry below); the map notice's auto-fold confirmed by the owner as nonessential ([plan](live-test-8-nov-plan.md)).
+
+## Deployed `e5f15ff`; the owner's live test notes: 8 Nov 2026
+
+- **Live since 8 Nov 2026, 15:40 UTC:** `dori-shuk:20261108-153927-e5f15ff` (rollback `previous` = `5c4e027`). It ships `b4d2298`, `bcc3e2c`, the image pipeline (`cb4a381`) and the Levin crop B (`3ebda14`). The copies are in `/srv/dori/game-media`, mounted read-only; a Levin AVIF is served live with `immutable`, and the library copies are a 404 on the Shuk. Fresh adventure; links `host-player-1`, `guide`, `player-2` until about 9 Nov 15:40 UTC; join links off; backup `live-state-before-deploy-20261108T153918Z.json`; 14 safety copies in `/data`.
+- **The Memory Protocol is paused** (not deployed; archive plan deferred): see `current-state.md`.
+- **The owner's notes from the live test (8 Nov), recorded for the plan, not built:**
+  1. **Role pop-up:** add a line saying what it means to be a ___ (each role). `TODO(copy)`: the owner approves the wording.
+  2. **The count step:** instead of the question "How many are playing?", show a summary: "You will be 2 …" (`TODO(copy)`).
+  3. **Passed:** the stepper, and roles updating on both devices; after Start, the role by the avatar looks good.
+  4. **The map notice** ("Illustrated prototype: approximate marker and unverified street labels. Follow the clue and guide."): it should close by itself after 30 s; the circle (the marker) gently animated.
+  5. **"Find the place":** the picture is too small; in its pop-up the text is out of place.
+  6. **The navigation screen** (adds to the 5 Nov notes below): no Hebrew title; "mission" becomes "challenge"; remove the map from this screen (the Map button shows it full screen); a title saying what to look for, with the images of what they're looking for; **revealing the address costs points.**
+  7. **The stepper:** at the top, and sticky.
+  8. **Pop-ups: a different animation for each kind of result**; success (e.g. "Group arrival confirmed! 20 arrival points earned.") scales up from the centre. Not in the docs before; now in [the plan §8a](progressive-challenges-plan.md#8a-reward-celebrations-owner-direction-2-nov-2026).
+  9. **Hints and "I'm completely stuck" as icons:** each can be just an icon with a small number (e.g. hints left); "I'm completely stuck" uses a lifebuoy (life-ring) icon. Recorded, not built; the icon is a new entry in `components/icons/iconPaths.tsx` when built.
+  10. **Hide the answer choices before the challenge starts:** players see the question, but not its options, until the challenge is started. Recorded, not built.
+  11. **The role moment:** when a challenge needs one role to act, remind them of the role and how it's done, and push them on how to start (first case: the Researcher at the mural, searching for the artists' photo). **Direction approved (owner, 8 Nov 2026): the emblem cue.** The holder's emblem highlights once; a tap opens the role pop-up (purpose, task, why, guidance on request, the link last); teammates get a quiet line and an observation task; no new server action; Submit is never blocked. Pilot: the Researcher at Something's Missing. Treatment: [role-moment-treatment.md](role-moment-treatment.md); mobile design in `design/output/role-moment-emblem-cue-2026-11-08.md`. Not built.
+- **Implementation plan for items 1–11:** [live-test-8-nov-plan.md](live-test-8-nov-plan.md), in five builds (quick fixes; copy; the result animations; the navigation rework; the role moment). Not started; each build waits for the owner.
+
+## The DORI image pipeline, brought into the game: committed `cb4a381`, live on the Shuk in `e5f15ff`: 8 Nov 2026
+
+*Brought up to date 11 Nov 2026: this entry was written before the commit, the crop and the deploy.*
+
+At the owner's request ("reuse the platform's implementation; don't redesign it"). How-to: [images-howto.md](../images-howto.md); decisions: [images-research.md](../images-research.md).
+- **Copied from the platform** (each file names its source): `scripts/images/build-images.mjs`, `deploy/check-assets.mjs`, `deploy/prune-media.mjs`, `types/media-images.ts`, `data/media-images.ts`, `data/module-images.ts`, `components/media/Picture.tsx`.
+- **Changed for this repo only:** the base path (`mediaSrc`); `check-assets` scans `components/` and `lib/`, skips tests, reads `${BASE_PATH}` paths, allows `<Image unoptimized>` and `/favicon.ico`; the Shuk's routes allow `/media/modules/shuk/` and `/media/modules/map/` only; `immutable` on `/media/:path*` in `next.config.ts`; `research/` excluded from `tsconfig`.
+- **Switched to `<Picture>`:** every raster image (the Shuk's 5 screens with `next/image`, the Memory Protocol's 7 `<img>`). The map JPEG stays in `public/map` for Leaflet.
+- **Serving:** `/srv/dori/game-media` (the game's own root, never the platform's `/srv/dori/media`) bind-mounted read-only at `/app/public/media` in both compose files; the Dockerfile makes the mount point; `deploy.sh` runs `check-assets --media /srv/dori/game-media` before building.
+- **First run** (throwaway container, from the current web JPEGs as originals): 16 images, 96 copies, 6.9 MB, metadata stripped. The 1080 AVIFs are 20–210 KB, within their caps.
+- **The Levin mural, resolved (`3ebda14`):** its WebP fallbacks were over their hard caps (107 KB > 100 at 640; 241 KB > 220 at 1080; original 1024 × 1819). The owner chose **crop B** (774 × 1500 from 250,0): the mural only, without the air conditioner, bars and gas cylinder. The 1080 WebP is now 209.6 KB, and `check-assets` passes on the repo and on `/srv/dori/game-media`.
+- **Credits:** the Shuk's are filled from the data files; the library and map are "unrecorded".
+- **Checks:** `test:shuk` 329/329, `npm test` 65/65 (new `lib/media/media-images.test.ts`), `tsc` clean, ESLint with no new warnings; both images build; with the copies mounted, the Memory Protocol and the Shuk each serve their copies with `public, max-age=31536000, immutable`, the Shuk's smoke routes pass 10/10 and the library copies are a 404 there. **Not checked in a browser.**
+- **Done, 8 Nov 2026:** `/srv/dori/game-media` created and filled (`library`, `map`, `shuk`; 6.7 MB on 11 Nov); the commits `cb4a381` and `3ebda14`; the Shuk deployed (`dori-shuk:20261108-153927-e5f15ff`, the mount at `/app/public/media`, read-only). Live: a Levin AVIF is served with `immutable`, and the library copies are a 404 on the Shuk.
+- **Not deployed: the Memory Protocol.** It is paused (owner, 8 Nov 2026), so `dori-game` still runs its old image without the mount and serves its JPEGs from `public/library`. It gets the pipeline whenever it is next deployed.
+- **Still open (owner's call):**
+  - The JPEGs can leave `public/shuk` and `public/library` (and their `.dockerignore` photo lines): new builds of both apps read the copies through the mount, and the running `dori-game` image has its own JPEGs built in. `public/map/nahlaot-illustrated-candidate.jpg` always stays (Leaflet).
+  - **Done (owner, 11 Nov 2026):** the seven unused photos that sat loose in `public/shuk` (`and Flor .png`, the Armuza studio portrait, `cistren_gan_ha_tot.png`, `Hesed_va_Rahamim.jpg` and three `MY_*` photos) moved to `media-originals/reference/shuk/` for reference: ignored by git and Docker, never read by the pipeline. A challenge that uses one first gets a `sources.json` entry in `media-originals/modules/shuk/`.
+  - Credits still "unrecorded": the library, the map and `mural-before`.
+
+## Session handoff, 5–6 Nov 2026: start here
+
+**Where things stand (6 Nov 2026, about 02:15 UTC):**
+- **Live:** `5c4e027` (`dori-shuk:20261106-004445-5c4e027`), the first and second onboarding builds. Rollback: `8001e8f` (the first build only).
+- **Committed, not deployed:**
+  - `b4d2298`: the guide is no longer counted as a player in the lobby; clearer avatar emblems (from the owner's screenshots).
+  - `bcc3e2c`: the 5 Nov challenge notes and multi-team play (I7a).
+- **Not pushed:** 5 commits, `8001e8f` to `bcc3e2c`. The owner pushes from VS Code; this server's shell has no GitHub credentials.
+- **Live game:** a fresh adventure from the 00:46 UTC deploy. The owner tested the lobby with their phone and PC. Links in `.local/amazing-shuk/live-links/` (`host-player-1`, `guide`, `player-2`) were issued 6 Nov about 00:46 UTC and expire about 7 Nov 00:46 UTC.
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-deploy-20261106T004444Z.json`, the only one. 13 safety copies in `/data`, kept until the owner decides.
+- **Join links are off.** Multi-team play needs them on (`SHUK_JOIN_LINKS=1`) for players of teams B onward: the owner's decision.
+- **Untracked:** `research/results/competitors/DORI_B2G_Public_Buyers_Research_Summary.md` (the owner's; not committed).
+- **Server:** disk 77%. `shuk-dev` is broken (its `node_modules` volume is empty; the dev page returns 500); restarting it needs the owner's OK. Tests ran in a throwaway `node:22-alpine` container with a named `node_modules` volume, removed afterwards.
+
+**What happened, in order (the entries below have the details):**
+1. 5 Nov: the mural's "The People Behind the Painting" drafted (`c39c109`); research filed (`15cc9db`); the disk freed (89% → 67%, owner-approved); deployed `15cc9db`.
+2. 5 Nov: the owner's phone-and-PC test and notes, recorded in the plans (`e2b9494`).
+3. 5–6 Nov: onboarding and roles designed with `/experience-design` ([treatment](onboarding-roles-treatment.md)), built in two parts (`8001e8f`, `fe10743`), deployed (`8001e8f`, then `5c4e027`).
+4. 6 Nov: the deploy skill writes a player-2 link by default (`5c4e027`).
+5. 6 Nov: the owner's screenshots: the guide counted as a player, the emblems hard to see; fixed (`b4d2298`).
+6. 6 Nov: the 5 Nov challenge notes and I7a built (`bcc3e2c`).
+
+**Checks at `bcc3e2c`:** `test:shuk` 329/329; `npm test` 63/63; `tsc`, ESLint (Shuk folders) and Sass clean; `/game-verify shuk` healthy, 8/8 routes. **Nothing was checked in a browser by Claude; multi-team play has never run on several phones.**
+
+**Next, in order (each needs the owner):**
+1. The owner pushes; then `/deploy` for `b4d2298` and `bcc3e2c` (and a decision on join links for multi-team play).
+2. The owner's live test of the new lobby, the challenge notes and, with join links on, two teams on three phones.
+3. Copy approval for every `TODO(copy)` line (O16), listed in the entries below.
+4. Artwork: the role emblems and the 8 team avatars (who draws them, licence).
+5. The navigation screen rework (the owner's 5 Nov notes, in the entry "Deployed `15cc9db`…"): design first.
+6. The admin screen ([ideas](admin-screen.md)), now also holding the guide's view of every team.
+7. Still open from before: the mural v3 drafts and field checks; the Photographer's photo permission (waits for a photo challenge).
+
+## Multi-team play (I7a): committed `bcc3e2c`, not deployed: 6 Nov 2026
+
+At the owner's request ("complete the plan"), with the owner's answers of 6 Nov (host-shared leader invitations, no typed names; initials for avatars; the guide's view in the admin screen; built to 30, not advertised). Details in the [plan's I7a](multiplayer-plan.md#i7a-multiple-teams).
+- **New files:** `team-name.ts` (the decided name rules, approved copy, suggestions from the owner's bank without kada or mufleta, initials), `PreviewLobbyTeams`, `PreviewTeamName`; tests `team-name.test.ts`, `multi-team.test.ts`.
+- **Changed:** `participant-store.ts` (teams, leader invitations, names, readiness, overview, pooled food tokens), `participant-http.ts` (`leader-link`), the action parser and types, `adventure-lobby.ts` (flows: solo, group, multi, leader), `IndexAdventureLobby`, `PreviewAdventureLobby`, the header.
+- **Copy drafts (`TODO(copy)`):** the teams step, leader statuses, invite notices, readiness lines, the per-team waiting lines, `TEAMS_NOT_READY`, `CREATE_TEAMS_FIRST`, `TEAM_HAS_PLAYERS`. The team-name copy is the owner's approved wording.
+- **To play it live, join links must be on** (`SHUK_JOIN_LINKS=1`): players of teams B… join with their leader's join link. Owner's decision.
+- **Checks:** `test:shuk` 329/329; `npm test` 63/63; `tsc` and ESLint clean; Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean. **Not checked in a browser, and never with several phones.**
+
+## The 5 Nov challenge notes: committed `bcc3e2c`, not deployed: 6 Nov 2026
+
+The owner's notes from the phone-and-PC test, in the [progressive-challenges plan](progressive-challenges-plan.md) §2b and §8:
+- **"I'm completely stuck"** is a strong button (Sumac, 3rem) in a help bar **above the challenge's title**, beside the hints; it was a quiet link at the foot. The "Keep trying" check stays.
+- **The hint pop-up:** the cost first, "Show hint N", then, still in the pop-up, **"Show the answer"** (opens the same check) whenever this phone may reveal (`offerAnswer`).
+- **"Go to the next stop"** works only on the Navigator's phone (also the guide, a solo player, or anyone while the seat is empty: `mayLead`). The others see it disabled; a tap says "Only the Navigator can take the group to the next stop." After a reveal, the card adds who taps.
+- **"Leave the game?":** `leave-guard.ts` puts one guard history entry under the game's first screen, once per tab. Back onto it puts the screen back and opens the question (Stay focused first; Leave steps back past the guard). Back between the game's screens, reload and closing the tab aren't intercepted.
+- **Copy drafts (`TODO(copy)`):** "Show the answer", `NEXT_STOP_COPY`, `LEAVE_COPY`.
+- **Checks:** `test:shuk` 320/320 (new `leave-guard.test.ts`; hint, stuck, cheer and lead tests); ESLint and `tsc` clean; the changed Sass compiles. **Not checked in a browser**, including the Back behaviour on a real phone.
+
+## Onboarding and roles, second build: four roles, emblems, read-only answers: `fe10743`, live in `5c4e027`: 6 Nov 2026
+
+The first build (`8001e8f`) is live since 6 Nov 2026, 00:00 UTC; the owner will test both builds together.
+- **Researcher and Photographer:** stored as optional fields of the team's roles (absent = nobody), so the rollback image `8001e8f` still reads the file. The leader gives them in the lobby's roles step (four rows; the Photographer always shown) and on the Group tab; players can take or step down from them. Neither carries a permission and neither is needed to start. A stored holder who isn't a member makes the file unreadable. Removing a member frees every role they held.
+- **The Photographer's permission** (only they submit photo answers) is **not built**: no challenge takes a photo yet.
+- **Emblems:** `role-emblems.ts`, one icon per role (compass, answer, search, camera) standing in for the artwork. On the lobby rows, the role card, and **the player's own avatar** in the header (one small disc per role held; solo holds all four).
+- **The profile:** "Your role: …" or "Your roles: Navigator · Researcher" (solo: all four); nothing for a player with no main role; the guide's line unchanged.
+- **Read-only answers (owner, 5 Nov 2026):** the server refuses a pick, a well move or a reset from anyone but the Submitter or the guide (`ANSWER_IS_SUBMITTERS`, 403), except while the Submitter seat is empty (the same fallback as "I'm completely stuck"). The view sends `performance.canAnswer`; the others see the picks and vessels live but disabled, with a note. Covers the main challenges, follow-ups and the bonus.
+- **Not changed:** the guide panel still assigns only Navigator and Submitter; the header's role pills.
+- **Copy drafts (`TODO(copy)`):** the Researcher's and Photographer's names, questions and cards; the longer roles lead; "Your role(s): …"; the Group tab intro; the read-only note and `ANSWER_IS_SUBMITTERS`.
+- **Tests changed by the rule:** about 30 tests that picked or moved from a non-Submitter seat now act from the Submitter's seat or the guide; two tests now check that the others are refused.
+- **Checks:** `test:shuk` 315/315; `npm test` 63/63; ESLint clean on the Shuk folders; `tsc` passes; the changed Sass compiles; `/game-verify shuk` healthy, 8/8 routes, 49 MiB; `git diff --check` clean. **Not checked in a browser.**
+
+## Onboarding and roles, first build (the casting call): `8001e8f`, live in `5c4e027`: 5 Nov 2026
+
+From the [treatment](onboarding-roles-treatment.md) and the owner's answers (recorded in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026)).
+- **Built:**
+  - **The lobby as a stepper:** Players · Who's here · Roles · Ready (solo: Players · Ready; 6–30: the groups note, no stepper). The count is sent on Continue, so the players' screens follow.
+  - **Groups:** no group count or split for 2–5; "Playing solo: you'll hold every role." for 1; "Groups: N" and "Players per group" from 6.
+  - **The casting call:** a question per role, a chip per team member (never the guide), the holder pressed; tap again to free. One player may hold both.
+  - **Start blocked** while a group of two or more has no Navigator or no Submitter: the warning offers "Set the roles" and, for the leader, "Give them to me" (assign, then Start, in order through the queue). The **server refuses** such a Start too (`ROLES_NEEDED`); solo and a team with no member yet are exempt.
+  - **The role card:** on the player's own phone when they gain a role, in the lobby and during play; never on the first read or a reload.
+  - **The branded waiting screen:** the game's name, an awning loader in the brand colours (static with reduced motion), the approved words, the host's step, the stepper and the player's own roles.
+  - **Advisor removed:** no "Your role: Advisor" and no Advisor label in the roster; the Group tab says "Everyone else helps at each stop".
+- **Files:** `adventure-lobby.ts`, `roles.ts` (`newlyHeldRoles`), `participant-identity.ts`, `participant-store.ts`, `welcome-copy.ts`; new `PreviewLobbyStepper`, `PreviewLobbyRoles`, `PreviewLobbyWaiting`, `PreviewStartBlocked`, `PreviewRoleCard`, `IndexRoleCard`; `IndexAdventureLobby`, `PreviewAdventureLobby` and `IndexWaterTask` changed. The test fixture `startWithRoles` (`seat-fixture.ts`) gives and frees the roles around Start for tests that aren't about roles.
+- **Copy drafts (`TODO(copy)`, O16), all in `LOBBY_COPY`:** the stepper's states; "Who's here?", "N of M here" and its help; "Who does what?", its lead, the two questions, "No one yet"; the solo and groups lines; the warning's title, text and buttons; the waiting lines; the two role cards and "Got it"; `ROLES_NEEDED`; "Everyone else helps at each stop".
+- **Checks:** `test:shuk` 308/308 (new `lobby-onboarding-ui.test.ts`; lobby, roles and store tests extended); `npm test` 63/63; ESLint on `lib/amazing-shuk` and `components/amazing-shuk` clean; `tsc` passes; the new Sass modules compile; `/game-verify shuk` healthy, 8/8 routes, invite link shape OK, 46 MiB; `git diff --check` clean. **Not checked in a browser.**
+- **`shuk-dev` is broken:** its `node_modules` volume is empty, so the dev page returns 500. Restarting it (it runs `npm ci`) needs the owner's OK; the two-device check on the dev page waits for that, or for a deploy.
+- **Next (second build):** Researcher and Photographer (always shown), the emblems, and read-only picks for non-Submitters.
+
+## Deployed `15cc9db`; the owner's phone-and-PC test, done: 5 Nov 2026
+
+- **Deployed** with `/deploy`: live `dori-shuk:20261105-211524-15cc9db`, rollback `193873f`. Backup: `live-state-before-deploy-20261105T211500Z.json`. A fresh adventure; links `host-player-1.txt`, `guide.txt` and `player-2.txt` (written at the owner's request) in `.local/amazing-shuk/live-links/`, valid about 24 h. Join links off. Eleven safety copies in `/data`.
+- **Disk:** 89% before; the owner approved clearing the build cache, the npm cache and the journal: 67%, 70% after the deploy.
+- **The test (phone = host `player-1`, PC = `player-2`):**
+  - Lobby ("Before you set off"): the count set to 5, Start allowed, with the up-to-five note. **Passed.**
+  - PC: "Waiting for the adventure to begin", no controls. **Passed.**
+  - Start on the phone: the game started on both the phone and the PC. **Passed.**
+  - Group tab after Start: Navigator and Submitter both empty ("free"); each player's own role shows "Advisor" (on the PC and the phone). Works as built, but Advisor is removed by the owner's 5 Nov roles rule; the owner: never mind, roles move into onboarding next.
+  - The leader's Change made player-2 the Navigator, and the pill shows it. **Passed.**
+  - The phone (host) made itself the Submitter: it worked. **Passed.**
+  - "I'm completely stuck" on the Submitter's phone: the pop-up with its two buttons; "Show answer" opens "Here's the answer". **Works.** The Navigator (the PC) doesn't see the button: check 13 **passed**.
+  - The Submitter's picks show on the Navigator's screen too. **Found: the Navigator can change a pick** (the owner flagged it), though not submit: the Submit button isn't there. **Decided (owner, 5 Nov 2026), not built:** only the Submitter picks; everyone else sees the picks live, read-only. **Later:** a small chat-like section showing group members' suggestions.
+  - After the Submitter's Submit, both devices show the points and food tokens. **Passed.**
+  - **More tests (5 Nov):**
+    - Hints: after hint 1, the count dropped from 3 to 2 on both devices. **Passed.**
+    - **The well: found.** The Submitter's moves show on the PC, but moves made on the PC (not Submitter) don't show on the phone. To be fixed by the plan: only the Submitter acts, as decided for picks (I5 reworks the well).
+    - "We're here": the arrival bonus once on both, no second bonus after a retap or reload; Check our location away from a stop gives a clear message. **Passed** (3–5).
+    - Double Submit: one award. **Passed.** The submit-and-reveal race: not relevant (not run).
+    - Offline: a pick made in airplane mode synced to the other player on reconnect; refresh mid-challenge and closing and reopening the browser kept the sign-in and progress, with no repeat pop-up. **Passed** (10–12).
+    - Back and the bottom bar stay inside the app, **but Back at the first screen leaves the game.** The owner wants a warning before players are taken out of the game: a "Leave the game?" pop-up (Stay / Leave), added to the [plan](progressive-challenges-plan.md) §8.
+    - Marzipan is locked until the other five are done. **Passed**; the owner will change this rule later.
+  - **The hint flow (the owner's note):** first the hint's implications (its cost); a tap shows the hint; then, still in the pop-up, an option to give the answer with its explanation; then close.
+- **The owner's notes on the stuck flow**, recorded in the [progressive-challenges plan](progressive-challenges-plan.md) (§1 and §2b):
+  - **"I'm completely stuck" becomes a real button in a strong colour, beside the hint, just above the challenge title** (replaces the quiet text button at the foot).
+  - **A new rule for creating challenges:** every challenge fills its "Here's the answer" content; it is never left for later.
+  - "Here's the answer" should tell the Navigator to tap "Go to the next stop"; for everyone else that button is disabled, and a tap explains that only the Navigator can do it.
+- **The owner's notes (record only, not approved for build):**
+  - **The waiting screen should be game-branded, with an animated loader.** Today it is a plain card with "Waiting for the adventure to begin". Needs a design (`/experience-design` or the UX designer), the brand tokens, and a `prefers-reduced-motion` fallback; copy stays the owner's.
+  - **The lobby's numbers** (it shows "How many playing: 5", "Recommended teams: 1", "Suggested split: 5"):
+    - "Recommended teams" should read as "Groups: X": the user has already chosen it in the previous step, so it isn't a recommendation;
+    - "Suggested split: 5" is unclear when there is one group only, or a solo player.
+  - **The lobby onboarding should be a series of states, shown with a stepper.**
+  - **Answer on the groups (5 Nov):** the screen shows the number of groups only when there is more than one group, or a solo player.
+  - **Role assignment belongs in onboarding**, before Start, as the plan proposes (the role step in the leader's lobby, `multiplayer-plan.md` §4 and I4). Today the roles start empty and are assigned after Start on the Group tab.
+  - **The navigation screen** ("Find this place", seen on stop 1, the Mahane Yehuda mural). The owner's notes for the plan:
+    - **Focus:** the screen is about finding the place, nothing else.
+    - **Header:** "Find the Mahane Yehuda mural" should be sticky.
+    - **Stepper:** say "Navigation" (or just "Finding the place") instead of "Mission 1". The stepper should be designed differently; something about how it looks is unclear.
+    - **Title:** remove the Hebrew title; put what you should see when you get there.
+    - **Address:** hidden, with only its icon kept; a tap reveals it. Players should be motivated to find the place without the address: **a group that reveals it gets no navigation points.**
+    - **Picture:** remove the small map here; show one clear picture of what they'll see on arrival.
+    - **Landmarks:** rethink as the storyboard for getting there, **like a riddle** rather than giving out the address.
+    - **About this place:** keep; its content can be used.
+    - **Check our location:** may stay for all players.
+    - **Navigator side, "We're here":** in production, Open Challenge doesn't work outside a 100 m radius of the stop, and the button must really check the location (now too).
+    - **Confirm your arrival** → "Confirming your location", with a loader. When in place: a nice animation, graphic and the sound of money: "your group just earned X points for this stop's navigation", given to them with a message like "Successful navigation, you rock!" (all `TODO(copy)`).
+    - **Points:** the points icon is attached to the group avatar and updates there too.
+    - **Open Challenge:** disabled until arrival is confirmed; a tap shows a pop-up saying the location must be confirmed first; active again once it is.
+    - **Opening the challenge** opens the challenge screen automatically on every player of that group.
+
+## Mural: "The People Behind the Painting" drafted; the real people recorded: 5 Nov 2026
+
+Research and content planning only; no code, no commit. At the owner's request.
+- **[Knowledge file](../knowledge/market-mural-agrippas.md#added-5-nov-2026-the-people-behind-the-painting), a new 5 Nov section:**
+  - **Established:** the artists met residents and merchants; residents shaped the subject; recognizable local figures are painted; Eli Mizrahi and Beni Dagim are named among them (M1, M18).
+  - **Unverified:** why each person was chosen, whether residents nominated them, and where anyone is in the painting.
+  - **Two findings beyond the brief:**
+    - That the named men are the Café Mizrahi founder and Beni Rosenzweig is probable, not established. Beni's own file says so.
+    - The mural (Hanukkah 2001) predates Café Mizrahi (2002), so "restaurateur" is a later description.
+  - **Masa Acher (M20)** supports the artists' method only in general: it is from 2007, names no one, and its wall is unconfirmed.
+  - The owner's people files are cited as M22 and M23, and listed in the knowledge index.
+- **[Mural rework](mural-rework.md), v3:** "The People Behind the Painting" is optional and unscored, and replaces the "Look closer: real people" card.
+  - Each player names one real person they'd paint on their own street. Then the reveal: the artists met the people here; no record says which figure is who; Eli Mizrahi and Beni Dagim are named.
+  - No biographies, places or photos.
+  - **The owner's call:** the People reveal hints at the AHA vote's answer. Keep both, or skip the vote after this challenge.
+- **Committed with this entry:** the owner's two people files in `docs/knowledge/influational_people/`, so the links work on GitHub too.
+
+## Onboarding and roles rules recorded; admin screen ideas started: 5 Nov 2026
+
+Documentation only; no code. Supersedes the "proposed" parts of the entry below.
+- **The owner's rules (5 Nov), in [decisions](product-decisions.md#onboarding-and-roles-owner-5-nov-2026) and the [multiplayer plan](multiplayer-plan.md) (§4, §5, I4, I7a):**
+  - the host or guide enters the count;
+  - over 5 players, the host or guide assigns the team leaders, and the host leads a team only if playing; with one team, the host is the leader; a solo player holds every role;
+  - the main roles: Navigator, Submitter, Researcher (no permission) and Photographer (only they submit photo answers);
+  - Advisor is removed: everyone else gets parts, dealt per stop and rotated;
+  - the profile panel shows the main roles, with a role emblem on the player's own avatar.
+- **Open:** the Photographer's fallback, the emblems' artwork, all copy (O16).
+- **New: [admin screen](admin-screen.md)**, ideas only. It answers the owner's questions about a new phone, cleared cookies and in-app browsers (each needs a new link from the CLI today). Suggested first: a rescue QR link, and "sign out other devices". Open: who gets admin rights, phone or PC, the order.
+
+## Onboarding: the plan and current state brought up to date: 5 Nov 2026
+
+Documentation only; no code, no live change. Multiplayer onboarding stays paused (1 Nov); its resume index is the 1 Nov entry below.
+- **`multiplayer-plan.md`:**
+  - the status header is current (it still said "I2 uncommitted", from 29 Oct);
+  - the owner's roles rule (3 Nov) is folded in: §4 step 6's "Nothing is chosen at join" is struck and superseded, the Researcher is in §5's table (no server permission, owner 4 Nov), and I4 lists what the rule adds;
+  - **proposed, not approved:** a role step in the leader's lobby before Start, reusing I4a's assign action; an empty role never blocks Start. Wording is `TODO(copy)` (O16).
+- **`current-state.md`:**
+  - the header was stale: live is `193873f` (the pasted sign-in link fix) since 2 Nov 14:59 UTC, not `fe1df94`;
+  - the links issued for the phone-and-PC test have expired;
+  - **disk is 89%, over the build limit**;
+  - the paused section notes the unbuilt roles rule.
+- **Unknown, ask the owner:** whether the 2 Nov phone-and-PC test ran, and its result. The live state wasn't read (a read of `/data/state.json` was refused by the permission check).
+
+## Mural v3 drafts: the research proposals applied: 4 Nov 2026
+
+Documentation only; no commit. At the owner's request, the answer-format proposals are now in v3's drafts (`mural-rework.md`):
+- **Who Painted It?:** the code tiers of the checker, and the right spelling first in the reveal.
+- **Something's Missing:** 3 options (no bicycle); the reveal ends on the plain grey door.
+- **The Stamp:** tap the spot on the owner's photo of the wall, with a 3-option text path.
+- **The Trick of the Eye:** "Point to it together, then choose"; 3 technique options; a reveal with the traditions first and the electric company fact last.
+- **The AHA:** an unscored group vote before the owner's text.
+
+The two "Later" rows (then and now in the app, the lion strand) stay later. v2 and v1 are unchanged.
+
+References checked (5 Nov 2026): every document from 4 Nov is linked from its index. Two gaps closed: [current state](current-state.md) gained a mural-rework section and a "Waiting on the owner" line, and the [knowledge index](../knowledge/README.md) now names runs 12 and 13 for the mural file. At the owner's request, the five byte-for-byte copies in `research/content/` (02, 03, `Cognitive_Load.md`, the audience-engagement file, `Answer_Formats_Pack/Endowment_Effect_Creatively.md`) were deleted; the originals stay in `design/inputs/content/`.
+
+## The owner's new research filed into the project: 4 Nov 2026
+
+Documentation only; no commit. The owner's uncommitted research was read and placed. The owner's files stay where they are.
+- **Already in the project:** five files in `research/content/` are exact copies of `design/inputs/content/` files. They are 02, 03, `Cognitive_Load.md`, the audience-engagement file (= `Audience_Engagement_Mechanics.md`) and `Endowment_Effect_Creatively.md`. Nothing new; the owner may delete the copies.
+- **New and used:**
+  - **The Answer Formats pack** (`research/content/Answer_Formats_Pack/`, 11 files) and the raw GPT run it merges (`research/Learning_Memory_Engagement.md`). Cite the pack: it corrects or flags several of the raw run's claims (its file 08).
+  - **Linked from:**
+    - the `/experience-design` sources (`project-context.md`);
+    - three new anti-patterns in `quality-criteria.md` ("The bare tick", "The legend last", "Photograph this");
+    - the research index;
+    - the ideas bank's parking lot (the collection across the route, and the window to the past).
+  - **Applied to the mural:** a new "Checked against the answer-format research" table in v3. It proposes three options instead of four, tap-the-spot for The Stamp, "point together", a fact last in reveals, and an unscored vote before the AHA. The drafts themselves are unchanged until the owner agrees.
+
+## Mural v3 additions: the fridge, the boxes, the real people: 4 Nov 2026
+
+Documentation only; no code, no commit. At the owner's request, through `/experience-design`.
+- **[Run 13](../../research/results/shuk-places/13_mural_fridge_boxes_people.md):**
+  - **The transcript** (`HE_trans.txt` lines 84–92) holds two guide anecdotes:
+    - the fridge painted on a cabinet door, with prices that froze while the market's rose, and the kiosk man's door swap;
+    - the angry calls about the painted boxes the day after the unveiling.
+    - Both are uncorroborated, so both are Attributed tradition.
+  - **The Yad Ben-Zvi wall-art survey** (M18) tells the same joke about the car-for-sale note (Esther Saad).
+  - **Israel Post's flyer, read in full:** it names Eli Mizrahi, "Benny Dagim", the tea distributor and Moti's son, but no source places any of them in the mural.
+- **[The rework, v3](mural-rework.md):**
+  - **Something's Missing** (the fridge) replaces Then and Now.
+  - **The boxes** go into The Trick of the Eye's reveal, plus an unscored "Look closer" find with the car-for-sale note.
+  - **The real people** are an unscored story line only, never a figure to find.
+  - **The AHA's closing line** is labelled Interpretation (DORI's), internally only.
+  - The mural maximum is 270; everything takes about 16–22 min.
+- **Corrections appended** (nothing rewritten): the knowledge file (M18–M21) and run 12 now say the fridge was painted, not real.
+- **The owner's answers (4 Nov, recorded in `product-decisions.md`):**
+  - **Two findings removed** from the knowledge file, run 12's correction and this entry: "one stamp per sheet" and the building's 2020 condition. What was there before is unchanged, and run 13 keeps them as raw research.
+  - **Labels are internal:** "Interpretation (DORI's)" is never shown to players.
+  - **Groups choose their route:** every optional challenge is offered, with no per-stop cap. Only the required path must stay about 7–8 min.
+  - **The painted people are named,** from reliable sources (M1, M18). The owner remembers Benny Dagim "on the corner".
+- **Field checks:**
+  - the fridge's cabinet;
+  - the carton's place;
+  - the car-for-sale note;
+  - the north side;
+  - Benny Dagim's corner.
+
+## Mural rework v2 and the real-or-painted correction: 4 Nov 2026
+
+Documentation only; no code, no commit. This follows the owner's review of v1, recorded in `product-decisions.md` (4 Nov).
+- **[The mural rework](mural-rework.md), v2** is at the top; v1 is kept below for comparison.
+  - **Core:** "Who Painted It?" (typed, Easy, 1 hint).
+  - **Options:** Then and Now (Tricky), The Stamp (which part of the wall is the stamp; no scored price) and The Trick of the Eye (recommended).
+  - **The AHA:** in the owner's own words, unscored.
+  - **Points:** reviewed across the adventure. v2's mural maximum would be 290 of about 740, so the owner chooses a per-stop cap or accepts it.
+  - **Duration:** required path about 7–8 min (about 70% at the wall); everything about 18–24 min.
+- **The owner's correction:** what's painted in the artists' photo is painted; ambiguous objects are FIELD CHECK REQUIRED.
+  - The vents, the treble-clef sign, the plaque, and the railings and blinds are now FIELD CHECK REQUIRED, so no "real" item is confirmed for scoring.
+  - **The live game's key** (`lib/amazing-shuk/mural-task.ts`) still scores the vents, the plaque and the sign as real. Not changed; the owner's call after the field check.
+- **The souvenir sheet's image** (run 12 §4):
+  - one stamp, marked 15;
+  - "CitéCréation" and what reads as "PRICE ₪20" in the margin;
+  - the keystone lion clearly visible on the sheet.
+
+  Read from a 318 × 530 px image, so it needs confirming at full resolution.
+- **Knowledge:** a new dated section in `docs/knowledge/market-mural-agrippas.md`; nothing earlier was changed.
+- **Next:**
+  - the owner's field checks and open choices (the end of v2);
+  - a full-resolution check of the sheet;
+  - then a build plan.
+
+## Mural rework: content drafted for the owner: 4 Nov 2026
+
+Documentation only; no code, no commit. Following the owner's order for the stop (recorded in `product-decisions.md`, 4 Nov), worked through `/experience-design`.
+- **[The mural rework](mural-rework.md):**
+  - the intro, then "Phones down, look up";
+  - 1 "Who painted it?" (typed, Easy);
+  - 2 "Then and now" (the Researcher describes CitéCréation's photo, the group checks the wall, choose 3, Tricky);
+  - 3 the stamp's price (typed number, ₪20, Tricky);
+  - 4 the trick of the eye (real or painted, then the technique's name, Medium);
+  - 5 the AHA (spoken prediction, then the reveal).
+  - Two hints each; points proposed at 40 / 60 / 80; all copy `TODO(copy)`.
+- **[Run 12](../../research/results/shuk-places/12_mural_rework_checks.md):**
+  - **CitéCréation's four photos of the wall** are saved locally in `design/inputs/photos/citecreation-agripas/` (ignored by git).
+  - **Then and now:** a tree, the drinks fridge gone, faded colours. The vents, the plaque and "103" were there from the start.
+  - **The shop page:** it shows ₪20.00, "15 stamps" and ₪99. "15 stamps" doesn't fit a 15 NIS face value, so no "15" is stated.
+  - **The before photo:** CitéCréation's is a different photo from the game's `mural-before.jpg`.
+  - Appended as a new dated section to `docs/knowledge/market-mural-agrippas.md`; nothing earlier was changed.
+- **Not checked on site:** the plaque's text, the then-and-now items, the repainted railings and blinds, and the electric company's workers. These are the owner's field checks in the rework document.
+- **Next:** the owner's decisions and field checks (listed at the end of the rework), then a build plan: a typed-answer kind, several scored challenges per stop, difficulty labels, the Researcher role and link screen, and the look-up screen. Photo checks after that.
+
+## Runs 07–09 imported into `docs/knowledge/`: 4 Nov 2026
+
+Documentation only; no code. At the owner's request, the parts of runs 07–09 that can serve a challenge are now in `docs/knowledge/`, each claim with its label and source. They are locked: add to them, change them only with the owner's approval.
+- **[The market mural](../knowledge/market-mural-agrippas.md):** what's in the mural, real or painted, why it was painted (tourism; overlooked districts, with residents), the stamp (15 NIS face value, ₪20 sheet), and the lion riddle. The owner's four reveal points are marked ★; the rest is kept for other challenges. **Never as answers:** the property-value claim (Unknown), the house number, Dan as an option, a link from the market's name to the lion, any claim about ancestry.
+- **[The Ohel Moshe gate](../knowledge/ohel-moshe-gate.md):** the inscription as transcribed, *avnei zikaron* (Ex. 28:12), Psalm 112:6, and how to say it. The spellings on the stone and the Arabic panel are Unknown until the field check.
+- **Left in the runs:** the rights contacts and questions (rights are settled later, 4 Nov), the method and the unreliable sources.
+- **New:** `docs/knowledge/README.md`, an index of the folder. Links added in the research index and the `/experience-design` sources.
+- **Not imported:** run 06 (the site verification; its copy is in `design/inputs/content/`).
+- **Next session (owner, 4 Nov):** work on the mural stop's content, **without image analysis first**. Only once the content fits do we add the photo checks. Start from [the market mural](../knowledge/market-mural-agrippas.md) and the 3 Nov mural decisions in `product-decisions.md`, through `/experience-design`.
+
+## Research folder sorted; competitor research added: 4 Nov 2026
+
+Documentation only; no behaviour change.
+- **`research/results/` is filed by subject** and indexed in its [README](../../research/results/README.md): `shuk-places/` (runs 06–09), `app-tech/` (01–03, 10, 10b, 11), `memory-protocol/` (04, 05), `competitors/`. Every link to a moved file was updated, including the source string in `lib/amazing-shuk/mural-task.ts`. The Perplexity runner still writes to the folder's root: file new runs and add them to the index.
+- **Competitor research on city-quest games** (owner's, 3–4 Nov): an [executive memo](../../research/results/competitors/DORI_Executive_Strategy_Memo.md), the [Phase 4 synthesis](../../research/results/competitors/DORI_Phase4_Synthesis.md), a [plain-language synthesis](../../research/results/competitors/DORI_Competitive_Research_Strategy_Synthesis.md) and the research library (`.xlsx`). Research, not decisions; strategy and market evidence, no challenge facts for `docs/knowledge/`.
+  - **What it can support:** framing tests, not product decisions. 84% vendor documentation, nothing played; Mifrasim and BeeTravel (Mahane Yehuda) are the least documented.
+  - **Points that bear on the Shuk:** tasks that need the place are the clearest way to stand apart (C-01); no competitor visibly labels fact, legend and fiction (C-02); a self-guided game needs a way to continue when stuck, and failing must not skip the explanation (C-03); place-based clues decay as the market changes (C-06); food appears only as a theme, coupon or bundle (C-08).
+  - **Decisions it asks of the owner:** the hypothesis priorities and thresholds (H-01 to H-12); whether destination-funded routes in Israel are in scope (H-08); the playthrough budget (Mifrasim and Questo Jaffa, about ₪200 + €23); and OQ-015, the status of Market Surprise and Tasting.
+  - **OQ-015 against this repo:** `product-decisions.md` already has Market Surprise as approved direction (2 Nov; the stop pool still pending). Tasting appears in no decision, so it stays a research idea until the owner says otherwise.
+- **Photo answers, runs 10b and 11 (owner's runs, 4 Nov):** [run 10b](../../research/results/app-tech/10b_photo_answer_verification.md) re-ran prompt 10 (a check, fallback and unsure path per challenge type; current model prices and deprecations; Amendment 13; memory effects). [Run 11](../../research/results/app-tech/11_image_analysis_challenge_ideas.md) is the challenge-ideas report, cut by Claude Code to findings (its player prompts and photo tips were invented copy). The two downloaded copies were deleted.
+- **Owner, 4 Nov, recorded in `product-decisions.md`:** start photo checks with a cheap vision API (Claude or GPT, because it needs almost no computing power from our small server; an in-house model later, as it needs more setup; price is not a problem; run 10b: Claude Haiku 5.5 about $0.14 per 1,000); the historical-photo souvenir direction. **Open:** which checks the model covers (the owner's sentence "and GPT for…" was cut off) and which provider first.
+- **Crops are a general idea (owner, 4 Nov):** crops and altered images of an artwork are used wherever they work; the right to use an image is settled later. This supersedes "do not build a mural image task until cleared" (`product-decisions.md`) and the UX agent's "image rights come first".
+- **Challenge ideas have a folder:** `design/inputs/content/challenge-ideas/` holds `Mission_Task_Ideas.md` (moved; every link updated, including the agent brief and `mural-task.ts`) and `image-analysis/image-analysis-ideas.md`, which collects the owner's photo ideas (the heart, Souza, the keystone, the plaque, the souvenir) and run 11's five best. Ideas are collected; not every one will be used.
+- **Next:**
+  - the owner answers the open photo items: which checks GPT covers, which provider first, and the key and service shape (a separate verify service, as agreed on 3 Nov);
+  - the owner's decisions from the competitor research (H priorities and thresholds, H-08, the playthrough budget);
+  - the field checks from 3 Nov (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
+  - then rework the mural stop through `/experience-design`, drawing on the new knowledge files, now free to use crops and altered images (mark which still need their rights settled).
+
+## Mural rework direction, new top-level rules, runs 09 and prompt 10: 3 Nov 2026
+
+Documentation and research only; no code. Everything below is in `product-decisions.md` (3 Nov entries) and plan §7.
+- **The lion riddle's reveal, kept simple (owner):** four points: *Jew* (*Yehudi*) points back to Judah; the lion was the tribe of Judah's symbol; it is also the Jerusalem municipality's emblem (since 1949); the mural's artists took their lion from the Lions' Gate. The rest of run 08 stays out.
+- **The mural stop review (owner):**
+  - look first: a short "Phones down, look up" screen, **no countdown**, then the list;
+  - working together over screen time; the reveal from run 07; rewards follow difficulty;
+  - **the aha:** why CitéCréation paints (overlooked places, drawing people into the street). [Run 09](../../research/results/shuk-places/09_mural_purpose_and_stamp.md) sources the Jerusalem purpose (tourism) and the social-housing approach; **the property-value rise has no source**;
+  - ideas: the name "Trompe-l'œil"; "Who painted it?" from the silver plaque; "What's real?" against CitéCréation's photos (the Researcher opens the URL, so no rights needed); the stamp (real, issue 1171, face value 15 NIS from a catalogue; souvenir sheet ₪20), and the 15/20 confusion as a reading question.
+- **New top-level rules (owner), in `content.md`, `CLAUDE.md`, `AGENTS.md` (and `coding.md`):**
+  - **The knowledge folder:** `docs/knowledge/` is where the games get useful facts from; a piece belongs there because it can serve a challenge; written, then locked (changes only with the owner's approval); research that can serve a challenge is imported into it with its source and label.
+  - **Ways to answer and ways to verify:** answer forms vary and should be unexpected; a photo is one form, not for all; each challenge is verified by the cheapest solution that works (code, the group, the guide, or an image-analysis API), chosen with the owner; points are still computed by code.
+  - **Roles:** Navigator, Answer Submitter and a new **Researcher**; the group leader assigns them during onboarding; a player can hold more than one. Not built.
+  - **Mobile data is required**; web challenges aren't filtered out. The offline queue stays.
+- **Open, to decide when the first photo challenge is built:**
+  - the "camera never the only way" rule in `content.md` (its reasons: failures and bystanders' privacy);
+  - the `.env.example` note that the OpenAI key never reaches the live container: the agreed shape is a separate verify service holding the key, with rate limits and a spend cap.
+- **Prompt 10** (`research/prompts/10_photo_answer_verification.md`): for Claude on the web; compares similarity embeddings, feature matching, OCR, landmark detection and LLM vision on cost, accuracy, cheating, privacy and footprint. Run by the owner; the cleaned result is [run 10](../../research/results/app-tech/10_photo_answer_verification.md): ORB + RANSAC as the primary check, Google Vision OCR for text plaques, about $0–$1.50 per 1,000 checks, no LLM in the main path; none of it proves presence (a phone screen can pass), so the photo should lead to a question about the object. Research, not a decision; it has no challenge facts for `docs/knowledge/`.
+- **Next:**
+  - the owner picks a verify method per photo challenge from run 10 (its field test: 30 photos per object plus wrong-object negatives);
+  - the field checks (the keystone lion, a יהודה sign in sight, the silver plaque's text, the gate's lines);
+  - import the challenge-serving parts of runs 07–09 into `docs/knowledge/`;
+  - then rework the mural stop through `/experience-design`.
+
+## Research run 08: 3 Nov 2026 (committed `5c7e971`, pushed)
+
+**Why:** D10 (owner, 2 Nov) opened research run 08 for the lion riddle and "Say it like Ohel Moshe". Done as run 07 was: web search and page reads by Claude Code. The result is [run 08](../../research/results/shuk-places/08_lion_riddle_and_avnei_zikaron.md); research, not approved content.
+- **The reveal's chain holds, with one fix:** *Yehud* is not a step between Judah and *Yehudi*. *Yehudim* already names Judah's people in 2 Kings 16:6, before the exile. Write Judah → *Yehudi* → *Ioudaios* → *Iudaeus* → *Jew*; Esther 2:5 (Mordecai the Benjaminite) as planned.
+- **Dan is "a lion's whelp" too** (Deut. 33:22), in the same words as Judah: never a "which tribe is the lion?" question.
+- **The Lions' Gate cats** are probably Baybars' leopards (Sharon, about 1273); the Selim dream is a legend.
+- **No market-name link:** Mahane Yehuda is named after Yehuda Navon, Yosef Navon's brother.
+- ***Avnei zikaron*** is Exodus 28:12 and 39:7 (the ephod's stones); the gate's next words quote Psalm 112:6. Hebrew Wikipedia transcribes the whole inscription (in the run).
+- **Discrepancies for the stone:** זיכרון or זכרון; "Montifiori" or "Montefiore".
+- **Still needed before any build:** the field checks (the keystone lion, a יהודה sign in sight of the mural, the gate's lines and Arabic panel), the native speaker's clip, and the owner's approval of the claims and draft copy.
+
+## Earlier handoff - a pasted sign-in link now works in an open tab (uncommitted): 2 Nov 2026
+
+**Why:** the owner couldn't sign in on the PC. The page read `#invite=…` only when it first opened. A link pasted into a tab already on `/shuk/amazing-shuk` changes only the part after `#`, which reloads nothing, so the link was ignored.
+- **The fix:**
+  - `lib/amazing-shuk/link-fragment.ts` (`readLinkFragment`) reads an invitation or join link from the fragment; an invitation wins over a join link.
+  - `IndexWaterTask` reads the link when the page opens and on every `hashchange`, wipes it from the address bar as before, and clears an old error message when an invitation arrives.
+  - Signing in still needs the tap on the welcome screen. The server, the stored state and the link rules are unchanged.
+- **Tests:** the new `link-fragment.test.ts` (4 tests, including a source check that the page watches `hashchange`).
+- **Checks:** `test:shuk` 297/297, `npm test` 63/63, lint and tsc OK, `git diff --check` clean. Not checked in a browser.
+- **The two-device test (phone and PC), as agreed with the owner:**
+  - Ship this with `/deploy host player-1 guide player-2` (the owner runs it; it can't be started by an agent). Disk was at 85%, the limit, so the preflight may stop it.
+  - The phone opens the host link while the adventure is in its lobby; the PC pastes the player-2 link into any tab. Start the adventure on the phone only after the PC has joined. A host link never works after Start; that rule is deliberate.
+  - This also covers the open check 13 (a non-submitter doesn't see the stuck button).
+- **Next:** commit on request (`link-fragment.ts`, its test, `IndexWaterTask.tsx` and these two docs), the owner pushes, then `/deploy` as above.
+
+## UX-4 (small) committed and live: 2 Nov 2026
+
+- **Committed** `fe1df94`; **deployed** with a full `/deploy` (a fresh adventure and new links).
+  - Live tag: `dori-shuk:20261102-082004-fe1df94`; rollback: `946b531`.
+  - Backup: `live-state-before-deploy-20261102T082003Z.json`. The pruning removed `87c1877` and the build cache.
+  - Links: `host-player-1.txt` and `guide.txt`, written 08:21 UTC and valid about 24 h. Join links off. Nine safety copies in `/data`. Disk 85%.
+
+### What UX-4 built
+
+The owner's decisions are recorded under UX-4 in `product-decisions.md`.
+- **The count-up:** `lib/amazing-shuk/count-up.ts` (`countUpValue`, ease-out, 700 ms) and `rewardAmountItems` in `mission-cheer.ts` (number, unit, final label; only the points count up).
+- **`PreviewRewardDialog`:**
+  - it animates the digits with `requestAnimationFrame`; the digits are `aria-hidden`, and an `srOnly` final label is read once;
+  - reduced motion comes from `useSyncExternalStore`, whose server snapshot shows the final numbers;
+  - the pop-up is keyed per award in `IndexWaterTask`, so the count-up plays once.
+- **The challenge screen's top nav** ("Back to location", "Back to map") is removed, with its `.journey` style.
+- **Tests:** the new `count-up.test.ts`; the reward dialog test; the Index test checks there are no Back buttons.
+- **Checks:** `test:shuk` 293/293, `npm test` 63/63, lint, tsc and Sass OK.
+
+## Phase 2 (2a–2e) and UX-3 live: 2 Nov 2026
+
+- **Deployed:** `946b531`, with `/deploy` (full: a fresh adventure and new links).
+  - Live tag: `dori-shuk:20261102-071855-946b531`; rollback: `87c1877`.
+  - Backup: `live-state-before-deploy-20261102T071847Z.json`.
+  - The pruning removed `:test` and `522ecd9`.
+- **The owner's live review (solo):** checks 1–10 passed:
+  - arrival pop-up, story-first screens, hint costs, solve pop-up;
+  - no repeat after a reload;
+  - the well's puzzle hidden before Start, the stuck flow, Marzipan unchanged.
+- **Two screens (phone and PC):** 11 passed (the second screen switches to the challenge after Start) and 12 passed (the bottom note away from the stop).
+- **Not checked live:** 13 (a non-submitter doesn't see the stuck button) needs a second ordinary player; it's covered by `reveal.test.ts`. 14–15 (tap sizes and the draft wording) are still open.
+- **Sign-in note:**
+  - The owner's phone used the guide link, and the guide started the adventure. So the host link can't be redeemed any more, because host links work only in the lobby.
+  - A new guide link was written at 08:09 UTC. A `player-2` link was offered for check 13; not written.
+- **Not pushed:** `946b531` (the owner pushes from VS Code).
+- **Untracked:** a screenshot at `public/image.png`, the owner's; never commit it.
+- **Next:**
+  - the owner's 14–15 and the copy approvals;
+  - then the remaining Phase 2 items (the optional-challenge engine waits for D10; the Marzipan rework);
+  - or UX-4.
+
+## Phase 2 step 2e (silent timing record): 2 Nov 2026
+
+UX-3 is committed (`fbd67d0`) and pushed by the owner; `/game-verify shuk` passed on it. **2e was committed as `946b531` and deployed.**
+
+- **The phone:** each queued action carries `queuedAt` (`queueEntry` in `IndexWaterTask.tsx`, outside the component so the clock is read only in an event handler).
+- **The HTTP layer** passes a finite `body.queuedAt` to `sessionAction` as its new last argument.
+- **The award record:** when an action makes a mission's award, the store adds `recordAwardTiming` (`water-performance.ts`), with these fields:
+  - `outcome`: "solved" or "revealed" (absent on older awards still means solved);
+  - `endedAt`: the server's time;
+  - `queuedMs`: the delay before the action reached the server, clamped at 0;
+  - `uncertain: true` when that delay is over 60 s (`SYNC_UNCERTAIN_MS`), or the phone's clock is more than 5 s ahead (`CLOCK_AHEAD_TOLERANCE_MS`).
+  - An action from an older phone, with no `queuedAt`, records no delay.
+- **Analytics only:** points, food tokens, `elapsedMs` and the players' view are unchanged, and the guide's timing controls are untouched. The state validator ignores award keys, so older images load these files.
+- **Tests:** the new `timing-record.test.ts`; `water-performance-integration.test.ts` now expects `outcome` and `endedAt`.
+- **Checks:** `test:shuk` 291/291, `npm test` 63/63, lint OK, `tsc` OK.
+- **Next:** the owner's browser review (2d and UX-3), then commit 2e on request, then `/game-verify shuk` before any deploy.
+
+## UX-3 (story, then Start, then the challenge): 2 Nov 2026
+
+2d is committed (`aa2cc2d`). **UX-3 was committed afterwards as `fbd67d0`.** The owner approved it on 2 Nov 2026: option A (screen-only hiding, one page), Start as the only gate, Marzipan left as is until its rework, and no video for now. See `product-decisions.md` under UX-3.
+
+- **`lib/amazing-shuk/challenge-phase.ts`:**
+  - `challengePhase(started, completed, storyFirst)` returns story, play or done, taken from the server's `performance.started`, so a refresh and a second phone agree;
+  - `storyDefaultOpen`: open before Start, folded after;
+  - `storyKey`: the fold is kept per mission and phase.
+- **`MissionDefinition.storyFirst?: false`:** only Marzipan sets it (a test checks this), so it keeps the question and its name guess before Start.
+- **`PreviewChoiceTask` and `PreviewWaterTask`:** a `storyFirst` prop (default true). Before Start they render only the Start area: Start, or the "can start after the story" line plus "Open the Group tab". The question, the options, the well's puzzle statement and its containers come after Start. The headings are focusable, and `IndexWaterTask.startChallenge` focuses them once the server accepts.
+- **`PreviewChoiceStory` and `PreviewWellStory`:** a `collapsible` prop. Before Start the story is open, with no fold; after, it has the existing "Read story" and "Hide story" toggle.
+- **Removed:** the well's `shuk:well-story-collapsed` key and the shared `storyOpen` flag.
+- **No new copy.**
+- **The server is unchanged:** it already refused moves, choices and submits before Start.
+- **Tests:**
+  - new `challenge-phase.test.ts`;
+  - UX-3 render tests in `challenge-help-ui.test.ts`;
+  - `mural-task-ui` and `mission-arrival-ui` updated, because the question and containers no longer show before Start.
+- **Next:** `/game-verify shuk`, then the owner's browser review (solo and two phones; 2d and UX-3 together), then 2e.
+
+## Phase 2 step 2d built and verified: 2 Nov 2026
+
+2a–2c are committed (`17a1549`, `6b61124`). **2d (the reward pop-up) was committed afterwards as `aa2cc2d`.** The live game is unchanged (`87c1877`).
+
+- **Server:** the view now carries award times:
+  - `performance.awardedAt`;
+  - `mission.arrivalAt` (on every mission view);
+  - `session.bonus.awardedAt`.
+  These are additive, with no schema change.
+- **`lib/amazing-shuk/reward-events.ts`:**
+  - `rewardRecords` lists a view's awards under stable keys (`mission:part:awardedAt`).
+  - `pendingRewardEvent` decides the one pop-up. An award counts only if this phone already knew the mission and the award is new to it (a page load or a newly opened mission announces nothing), it isn't in this device's seen list (`localStorage`, try/catch, capped at 100), and it is under 5 minutes old.
+  - Awards that land together merge into one pop-up with both amounts.
+  - Weights: full for a solve or bonus, light for navigation only, quiet after a reveal.
+  - `REWARD_SOUND_SRC = null` (D11 off; no asset, no toggle).
+- **`mission-cheer.ts`:** `rewardHeadline`, `rewardAmounts`, `rewardToastText`, and `NAVIGATION_LINE`, the owner's own line.
+- **New components:**
+  - `PreviewRewardDialog`: on the shared bottom sheet; the badge only for a celebrating solve (Rabbi Levin stays quiet); amounts as text; focus on the amounts; a Continue footer; Escape, Back and backdrop close it.
+  - `PreviewRewardToast`: non-modal, `role="status"`, gone after 6 s.
+- **`IndexWaterTask`:** every fresh view (poll, queued action, GPS check) passes through `noticeRewards`. The pop-up shows only on that stop's location or challenge screen; elsewhere it's a toast. The inline cheer stays as the permanent record.
+- **Copy:** `TODO(copy)` drafts: "Continue", "Close", "Dismiss", "+N points", "+N food tokens", and the toast line.
+- **Not built:**
+  - the sound and its toggle (P2-4);
+  - the Marzipan follow-up-step toast (Marzipan waits for its rework);
+  - awards on other missions while this phone polls a different one. A phone only learns of them when it opens that mission, and that first look announces nothing.
+- **Checks** (clean container): `test:shuk` 281/281, `npm test` 63/63, ESLint clean, `tsc` passes, both new Sass modules compile, `git diff --check` passes. Not checked visually.
+- **Next:** `/game-verify shuk` (the plan's gate after 2d), then the owner's browser review on the dev page (solo and two phones), then 2e (the silent timing record).
+
+## Earlier handoff - Phase 2 step 2c built and verified (uncommitted): 2 Nov 2026
+
+2a and 2b are committed (`17a1549`, not pushed). **2c (the hint sheet and "I'm completely stuck" on screen) is uncommitted.** The live game is unchanged (`87c1877`).
+
+- **New:**
+  - `lib/amazing-shuk/challenge-help.ts`: `buildHintSheetView`, `choiceAnswer`, `waterAnswer` and `WATER_INTENDED_SOLUTION`.
+  - `components/amazing-shuk/dev/IndexChallengeHelp.tsx`: which sheet is open, and the hint this phone asked for.
+  - `PreviewHintSheet`: the hint icon with its count badge, the hints so far, and the next hint's cost stated as the most the challenge can still earn ("from 85 to 60 points"). One "Show hint N" button in a footer that stays visible, busy while sending, and an offline note.
+  - `PreviewStuckConfirm`: the quiet "I'm completely stuck" button at the foot of the challenge, and the "Show the answer?" sheet: 0 points, food tokens kept, "Keep trying" focused first.
+  - `PreviewBottomSheet` gained a `footer` slot and an `initialFocus` ref.
+- **Changed:**
+  - `PreviewChoiceTask` and `PreviewWaterTask` replace their inline hint lists with a `help` slot.
+  - A revealed challenge shows "Here's the answer" with the right options, or the well's steps.
+  - `missionCheer(…, revealed)` returns a quiet line with no badge.
+- **The well's reveal** shows the intended 7-move solution, not the two-move shortcut (pour a full 5 L into the 4 L jar). A breadth-first search found the shortcut first. A test replays the intended moves against the rules.
+- **Copy:** every new visible line is a `TODO(copy)` draft, including "Hints", "Show hint N", the cost line, "Opening hint…", the offline note, "I'm completely stuck", the confirmation, "Here's the answer", "The answer", "One way to do it", the quiet line and the well's step labels.
+- **Not built in 2c:** the quiet line naming which teammate opened a hint. It needs the server to record who used each hint; teammates see the badge count drop.
+- **Checks** (clean `node:22-alpine` container):
+  - `test:shuk` 274/274, after fixing the `../` import in `mission-arrival-ui.test.ts`'s loader;
+  - `npm test` 63/63; ESLint on the Shuk folders clean; `tsc` passes;
+  - each changed Sass module compiles; `git diff --check` passes.
+  - Not checked visually: no browser or phone review yet.
+- **Next:** 2d (`RewardDialog`), then 2e (timing record), then `/game-verify shuk` and the owner's browser review on the dev page.
+
+## Earlier handoff - Phase 2 steps 2a and 2b built and verified (uncommitted): 2 Nov 2026
+
+**Start here** for Phase 2. The approved plan is "Phase 2 detailed plan" in the [progressive-challenges plan](progressive-challenges-plan.md). The owner's answers (D1–D5, D11, P2-1 to P2-5) are recorded there and in [decisions](product-decisions.md). Nothing is committed or deployed; the live game is unchanged (`87c1877`).
+
+- **2a, model B scoring:**
+  - `lib/amazing-shuk/challenge-scoring.ts`: `hintLadder`, `hintBudget`, `budgetRewards` and the D2 cap.
+  - The mural uses it: max 100, a 40 % budget and 2 food tokens, all `TODO(values)`. Two hints (`TODO(copy)` drafts) score 100 → 85 → 60.
+  - Speed never scores, but the mural is **not** `timed: false`: that flag marks the time as excluded, and 2e needs the time recorded. The model-B speed bands are neutral instead.
+  - A saved, unfinished mural with more hints than exist now loads with them clamped to 2.
+- **2b, "I'm completely stuck" (server only):**
+  - New `reveal` action on every core challenge except Marzipan (`reveal: false`).
+  - It gives 0 points and the core's food tokens, with `outcome: "revealed"` and `endedAt` on the award. It is exactly once, shares the lock with submit, and completed missions unlock the finale.
+  - Permission is `mayReveal` in `roles.ts`: the guide, the Submitter (solo included), or anyone while the Submitter seat is empty. Submitting keeps its own rule.
+  - The view adds `performance.canReveal` and `performance.revealed`.
+  - No schema bump: the new award keys are optional, and the validator ignores them.
+  - The reveal message is a `TODO(copy)` draft.
+- **Checks** (clean `node:22-alpine` container): `test:shuk` 265/265, `npm test` 63/63, ESLint on the Shuk folders clean, `tsc` passes, `git diff --check` passes.
+- **Not checked:** nothing visual; there's no UI for the reveal yet, so players can't press it.
+- **Next:** 2c, the hint sheet and the stuck button with its confirmation (client), then 2d (`RewardDialog`) and 2e (timing record). After 2d: `/game-verify shuk` and the owner's browser review.
+- **The owner's earlier steps still stand:** commit the staged batch with `/commit` and push; links expire around 3 Nov 02:02 UTC.
+
+## Earlier handoff - Ready for the next session: Phase 1 live, tooling added: 2 Nov 2026
+
+**Start here.** Read `CLAUDE.md`, `AGENTS.md`, this entry, [current state](current-state.md) and the [progressive-challenges plan](progressive-challenges-plan.md) (its roadmap and decisions). Multiplayer onboarding stays paused.
+
+- **Live:**
+  - `87c1877` (Phase 1, solo-first play) as `dori-shuk:20261102-020120-87c1877`, deployed 2 Nov 02:01 UTC with `/deploy`; rollback `previous` = `522ecd9`.
+  - A fresh adventure in its lobby; join links off.
+  - Links in `.local/amazing-shuk/live-links/` (`host-player-1.txt`, `guide.txt`), valid until about 3 Nov 02:02 UTC. After that, new ones need the owner's OK (`/deploy keep-game` doesn't make links; `.claude/skills/deploy/scripts/fresh-links.sh` does).
+- **Git:** `main` at `eec9c0c` locally, and **not pushed** (the owner pushes from VS Code). The ignore-rule commit below is **staged, not committed**.
+- **Staged:**
+  - `.gitignore` now ignores the owner's local files: the Stitch exports, `docs/RUN_PREVIEW.md`, the trip paths, the deferred UX backlog, and new photos in `public/shuk/`. The 7 tracked photos are unaffected; add an app photo with `git add -f` plus its `.dockerignore` line.
+  - `docs/RUN_PREVIEW.md` is removed from git (kept on disk).
+  - `README.md` and `docs/HANDOFF.md` note it's local.
+  - `/deploy` no longer stashes it.
+  - The owner commits with `/commit`.
+- **New commands (in `CLAUDE.md`):**
+  - `/deploy`: the full Shuk release (activity check, backup, `deploy.sh shuk`, image cleanup, fresh adventure, fresh links; `keep-game` skips the reset), with read-only `verify.sh`. Its first run went cleanly.
+  - `/commit`: safe commits and pushes for the public repo: explicit staging, owner files kept out, a scan for secrets, invite links, real names and media; `secret <NAME>` for adding keys; optional hooks.
+- **Not done yet:**
+  - the scan hooks aren't installed (`/commit install-hooks`, so VS Code commits are checked too);
+  - the push;
+  - the owner's browser review of solo play on the dev page;
+  - approval of the solo copy drafts (listed in the entry below);
+  - D1–D5, D7–D11 and the Market Surprise stop pool.
+- **Known, not urgent:** Turbopack warns that `defaultStorePath` in `participant-store.ts` makes the build trace the whole project. It predates this session.
+- **Next action:**
+  1. The owner commits the staged batch and pushes.
+  2. The owner reviews solo play live or on the dev page.
+  3. The owner answers D1–D5 and D11.
+  4. Claude plans Phase 2 in detail (mural first) and stops for approval.
+
+## Earlier handoff - Phase 1 (solo-first play) built and verified: 2 Nov 2026 (committed as `3d61fde`, live since 02:01 UTC)
+
+**Built in the working tree; not committed, pushed or deployed.** Plan: [Phase 1](progressive-challenges-plan.md#phase-1-solo-first-self-guided-play-detailed-plan-2-nov-2026-awaiting-approval-to-build).
+- **Solo roles (D12):** `effectiveRoles` / `isSoloTeam` (`roles.ts`). A team of exactly one holds both roles; this is computed in `sessionView` and `sessionAction`, never stored. The view sends `solo` and the effective `session.roles`; the well's submit uses them too. Teams of 2–5 keep their stored roles.
+- **"We're here" (D6):** a new `self-arrival` action (`method: "self"`), for the Navigator (solo included) or the guide. It's recorded once, with no second award after a GPS or guide arrival, and is refused in the lobby. Load validation now checks the arrival method. UI: a 3rem button and a confirmation sheet on the location screen (`PreviewArrivalMission.tsx`).
+- **Solo wording:** `instructionSolo` / `questionSolo` in the task data, `CHEERS_SOLO`, and `solo-copy.ts` for server and status lines. Group play keeps its wording.
+- **Group UI:** "Playing solo" in the group sheet and the Group tab, with no role section. The leader's invite panel stays, titled "Invite players".
+- **Tests:** a new `solo-play.test.ts` (8 tests), plus additions in `roles`, `mission-cheer`, `mission-arrival-ui` and `participant-avatar-ui`. Four existing tests were adjusted to the solo rule: the refused-write fixture got a second member, and the migration and isolation tests compare against `effectiveRoles`.
+- **Verified 2 Nov 2026:**
+  - Container: `test:shuk` 251/251, `npm test` 63/63, tsc clean, lint at its baseline (3 prototype errors, 11 Memory Protocol warnings).
+  - `/game-verify shuk`: built, healthy, 8/8 route checks, the invite script printed a link, 48 MiB.
+  - `git diff --check` is clean apart from `RUN_PREVIEW.md`'s own line 1.
+  - Not checked in a browser.
+- **Copy still to approve (TODO(copy) drafts):**
+  - the "We're here" button, its confirmation and the follower refusal;
+  - the solo cheers apart from "Nicely done!" (e.g. "Yes! Sharp eyes!", "Amazing work! High five!");
+  - the mural's solo question;
+  - Rabbi Levin's solo instruction;
+  - the solo server lines (e.g. "That's right. Challenge complete.", "Answer accepted.");
+  - "Your points".
+- **Next:** the owner reviews on the dev page as a solo seat (Start, "We're here" at each stop, every challenge, the finale), approves the drafts, then asks to commit. After that comes phase 2 planning.
+
+## Earlier handoff - Progressive challenges and Market Surprise planned: 2 Nov 2026
+
+**Planning only; nothing built, committed or deployed.** The owner approved recording the [progressive-challenges plan](progressive-challenges-plan.md). The multiplayer workstream below stays paused.
+
+- **The plan covers:**
+  - the reusable stop shape (core + optional challenges, per-challenge hints, the "I'm completely stuck" fallback with 0 points);
+  - silent navigation and challenge timing;
+  - Montefiore's "Say it like Ohel Moshe" voice concept (on-device only);
+  - the hint sheet and challenge labels (with `dori-ux-designer`);
+  - reward pop-ups;
+  - solo play;
+  - personal achievements (rankings only in the future);
+  - Market Surprise.
+- **The biggest current gap it fixes:** there is no fallback, so an unsolved core blocks its mission, and with it the Marzipan finale.
+- **Owner decisions, 2 Nov:**
+  - D13: a voluntary risk may reduce earned stop points, disclosed first.
+  - D14: the Balanced dice table and its caps, pilot only.
+  - D15: preallocated offers, at most 2 per team, an order-free assignment rule.
+  - D16: surprise points count in the normal total.
+  - D17: the Vendor's Call is listen, understand, repeat; DORI never handles vendor audio; fixed participation points, no AI. Market Jury is a future experiment.
+  - Also from the owner's briefs: teams start at 0; optional challenges may be worth more; previews show potential points, which supersedes "never a points promise before play".
+- **Open for the owner:** D1–D12 (the scoring model, a minimum reward, food tokens on a reveal, free hints at sensitive stops, who may press stuck, "We're here", what timing is for, on-device voice, labels, research go-ahead, the sound default, a team of one holding both roles) and the Market Surprise stop pool (proposed: the Mural and Marzipan).
+- **Implementation order (owner, 2 Nov 2026; each phase planned and approved before it's built):**
+  1. Solo-first, self-guided play (needs D6, D12, solo copy).
+  2. Progressive challenges, flexible hints, scoring and rewards (needs D1–D5, D11; mural first).
+  3. Open exploration and varied answer mechanics (needs D7–D10).
+  4. Market Surprise: the dice rules and the Vendor's Call as approved (needs the stop pool and the verified example call).
+  5. Mobile-first UX and DORI design patterns (a consistency pass; its rules apply in every phase).
+
+  Details: [roadmap](progressive-challenges-plan.md#implementation-roadmap-owners-order-2-nov-2026).
+- **Next action:** the owner answers D6 and D12 (and approves the solo copy), then Claude plans phase 1 in detail.
+- **Uncommitted, keep out:** `docs/RUN_PREVIEW.md` and the owner's untracked files (the Stitch folder, `public/shuk/` photos, `trip-doriisrael-paths.md`, the deferred UX backlog).
+
+## Earlier handoff - Multiplayer onboarding: PAUSED — Ready to Resume: 1 Nov 2026
+
+**The owner paused the whole multiplayer onboarding, team setup, invitation and security workstream (1 Nov 2026).** Nothing in it is built, tested live or changed until the owner resumes it. Details stay in the linked plans; this entry is the index.
+
+**1. Implemented, committed and deployed**
+- **Live since 1 Nov 2026, 08:48 UTC: `522ecd9`**, image `dori-shuk:20261101-084633-522ecd9` (from a `git archive`). `previous` = `e113ba5` (I3b without I4a); the older `69b4077` (I3a) and `6ee5c96` images were removed (owner, 1 Nov 2026). Everything is pushed (`main` = `origin/main` at `522ecd9`).
+- In it: I1 adventure and team model, I2 host invitation, lobby and Start Adventure, I3a roster foundation (schema 7), S0-B Option A (sync), I3b team join link with leader approval, I4a leader Navigator/Submitter management, and the dev-only reset CLI (`shuk:dev-reset`, never in production). Plan sections: [I1–I3](multiplayer-plan.md#8-increments), [I3b implementation](multiplayer-plan.md#i3b-implementation-claude-31-oct-2026-built-and-committed-not-deployed), [I4](multiplayer-plan.md#i4-roles-per-team).
+- Last full verification (at `f16499a`): `test:shuk` 238/238, `npm test` 63/63, tsc clean, lint at its baseline (3 errors in the isolated prototype, 11 Memory Protocol warnings).
+
+**2. Local or feature-flagged**
+- **Join links: OFF** (`SHUK_JOIN_LINKS` unset since 09:50 UTC). On: `docker compose -f deploy/shuk-compose.yml -f .local/amazing-shuk/shuk-join-links-on.override.yml up -d shuk`; off: `docker compose -f deploy/shuk-compose.yml up -d shuk` (about 8 s each). With it off, every join call answers 404 `join-links-off`; CLI invitations still work.
+- **Live state:** a new adventure in its lobby (opened 08:48 UTC): no host, 0 participants, 0 sessions (the guide is signed out). One unused **host invite for player-1** in `.local/amazing-shuk/live-links/host-player-1.txt`, **valid until 2 Nov 2026, 08:48 UTC**; after that a new one needs the owner's OK. The previous adventure: `/data/state.json.before-new-adventure-20261101T084842Z` and `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`.
+- **Committed (1 Nov 2026):** this entry, the deploy records and the Stitch reference update. The owner's untracked files stay out of git (`docs/RUN_PREVIEW.md`, `docs/design/stitch_the_amazing_shuk_ui_ux(4)/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`, the photos in `public/shuk/`).
+- **Not built:** I3c, the rest of I4, I5, I6, I7a and later.
+
+**3. Approved decisions** (not repeated here)
+- Adventure, teams of about 5 (`ceil(count / 5)`, ceiling 30, provisional), invitations and roles: [product decisions](product-decisions.md#approved-adventure-teams-invitations-and-roles-owner-29-oct-2026-future-design).
+- Join-link security (O6: 5 per team including the leader, 5 pending, 10 and 15 min expiry, confirmed replace, in-memory rate limit; O15 Share and Copy only): [I3b decisions](multiplayer-plan.md#i3b-decisions-owner-31-oct-2026-approved-design-built-and-committed-not-deployed-see-i3b-implementation-below) and the [gates table](multiplayer-plan.md#10-decision-gates).
+- The I3b security review and its fixes: [the review entry](#latest-handoff---i3b-security-review-closed-committed-not-deployed-i4i5-roles-review-awaiting-decisions-31-oct-2026) below.
+- I4/I5 (D1–D9, the leader gets no guide-only powers, no submitting without the Submitter role, teams of 1–5) and the I5 well (deliver exactly 4 L, capacity never shown, overfill gives feedback and Start over, only the Submitter confirms, fixed base points): [I4/I5 direction](product-decisions.md#approved-i4i5-direction-owner-31-oct-2026), [I5 plan](multiplayer-plan.md#i5-pilot-parts-on-the-well).
+- I7a team names and avatars: [I7a team names](multiplayer-plan.md#i7a-team-names-owner-31-oct-2026-decided-not-built).
+
+**4. Outstanding tests, risks and blockers**
+- **Never run on real phones:** the I3b join flow (Stage 1), the Team Leader flow (host link → leader → join link → let in) and I4a role changes. Mobile visual acceptance of the lobby and join screens is still a prerequisite ([current state](current-state.md#partial-provisional-or-unverified)).
+- **Stage 2, after Stage 1 and separate approval:** decline, expired requests (10 / 15 min), removal, session revocation of a removed member. Then the four-device acceptance (I3) and I4's teams of 1–5 (2–5 first).
+- **Risks:** the wrong-host 404 page carries the title "The Memory Protocol" (cosmetic cross-game leak, not a regression); the intermittent two-process lock test under full-suite load; a lost leader has no recovery path (unscheduled; the guide can still let people in); 30-participant scale is unproven ([risks](multiplayer-plan.md#11-risks)).
+- **Owner housekeeping:** the duplicate i3b backup was deleted (owner, 1 Nov 2026); the i4a backup is the only one. The old safety copies in `/data` stay (kept by instruction).
+
+**5. Exact next action to resume the live two-phone test**
+1. Owner confirms phones are ready. If past 2 Nov 08:48 UTC, issue a new host invite (owner's OK) into `.local/amazing-shuk/live-links/`, replacing the old file, without printing it.
+2. Check `free -h && df -h /`, that the state is unchanged, and take a fresh backup (keep only the latest).
+3. Turn join links on with the override; confirm healthy, `SHUK_JOIN_LINKS=1`, `?join=status` 200.
+4. Phone 1 opens the host link (becomes host and Team Leader) → Group tab → Invite players → Share/Copy the link. Phone 2 opens it → Ask to join. Both compare the check codes → phone 1 taps Let in.
+5. On the server, counts only: 2 participants, 2 sessions, 0 pending requests, phone 2 in team A with its own session. Report and stop before Stage 2.
+6. Turn join links off afterwards unless the owner approves leaving them on.
+
+**6. Remaining I3c, I4 and I7a work**
+- **I3c:** QR (O15), rate-limit tuning; regenerate and remove are already in I3b ([I3 plan](multiplayer-plan.md#i3-implementation-plan-claude-31-oct-2026-approved-by-the-owner-on-31-oct-2026-i3a-is-next-nothing-built-yet)).
+- **I4 after I4a:** Hand to…, the vacant-seat fallback, the cheer-card role-swap prompt, the "Submitter" label ([I4](multiplayer-plan.md#i4-roles-per-team)). Leadership transfer is unscheduled.
+- **I7a:** multiple teams, per-team leader invitations, the host overview (O26), team-scoped points, the guide team switcher, team names and avatars, the 30-participant checks ([I7a](multiplayer-plan.md#i7a-multiple-teams)). Open: O25 (teams per guide), O27 ([named leader invitations](multiplayer-plan.md#i7a-design-proposal-named-team-leader-invitations-draft-30-oct-2026-not-approved-nothing-built)), O17 (live migrations need separate approval).
+
+**7. Stitch designs and pending UX approvals**
+- The first export, `docs/design/stitch-reference/` (the four compact onboarding screens and `amazing-shuk-stitch-onboarding-handoff.md`, adopted as the one-step lobby in `6d35b59`), was deleted at the owner's request (1 Nov 2026); `docs/design/stitch_the_amazing_shuk_ui_ux(4)/` replaces it as the Stitch reference. Older entries below still name the old path. Stitch is a visual reference only, last in priority ([policy](product-decisions.md)).
+- `docs/design/stitch_the_amazing_shuk_ui_ux(4)/` (owner's, untracked, the current Stitch reference, **not yet reviewed**): includes `adventure_lobby_single_team_ready`, `adventure_lobby_multiple_teams_coming_soon` and `4._group_status_quick_view_sheet`, besides mission and navigation screens.
+- **Pending owner approvals:** O16, the [join-flow copy deck](../../design/output/join-flow-copy-o16-2026-10-31.md) (its six questions; all join, lobby and role-change words are `TODO(copy)` drafts); the [team avatar set](../../design/output/team-avatar-set-2026-10-31.md) and [team identity](../../design/output/team-identity-avatars-2026-10-31.md) (subjects, tile ground, illustrator and licence); part names Spotter / Reader (O16); O20 (the designer-agent line).
+
+## Earlier handoff - I4a live, new adventure, join links on for Stage 1: 1 Nov 2026
+
+- No guide-led Stage 1 happened: join links were on 01:14-02:15 UTC with no join link, request or member, then switched off. The owner then chose (1 Nov) to deploy `main` and open a new adventure for Stage 1 with a real Team Leader.
+- 08:48 UTC: `522ecd9` live as `dori-shuk:20261101-084633-522ecd9`, built from a `git archive` (deploy.sh refuses the uncommitted docs). The isolated smoke test and the live release checks passed (9/9 and 7/7), public health 200, the other services untouched. `SHUK_JOIN_LINKS=1` via the local override. Rollback: `docker tag dori-shuk:previous dori-shuk:current && docker compose -f deploy/shuk-compose.yml up -d shuk` (`e113ba5`).
+- State backed up (unchanged since 00:29 UTC) to `/root/backups/amazing-shuk/live-state-before-i4a-new-adventure-20261101T084752Z.json`; the older backup there is an identical duplicate (its deletion was blocked; the owner may remove it). New adventure opened in the lobby: 0 participants, 0 sessions (the guide is signed out too), 1 host invite for player-1 in `.local/amazing-shuk/live-links/host-player-1.txt` (the void Oct 31 links deleted). All `/data` safety copies kept.
+- 09:50 UTC: join links switched off after an hour without activity (host invite unused, valid until 2 Nov 08:48 UTC). Switch them on again with the override when the owner is ready.
+- Next: the leader redeems the host link, creates the join link, a second phone requests, both compare codes, the leader lets them in. Check on the server (counts only), report, stop before Stage 2. Switch join links off after testing unless the owner approves leaving them on.
+
+## Earlier handoff - I3b deployed with join links off: 1 Nov 2026
+
+- **Live since 1 Nov 2026, 00:41 UTC: `dori-shuk:20261101-001310-e113ba5`** (`e113ba5`, built from a `git archive` export; no I4a, no dev reset). `previous` = `69b4077`; `6ee5c96` is still kept under its timestamp tag.
+- **Before:** the owner confirmed the guide session was finished. No writes for 12 min and 0 packets for 2 min; about 2 GB memory available, disk 76%. Backup `/root/backups/amazing-shuk/live-state-before-i3b-deploy-20261101T004134Z.json` (mode 600, `cmp`-identical) replaced the older one.
+- **Switch:** tag `current` → `previous`, release → `current`, `docker compose -f deploy/shuk-compose.yml up -d shuk` (in tmux). Only `dori-shuk` was recreated; the other containers are unchanged.
+- **Checks:**
+  - Healthy in about 8 s, 0 restarts, clean logs. `https://doriisrael.com/shuk/api/health` and `/shuk/amazing-shuk` answer 200 publicly.
+  - The 9 route checks pass, including `?join=status` 404 `join-links-off`. Only `SHUK_APP`, `SHUK_DATA_FILE` and `SHUK_PUBLIC_ORIGIN` are set.
+  - The state file is byte-identical to the backup: schema 7, adventure active, the guide session kept.
+- **Found, not a regression:** the wrong-host 404 (`Host: 127.0.0.1:3000`) has the page title "The Memory Protocol", the same as in `69b4077`. Visitors never see it, and the real host's 404 doesn't show it. It's a small cross-game leak to fix later.
+- **Rollback (no state restore):** `docker tag dori-shuk:20261031-084833-69b4077 dori-shuk:current && docker compose -f deploy/shuk-compose.yml up -d shuk`.
+- **Links:** `.local/amazing-shuk/live-links/` holds the only valid links (host and player-2, expiring 1 Nov 01:44 UTC). New links need the owner's OK and seat choice; they replace that folder's contents.
+- **Waiting for the owner:** whether to remove the 6 old safety copies in `/data` (keep `state.json.pre-schema7-850ca1dfae46`); the two-phone joining test with `SHUK_JOIN_LINKS=1` (separate approval); whether I4a goes live (a plain `deploy.sh shuk` would ship it now).
+
+## Earlier handoff - I3b switch approved but held (guide active); I5 delivery decided; local leftovers cleaned: 1 Nov 2026
+
+- **I3b deployment approved by the owner, not done.** The final check (1 Nov, about 00:28 UTC) found the live adventure in use: after the backup, the guide session applied 4 actions and changed the well's 5 L vessel (last write 00:29:04 UTC). The only session is the guide's (0 members), but the owner said to stop if uncertain, so nothing was switched. Live is still `69b4077`, healthy, 0 restarts, joining off. The two-minute traffic sample had looked idle just before, so traffic alone isn't proof of an idle game.
+- **To resume:** the owner confirms the guide session is finished. Then: no writes and no traffic for 15 min; recheck memory and disk; take and `cmp` a fresh backup (`live-state-before-i3b-deploy-20261101T002820Z.json` is now behind by those 4 actions); run the switch, checks and rollback in the entry below.
+- **After the switch:**
+  - Issue one fresh set of real-game links into `.local/amazing-shuk/live-links/`, replacing what's there. This writes live state, so it needs the owner's OK; the owner chooses the seats. The guide session is valid until 7 Nov.
+  - Remove the 6 old safety copies in `/data`, keeping `state.json.pre-schema7-850ca1dfae46` (needed for a rollback to `6ee5c96`).
+  - Correct `current-state.md`'s live line.
+- **I5 well (owner, 1 Nov 2026; docs only, live well unchanged):** overfilling the family's container is allowed and gives the wrong-delivery feedback and **Start over**, with no extra point penalty during the pilot. **Only the Answer Submitter confirms the final delivery.** The family's container capacity stays unspecified. **Still open:** whether any member may pour into the family's container (with the Submitter confirming at the end) or the Submitter makes every delivery; the feedback wording (O16).
+- **Cleanup (owner: "keep only one invite… remove stale files… do not collect them"):**
+  - **Links:** `.local/amazing-shuk/live-links/` is now the only link folder. It holds the 2 links that were still valid (host and player-2, expiring 1 Nov 01:44 UTC). Every void or used link was deleted (checked by hash against the live invitations, read-only): 2 dated folders, the used guide link and 5 old `.md` link lists.
+  - **Deleted from `.local/`:** the 14 `RUN_PREVIEW.md` "kept" copies and patches (identical to the working-tree file, which is untouched), the I1 rehearsal scripts, the 26 Oct `backups/` folder, `shuk-bench/` and the bench and verify logs. `.local/amazing-shuk/state.json` (the dev simulation's data) stays.
+  - **Removed by the owner:** the older backups in `/root/backups/amazing-shuk/` (only `live-state-before-i3b-deploy-20261101T002820Z.json` remains) and `dori-shuk:test`.
+  - **Remaining images:** `20261101-001310-e113ba5` (release), `69b4077` (current), `6ee5c96` (previous). Disk 76%.
+  - **Docs:** `current-state.md` points at the single link folder and the latest-backup rule; `multiplayer-plan.md` notes that the bench output was deleted.
+
+## Earlier handoff - I3b release image built and verified, switch awaiting approval; I5 well clarified: 1 Nov 2026
+
+- **Release image (not live):** `dori-shuk:20261101-001310-e113ba5` (ID `790171446a9b`), label `org.opencontainers.image.revision=e113ba5b7d6638f72c8aa7fde4db93c7d4f946b4`, built in tmux from a `git archive e113ba5` export in the scratchpad (deleted after). `main`, history and the working tree untouched; `807b012` is on `origin/main` (not pushed by Claude).
+  - **Contents:** I3b present (`join-links-off`, "Only the guide may assign roles."); no I4a strings, no `resetEpoch` or dev-reset code; no reset files in the export.
+  - **`/game-verify shuk` checks on this image** (run against the release tag, so `:test` wasn't overwritten): 9/9 routes, including `?join=status` 404 `join-links-off`; invite link shape correct; about 48 MiB. `SHUK_JOIN_LINKS` set nowhere.
+- **Live (read-only, 1 Nov ~00:13 UTC):** `69b4077` healthy, 0 restarts; schema 7, adventure active, 1 unexpired session, 0 members, 0 join links, 4 missions with progress; last write 31 Oct 20:51 UTC. `state.json.pre-schema7-850ca1dfae46` is version 6 and identical to `state.json.before-i3a-deploy-20261031T0848Z`.
+- **Backup:** `/root/backups/amazing-shuk/live-state-before-i3b-release-prep-20261101T001304Z.json`, mode 600, byte-identical. Take another right before the switch.
+- **Rehearsal on a copy of that backup** (scratchpad, deleted): the release image read and wrote it (version 7, progress kept), then `69b4077` read and wrote the result. The live file still matched the backup afterwards. Containers and volumes were identical before and after; disk 76%, about 2.15 GB available.
+- **`dori-shuk:test`** (`068744b60a62`, 357 MB, built 31 Oct 18:46) is used by no container; its source can't be proven. Remove it only after the owner confirms.
+- **Switch (awaiting approval; in a quiet moment, after checking the state file hasn't changed for 30 min):** recheck resources and back up again; `docker tag dori-shuk:current dori-shuk:previous` (then `69b4077`); `docker tag dori-shuk:20261101-001310-e113ba5 dori-shuk:current`; `docker compose -f deploy/shuk-compose.yml up -d shuk`. Then: healthy within 90 s with 0 restarts, the 9 route checks on the live container, only the 3 expected `SHUK_*` settings, the state file unchanged and version 7, no storage errors.
+- **Rollback (no state restore):** `docker tag dori-shuk:20261031-084833-69b4077 dori-shuk:current` and `up -d shuk` again.
+- **Risks:** a plain `deploy.sh shuk` would ship I4a (on `origin/main`); the hand-run switch has no automatic rollback; the O16 join copy is a draft (hidden while joining is off); the lock test still fails occasionally under full-suite load; `current-state.md`'s live line is out of date (correct it after the switch).
+- **I5 well, final clarification (owner, 1 Nov 2026), in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well) and product decisions:**
+  - The 3 L and 5 L vessels are the only measuring tools. The family's container has no capacity in the UI or rules and shows the amount delivered.
+  - Success is exactly 4 L delivered; the 4 L doesn't have to be held in the 5 L vessel first.
+  - Search of all 97 reachable states: shortest 7 moves (9 sequences); both vessels and pours between them required. Delivered water doesn't come back, so 26 reachable states have more than 4 L and need Start over.
+  - **Open:** accept an over-4 L delivery with feedback and Start over (recommended) or refuse it beforehand; who may deliver; the feedback wording (O16); whether a wrong delivery counts.
+
+## Earlier handoff - I3b-only release of `e113ba5` proposed, awaiting approval; I5 well decisions recorded: 1 Nov 2026
+
+- **Git:** `f16499a` (dev reset, I4a, docs) is committed and **pushed** (`origin/main` = `f16499a`); it holds only its 21 intended files. `docs/RUN_PREVIEW.md` and the untracked owner files stay untouched. From now on a plain `deploy.sh shuk` builds `main` and would ship I4a and the dev reset, which are approved for local development only.
+- **Live (read-only check, 1 Nov):** `dori-shuk:current` = `69b4077`, healthy, 0 restarts, join links off. The live file is **already schema 7** (the I3a image migrated it on a write; `state.json.pre-schema7-850ca1dfae46` exists, mode 600) and the adventure is **active**. The "still schema 6" lines below are out of date.
+- **Verification since `f16499a`:** lint rerun after the reset test fix: the 3 older errors and 11 warnings only. The 12 focused reset and I4a tests pass. The I3b end-to-end results from `e113ba5` still apply: the join and membership code is unchanged, and `deploy/`, `Dockerfile`, `.dockerignore`, `app/` and `public/` are identical in both commits.
+- **Proposed I3b-only release (not done; needs the owner's approval):** `deploy.sh` can't build an older revision without moving `main`, so the steps are run by hand in its order.
+  1. Recheck memory (at least 800 MB) and disk (at most 85%; 75% now). Remove `dori-shuk:test` (357 MB; its source can't be proven, so it's rebuilt rather than reused).
+  2. Back up `docker exec dori-shuk cat /data/state.json` to `/root/backups/amazing-shuk/live-state-before-i3b-deploy-<UTC>.json`, mode 600, and `cmp` it against the live file.
+  3. `git archive e113ba5` into the scratchpad, then in tmux build `dori-shuk:<YYYYMMDD-HHMMSS>-e113ba5` with `--build-arg DORI_APP=shuk` and a revision label. The 7 app photos are tracked, so the export is complete.
+  4. Run the `/game-verify` isolated smoke test on the new image.
+  5. `docker tag dori-shuk:current dori-shuk:previous` (then `69b4077`), tag the new image `:current`, and run `docker compose -f deploy/shuk-compose.yml up -d shuk`. The compose file sets no `SHUK_JOIN_LINKS`, so joining stays off.
+  6. Checks: healthy within 90 s with 0 restarts; the `deploy.sh` smoke routes; `GET /shuk/api/amazing-shuk/dev?join=status` answers 404 `join-links-off`; the state file still reads version 7 and is unchanged; no storage errors in the logs.
+- **Rollback:** no migration is needed (`e113ba5` only adds optional join fields, which `69b4077` reads). Rolling back to `69b4077` is the image swap and `up -d shuk`. Going back to `6ee5c96` also needs `pre-schema7-850ca1dfae46` restored and loses everything saved since.
+- **Release risks:** I4a is on `origin/main` (approve it for live, or keep deploying by exported revision); the hand-run steps have no automatic rollback (a `deploy.sh` option to build an exact revision would be a separate change); the switch briefly interrupts the active adventure; the O16 join copy is a draft (hidden while joining is off); the lock test still fails occasionally under full-suite load.
+- **I5 well decisions (owner, 1 Nov 2026), recorded in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well) and product decisions:**
+  - The large container is for distributing water in the neighbourhood, not for measuring, and has no stated capacity.
+  - Deliver stays available throughout; a wrong delivery gets feedback that doesn't reveal the solution; time stops at the successful delivery.
+  - The completion time is recorded, and the well awards fixed base points; no additional roles.
+  - **Still open:** rule A or rule B, the wrong-delivery wording (O16), and whether a wrong delivery counts for anything. The live puzzle is unchanged.
+- **Next:** the owner approves (or changes) the I3b-only release; after it, correct `current-state.md`'s live line.
+
+## Earlier handoff - I3b verified for a switch-off deploy; dev reset, I4a and the corrected well plan, committed locally: 1 Nov 2026
+
+- **Committed locally on `main` (1 Nov 2026, owner's request), not pushed or deployed; no live data touched.** Live is still `69b4077`, schema 6, join links off. The I3b security fixes were already in `9ea8056` (pushed); `origin/main` = `e113ba5`. Check `git log origin/main..HEAD`.
+- **I3b final verification, on an export of `HEAD` only** (the working tree's uncommitted work was left out):
+  - One-shot container: `test:shuk` 225/225, `npm test` 63/63, tsc clean, lint at the 3 older prototype errors (11 warnings).
+  - `/game-verify shuk`: the build passed, 8/8 route checks, and the invite link has the right shape (not printed). About 51 MiB per container.
+  - End-to-end in isolated containers (no network, read-only): join links off 15/15, on 28/28. Covered: the host invite is single-use; cookie flags; cross-origin refused; forged and removed sessions get `session-ended`; identity mismatch 409; join link, ask, repeat ask, let in, replayed let in, decline, exchange once, already-in, a non-leader can't link or remove, the leader can't be removed, removal ends the session; and with the switch off, every join and membership call answers 404 `join-links-off`.
+  - **Migration and rollback rehearsal**, on a copy of `live-state-before-new-adventure-20261031T014410Z.json` in throwaway containers (deleted after):
+    - 6 → 7 with an exact pre-schema7 copy (mode 600); adventure, roles, missions, sessions, receipts and names unchanged; no second copy on the next save.
+    - `dori-shuk:current` (I3a) reads the schema-7 file, including I3b's join fields, and keeps them.
+    - `dori-shuk:previous` (I2) refuses the schema-7 file without changing it, and reads the restored copy.
+    - The backup held only the guide's session (0 members), so the case with members comes from the tests.
+  - **Lock test** ("writers in two processes share the filesystem lock"): passed 5/5 run alone and passed in both full runs today. It is still the one known intermittent failure (once, under full-suite load); no fix yet.
+  - `dori-shuk:test` (the I3b build, 357 MB) is left in place; remove it before a deploy. Disk 75%.
+  - **Deploy note:** `deploy.sh` refuses while tracked files have local changes; this work is now committed, but `docs/RUN_PREVIEW.md` (not ours) is still modified and must be set aside first. A deploy from this `HEAD` also ships the dev reset's store changes (inert live) and I4a.
+- **Development reset (local only):** `npm run shuk:dev-reset -- <progress|adventure> --file <state in .local/> [--scenario solo|pair|team] [--confirm]`, documented in [local participant login](local-participant-login.md#development-reset-local-simulation-only). It previews by default and keeps an exact backup.
+  - **Refuses:** the app environment, anything other than the dev simulation, `/data` and Docker volumes, paths outside `.local/`, links and an ambiguous `SHUK_DATA_FILE`.
+  - **Links:** a scenario's single-use links go to `.local/shuk-dev-reset/` (mode 600), never the terminal.
+  - **Queued actions:** a new optional `resetEpoch` refuses (410) actions queued before a reset. It is set only by this tool, so live behaviour is unchanged; no schema version change. The phone sends the epoch it was shown (`IndexWaterTask`).
+  - **Files:** `lib/amazing-shuk/dev-reset.ts`, `scripts/shuk-dev-reset.ts` (not copied into the image), store/HTTP/phone changes, `dev-reset.test.ts` (7 tests).
+- **I4a (approved for local development only):** described in the [plan's I4 section](multiplayer-plan.md#i4-roles-per-team). `leader-roles.test.ts` adds 5 tests; two older tests were updated for the new rule.
+- **I5 well, corrected by the owner (planning only):** measure exactly 4 L per family with the 3 L and 5 L vessels; a large distribution container (no stated capacity) for the story; one **Deliver 4 litres** action. The 6 L jar, the Jar keeper and irreversibility are superseded. The puzzle check and open points are in the [plan's I5 section](multiplayer-plan.md#i5-pilot-parts-on-the-well).
+- **Verified on the working tree** (one-shot container): `test:shuk` 238/238, `npm test` 63/63, tsc clean after one test-type fix, lint at the 3 older errors. Rerun before the commit: 238/238, 63/63, tsc clean, lint 3 older errors and 11 warnings (the baseline; the new warning is gone). Nothing was checked in a browser.
+- **Untracked, keep out of commits:** as below.
+
+## Latest handoff - I3b security review closed (committed, not deployed); I4/I5 roles review awaiting decisions: 31 Oct 2026
+
+- **Live (unchanged, checked read-only):** `dori-shuk:current` = `69b4077`, healthy. The state file is **still schema 6** (adventure active, 7 members, 1 session), with no `pre-schema7` copy yet. `SHUK_JOIN_LINKS` isn't set in `deploy/shuk-compose.yml`, so it's off. Disk 81%.
+- **I3b security review (manual; `/security-review` sees no diff once commits are pushed).** Fixed in this session's code commit:
+  - **M1:** a join ask counts toward the rate limit only once its link is known to be live (`askToJoin`'s `beforeAsk`). Made-up links can't use up the shared 30 a minute.
+  - **M2:** with the switch off, `let-in`, `decline` and `remove-member` are refused too.
+  - **N1:** those refusals, and every join call with the switch off, answer 404 with `{ error, code: "join-links-off" }`. The phone's queue (`lib/amazing-shuk/action-sync.ts`) retries 5xx, 401 and 409, drops other refusals with their message, and is no longer blocked by a reply without a JSON body.
+  - **C1:** with the switch off, the joining phone shows one line and no form (also mid-wait).
+  - **C2:** a request that ended after a reload says so (`ended` on the status poll).
+  - **C3:** a phone whose session the server no longer knows (removed, new adventure, expired) gets "You're no longer in this team…" instead of the invitation line (`session-ended` code).
+  - **C4:** the app decides by `JOIN_ERROR` codes, never by message text. The three duplicated messages now come from `TEAM_JOIN_COPY` only.
+  - **New copy:** the designer's O16 drafts J2.8, J5.2 and J6.3, plus one new leader line. All are drafts waiting for O16.
+- **Residual risks (documented, accepted for now):**
+  - **L1:** a request that's been let in can't be cancelled; it holds a place for up to 15 minutes.
+  - **L2:** anyone with the link can fill the 5 pending slots for 10 minutes.
+  - **L3 and N2:** reads with made-up tokens, secrets or links aren't rate limited.
+  - **Info:** names in requests can be faked, so leaders should compare check codes.
+  - Minor: a guide whose session ended also sees "no longer in this team".
+- **Verified on the final code (one-shot container, exit codes captured):** `npm ci` 0; `test:shuk` 225/225, exit 0; `npm test` 63/63, exit 0; tsc 0; lint exit 1 with only the 3 older prototype errors (11 warnings, all in untouched files).
+- **Intermittent test:** "writers in two processes share the filesystem lock" (`participant-store.test.ts:401`, from S0-B) failed once under full-suite load ("Storage busy" after the 1.5 s lock wait). Run alone it passed 8 of 8 times, so it's a timing problem, not a regression. Whether it was also the earlier unrecorded failure is unconfirmed.
+- **Designer outputs (dori-ux-designer, drafts for the owner):**
+  - [Join-flow copy deck (O16)](../../design/output/join-flow-copy-o16-2026-10-31.md): every join string, its decisions and conflicts C1–C14. C1–C4 are now fixed. C5–C14 remain (for example, C14 is L1, and C7 is per-row labels for screen readers).
+  - [Avatar set v0.2](../../design/output/team-avatar-set-2026-10-31.md): 8 avatars with IDs, an art brief and the assignment rule. Waiting for the owner on the subjects, the tile, the artist and the licence.
+- **I4/I5 roles review (planning only):** [the review](i4-i5-roles-and-well-pilot-review.md). It recommends:
+  - **I4:** the permanent roles only.
+  - **I5:** the parts mechanism on the well only.
+  - **A Jar-keeper pilot:** only the Jar keeper lets water into the jar.
+  - **Owner decisions D1–D9:** D1, the well's two-move shortcut (recommend a larger jar); D2, exclude the speed timing during the pilot; D3, parts stay self-service; D4, keep solo play; D5, the Jar-keeper rule; D6, Show all one tap away; D7, part names (O16); D8, a Gan HaTut field check; D9, fix I4's "2 and 6" acceptance to 2–5.
+- **Next, once the owner approves each step:**
+  1. `/game-verify shuk` on this commit. Remove `dori-shuk:test` first; a build adds about 626 MB.
+  2. Deploy Option A, or go straight to I3b, which includes Option A, with the switch off (`deploy/deploy.sh shuk`, in tmux, with a fresh state backup first). Then watch the first live save migrate the file to schema 7 and write its `pre-schema7` copy.
+  3. Join links on only after schema 7 with its copy, O16 approval, and the owner's decision to set `SHUK_JOIN_LINKS=1` (a container recreate).
+- **Repo:** two local commits on `main`, not pushed (check `git log origin/main..HEAD`).
+- **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
+
+## Latest handoff - S0-B Option A and I3b committed, not deployed; team naming decided: 31 Oct 2026
+
+- **Live I3a, checked read-only (31 Oct 2026, about 10:15 UTC):**
+  - `dori-shuk:20261031-084833-69b4077` is up, healthy, with 0 restarts.
+  - **The live file was still schema 6** then, with the adventure active, 7 seat members and 1 session. There was no `state.json.pre-schema7-<hash>` yet; `state.json.before-i3a-deploy-20261031T0848Z` is in place.
+  - The first save will migrate the file. The I3a rollback notes below still apply.
+- **S0-B Option A: committed in `463e62e` and pushed, not deployed** (multiplayer plan, "S0-B results"):
+  - `transact` waits its turn in a per-file line inside the process (at most 64 writes, 10 s per turn) before taking the unchanged `mkdir` lock. It waits up to 1.5 s, with jitter, for a lock held by another process. Five new tests cover it.
+  - The bench is in `scripts/shuk-sync-bench.{sh,mjs}`; results are in `.local/shuk-bench/` (baseline-* and optionA-*).
+    - At 30 clients, stress went from 42% busy to 0%, and tap-to-confirmed p50 from 1.1 s to 28 ms. Realistic passes every check.
+    - The stress p95/p99/max thresholds still fail because the scenario keeps phones offline for 10–30 s. Measured from back-online, they are 1.0 s / 2.5 s / 4.4 s.
+  - Verified:
+    - All 205 Shuk tests and the type check pass in the one-shot container.
+    - Lint fails only on 3 older errors in `design/prototypes/amazing-shuk-team-format/prototype.test.cjs`.
+    - `dori-shuk:test` passed its isolated smoke test.
+  - **Owner decisions still open:**
+    - Deploy (`deploy/deploy.sh shuk`, in tmux). Live still runs `dori-shuk:current` (69b4077).
+    - Whether stress latency is measured from back-online.
+    - Whether Option B (client backoff) is still needed. It stays deferred.
+  - Not covered by a test: the 10 s turn timeout.
+  - Disk was at 81% after `docker builder prune` (31 Oct 2026). `dori-shuk:test` holds the I3b build and can be removed.
+- **I3b: committed in `0ad9200` and pushed (by the owner), not deployed** (multiplayer plan, "I3b implementation"):
+  - The join link, the request with its check code, Let in / Decline, the one-time exchange, Remove, the team cap (operator `--over-cap`), the rate limit and the `SHUK_JOIN_LINKS` kill switch (off by default).
+  - Verified:
+    - 220 Shuk tests and 63 unit tests pass. tsc is clean, and lint shows only the 3 older prototype errors.
+    - The `dori-shuk:test` smoke test passed with the switch off and on.
+    - The I3a rollback check passed.
+  - Before a deploy:
+    - Option A live first.
+    - The live file at schema 7 with its pre-schema-7 copy.
+    - A security review (`/security-review`).
+    - O16 approval of the join wording.
+    - Then set `SHUK_JOIN_LINKS=1`.
+- **Team names: decided and closed (owner, 31 Oct 2026; I7a only, not built)** (multiplayer plan, "I7a team names"):
+  - A team types its name or picks one of 4–6 suggestions, Falafel Fugitives among them. Names are at most 20 characters, Latin script only, with no emoji, and unique per adventure, compared ignoring case, spacing and accents. The server claims them atomically with receipts.
+  - The guide corrects inappropriate names. The copy is approved.
+  - **Team avatars (owner direction):** about 8, auto-assigned and stored as `avatarId` on the team. Dori's design is in `design/output/team-identity-avatars-2026-10-31.md`. The artwork and the owner's approval of the set are pending.
+  - The fixed bank and the emoji for each name are superseded. Nothing is left open for I7a naming.
+  - I3b and today's single-team game work without names.
+- **Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (modified), the photos in `public/shuk/`, `docs/design/stitch-reference/`, `docs/project/trip-doriisrael-paths.md`, `design/output/deferred-ux-backlog-2026-10-31.md`.
+- **Next, once approved:** run `/security-review` on I3b (local, read-only); deploy S0-B Option A and watch the first live save migrate to schema 7; then review, commit and deploy I3b (switch off), and turn join links on.
+
+## Latest handoff - compact mission preview and phone refinements: local, uncommitted, 31 Oct 2026
+
+## Latest handoff - I3a participant registry (schema 7): implemented locally, uncommitted, 31 Oct 2026
+
+**Owner-approved: I3a only** (31 Oct 2026). Not committed, pushed or deployed; live state untouched. No I3b or I3c.
+
+**What changed:**
+- **Schema 7.** `participants` is the only roster: `{ teamId, joinedAt, seat?, name? }`.
+  - Only redeeming an invitation makes a member.
+  - A seat nobody holds gets a member with a random ID (`p_` plus 22 characters from 128 random bits); a second phone for the seat signs in as the same member.
+  - The guide is never a member.
+  - Invitations name a seat (`player-1…7`, `guide`), which is only an operator label.
+  - Seat names moved from `names` to `seatNames`, kept across adventures as before. A member may also have their own `name`.
+  - A new adventure empties the registry.
+- **Sessions.**
+  - A session counts only while its member is in the registry, so removing a member ends all their sessions.
+  - Host redemption creates a fresh session with `host` and `leaderTeamId: "A"`, and strips both flags from every other session.
+  - `adventure.leader` is now session-bound: `leaderTeamId` must match **and** the participant must still be `team.leaderId`. **Change from I2:** the seat's other sessions no longer show `leader: true`.
+- **Migration 6 → 7** (in memory on read, persisted by the first successful write):
+  - It keeps the seats in use (named by a session, a role, the host or a leader) under their **existing seat IDs**. Sessions, roles, progress, receipts and phones' queued actions (which carry `expectedParticipantId`) all keep working.
+  - Unused seats are dropped.
+  - The host's session gains `leaderTeamId`.
+  - An exact `state.json.pre-schema7-<hash>` copy (mode 600) is written before the first write, replacing the earlier `pre-schema6` naming. If the copy can't be kept, the write stops and nothing changes.
+- **Hardening:**
+  - An edited host invitation for the guide seat, or one naming a missing team, is refused.
+  - The operator's naming command uses own-property lookups (no `__proto__`).
+- **Files:**
+  - `lib/amazing-shuk/participant-store.ts`, `participant-names.ts` (`rosterParticipants` replaces `groupParticipants`).
+  - `components/amazing-shuk/dev/IndexWaterTask.tsx` (the guide-only fallback roster).
+  - `scripts/shuk-invite.ts`, `scripts/shuk-name.ts` (usage text).
+  - Tests: new `participant-registry.test.ts` (9 tests) and `seat-fixture.ts`; `legacy-store-fixture.ts` gained `schema6Snapshot`; existing tests adapted (no default roles, random IDs, schema 7, `pre-schema7`).
+
+**Rollback (exact path and limits):**
+- **Before any schema-7 write:** use the previous image only.
+- **After one:** the previous image **plus** restoring the copy (write it beside `state.json`, then rename it over).
+  - Anything since the first schema-7 write is lost: new members, sessions and progress.
+  - The I2 image **refuses** a schema-7 file, for reads and writes alike, without changing it (checked with `dori-shuk:current` on a copy). So the image alone never rolls back.
+
+**Verified:**
+- `test:shuk` 201/201; `npm test` 63/63; `tsc` passes.
+- Lint at baseline (3 errors), plus one new warning that belongs to the uncommitted S0 script.
+- `git diff --check` clean.
+- **Rehearsal** on copies of all six schema-6 live backups: migrate, then compare (adventure, roles, leader, progress, sessions, receipts and names unchanged; registry equals the seats in use), then copy, restore and re-migrate. All passed. Every backup held only the guide's session, so the host-and-players case is covered by the tests (`schema6Snapshot` of a hosted adventure). The copies were deleted afterwards.
+- `/game-verify shuk` on the final code (after the build cache was pruned with the owner's OK; disk 75%): build OK, healthy, 8/8 route checks, schema 7 written with 0 members, an invitation link of the right shape (not printed), 47 MiB. `dori-shuk:test` left in place (remove before the next deploy).
+- **Deployed 31 Oct 2026, 08:49 UTC** at the owner's request: `dori-shuk:20261031-084833-69b4077` is live (healthy, deploy smoke checks passed); `dori-shuk:test` removed first. A fresh backup was taken first: `state.json.before-i3a-deploy-20261031T0848Z` in the `dori-shuk_shuk_data` volume. Right after the deploy the live file was still schema 6; the first save migrates it to schema 7 and writes `state.json.pre-schema7-<hash>`. **Rollback:** switch back to `dori-shuk:previous` (`6ee5c96`) **and** restore the pre-schema7 copy (or the backup above); the I2 image refuses a schema-7 file. Anything saved after the migration is lost on rollback.
+
+
+
+1. **Build I3a** (the owner approved the I3 plan on 31 Oct 2026). Read [the multiplayer plan's "I3 implementation plan"](multiplayer-plan.md#i3-implementation-plan-claude-31-oct-2026-approved-by-the-owner-on-31-oct-2026-i3a-is-next-nothing-built-yet) first.
+   - **Scope:**
+     - Schema 7, with an exact pre-schema-7 copy on the first write.
+     - `participants` as the only roster (names, members, the view, the client's identities).
+     - `leaderTeamId` on the host's session.
+     - `DEV_PARTICIPANTS` used only by the local simulation.
+     - No visible change for players. No join flow yet (that's I3b).
+   - **Check:**
+     - Every existing test, plus migration tests (from the v5 fixture and a v6 sample), session-flag tests, and a failed migration writing nothing.
+     - The lint and type checks inside `shuk-dev`.
+     - `/game-verify shuk`.
+     - A migration rehearsal on a **copy** of a live backup in a test container only.
+   - Leave it local and uncommitted, then report. No deploy, push or live migration without separate approval (O17).
+2. **Before I3b:** get the owner's explicit yes on the plan's O6, O15, showing-the-link-again and check-code recommendations, and on the O16 copy.
+3. **S0-A, alongside I3a:**
+   - Fix `scripts/shuk-sync-bench.sh` (uncommitted): it gets an empty invitation token, so sign-in returns 400. The invite command works in the container; the extraction step or the first `host` invite is the suspect.
+   - Then run the 8- and 30-client runs and the parse benchmark, and report the measurements.
+   - The leftover test container and network were removed.
+4. **Waiting on the owner:**
+   - The phone sign-off of the compact preview (checklist in the next entry).
+   - **Chesed VeRachamim is celebrated and timed** (`mission-cheer.ts` gives it `celebrate: true`, and it has no `timed: false`), against O23 "never competitive". This needs the owner's decision, because changing the timing changes scoring.
+   - The design agent's UX notes, `design/output/deferred-ux-backlog-2026-10-31.md` (uncommitted). Their conflicts aren't yet in the decisions section: Marzipan's guess before Start, the gate and well pins being too close to tap at low zoom, the safety lines mixed with the clues, the gate photo giving away the Montefiore answer, and "Challenge N" suggesting a fixed order.
+5. **Repo:** local commits for the owner to push from VS Code (check `git log origin/main..HEAD`). Keep `docs/RUN_PREVIEW.md` and the untracked photos out of commits.
+6. **Live:** `6ee5c96`. A new adventure waits in its lobby (31 Oct 2026, 01:44 UTC). Its links are in `.local/amazing-shuk/links-new-adventure-20261031T0144Z/` (never print them; valid until about 01:44 UTC on 1 Nov).
+
+**I3 plan (31 Oct 2026, approved by the owner; I3a next, nothing built):** in [the multiplayer plan](multiplayer-plan.md) under "I3 implementation plan". It's three steps: I3a (roster foundation, schema 7), I3b (join flow, Share and Copy only), I3c (management and QR). Decisions O6, O15 and showing the link again come before I3b. S0-A isn't finished: the harness (`scripts/shuk-sync-bench.*`, uncommitted) fails at sign-in with an empty token.
+
+**UX paused (owner, 31 Oct 2026):** the deferred UX backlog UX-1 to UX-4 is recorded in `product-decisions.md` ("Deferred UX backlog"), with the `dori-ux-designer` agent's design notes in `design/output/`. Nothing is built. The engineering roadmap continues: the S0-A benchmark (`scripts/shuk-sync-bench.sh`), then I3.
+
+**Committed as `6ee5c96` and deployed on 31 Oct 2026 at 01:38 UTC (owner-authorised) for the phone check: `dori-shuk:20261031-013832-6ee5c96`.**
+- Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged.
+- Rollback: `dori-shuk:previous` = `0c03a61`.
+- Backup: `/root/backups/amazing-shuk/live-state-before-compact-preview-deploy-20261031T013831Z.json`.
+- `docs/RUN_PREVIEW.md` was kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-compact-preview-deploy` (+ `.patch`) and restored identically.
+- Disk 84% after: prune the build cache (with the owner's approval) before the next build.
+
+**Live new adventure (owner-asked, 31 Oct 2026, 01:44 UTC):**
+- Backup `/root/backups/amazing-shuk/live-state-before-new-adventure-20261031T014410Z.json`, then `shuk-new-adventure.ts --confirm` in `dori-shuk` (it also kept `state.json.before-new-adventure-20261031T014410Z` in `/data`).
+- Now schema 6, **lobby, no host, no sessions**, names kept.
+- Fresh single-use 24 h links, never printed, in `.local/amazing-shuk/links-new-adventure-20261031T0144Z/` (`host-player-1.txt`, `player-2.txt`, `guide.txt`). Older link folders are void.
+
+**Status (owner, 31 Oct 2026):** accepted as **candidates for mobile sign-off**. No further UX changes until the owner's phone check; **not visually approved**. Nothing committed, pushed or deployed.
+
+**Separate presentation task, recorded, not started:** the challenge screen's story photo (e.g. the mural's "before" photo) as a shorter preview that enlarges in the bottom sheet, with the challenge's purpose and Start challenge reachable sooner. Historical text and facts stay unchanged. It needs its own approval.
+
+**Sync architecture review (31 Oct 2026, review only, nothing built):**
+- I3 stays on the current polling, after a small "S0": a 30-client load-test script; pause polling while the page is hidden and refresh when it shows or comes online; a version tag on the view with "not modified" replies; a decision on capping `db.applied`, which grows forever.
+- For I7a, an SSE channel that only says "changed" (team-scoped, no data, slow polling as the fallback), as its own flagged increment, only if S0's numbers call for it.
+- No Socket.IO (it needs a custom server, a new dependency and its own resync anyway).
+- Unverified: the live Caddy block for `/shuk` (reading it was denied as a production read).
+
+**Owner's briefs (31 Oct 2026):** "Real Phone UX Refinement Review" (interrupted by the next one) and "Compact Mission Preview Refinement", from the owner's Android screenshots (kept untracked in `docs/design/`; images never go in git). Presentation only: no permission, scoring, progression, GPS, navigation or server change. **Uncommitted, not deployed, live state untouched.**
+
+**What changed:**
+1. **Preview card** (`PreviewMissionCard`):
+   - The title is the short destination, `previewDestinationTitle()`: "Find the Market Mural", "Find the Montefiore Gate". It uses the mission's own `shortName` only where it ends the full name, so the other four keep their full names.
+   - The challenge's name sits under the title, smaller.
+   - The stage is one line in the top row beside the `Mission N` pill: "1 of 3 · Finding the place" (`missionStageLine()`, `PreviewMissionProgress compact`). The three-step indicator stays on the location screen and the challenge.
+   - Tighter padding, a 4rem thumbnail, the summary at 1rem. The text stays at 0.875rem or larger, and the 5-line clamp the owner asked for on 26 Oct is kept.
+   - The location screen header keeps the full name.
+2. **Roles:**
+   - The "Roles needed" banner row is gone. The group button shows a count badge, with the name "Group status: N roles needed".
+   - The group sheet is shorter: three compact numbers (Points, Food tokens, Missions), the role chips, and, only while a role is free, "Anyone can take a free role in the Group tab." with **Open the Group tab**.
+   - Where a free role blocks the player (the challenge's "can start after the story" note, both the choice and the water challenges), an **Open the Group tab** button now follows the note. `onOpenRoles` is passed only while a role is free; permissions are unchanged.
+3. **Profile:** only "Signed in as", "Your role" and Sign out (the group's roles were repeated there). The panel is narrower (18rem) and tighter.
+4. **Map notice:** a new opt-in `noticeToggleLabel` on `LeafletBaseMap` (the Memory Protocol is unchanged).
+   - The Shuk maps show the same approved notice in a small card at the top right, never over the zoom buttons.
+   - An "About this map" info button (3rem, `aria-expanded`) folds it away. It stays folded on later maps for the page's life.
+   - The markers still say "Approximate marker placement." to screen readers.
+
+**Draft copy (`TODO(copy)`):** "About this map", "N roles needed", the sheet's "Points" and "Missions" labels, the "1 of 3 · …" pattern, the reused "Open the Group tab".
+
+**Verified:**
+- `test:shuk` 192/192 (new: the short title rule, the stage line, the folding notice, the role count, the blocked-start link, the profile without the roster). `npm test` 63/63.
+- `tsc` passes; lint at its baseline (3 errors, 11 warnings).
+- `/game-verify shuk`: build OK, healthy, 8/8 route checks, an invitation link of the right shape (not printed), 43 MiB; `dori-shuk:test` removed afterwards.
+- **No browser or phone check.**
+
+**Phone sign-off checklist** (dev page or a later approved deploy; normal width, then 320 px, then 200% text):
+1. Tap a marker. The card is compact and readable, shows "Find the Market Mural", "1 of 3 · Finding the place" and the photo, and **Find this place** is visible above the bottom bar.
+2. At 320 px and 200% text, nothing is clipped or overlapping. Only the card body scrolls, the button stays visible, and the page has no horizontal scroll.
+3. With a role free, the group button shows a number. The sheet lists the free roles, says how to take one, and its link opens the Group tab.
+4. A player without a role, at a challenge, sees **Open the Group tab** under the "can start after the story" note, takes a free role there, and can then start.
+5. Profile: a small panel with the name, own role and **Sign out**. Close, Escape and an outside tap close it, and focus returns to the avatar.
+6. The map notice doesn't cover the zoom buttons. "About this map" folds and unfolds it, and it stays folded on the location map and back on the map.
+7. One finger scrolls the page over both maps, two fingers move them, and the gesture hint appears.
+8. The group and photo sheets close with Close, a backdrop tap and Android Back. Back closes only the sheet; one more Back goes to the previous screen; Forward doesn't reopen the sheet.
+
+## Earlier handoff - B-lite mission discovery, steps 1–5: committed and deployed, 30 Oct 2026
+
+**Committed as `0c03a61` and deployed on 30 Oct 2026 at 23:55 UTC (owner-authorised): `dori-shuk:20261030-235512-0c03a61`.**
+- Healthy, 0 restarts, 7/7 smoke checks, no error lines in the log, the live file unchanged (byte-identical to the backup).
+- Rollback: `dori-shuk:previous` = `b84ce27`.
+- Before the deploy:
+  - `dori-shuk:test` removed.
+  - Backup `/root/backups/amazing-shuk/live-state-before-b-lite-deploy-20261030T235503Z.json` (mode 600, byte-identical).
+  - `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-b-lite-deploy` (+ `.patch`) and restored identically.
+- Disk 79% after. The phone checklist is still pending.
+
+**Next session, in order** (each needs the owner's approval):
+1. Push `b84ce27` and `0c03a61` (the owner, from VS Code) and commit this handoff note when asked.
+2. The owner's phone check of the live site: 375 × 667, 320 px, Android Back closing a sheet first (photo and group sheets), 200% text, the guide's role selects only under Group and the timing review only on the challenge, the **Roles needed** line while a role is free. To see it, use the lobby links in `.local/amazing-shuk/links-new-adventure-20261030T1626Z/` (single-use, valid until about 16:26 UTC on 31 Oct; never print them). After that, a new adventure needs separate approval.
+3. Approve or reword the B-lite drafts below (and the earlier "About this place", "Continue", "Change the number").
+4. Not authorised yet: B-lite steps 6–7 (finding hints, paid or not; any cost shown), new clue content, team names, onboarding roles, routing, a location dot, distances or ETAs, any GPS-policy change.
+5. Optional: a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml`. Then I3 after O6 and O15, and O27 before any I7a work.
+
+**Owner-approved (30 Oct 2026), B-lite only:** presentation work with no change to permissions, scoring, GPS policy or server. The plan with the evidence is in `/root/.claude/plans/update-plan-pasted-content-id-6f83-swift-glade.md`. Live state untouched by the work and the deploy.
+
+**What was built:**
+1. **Guide tools placement:** `IndexGuideWaterTask` now takes `part`.
+   - The role selects show only on the Group tab.
+   - The timing review shows only on the challenge.
+   - Before, both sat under every screen for the guide, which is what the owner's phone showed under the mission preview.
+2. **Bottom sheet:**
+   - `PreviewBottomSheet` is a native `<dialog>` with `showModal()`.
+   - It closes with Close, Escape, a backdrop tap, a downward swipe on the handle and heading, and the phone's Back.
+   - Focus returns to the opener.
+   - Back closes the sheet first through `lib/amazing-shuk/sheet-history.ts`. Opening pushes one marker entry, a copy of the screen's `shukNav` entry, so the game's own `popstate` restores the same screen. Closing any other way steps back over it.
+   - Reopening while that step is pending waits. A tab change from inside the sheet runs after the step. A stale forward marker is reused, never stacked.
+3. **Group status:**
+   - `IndexGroupSheet` adds a header button with a dot while a role is free. A second header row shows **Roles needed: …** only while a role is free, and it opens the sheet.
+   - The sheet shows the points, food tokens, missions completed, the role chips (`ListParticipantBadges`), "Anyone can take a free role in the Group tab." and **Open the Group tab**.
+   - The header lost its role pills and balance chips (`PreviewShukHeader`: title, group, menu).
+4. **Mission progress:** `missionStage()` and `MISSION_STAGES` in `mission-arrival.ts` feed `PreviewMissionProgress`.
+   - Stages: Find the Place → Solve the Challenge → Mission Complete.
+   - Completed → complete. Otherwise, a started challenge or the challenge screen on this phone → solve. Otherwise → find.
+   - An arrival never advances it.
+   - It shows on the preview card (not on a locked finale), on Find this place and on the challenge.
+5. **Destination wording and Find this place:**
+   - Card: pill `Mission N` (plus Locked or Arrival confirmed), title `Find …` (`destinationTitle(name)`), the challenge's name, progress, button **Find this place**.
+   - Header on the location screen: `Find …`.
+   - Location screen:
+     - `Mission N` + progress, the area and the Hebrew name (`.rtl`).
+     - A **strip of the illustrated map with only this marker**: `focusId`, two-finger mode and hint, no `onViewChange`, so the Map tab keeps its view.
+     - **What to look for** (clue, photo, clue photo, landmarks, About), with the photo as a button that enlarges it in a sheet.
+     - Check our location, Open Challenge.
+   - **Back to map removed** from the location screen (the Map tab and Back cover it); the challenge screen keeps its two Back buttons.
+
+**Draft copy (`TODO(copy)`), awaiting the owner:**
+- Find …, Find this place, What to look for
+- Enlarge the photo, Close photo
+- Group status, Roles needed, Your group, Close group status
+- Anyone can take a free role in the Group tab., Open the Group tab
+- The three stage names and status lines
+
+Pattern note: `destinationTitle` lowercases a leading "The", giving "Find Chesed VeRachamim Synagogue", "Find Marzipan Bakery" and "Find Gan HaTut (Mulberry Garden)". The owner may prefer per-mission wording.
+
+**Verified:**
+- `test:shuk` 191/191 (16 new: sheet history with a fake `History`, stage derivation, the progress line, the one-marker strip, the photo sheet, guide tools by place, the group sheet's real data and the role-needed line).
+- `npm test` 63/63; `tsc` passes; lint at its baseline (3 errors, 11 warnings, none new).
+- `/game-verify shuk`: build OK, healthy, 8/8 route checks, an invitation link of the right shape (not printed), 47 MiB; `dori-shuk:test` left in place (remove before the next deploy).
+- **No browser or phone check.**
+
+**Phone checklist:** see the report to the owner for this entry. It covers 375 × 667, 320 px, Android Back and 200% text.
+
+## Earlier handoff - "Find this place" location screen (option B): committed and deployed, 30 Oct 2026
+
+**Deployed 30 Oct 2026, 16:20 UTC (owner-authorised): `dori-shuk:20261030-162047-b84ce27`** (commit `b84ce27`, not yet pushed; the owner pushes from VS Code), healthy, 0 restarts, 7/7 smoke checks, the live file unchanged (schema 6, active). Rollback `dori-shuk:previous` = `eeab22b`. Backup `/root/backups/amazing-shuk/live-state-before-find-this-place-deploy-20261030T162036Z.json` (mode 600, byte-identical); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-find-this-place-deploy` (+ `.patch`) and restored identically. `dori-shuk:test` removed before the deploy; disk 80% after, then the whole build cache pruned (3.49 GB, owner-approved): **72%, 11 GB free**; images and containers unchanged (`:current` `b84ce27`, `:previous` `eeab22b`). The next build runs without cache, so it is slower.
+
+**Next session, in order** (each needs the owner's approval): push `b84ce27` (the owner, from VS Code); the phone checklist below on the live site and the dev page, "Find this place" first (**map gestures: the owner confirmed on the phone that they work, 30 Oct 2026**); approve or reword the drafts "About this place", "Continue" and "Change the number"; a live new adventure to show the new lobby (separate approval); optionally a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml` (the image-cache log error); then I3 after O6 and O15, and O27 before any I7a work.
+
+**Live new adventure (owner-asked, 30 Oct 2026, 16:26 UTC):** backup `/root/backups/amazing-shuk/live-state-before-new-adventure-20261030T162616Z.json`, then `shuk-new-adventure.ts --confirm` in `dori-shuk` (it also kept `state.json.before-new-adventure-20261030T162625Z` in `/data`). The live file is now schema 6, **lobby, no host, no sessions**, names kept. Fresh single-use 24 h links (never printed): `.local/amazing-shuk/links-new-adventure-20261030T1626Z/` (`host-player-1.txt`, `player-2.txt`, `guide.txt`; mode 700/600). The older link folders are void.
+
+**Owner-approved plan (30 Oct 2026).** Presentation only: no mission data, GPS policy, scoring or permission change.
+- `PreviewArrivalMission.tsx` is now an outdoor recognition task: *What are we looking for?* (the Look for card first: clue, the photo right under it capped at 32svh, the water mission's second image, the landmarks always visible because they carry how to behave at each stop, then a folded *About this place* with the summary) · *Have we found it?* (a light row, no card: **Check our location** + the Optional note, the guide's Confirm Group Arrival, feedback) · *What next?* (Open Challenge, unchanged). The mission name stays as a screen-reader `h2` (`.srOnly`), since the header shows it; the area and Hebrew name share one small line. No sticky bar.
+- **Owner decisions:** "We're Here?" renamed **Check our location** (product decisions updated); the summary folded behind **"About this place"**, a `TODO(copy)` draft.
+- **Honest viewport:** at 375 × 667, with the header and the bottom nav, the clue and photo fit the first view and both actions follow after one short scroll (before: 2–3 screens). A strict no-scroll screen would mean hiding the landmarks.
+- **Verified:** `test:shuk` 175/175 (a new order check for all six missions); `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or phone check.**
+- **Phone checklist** (dev page, about 375 × 667, then 320 px and 200% text): every mission shows the clue and photo without scrolling; the landmarks always visible; *About this place* opens and closes (3rem target); *Check our location* is clearly secondary and its feedback appears under it; Open Challenge one short scroll down; Back to map and the bottom nav work; the screen reader starts at the mission name; no horizontal scroll at 320 px.
+
+## Earlier handoff - compact onboarding, two-finger map, I7a leader-invitation design: deployed, 30 Oct 2026
+
+**Deployed 30 Oct 2026, 11:08 UTC (owner-authorised): `dori-shuk:20261030-110821-eeab22b`**, healthy, 0 restarts, 7/7 smoke checks. Rollback `dori-shuk:previous` = `364a4f5` (I2, same schema 6; tag it `:current` and `docker compose -f deploy/shuk-compose.yml up -d shuk`). Before: disk already clean (72%, no build cache); backup `/root/backups/amazing-shuk/live-state-before-compact-onboarding-deploy-20261030T110809Z.json` (mode 600, byte-identical to live: schema 6, active, count 5); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-compact-onboarding-deploy` (+ `.patch`) and restored identically. The live file is unchanged by the deploy. The live adventure is **active**, so players see the map change now; the new lobby shows only after a new adventure (separate approval). The keep-3 rule removed `f54f6da`. Disk 76% after.
+- **Found, not caused by this deploy:** the read-only container can't write Next's image cache (`ENOENT: mkdir '/app/.next/cache'` in the log when the welcome map is requested). The image is still served (200, webp); it is just re-optimised on every request. Since `d1d507a`. Fix for later (needs approval): a `tmpfs` for `/app/.next/cache` in `deploy/shuk-compose.yml`.
+
+### Work in this deploy - compact onboarding, two-finger map, I7a leader-invitation design, 30 Oct 2026
+
+**Authorised by the owner (30 Oct 2026):** implement A (compact I2 onboarding) and B (map touch gestures), design only C (named Team Leader invitations). **Committed at the owner's request as A `6d35b59` (onboarding) and B `19c5a8e` (map, revertable alone), pushed by the owner; this docs entry and C follow in a docs commit. Not deployed; no live-state change.** No server action, permission or schema changed.
+
+- **A, onboarding:** the lobby is now one step at a time (`lobbyStep` in `lib/amazing-shuk/adventure-lobby.ts`): *count* (host lead + stepper + Continue) → *ready* (1–5: count, "Recommended teams: 1", Start Adventure, Change the number) or *teams* (6–30: the split and the approved multiple-teams note, **no Start at all**, Change the number). Players see only the approved waiting words. The count still stays on the phone until Start; focus moves to the heading on each step. The lobby fills the phone with its action at the foot (no bottom-bar padding, no double gutter); the welcome's hero follows the screen height and its highlights became wrapping pills. New drafts: `next` "Continue", `changeCount` "Change the number" (`TODO(copy)`, O16).
+- **B, map:** root cause: Leaflet's one-finger drag handler sets `touch-action: none` on the map and pans on one finger, so a swipe over the full-screen map never scrolls the page. Fix, opt-in `twoFingerHint` on `LeafletBaseMap` (Shuk only; Memory Protocol maps unchanged): Leaflet's drag is disabled for touch and re-enabled for a mouse or pen; CSS keeps `pan-x pan-y`; Leaflet's own two-finger handler pans and pinches. The hint "Use two fingers to move the map." shows after a one-finger drag that didn't scroll the page, for 3 s, at most every 30 s, never after a two-finger gesture (`lib/map/two-finger-hint.ts`, tested; `npm test` now includes `lib/map/`).
+- **C:** the proposal and gate **O27** are in the [multiplayer plan](multiplayer-plan.md) under I7a. Nothing built.
+- **Verified:** `test:shuk` 174/174; `npm test` 63/63; `tsc` passes; lint at its baseline; `/game-verify shuk` healthy, 8/8 routes, 47 MiB; `git diff --check` clean on these files. **No browser or device check**: the owner's phone checklist is still required.
+- **Leaflet.GestureHandling evaluated and rejected (owner asked for a check against a GPT brief, 30 Oct 2026; no file changed).** `leaflet-gesture-handling` 1.2.2 (last published May 2022, no declared Leaflet range; works through 1.x's global `L`). Against our map: its marker check looks only at the touched element's own class, so a tap on our pin `<span>` flashes the warning; the touch warning shows on every one-finger touch until the finger lifts (`duration` only times the desktop wheel warning), with no cooldown; a full-map 50% black overlay above the markers; on desktop it needs Ctrl/Cmd + wheel to zoom and turns dragging off on mouse-out, with no option to keep only the touch part; and it re-enables dragging on two fingers, so the first one-finger swipe after a pinch can't scroll the page. Our CSS `touch-action` fixes that last one for good. Leaflet 2.0 is alpha only (`2.0.0-alpha.1`); revisit the gesture code if we ever upgrade. Extra phone check: pinch, then at once swipe with one finger: the page should scroll.
+- **Disk (owner-approved, 30 Oct 2026):** `dori-shuk:test` removed and the whole build cache pruned (4.67 GB): 84% → 72%, 11 GB free. Live containers untouched; `dori-shuk:current` (`364a4f5`) and `:previous` (`175548f`) kept. The next build runs without cache, so it is slower.
+
+**Phone checklist** (`shuk-dev`, about 375 × 667, then 320 px and 200% text; set-up commands in the I2 entry below):
+1. Host: the count step at "Not set yet"; Continue disabled until +; − disabled at 1, + at 30.
+2. 1 and 5: Continue → Ready, "Recommended teams: 1" → Start Adventure → "Starting…" → the map; the player's phone leaves the waiting screen.
+3. 6, 11, 30: 3 + 3, 4 + 4 + 3, six of 5; the multiple-teams note; no Start; Change the number goes back.
+4. Player: only the waiting screen. Guide: the guide lead and the same steps.
+5. No horizontal scroll at 320 px; the action reachable at 200% text; landscape scrolls.
+6. Map: one finger scrolls the page where it can; a one-finger drag shows the hint once, gone in about 3 s, none again within 30 s; two fingers pan and pinch and dismiss the hint; marker taps open the preview; zoom buttons work; a desktop mouse drags with no hint; pinch then one-finger swipe scrolls.
+
+**Next session, in order** (each step needs the owner's approval): the phone checklist above (iOS Safari especially); approve or reword the two draft lines; then deploy with `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'` after a fresh backup of `/data/state.json`. Decide O27 before any I7a work.
+
+**Untracked or the owner's, keep out of commits:** `docs/RUN_PREVIEW.md` (it also has trailing whitespace on line 1, the only `git diff --check` hit), `docs/project/trip-doriisrael-paths.md`, `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier handoff - next session: compact onboarding (Stitch) review, plan only, 30 Oct 2026
+
+**Start here.** The owner reviewed a four-screen Stitch export of the onboarding (Host Welcome, Participant Count, Team Recommendation, Ready to Start) and wrote the review and brief: [`docs/design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md`](../design/stitch-reference/stitch_the_amazing_shuk_ui_ux/amazing-shuk-stitch-onboarding-handoff.md) (the owner's file, in the untracked Stitch folder; read it in full). **Visual direction approved with required corrections; plan and report only, no file changes until the owner approves.**
+
+**What the brief asks for:**
+- A **mapping** of the four Stitch screens to the existing I2 components, a concise **UI diff plan**, proposed **final copy**, and a **mobile acceptance checklist**, with *current I2* kept apart from *future multi-team* elements.
+- **Compact onboarding:** one purpose and one primary action per screen, fitting a normal phone viewport, but no hard no-scroll rule (320 px, zoom, larger text, keyboard, short viewports must still work; never `user-scalable=no`).
+- **Stitch is a visual reference only, last in priority** (the owner's Stitch reference policy, 30 Oct 2026, in [product decisions](product-decisions.md); it supersedes the brief's "visual authority" wording). Keep the existing tokens, Plex Serif/Sans, cards and pills; no Tailwind CDN, external photos or mockup JavaScript.
+- Export mistakes to correct, not copy: `Math.round(n/5)` (use the existing `recommendedTeamCount`/`recommendedTeamSizes` in `lib/amazing-shuk/adventure-lobby.ts`); Confirm Squad Setup / Customize Roster / Re-balance / "Squads Dispatched!" (don't exist; 6–30 stay informational with no usable Start); "GPS engages automatically" (GPS stays optional and tap-triggered); "All Devices Synced", member portraits and names, a share code, mission and token counts (not live facts); `min-height: max(884px, 100dvh)`; jargon ("algorithmic split", "alleyway pacing", "guild", "radios & satchels").
+
+**The four-screen export is in `docs/design/stitch-reference/` (saved by the owner, 30 Oct 2026, untracked):** `1._host_welcome_compact/`, `2._participant_count_compact/`, `3._team_recommendation_compact/` and `4._ready_to_start_compact/`, each with a `code.html`, plus `jerusalem_shuk_field_guide/DESIGN.md` (identical to the copy in `stitch_the_amazing_shuk_ui_ux/`). **The `screen.png` files are not images:** each is 28 bytes of text, `<FIFE Image failed to fetch>`. So the visual reference is the HTML only; ask the owner to re-export the screenshots if a picture is needed. A quick grep confirms the brief's findings in the HTML: `Math.round(count / 5)` (screen 2), Confirm Squad Setup and Squads Dispatched (3), All Devices Synced and "GPS mode engages automatically upon launch" (4), and `min-height: max(884px, 100dvh)` on all four. **All four also set `user-scalable=no`**, which the brief forbids; don't carry it over.
+
+**Starting points in the code** (I2, live):
+- `components/amazing-shuk/PreviewShukWelcome.tsx` (+ `.module.scss`): the invitation welcome, before the lobby → Stitch *Host Welcome*.
+- `components/amazing-shuk/IndexAdventureLobby.tsx` → `PreviewAdventureLobby.tsx` (+ `.module.scss`): today **one screen** that holds the count stepper, the recommendation card, the multiple-teams note, Start Adventure and the players' waiting card → Stitch *Participant Count*, *Team Recommendation* and *Ready to Start*. Splitting it into steps is the main UI decision; the server actions (`set-intended-count`, `start-adventure`) and their checks don't need to change.
+- `lib/amazing-shuk/adventure-lobby.ts` (`buildLobbyView`, `canStart`, `needsTeams`), `lib/amazing-shuk/welcome-copy.ts` (`LOBBY_COPY`: approved lines and the `TODO(copy)` drafts listed in the I2 entry below).
+- Rendered from `components/amazing-shuk/dev/IndexWaterTask.tsx` while `adventure.status === "lobby"`.
+
+**Live, read 30 Oct 2026, 10:30 UTC (counts only):** `dori-shuk:current` = `364a4f5`, healthy. The owner's phone test used the guide link (`guide-0633.txt`, which replaced the first guide link): the adventure is now **active**, count 5, no host (the guide started it), one guide session, mission records opened but none completed. The `host-player-1.txt` and `player-2.txt` invitations are unused (about 20 h left), but **the host link can no longer work**, because a host invitation is redeemable only in the lobby. Testing the host and waiting screens on a phone needs another live new adventure (separate approval) or the `shuk-dev` checklist in the I2 entry below.
+
+**Repo:** `main` is one commit ahead of `origin/main` (`364a4f5`, unpushed; the owner pushes from VS Code). This entry, the deploy record, the Stitch reference policy and its pointer in `.claude/rules/scss.md` are committed with it; `docs/RUN_PREVIEW.md` (the owner's, local links) stays out of commits, as do the untracked files listed below.
+
+**Not authorised by the brief:** implementation, commits, push, deploy, live-state reset, I3 or I7 work, multi-team flows, bypassing server gates, or claiming mobile acceptance.
+
+**Next-session prompt (the owner's):**
+> Review the attached Compact Onboarding Stitch Handoff and the original Amazing Shuk Stitch reference screens. Inspect our current I2 components and product decisions. Propose the smallest visual changes needed to adopt the compact, single-viewport onboarding design while retaining the established styling and enforcing real I2 behavior (1–5 Start, 6–30 informational only). Explicitly address the known export mismatches and show a screen-to-component mapping with final copy and mobile acceptance checklist. **Plan and report only; do not modify files until I approve implementation.**
+
+## Earlier handoff - I2 complete: corrections after the owner's review committed, 29–30 Oct 2026
+
+**Deployed 30 Oct 2026, 06:27 UTC (owner-authorised, for the owner's phone test): `dori-shuk:20261030-062727-364a4f5`**, commit `364a4f5` (ships `shuk-new-adventure.ts` in the image; local, not yet pushed). Rollback image `dori-shuk:previous` = `175548f` (I1, reads schema 6).
+- **Before:** disk cleanup (the `dori-shuk:test` image and unused build cache; 77% → 75%); a fresh backup `/root/backups/amazing-shuk/live-state-before-i2-deploy-20261030T062705Z.json` (mode 600, byte-identical to live: schema 5, 2 unexpired sessions, 7 names, 0 mission records, 10 receipts); `docs/RUN_PREVIEW.md` kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-i2-deploy` (+ `.patch`), reset for the deploy and restored identically.
+- **Deploy:** `deploy/deploy.sh shuk` in tmux: healthy, 0 restarts, 7/7 smoke checks; the dev page 404 and the API without a cookie 401; no error lines in the log; the live file unchanged by the deploy.
+- **Live new adventure (owner-approved):** `shuk-new-adventure.ts --confirm` in the container. The file is now **schema 6, status lobby, no host**, team A with all 7 seats, 0 sessions (everyone signed out), names kept. `/data` gained `state.json.pre-schema6-<hash>` and `state.json.before-new-adventure-<UTC>`, both mode 600 and byte-identical to the deploy backup.
+- **Links for the phone test** (never printed): `.local/amazing-shuk/links-i2-phone-test/` (mode 700; files 600): `host-player-1.txt` (host invitation, seat player-1), `player-2.txt`, `guide-0633.txt` (re-issued 06:33 UTC; it replaced the first guide link); each single-use, 24 h.
+- **Rollback, if needed:** tag `dori-shuk:previous` as `:current` and `docker compose -f deploy/shuk-compose.yml up -d shuk`. I1 reads the v6 lobby file but has no lobby gate. To return to the pre-deploy state, restore the deploy backup with the restore command in the I1 entry below (it is schema 5, so it also works with `f54f6da`).
+
+**Status at a glance (30 Oct 2026):**
+
+| | |
+|---|---|
+| I2 implementation | `dccaf95` (29 Oct): host invitation, lobby, Start Adventure, new-adventure CLI (dev only). On `origin/main`. |
+| I2 corrections | `a05c2a7` (30 Oct): host rights bound to the host session; 6–30 can't start; the approved lobby copy. Pushed with `9f80338`; `364a4f5` is not pushed yet (the owner pushes from VS Code). |
+| Production | **I2 deployed 30 Oct 2026** (`364a4f5`, see above), for the owner's phone test; mobile visual acceptance still pending. The live file is schema 6, a new adventure in its lobby. |
+| Verification | `test:shuk` 173/173; `npm test` 61/61; `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new; `/game-verify shuk` healthy, 8/8 routes, 48 MiB; I1 rollback rehearsed on copies; `git diff --check` clean. Details below. |
+| Mobile visual acceptance | **Not done.** Required before I2 counts as accepted (deployed early, at the owner's request, for the phone test). Claude can't review in a browser on this server; the owner runs the phone checklist below. |
+| I1 rollback limitation | I1 reads and writes every I2 file, but **has no lobby gate**: after a rollback, an adventure still in its lobby simply plays (no count, no Start). The host fields survive. |
+| Host security model | **Session-bound:** only the session that redeemed the host invitation (`host: true`) holds the host rights, and only while its seat is `adventure.hostId`. Other sessions of the seat get none; a new host link for the same seat moves the rights; one host session at a time. Host rights grant lobby powers only, never guide-only ones. |
+| Leader permissions (deferred to I3) | The view's `leader` flag still follows the **seat**, not the session. Harmless in I2 (leaders have no powers yet), but I3 must bind leader rights to sessions the way I2 binds the host's, before leaders can let players in. |
+| Fixed seats | The roster is still the fixed `guide` + `player-1…7`, so an adventure holds at most 7 players whatever count the host enters, until I3 brings dynamic participants. |
+| Multi-team (deferred to I7a) | Teams of about 5 are only a recommendation (`ceil(count / 5)`, split evenly). Groups of 6–30 can't start until I7a builds team creation, leader invitations, the host overview and the guide's team switcher (schema 7). |
+
+The corrections below were asked for in the owner's review of `dccaf95` and committed at the owner's request as `a05c2a7`. No live-data change.
+
+**Corrections:**
+1. **No misleading multi-team starts.** Groups of 1–5 can start as one team. Groups of 6–30 see the balanced recommendation but **can't start**; the server refuses Start for any count that needs more than one team (an `asOneTeam` flag is dropped by the parser and was removed from the action type). The lobby disables Start and explains why. No team creation.
+2. **Host rights belong to the host invitation's session, not the seat.** Redeeming a host invitation marks that session `host: true`; host rights need that flag *and* the seat still being `adventure.hostId`. An earlier, later or replacing ordinary session of the seat gets none. A host who loses their phone gets a new host link for the same seat (operator CLI, lobby only); redeeming it moves the rights to the new session, and there is only ever one host session. Another seat can't become host while one is set. The view's `leader` flag still follows the seat; leaders have no powers in I2 (decide the binding in I3).
+3. **One friendly message for every failed invitation** (`INVITATION_UNUSABLE`), whatever the reason.
+
+**Tests:** `adventure-lobby.test.ts` now has 15 (173 in `test:shuk`): sessions of the host seat from before, after and in replacement of the host's; host redemption and the lost-phone re-issue; one host session at a time; unauthorised lobby actions; replayed, expired and after-start host invitations; counts 6, 7, 11, 17 and 30 refused (with or without the flag), 1 and 5 allowed; the friendly invitation message.
+
+**Lobby copy (O16), approved by the owner with refinements (29 Oct 2026)** and in `LOBBY_COPY`:
+
+| Where | Text | Status |
+|---|---|---|
+| Host welcome | You're the host! Tell us how many people are playing. When everyone is ready, start the adventure. | Approved |
+| Waiting (players) | **Waiting for the adventure to begin** · Your host is getting everything ready. You'll be exploring soon! | Approved |
+| Count | How many are playing? · Include yourself in the total. | Approved |
+| Recommendation | Recommended teams: 3 · Suggested split: 4 + 4 + 3 (both filled from the actual count) | Approved |
+| Start | Start Adventure | Approved |
+| Multiple-team limitation | **Your adventure needs multiple teams.** We recommend splitting into teams of up to five. Multi-team adventures are coming soon. For now, adventures can start with up to five players. | Approved |
+| Server refusal of a 6+ start | Your adventure needs multiple teams. For now, adventures can start with up to five players. | Aligned with the approved wording |
+| Messages kept by the owner | Starting… · First, tell us how many are playing. · Got it. Player count saved. · The adventure has started! · The adventure has already started. · Only the host or the guide can set up the adventure. · Choose a number from 1 to 30. · The adventure hasn't started yet. Your host will start it soon. · This invitation link has expired or has already been used. Ask your guide for a new one. | Kept |
+| Still draft (`TODO(copy)`) | Before you set off (title) · You can set up the adventure here, or leave it to the host. (guide) · Not set yet · One fewer player / One more player (spoken button labels) | Draft |
+
+**Browser check: not done; mobile visual acceptance is a deployment prerequisite** (owner, 29 Oct 2026). The project rules exclude browser review on this server (the owner reviews). The lobby reuses the welcome screen's patterns (eyebrow, Plex Serif title, raised cards, the pill-shaped primary button) within the Stitch direction; no new visual direction. Manual checklist for a phone-sized browser (about 375 × 667), on the dev page in `shuk-dev`:
+- Set up (signs everyone out of the dev state and keeps a copy): `docker exec -w /w shuk-dev npm run -s shuk:new-adventure -- --confirm`, then `docker exec -w /w shuk-dev npm run -s shuk:invite -- host player-1 http://localhost:3300 > .local/host-link.txt` and an ordinary link for `player-2` and `guide` the same way. Open each in its own browser profile.
+- Host: the welcome, then the lobby with the host welcome; − is disabled at "Not set yet"; + goes 1, 2…; 30 disables +; each button is easy to hit (3.5 rem).
+- 1–5: "Recommended teams: 1" and "Suggested split: N"; Start Adventure is enabled; tap it → "Starting…", then the map. The player's phone leaves the waiting screen within a couple of seconds.
+- 6 (3 + 3), 7 (4 + 3), 11 (4 + 4 + 3), 30 (six of 5): the numbers match the count; the tinted "Your adventure needs multiple teams." note; Start disabled (and a forced request is refused by the server); going back to 5 enables it.
+- Player (`player-2`): only the title and the "Waiting for the adventure to begin" card, no controls.
+- Guide: the guide lead and the same controls as the host.
+- Errors: reopen a used host link → the friendly invitation message on the welcome screen.
+- Readability in sunlight: contrast of the note and the disabled button; text at 200% zoom; no horizontal scroll at 320 px.
+
+**Verified (29 Oct 2026, after the approved copy):**
+- `test:shuk` 173/173 in `shuk-dev`; `npm test` 61/61; `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new; `git diff --check` clean on these changes.
+- I1 rollback rehearsed on isolated copies: I1 reads and writes a lobby of 11 and an active adventure of 4, keeps the host session's flag and `hostId`, and I2 reads the result with the host intact. A rolled-back I1 has no lobby gate.
+- `/game-verify shuk` (isolated `dori-shuk:test`): healthy, 8/8 route checks, an invitation link of the right shape (not printed), a host invitation refused on a fresh (active) state, the image ships only `shuk-invite.ts` and `shuk-name.ts`, 48 MiB.
+- Disk: the owner-approved `docker builder prune -a` (build cache only; images, containers and volumes checked unchanged, `dori-shuk:current` and `:previous` kept) took the disk from 84% (6.0 GB free) to 72%; 76% after the rebuild. The next builds and deploy run without cache, so they are slower.
+- Live, read-only: `dori-shuk` running `:current` (`175548f`), 0 restarts; the file still schema 5; `/data` holds only `state.json` and the 26 Oct reset copy.
+- The uncommitted diff holds only I2 files (no links, tokens or participants' names); `docs/RUN_PREVIEW.md` and the untracked owner files are untouched.
+
+**Next session, in order** (each step needs the owner's separate approval):
+1. **Phone review of the lobby** with the checklist above. Mobile visual acceptance is a deployment prerequisite. Claude can't do it on this server.
+2. **Push** (the owner pushes from VS Code; a push from Claude's shell hangs on the git login), then **deploy** with `tmux new -s shuk-deploy 'deploy/deploy.sh shuk'`, after a fresh manual backup of `/data/state.json`. The first build runs without cache (pruned on 29 Oct), so it is slower. Deploying I2 alone changes nothing players see: the live adventure is active with no host.
+3. **A live new adventure** needs its own approval, and the CLI isn't in the app image yet (add `scripts/shuk-new-adventure.ts` to the Dockerfile's tools copy, and lift the app-build refusal, only then).
+4. **I3** (team join link with leader approval, dynamic participants) after the owner's go-ahead. Before it: decide O6 (join-link limits, with a seat ceiling of 5 per team) and O15 (QR approach), and bind leader rights to sessions the way I2 binds the host's.
+
+**Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (local invite links; modified), `docs/project/trip-doriisrael-paths.md`, `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier handoff - I2 implemented and committed (`dccaf95`): host invitation, lobby, Start Adventure; many-teams correction, 29 Oct 2026
+
+**Authorised by the owner (29 Oct 2026); committed at the owner's request as `dccaf95`.** No deploy, push or live-data change; the live app is still `175548f` and its file still schema 5. `.claude/agents/dori-ux-designer.md` untouched (O20).
+
+**Owner's correction, the same day:** an adventure holds **many teams of about 5**, not one or two. Recorded in [product decisions](product-decisions.md) (the one record) and carried through the [multiplayer plan](multiplayer-plan.md) (I7 became I7a, multiple teams, and I7b, the optional comparison; new gates O25 and O26), `AGENTS.md` and `design/amazing-shuk-roadmap.md`.
+
+**What I2 does:**
+- **Host invitation:** `npm run shuk:invite -- host <player seat> <origin>` (inside the app container: `tools/scripts/shuk-invite.ts host player-N https://doriisrael.com`). Single-use, 24 h, hashed, a player seat in team A, only while the adventure waits in its lobby with no host; it replaces that seat's other invitations and any other host invitation. Redeeming sets `adventure.hostId` and team A's `leaderId`; a replay, an expired link, or a lobby that already has a host or has started → 401.
+- **Invitation kinds:** `host`, and `leader` reserved for I7a. Nothing issues a `leader` invitation, and redeeming any kind other than `host` is refused (fail closed).
+- **Lobby** (`adventure.status === "lobby"`, the whole screen): the host or guide answers "How many are playing?" (1–30). The app shows the **recommended teams** (`recommendedTeamCount = ceil(n / 5)`, `recommendedTeamSizes` split evenly: 6 → 3 + 3, 11 → 4 + 4 + 3, 30 → six of 5) as a recommendation only. No team beyond A is created; the stored `format` stays `"together"`.
+- **Start Adventure** (host or guide only). It needs a count. *(Corrected after the owner's review, see above: 6–30 can't start at all; the "Start as one team" stand-in is gone.)* A second Start changes nothing.
+- **Lobby gate:** every journey action (start, picks, hints, submit, arrival, timing, approve) is refused for everyone, guide included, until Start; roles may be claimed or assigned meanwhile.
+- **Host and leader get no guide-only permission:** tested for confirm-arrival, timing, guide-approve and assign-role; without a role the host can't start a challenge or submit either.
+- **New adventure (development and testing only):** `npm run shuk:new-adventure -- --confirm` in `shuk-dev`. It keeps the old file's exact bytes as `state.json.before-new-adventure-<UTC>`, mode 600, then opens an empty lobby: every seat in team A, no host, sessions, invitations, roles and progress cleared; names and action receipts kept. If the copy can't be kept, nothing changes (503). It refuses in the app build and isn't shipped in the image (Dockerfile unchanged); shipping it needs the owner's approval.
+- **Unchanged:** the migrated live adventure is `active` with no host, so deploying I2 alone shows players nothing new.
+
+**Files:** `lib/amazing-shuk/adventure-lobby.ts` (new: the recommendation and the lobby view model), `participant-store.ts`, `group-action.ts`, `parse-water-action.ts`, `welcome-copy.ts` (`LOBBY_COPY`), `scripts/shuk-invite.ts`, `scripts/shuk-new-adventure.ts` (new), `package.json` (script), `components/amazing-shuk/IndexAdventureLobby.tsx`, `PreviewAdventureLobby.tsx` and `.module.scss` (new), `components/amazing-shuk/dev/IndexWaterTask.tsx`, `components/icons/iconPaths.tsx` (`minus`, `plus`). Tests: `lib/amazing-shuk/adventure-lobby.test.ts` (new, 13).
+
+**Copy (gate O16):** superseded by the proposed final copy in the entry above.
+
+**Verified (29 Oct 2026):**
+- `test:shuk` 171/171 in `shuk-dev` (158 before); `npm test` 61/61.
+- `tsc` passes; lint at its baseline (3 prototype errors, 11 Memory Protocol warnings), none new.
+- The counts 1, 5, 6, 7, 11, 17 and 30, plus an even split ≤ 5 for every count 1–30.
+- **Rollback to I1** (rehearsed with a temporary `175548f` worktree on isolated copies, deleted afterwards): I1 reads every file I2 writes (a lobby with a pending host invitation, a hosted lobby of 30, an active one-team start of 30), acts on them, and keeps the host, leader and count; an unredeemed host invitation redeems in I1 as a plain session. I1 has no lobby gate, so a rolled-back lobby simply plays.
+- CLI smoke on a throwaway file: new-adventure refuses without `--confirm` and in the app build; a host invitation is refused outside the lobby and for the guide; the link's shape (pattern only, never printed).
+- `/game-verify shuk` (isolated `dori-shuk:test`, nothing live): healthy, 8/8 route checks, an invitation link of the right shape (not printed), a host invitation refused on a fresh (active) state, the image ships only `shuk-invite.ts` and `shuk-name.ts`, 47 MiB. `git diff --check` clean on these changes (`docs/RUN_PREVIEW.md`, the owner's, still has its own trailing whitespace).
+- Self code and security review of the diff: no secret in a URL, log or output beyond the operator's link; server-side bounds on the count; lobby powers only for the host or guide; unknown invitation kinds refused.
+- **Not checked:** anything in a browser or on a phone (layout, the stepper, the one-team wording on screen).
+
+**Risks and notes:**
+- Host rights belong to the seat, so any session of the host's seat has them, including one from a plain invitation the operator issued for that seat before the host redeemed. Only the operator can cause that; the new adventure signs everyone out first.
+- The fixed seven seats still cap the adventure at 7 people until I3's dynamic participants, whatever count the host enters.
+- 30 is a planning limit only: one JSON file, one lock, every phone polling every 1.5 s, on the shared 4 GB server. Load-test before any real 30-person run (plan, section 9).
+- `format` stays the two-value field I1 reads until schema 7 in I7a.
+- The guide still acts on team A only (switcher in I7a). One guide for many teams is open (O25).
+
+**Next:** the owner reviews the uncommitted I2 and its draft copy, then decides on commit, push and deploy (each separately). Running a new adventure on live data needs its own approval (and shipping the CLI in the image). Then I3.
+
+## Earlier handoff - I1 deployed: Adventure and Team model (schema 6), 29 Oct 2026
+
+**Deployed 29 Oct 2026, 21:36 UTC (owner-authorised): `dori-shuk:20261029-213559-175548f`, commit `175548f`; all commits pushed.** Rollback image `dori-shuk:previous` = `20261026-084821-f54f6da` (schema 5).
+
+- **The live file is still schema 5 on disk** until the first write after the deploy (any sign-in, invitation or game action). That write migrates it to v6 and creates the automatic copy `/data/state.json.pre-schema6-<hash>`.
+- **To confirm after that write** (read-only): `docker exec dori-shuk node -e` printing only `version`, and `docker exec dori-shuk ls -l /data` showing the copy at mode 600.
+- **Commits:** I0 `7548d08`, I1 `8ed2970`, safeguard `175548f`.
+
+- **Schema 6** (`lib/amazing-shuk/participant-store.ts`):
+  - `adventure { status, format, hostId, intendedCount }`, `teams { A: { leaderId, roles, missions } }` and `participants { [id]: { teamId } }`. Invitations, sessions, receipts and names are unchanged.
+  - A v5 file becomes an active Play Together adventure with team A holding the old roles and missions; the seven seats are its members and the host is unset. A read migrates only in memory; the first write persists v6.
+- **Team scoping:** views and actions use only the actor's team, and members see only their own team's list. The guide acts on team A until I7. A session outside every team gets 403; a member of a missing team or an unknown future schema is refused.
+- **Moved to I2:** the invitations' optional `kind` and `teamId`.
+- **Automatic pre-schema-6 copy** (owner-approved safeguard, its own commit):
+  - Before the first successful write that turns an older file into schema 6, the store keeps the file's exact bytes as `state.json.pre-schema6-<first 12 hex of their SHA-256>`, beside the state file (live: in `/data`).
+  - It is mode 600, written whole to a temporary file, then linked into place, so it's never overwritten and never partial. The directory is synced before the state file is replaced.
+  - Reads and rejected actions make no copy. An identical existing copy is reused.
+  - Fail closed: if the copy can't be kept (disk full, permissions, a different file under its name), the write is refused with a 503, the old file stays as it is, queued actions retry, and the server logs only the reason (`Shuk storage: the pre-schema-6 backup could not be kept: <code>`). The operator clears the cause.
+  - The manual pre-deploy backup is still required; the automatic copy is a second line of defence.
+- **Tests:**
+  - 3 new: v5 → v6 with identical views, two teams kept apart, refusals.
+  - Existing tests changed only how they read the raw file (`storedTeam`, `schema5Snapshot` in `legacy-store-fixture.ts`).
+- **Verified:**
+  - `test:shuk` 154/154; `npm test` 61/61 (re-run before the commit).
+  - `tsc` passes. Lint is at its known baseline (3 prototype errors, 11 Memory Protocol warnings), none new.
+  - `/game-verify shuk`: healthy, 8/8 route checks, a fresh state written as v6, 48 MiB. `git diff --check` clean.
+- **Fresh live backup (owner-authorised, read-only), 29 Oct 2026 21:21:56 UTC:**
+  - Location: `/root/backups/amazing-shuk/live-state-before-i1-20261029T212156Z.json`, outside the repo; folder mode 700, file mode 600.
+  - Verified: schema 5, valid JSON, SHA-256 identical to the live file at the time.
+  - Contents: 2 unexpired sessions, 6 expired invitations, 7 names, both roles held, 0 mission records (the game was reset on 26 Oct), 10 receipts, no duplicates.
+  - Earlier backups in `.local/amazing-shuk/backups/` are kept.
+- **Rehearsal** (`.local/amazing-shuk/rehearse-i1b.ts`; isolated copies in `shuk-dev`, deleted afterwards; aggregates only). On the fresh backup and on the 26 Oct pre-reset backup:
+  - The v5 code (`7548d08`, temporary worktree) accepts the backup.
+  - I1 migrates it. Roles, sessions, invitations, receipts and names are kept; missions match what v5 would hold; points, tokens and award records are equal (0/0/0 fresh; 200/4/2 pre-reset); no duplicate receipts.
+  - The v5 code refuses a v6 file.
+  - A temp-file-and-rename restore is byte-identical to the backup and is read by v5 again.
+  - The restored file re-migrates identically.
+- **Restore source:** the manual backup in `/root/backups/amazing-shuk/`, or the automatic copy inside the volume (`docker exec dori-shuk ls -l /data`; restore it with the same command, reading it via `docker exec dori-shuk cat /data/state.json.pre-schema6-<hash>`).
+- **The operator restore command,** tested on an isolated container of the live v5 image (`--network none`, its own `/data`): the v5 app fails on a v6 file, and after the restore the file matches the backup and v5 reads and writes it.
+
+  `docker exec -i dori-shuk sh -c 'cat > /data/state.json.restore && mv /data/state.json.restore /data/state.json' < /root/backups/amazing-shuk/<backup>.json`
+
+**Deploy record (29 Oct 2026):**
+- **Before:**
+  - `docs/RUN_PREVIEW.md` was kept in `.local/amazing-shuk/RUN_PREVIEW.md.kept-during-i1-deploy` (with a `.patch`), reset for the deploy, and restored identically afterwards.
+  - Fresh backup `/root/backups/amazing-shuk/live-state-before-i1-deploy-20261029T213546Z.json` (mode 600): schema 5, byte-identical to live; 2 unexpired sessions, 7 names, both roles, 0 mission records, 10 receipts, no duplicates.
+- **Deploy:** `deploy/deploy.sh shuk` in tmux. The container was recreated, healthy, 0 restarts; all 7 smoke checks passed, plus the dev page (404) and the API without a cookie (401). No error lines in the live log.
+- **After** (read-only for live data): the deployed code ran on a `/tmp` copy of the live file inside the container. It migrated to v6 (team A, 7 members, active, together); sessions, names, invitations, roles and receipts were kept; 6 missions, 0 points, no duplicate receipts; exactly one automatic copy, byte-exact, mode 600. The live file was still byte-identical to the backup afterwards.
+- **Rollback, if needed:**
+  1. Tag `dori-shuk:previous` as `:current` and run `docker compose -f deploy/shuk-compose.yml up -d shuk` (as `rollback()` in `deploy.sh`).
+  2. If a v6 write has happened, run the restore command above at once, with the deploy backup or the automatic copy.
+  3. Actions made since that backup are lost, so report the recovery options to the owner before restoring.
+
+**Next: I2, host invitation, lobby and Start Adventure** (approved milestone; **implementation not yet authorised**). Spec: [multiplayer plan](multiplayer-plan.md), I2.
+- **Depends on:** I1, deployed 29 Oct 2026.
+- **Scope:** invitations gain optional `kind` and `teamId`; `shuk:invite -- host`; redeeming makes the host Team A's leader and opens a lobby; the intended count (1–6 Together; 7+ the choice, with Two Teams hidden until I7); Start Adventure by the host or guide; a "new adventure" CLI that archives the old state.
+- **Open decisions:** O16 (lobby, team and onboarding copy; draft only, marked `TODO(copy)`). O6 and O15 are for I3, not I2. O20 still open; don't touch `.claude/agents/dori-ux-designer.md`.
+- **Security:**
+  - The host invitation is single-use (24 h) and hashed like the others, and host rights come only from it.
+  - Only the host or guide can set the format or start.
+  - Leaders get no guide-only permissions.
+  - Never print invitation links or tokens.
+  - Starting a new adventure keeps a backup.
+
+**Disk:** 70% after the owner-approved cleanups (build cache, unused images, npm cache). Every `:current` and `:previous` image is kept.
+
+## Earlier handoff - I0: skill and docs stabilised, multiplayer plan approved, 29 Oct 2026
+
+**Committed at the owner's request; not pushed.** No game code, deploy or production data touched.
+
+- **Owner approved the multiplayer plan** (adventure, one or two teams, join links with leader approval, roles and parts, Language Explorer). The plan, increments, checks and open gates are in [multiplayer-plan.md](multiplayer-plan.md); the approved decisions are summarised in [product decisions](product-decisions.md). I0 is accepted; **I1 may be prepared, not implemented**.
+- **Journey-wide variety** (owner, after the skill test): the skill has a new principle, "judge a mechanic across the journey, not only at its stop"; step 9 now weighs "this point in the journey"; and the criteria gain the anti-pattern "one mechanic everywhere".
+- **Fixed:**
+  - `AGENTS.md` no longer says "one visible label".
+  - The skill's `project-context.md` no longer claims SKILL.md doesn't restate the direction; it says SKILL.md summarises it and product decisions win.
+  - The skill brief's stale "URLs not opened" note is marked done.
+  - The inspiration library gains *Spaceteam*, *Captain Sonar*, *Hanabi* and *Pandemic* (read on Wikipedia on 29 Oct, as secondary sources) and principle 8: a role is an ability, not a title, and roles must merge for small groups.
+- **Verified:** 79 links in the touched and skill files resolve; `claude plugin validate .claude/skills` passes; `git diff --check` is clean on the changed files (`docs/RUN_PREVIEW.md`, untracked owner notes, has trailing whitespace; not touched).
+- **Automatic activation**, tested in fresh headless sessions (`claude -p`, stream-json, write tools disabled), one run per prompt unless noted:
+  - triggered for "design a new stop (Yemenite aliyah)" and for "the Marzipan stop feels like a quiz, how could it become more of an experience?";
+  - not triggered when the same Marzipan prompt adds "give me a short answer" (2 of 2 runs), which matches the skill's "small request" depth;
+  - not triggered for two unrelated questions (`roles.ts` exports, the test script).
+  - So the description stays as it is (O21: the tests don't support a change).
+- **Explicit `/experience-design`** on Marzipan, Chesed VeRachamim and the Montefiore gate (fresh sessions, medium depth, no web research): all three read the mission data and sources first, gave three different concepts, moved the answer into the place, and kept facts and unknowns apart. The gate run departed from the worked example with a reason.
+  - The drafts are not in the repo. Ideas worth bringing back to the owner: Marzipan "spot the change" at the tray; the synagogue's scored answer moved to the heritage sign; questioning the Beauty Queen bonus.
+  - Total test cost $2.69.
+- **Governance:** `.claude/agents/dori-ux-designer.md` is unchanged. The one line added on 29 Oct (`7635f56`) still waits for the owner's explicit approval or revert (O20).
+- **Known debt, not fixed:**
+  - Run 06 is stored twice (`design/inputs/content/` and `research/results/`).
+  - `AGENTS.md` repeats the coding and content rules.
+  - `scss.md` and `coding.md` have no `paths:`.
+  - `docs/content/methodology.md` has drifted from the platform copy.
+
+**Next:** the owner reviews and commits I0, then authorises I1 (the Adventure and Team model with one team and identical behaviour; migration rehearsed on a backup copy only).
+
+## Earlier handoff - experience design skill, docs reorganised, 29 Oct 2026
+
+**Committed (`1616e74`, `42c8ae5`, `7635f56`, `32857ca`); the owner pushes from VS Code** (git asks for the login through VS Code's password prompt, so a push from Claude's shell hangs). No game behaviour changed and nothing was deployed: the live Shuk is still `f54f6da`.
+
+- **New skill `/experience-design`** (`.claude/skills/experience-design/`): the owner's ten-step thinking process from raw material to a recommended treatment, with quality criteria and anti-patterns, a treatment outline, an external research method, an inspiration library (six starting sources and eight precedents, read on 29 Oct through a subagent's page fetches; the Play Disney Parks page couldn't be read), the Shuk context, and a worked example on the Montefiore gate (the mission is unchanged). Claude can invoke it automatically, or the owner types `/experience-design`. The owner's brief is kept word for word in [experience-design-skill-brief.md](experience-design-skill-brief.md); the direction itself is only in [product decisions](product-decisions.md).
+- **Order of processes:** the owner's [guiding methods](../../design/inputs/content/guiding_methods.md) → the skill (up to an approved treatment) → the [Codex build loop](../design/codex-amazing-shuk-partner.md#reusable-task-design-process). Written in the skill's `references/project-context.md`.
+- **Pointers to the skill:** `CLAUDE.md`, `AGENTS.md` (for Codex; Claude doesn't load it while `CLAUDE.md` exists), `.claude/rules/content.md`, `.claude/agents/dori-ux-designer.md`, `docs/content/methodology.md`, `design/inputs/content/README.md`.
+- **Docs move (the owner's):** `docs/scavenger_hunt/` is gone; story and tour texts are in `docs/knowledge/`. Every live reference uses the new paths, including the source strings in `lib/amazing-shuk/*-task.ts` and `lib/game/content.ts` (tests 151/151 and 61/61). Left on purpose: `design/output/00_discovery.md` (the designer agent's file) and `research/prompts/00_EVAL.md` (historical).
+- **One copy per document:** the mechanics survey, the platform research and the place stories live in `design/inputs/content/`; their copies in `docs/content/`, `docs/project/` and `docs/knowledge/` are now pointers. The owner may prefer the mechanics survey's copy in `docs/content/`; swapping is small.
+- **`CLAUDE.md` is 48 lines:** the dated status section became a short "Shuk state" pointer; the next and waiting lists moved to [current state](current-state.md).
+- **Verified:** `claude plugin validate .claude/skills` passes; 0 broken links in the 30 touched markdown files; `git diff --check` clean. **Not verified:** automatic triggering and `/experience-design` in a fresh session.
+
+**Next:**
+- The owner pushes the four commits; check GitHub's `main` matches.
+- Test the skill in a fresh session: one prompt that should trigger it, one that shouldn't.
+- Then use it: a first candidate is Marzipan (two scored questions in a row; smell-first and watching the syrup go on are the concepts the audit found).
+- The owner's phone review and the Stitch C1/E1 screens are still open ([current state](current-state.md)).
+
+**Optional, from the audit:** lead the skill's description with its use case; add a "when not to use it" line; scope `scss.md` and `coding.md` with `paths:`; fix the "must have one visible label" wording in `AGENTS.md`; archive the skill brief once the skill settles.
+
+**Untracked, keep out of commits:** `docs/RUN_PREVIEW.md` (local invite links), `docs/project/trip-doriisrael-paths.md` (the owner hasn't decided), `docs/design/stitch-reference/`, the photos in `public/shuk/`.
+
+## Earlier note - change of course, 29 Oct 2026
+
+**Owner's decisions, recorded only; nothing built.**
+- **The market can also be part of the challenges** from now on (Mahane Yehuda itself, not only the closing reward). Wait for the owner before planning or building anything for it; open question for then: does Marzipan stay the locked finale?
+- **No server-side Marzipan lock.** The client-only lock stays as it is (answers the open question below).
+- **Never write "A guide tells that…"** in visitor-facing copy. Marzipan's syrup-bucket lead (`marzipan-task.ts:90`) still has it; reword only with the owner's copy. Answers the open question below.
+- **The synagogue's blue-sign line is a hint** to the place's story (`synagogue-task.ts:56`), not an instruction to position around "Behind the answer". Not changed yet. Answers the open question below.
+- **The mural's before photo:** the owner has had it for a long time, doesn't know its source, and thinks it may have been changed with GPT. Treat it as possibly AI-edited (content rule: confirm what an archival photo shows before building on it). Keep, label or replace: owner's call later.
+- **Experience design direction** (owner, 29 Oct): recorded in [product decisions](product-decisions.md), the one record. **Skill built and committed** (`42c8ae5`): `.claude/skills/experience-design/`, with the owner's brief in [experience-design-skill-brief.md](experience-design-skill-brief.md). The UX designer agent points to it (`7635f56`).
+- **Map rule: markers get smaller whenever the map zooms out**, to keep close pins (gate 2 and well 3) from overlapping. This replaces moving a pin. Not built; wait for the owner. Note for then: `LeafletBaseMap` is shared with the Memory Protocol, so scope it to the Shuk unless the owner says otherwise.
+
+## Earlier handoff - owner's review fixes, deployed, live game reset, 26 Oct 2026
+
+**Committed, pushed and live.** `3958bd3` (the changes below) and `f54f6da` (the two new photos added to the `.dockerignore` allowlist; the first deploy served them as 404). Live image `dori-shuk:20261026-084821-f54f6da`, healthy; both photos return 200 at `https://doriisrael.com/shuk/shuk/<file>`. The welcome screen and marker order (`d1d507a`, next entry) went live with it.
+
+**Live game reset (owner, 26 Oct, 08:59 UTC):** every mission's progress was cleared (`missions: {}`; the store rebuilds empty records on load). Points, food tokens, arrivals, answers, hints and bonuses are at zero. Sign-ins, unused invitations, the seven display names and the navigator and answer-submitter roles were kept. Backups: `.local/amazing-shuk/backups/live-state-before-reset-20261026T085946Z.json` and `/data/state.before-reset-20261026T085946Z.json` in the container. Before the reset the mural and the gate were complete.
+
+**Other work this session:**
+- A fresh guide link went to `.local/amazing-shuk/public-invite-links.md`, and fresh local links (guide, players 1–3) to `.local/amazing-shuk/invite-links.md`.
+- At the owner's request, these were stopped:
+  - `dori-game-preview` (3200);
+  - `dori-caddytest` (18080/18081; it was `--rm`, so it is gone);
+  - the TourTech dev server (3002);
+  - `mentor.service` (7373; still enabled, so it returns on reboot).
+- New `docs/project/trip-doriisrael-paths.md`: every path on `trip.doriisrael.com` (the DORI platform), read from the Caddy file and the platform source, not checked live.
+- `docs/RUN_PREVIEW.md` has uncommitted local invite links pasted at the top. Keep it out of commits; stash it for a deploy, which needs a clean tree.
+
+**Next:**
+- The owner's phone review of the deployed changes.
+- Disk is at 85%; suggest `docker builder prune -f` before the next build.
+
+**Waiting on the owner:**
+- Copy: the cheers, "Behind the answer", the Marzipan lock note and the next-stop lines (all `TODO(copy)`).
+- Levin mural: the artist, the wall's location, and whether it is at the home.
+- A Marzipan storefront photo.
+
+The owner's requests, in order:
+
+1. **No names under the map pins** in the Shuk (`LeafletBaseMap` `showLabels={false}`; the Memory Protocol keeps them).
+2. **Wider map:** the Shuk map opens fitted to all six markers (`openOnMarkers`, a pin's margin round them), and `zoomOutBy={1}` allows pinching one level below "contain". A first try opened one level out from "cover"; the gate's pin then hid the well's (the owner: "the water challenge is gone from the map"). Pins 2 and 3 are only 67 image px apart, so zooming far out still stacks them.
+3. **No Source on mission pages:** both story components no longer show the source. `source` stays in the data as the evidence trail. The well's original Hebrew still shows in development only, as "Original Hebrew".
+4. **The preview card's summary** is clamped at five lines (was three).
+5. **The mural's before photo** moved from the post-answer reveal into the story, under its two paragraphs.
+6. **Completion cheer and next stop:** `PreviewMissionCheer` appears under the accepted answer, above any bonus. It shows a different cheer per mission (`lib/amazing-shuk/mission-cheer.ts`, fixed by map order so every phone matches), "Next stop: mission N, <name>", a **Go to the next stop** button (opens that marker's preview on the map) and **Back to the map**. Rabbi Levin's stop gets a quiet line instead of a cheer. With every mission done, it says so and offers the map. All wording is draft (`TODO(copy)`).
+
+7. **Montefiore bonus removed** (owner, 26 Oct): the hidden year תרמ"ב in בתמר is the Yemenite aliyah's year and unrelated to the gate. `MONTEFIORE_BONUS` stays in `montefiore-task.ts`, attached to no mission, for a possible Yemenite stop. Bonus points a group already earned there still count.
+
+8. **No evidence labels on screen** (owner, 26 Oct; the owner chose one neutral heading, for every mission): stories, reveals, leads, bonuses, predictions, appreciation moments and the well's "Fiction · Puzzle scenario" line show no labels. Text after an answer sits under one heading, "Behind the answer" (draft). The data still labels every statement, and the wording keeps its hedges. Recorded in `.claude/rules/content.md`.
+
+9. **Levin mural photo** (owner, 26 Oct): photo #39 (web copy `public/shuk/levin-mural.jpg`, 1024 px wide, metadata stripped) sits under the Levin challenge's story. The owner confirmed it shows Rabbi Aryeh Levin; caption "A mural of Rabbi Aryeh Levin in Nachlaot, painted in 2015." (photo index updated). It is also the mission's photo (map preview and location details), though it shows the mural, not the house. Open: the artist, the wall's location and whether it is at the home. Asset to commit with the code.
+
+10. **Marzipan photo** (owner asked for one from the web, 26 Oct): Benjamin Lipsman's chocolate rugelach on trays (Jerusalem, 28 Aug 2013, CC BY 2.0, Wikimedia Commons `File:9674765093 August 2013 in Jerusalem.jpg`), web copy `public/shuk/marzipan-rugelach.jpg`. Nothing says which bakery it shows, so the alt doesn't claim Marzipan. CC BY needs credit: `MissionPhoto` has a new optional `credit`, shown under the photo on the location page (not on the small preview thumbnail). Open: a real storefront photo.
+
+11. **Marzipan is the finale** (owner, 26 Oct): `finale: true` on the mission and `finaleLocked` in `mission-arrival.ts`. While any other mission is unfinished, its marker shows as locked, and its preview says "To earn the best chocolate in the market, first complete all the other missions. This stop opens last." (draft) in place of View Location. A saved screen or the Mission tab falls back to that preview. The next-stop button skips it until it's the only one left. The very last cheer ends "That was the last one! Now go find what the market has to offer you…" (the owner's line). The lock is in the client only: the server would still accept Marzipan actions. The name-mystery answer no longer starts "A Jerusalem guide tells it this way:" (owner); the follow-up lead's "A guide tells that…" is unchanged.
+
+- **Verified:**
+  - `test:shuk` 151/151 (new `mission-cheer.test.ts`), with tsc and ESLint clean, run inside `shuk-dev`.
+  - Deploy health and smoke checks passed.
+  - Not checked in a browser or on a phone.
+
+## Earlier handoff - welcome screen and new marker order, 26 Oct 2026
+
+**Committed in `d1d507a`; live since the 26 Oct deploy above.**
+
+- **Welcome screen** (owner's request): `PreviewShukWelcome` replaces the bare sign-in line. It shows the illustrated map in a card, the title, three highlights and a "Start the game" button, plus a note that the link is personal. A signed-out visitor sees the same screen with a "use your invitation link" card in place of the button. All wording is draft (`lib/amazing-shuk/welcome-copy.ts`, `TODO(copy)`).
+- **Marker order** (owner's request): 1 the mural, 2 the Montefiore gate, 3 the well, 4 Chesed VeRachamim, 5 Aryeh Levin, 6 Marzipan (`SHUK_MISSIONS`). Progress is keyed by mission ID, so live progress is unaffected. The map opens on marker 1. A request that names no mission still means the well (older clients). Mission numbers in older notes refer to the old order.
+- **Verified:** `test:shuk` 147/147, tsc and ESLint clean, the welcome Sass compiles. Not checked in a browser.
+
+## Earlier handoff - security review fixes: stale lock recovery and security headers, 25 Oct 2026
+
+A manual security review of the live Shuk app (the `/security-review` skill failed: no `origin/HEAD`) found no way in for outsiders. Two findings were fixed at the owner's request.
+
+1. **A stale write lock froze the game.**
+   - Reproduced on an isolated copy with a real volume: after a lock was left behind and the container restarted, every sign-in and action returned 503.
+   - Fix: `participant-store.ts` `acquireLock`. A lock older than `STALE_LOCK_MS` (10 s; real writes take milliseconds) is renamed aside atomically and the write proceeds. A younger lock still reports busy.
+   - Test in `participant-store.test.ts`.
+2. **Missing security headers.**
+   - `next.config.ts` sets `poweredByHeader: false`.
+   - The Caddy `@shuk` handle adds HSTS (1 year, no subdomains), `frame-ancestors 'none'` plus `X-Frame-Options DENY`, `nosniff`, and a default `Referrer-Policy` (`?`, so the API's `no-referrer` is kept). It also strips `X-Powered-By`.
+   - Caddy backup: `dori.caddy.bak-20261025-headers`.
+
+Not fixed, recorded as low:
+- The Shuk shares the `doriisrael.com` origin with the static placeholder.
+- The state file only grows (action receipts, expired sessions).
+- No dependency audit or rate limiting was checked.
+
+## Earlier handoff - real display names, kept out of git, 25 Oct 2026
+
+The owner asked for players' real names in place of "Player 4/5/6".
+
+- **Storage:** `lib/amazing-shuk/participant-names.ts` and an optional `names` map in the state file, validated on load (known IDs; trimmed, 1–40 characters, no control characters). Names never go in git.
+- **Setting names:** `scripts/shuk-name.ts <id> "<Name>"` (or `--clear`). It is copied into the Shuk image's `tools/`. Run it with `docker exec dori-shuk node --experimental-strip-types --no-warnings tools/scripts/shuk-name.ts player-4 "<Name>"`.
+- **Who sees them:** `sessionView` returns `participants`, so only signed-in members see names.
+  - With no names set, every slot shows as "Player N" (the local simulation is unchanged).
+  - Once names are set, only named players and role holders are listed, then the guide.
+- **UI:** the header badges, the profile, the Group tab and the guide's role dropdowns use the server's list. Avatars still come from the fixed IDs.
+- **Privacy correction:** commit `103e3ec` (and earlier note commits) put the invited friends' first names, and one surname, in tests and notes. The GitHub repo is public. The owner chose to scrub going forward: tests use sample names (Ari, Bea, Cal, Dana) and notes refer to players 4–6. The older commits still contain the names. The owner's own research files (`DORI_Digital_Platform_Research.md` and its copy) predate this work and were left alone.
+- **Verified:** `test:shuk` 146/146 (new `participant-names.test.ts`). `npm test` 61/61; tsc and ESLint are clean.
+
+## Earlier handoff - players choose their own roles; everyone else is an advisor, 25 Oct 2026
+
+The owner asked: "let them choose and the rest are advisors". **Not committed or deployed yet**; the live app still has the old behaviour. Live roles were set by hand earlier: player-4 is navigator and player-5 is answer-submitter.
+
+- **Roles:**
+  - `roles.ts`: `claimGroupRole` (only a free role, or one you already hold) and `releaseGroupRole` (only the holder).
+  - New player actions `claim-role` and `release-role` (`group-action.ts`, `parse-water-action.ts`), applied in `participant-store.ts`. The guide is refused there and keeps `assign-role` in the guide panel.
+  - Advisors still can't start or submit, as before.
+- **UI:**
+  - The Group tab has a new `PreviewRoleChoices`: each role shows its holder, "you" or "free", with Take this role or Step down (3rem buttons).
+  - `roleLabel` shows "Advisor" for `follower`. The roster lists advisors and the guide.
+  - The profile panel says "Your role: Advisor". Empty roles read "free".
+  - All new wording is a draft (`TODO(copy)`).
+- **Verified:** `test:shuk` 142/142. New `role-choice.test.ts` covers the pure rules, labels, the Group tab buttons, and a server run: an advisor refused at start, a claim, a steal refused, a foreign step-down refused, the guide refused as a claimer, step down and replay, and the guide reassigning. `npm test` 61/61; tsc, ESLint and Sass are clean.
+- **Not checked in a browser.**
+
+## Earlier handoff - the protected Shuk app is live at doriisrael.com/shuk, 25 Oct 2026
+
+The owner approved the plan (`/root/.claude/plans/tingly-snacking-tower.md`), then the commit and push (`fbd9fad`, Marzipan included), the deploy, the Caddy route and the invitations.
+
+- **How it works:**
+  - One codebase builds two images. `NEXT_PUBLIC_DORI_APP=shuk` (`--build-arg DORI_APP=shuk`) sets the base path to `/shuk` (`lib/base-path.ts`, `basePathFor`, `IS_SHUK_APP`).
+  - `proxy.ts` and `lib/amazing-shuk/shuk-routes.ts` 404 everything but the game, its API, health, the manifest, `_next`, `shuk/` and `map/`.
+  - `app/page.tsx` also redirects to the game in the Shuk build. The first test build served the Memory Protocol at `/shuk`, because the proxy matcher missed the bare root; it is now fixed in both places and smoke-tested.
+- **Gate:**
+  - `lib/amazing-shuk/shuk-access.ts`: "app" needs the Shuk build, production, `SHUK_APP=1` and Host equal to `SHUK_PUBLIC_ORIGIN`'s host.
+  - In app mode, `participant-http.ts` checks Origin against the configured origin and sets the cookie `Secure; HttpOnly; SameSite=Strict; Path=/shuk/`.
+  - New page `app/amazing-shuk/page.tsx`. `IndexWaterTask` takes `mode`; app mode hides the development panel and uses draft player wording (`TODO(copy)`).
+  - `scripts/shuk-invite.ts` has an app mode: https public origin only.
+- **Image and deploy:**
+  - The Dockerfile takes `DORI_APP`, adds `/data` owned by `node`, and copies the invite script and the store sources to `/app/tools` (Shuk build only).
+  - New `deploy/shuk-compose.yml`, with the same hardening as the game.
+  - `deploy.sh shuk` smoke-checks with Host headers, including a loopback 404 and "the root isn't the Memory Protocol".
+  - `/game-verify` accepts `shuk`.
+- **Caddy:**
+  - The `doriisrael.com` block now has `@shuk path /shuk /shuk/*` → `dori-shuk:3000`, with noindex; everything else still goes to `dori-site`.
+  - Backup: `/root/projects/Tour-Tech/caddy/dori.caddy.bak-20261025`. It was validated in a throwaway container and in `revivo-caddy-1`, then applied with `caddy reload`.
+  - `Tour-Tech/caddy/` is untracked in its own repo.
+  - **Rollback:** copy the backup over `dori.caddy` and reload.
+- **Verified live:**
+  - `/` returns 200 (placeholder unchanged); `/shuk` and `/shuk/amazing-shuk` return 200 (title "The Amazing Shuk", `x-robots-tag` noindex).
+  - The API without a session returns 401; `/shuk/dev/map` and `/shuk/api/sessions` return 404.
+  - `trip.` and `app.` still return 401.
+  - `dori-game` is untouched; its image was rebuilt as `dori-game:test` and smoke-tested (the Shuk returns 404 there).
+- **Tests:** `test:shuk` 138/138 (new `shuk-app.test.ts`: prefixes, the gate, the route allowlist, app-mode HTTP and cookies, the invite script). `npm test` 61/61. tsc and ESLint are clean.
+- **Invitations:** the guide and the three invited friends (players 4–6), in `.local/amazing-shuk/public-invite-links.md` (chmod 600, git-ignored). The owner sends them through Workspace.
+- **Housekeeping:**
+  - Disk reached 85% during a build. With the owner's OK I removed the pre-fix `dori-shuk:test`, the oldest `dori-game` release image and all build cache. Disk was 79–80% afterwards.
+  - The owner's `docs/RUN_PREVIEW.md` edit was stashed for the deploy and restored.
+- **Open:**
+  - The roles in the new store are the defaults (player-1 and player-2, not invited): the guide must reassign them.
+  - No backups.
+  - No display names.
+  - Nothing tested on a real phone.
+  - `/security-review` is still recommended.
+  - The API route is still named `/api/amazing-shuk/dev`.
+  - These doc updates are not yet committed.
+
+## Earlier handoff - mission 6, Marzipan Bakery, "The Sweet Secret of Marzipan", 25 Oct 2026
+
+**Not committed** (owner asked for no commit, push or deploy). The owner's brief: a 3–5 minute bakery stop at 44 Agripas Street on rugelach, the syrup, the name, the New York shipping and babka.
+
+- **Mission 6, `lib/amazing-shuk/marzipan-task.ts`** (`marzipan-rugelach`, marker 6):
+  - Story: three labelled lines (opened about 40 years ago by Yosef and Shoshana Ozerko; their sons run it; moist, sticky, soaked in syrup).
+  - **Name mystery, unscored:** "Why is a bakery famous for chocolate rugelach called Marzipan?" A closed `<details>` answer, labelled Attributed tradition: only the guide's recorded tour says it first sold marzipan sweets. No published bakery account was found, so nothing is scored and nothing is stored.
+  - **Question 1, scored:** when does the syrup go on? Before the oven / **while still warm** / after cooling. Two hints.
+  - **Question 2, scored:** what does rugelach refer to? **Little horns** / crowns / boats / bells (distractors invented). One hint. It opens under the answer to question 1 (the syrup and texture, plus the bucket-and-hose story as Attributed tradition).
+  - Final reveal: Polish róg; an Interpretation that "little horns" is the usual reading, not word for word; traditional crescents vs Marzipan's straight ones; "Look at the trays".
+  - **Bonus, the suitcase mystery** (10 points, no food tokens): flash-frozen and flown to New York, given as the bakery's own account. The reveal says it is not a list of what New York shops sell today.
+  - **Babka:** an unscored conversation (the existing appreciation panel). "Chocolate or cinnamon babka: which would you bring to a Shabbat dinner?" It makes no claim about Marzipan.
+  - **Explore Food Rewards** after completion: it only opens the Food tab. No redemption, prices, portions or offers.
+  - Rewards: the provisional well values (2 food tokens, 100/40 points, 3 hint penalties shared over both questions); timed invisibly.
+- **New shared mechanism: follow-up questions** (`MissionDefinition.followUps`, `choiceStep` in `mission-arrival.ts`):
+  - A "choose N" mission may have further scored questions. The store keeps `step` and `stepHintsStart` on the choice record; both are absent for the other missions, so their records are unchanged.
+  - An accepted answer opens the next question with no picks. Only the last answer completes the mission, stops the clock and issues the one award.
+  - Hints are numbered within a question but count towards one shared total. A hint action may carry `step`; a late hint from an earlier question is a no-op ("The group has moved on…").
+  - A stored step that doesn't exist is refused on load.
+  - UI: `ListChoiceTask` takes `step` and `followUps`; `PreviewChoiceTask` shows a `lead`. New `PreviewChoicePrediction` (3rem summary target). `IndexWaterTask` sends the step with hints and shows the Food button.
+- **Sources** (read 25 Oct 2026):
+  - Maariv, Pascal Perez-Rubin, 3 Jul 2020: brushed with syrup "as they come out of the oven, while still warm"; Marzipan's rugelach have "a straight shape" and are "moist, sticky, soaked in sugar syrup".
+  - Time Out Tel Aviv, 22 May 2023: about 40 years ago; Yosef Ozerko and his wife Shoshana; their sons run the business. (Mako names the sons Itzik and Gilad; Time Out, Itzik and Shlomi. The copy names neither.)
+  - marzipanbakery.com "Our Story" (undated, © 2026): the suitcases quote and "we flash freeze them and fly them directly to our New York facility". The Jerusalem Post (Niv Elis, 5 Jun 2016) headline: four Gourmet Glatt stores in New York and New Jersey (only the headline and caption were readable).
+  - English Wikipedia, "Rugelach" (Polish rogaliki, róg = horn; crescent, citing Joan Nathan) and "Babka (cake)" (citing Gil Marks: Polish Jewish communities; spare challah dough with jam or cinnamon; chocolate likely mid-20th-century American).
+  - Guide's recorded tour, `docs/knowledge/HE_trans.txt` ("מאפיית מרציפן והרוגלך"): the name story and the bucket and hose.
+  - Could not open (HTTP 403): the Yiddish Book Center, Tablet, Forward and Jamie Geller pages.
+- **Provisional or unverified:**
+  - **Every story, question, hint, reveal, bonus and location line is draft copy for owner review.** The question wording and the bonus answers are the owner's.
+  - The name's origin: oral only.
+  - Babka and Shabbat: Wikipedia ties babka to challah dough but says nothing about Shabbat tables. The copy keeps Shabbat to the conversation question.
+  - Whether the New York shipping still runs today.
+- **Location and map:**
+  - Hebrew name "מרציפן", per the brief; the sign is not checked.
+  - The clue mentions the queue (13tv/Yummies, 29 Aug 2023) and trays of rugelach. The entrance is not field-checked (`TODO(field)`).
+  - **No photo:** there is no owner, bakery or licensed image, so the location shows the camera fallback.
+  - The marker (628, 472) is where the base map's own "Marzipan Bakery" label sits. That label was traced from a Google Maps screenshot (map audit), so `verified: false`.
+  - GPS is off: `destination: null`; the guide can confirm arrival.
+  - Opening hours, kosher status, allergens and any tasting are not arranged. The address listing is the only business check (site research run 06, row 14), and the English tour notes a directory flagged possible closure: **check the shop is open before a pilot.**
+- **Verified** (25 Oct 2026):
+  - In `shuk-dev`: `test:shuk` 133/133. New tests:
+    - `marzipan-task.test.ts`: keys and sources, labels, no spoilers, the name as tradition, the bonus, babka, the catalogue, the hint step parse, the full server run, and persistence with a bad step refused. The server run covers a wrong answer, a follower refused, question 2, a late hint, the step's own hints, a stale pick, the early bonus refused, 75 points for two hints, no second award on repeat submit, guide approval and replay, and the bonus once.
+    - `marzipan-task-ui.test.ts`: each question's choices and hints, the lead, the completion reveal, and a prediction with no form.
+    - Three catalogue lists updated.
+  - On the host: `npm test` 61/61.
+  - In `shuk-dev`: `tsc --noEmit` passes (without a fresh `next typegen`); ESLint on `lib/amazing-shuk` and `components/amazing-shuk` is clean; both changed Sass modules compile, with no hex values. The dev page serves HTTP 200. `git diff --check`: only the owner's `docs/RUN_PREVIEW.md` trailing space.
+  - `/game-verify` (the image build) was **not** run.
+- **Not checked in a browser or on a phone:**
+  - question 2 replacing question 1 for every device at once;
+  - the lead panel;
+  - the prediction's open and closed states;
+  - the Food button;
+  - the marker over the base map's label;
+  - the no-photo location view.
+- **Open decisions for the owner:**
+  - Approve or rewrite the copy.
+  - Keep the name mystery as a tradition, or ask the bakery.
+  - A storefront photo (own, bakery-approved or licensed).
+  - A field point for GPS and the marker.
+  - Whether to remove the base map's baked-in Marzipan label (the audit said it must go; it now marks a real stop).
+  - Rewards and bonus values.
+  - Any tasting offer: guide-approved only.
+
+## Earlier handoff - mission preview overlaps the map; View Location never scrolls away, 25 Oct 2026
+
+Committed and pushed on `main` (`9d9b9c5`). The owner approved the Stitch direction and asked for two connected preview refinements: the preview overlaps the map, and View Location is visible without scrolling.
+
+- **Map stage** (`ListArrivalMission` and its `.module.scss`):
+  - One flex column holds the map and the sheet. It fills the screen between the sticky header and the bottom bar: `100dvh` (fallback `100svh`) minus `--shuk-header-height` minus `--shuk-nav-offset`.
+  - `IndexWaterTask` measures the header with a ResizeObserver, because the badges wrap and text can be enlarged.
+  - The map card shrinks when the sheet opens, but never below 8rem.
+  - The sheet overlaps the map's lower edge by 1.5rem (24px), with rounded top corners and a soft upward shadow.
+  - Stacking is plain DOM order with `z-index: 1`; the old sticky sheet and its `z-index: 1000` are gone.
+- **`LeafletBaseMap`:**
+  - A ResizeObserver calls `invalidateSize`; Leaflet only re-measures on window resize. This applies to every caller and is a no-op when the size doesn't change.
+  - The new opt-in `keepSelectedVisible={{ bottomInset }}` pans just enough (`panInside`, not animated under reduced motion) to keep the selected pin and its label above the overlap. It runs when the selection or the frame size changes.
+  - Only the Shuk passes it; the Memory Protocol is unchanged.
+- **`PreviewMissionCard`:** three rows.
+  - The pill and the × button.
+  - A body with the title, place, a 4.5rem thumbnail and a summary teaser clamped to three lines. The full summary and the large photo are on the location view. The body scrolls on its own only when needed, with `overscroll-behavior: contain`.
+  - An action row with View Location that never scrolls.
+  - The sheet is capped at 75% of the stage.
+  - Focus on the title, Escape, × and tapping the map to close are unchanged.
+  - The no-photo fallback is now a camera tile with screen-reader text.
+- **Marker tap:** now scrolls to the top (the normal `navigate`), in place of `scrollIntoView`, so the whole stage is in view. The nav offset is 4rem + 1.5px, to match the bar's new top rule.
+- **Estimated by arithmetic, not measured** (preview open, no browser toolbar, Gan HaTut):
+  - **390×844:** about 325px of map, and the sheet fits.
+  - **375×667:** the header is about 150px; about 148px of map, and the sheet fits without scrolling.
+  - **320×640:** the role pills wrap to three lines, so the header is about 190px. The map is at its 8rem minimum, and the body scrolls about 45px.
+  - At every size, View Location is above the bottom bar.
+- **Verified:**
+  - In `shuk-dev`: `test:shuk` 119/119. The new test covers the three rows in order, View Location outside the scrolling body, the thumbnail, and the sheet inside the stage.
+  - On the host: `npm test` 61/61.
+  - In a one-shot container: ESLint, `next typegen`, `tsc` and every changed Sass module pass.
+- **Not checked in a browser or on a phone:** all eight of the owner's acceptance points, including the overlap's look, the marker staying visible, the toolbar resizing and the map position after returning.
+- **Possible next step:** on narrow phones the role pills take three lines of the header. Showing only avatars and role icons below 22rem would give the map about 60px more.
+
+## Earlier handoff - Stitch design, first slice (header, map, preview, location) and the Thumbs avatar, 25 Oct 2026
+
+Committed and pushed on `main` (`9d9b9c5`). The owner asked to implement the Stitch reference (`docs/design/stitch-reference/`, the owner's, untracked). Plan: `/root/.claude/plans/no-so-plan-new-majestic-blum.md`.
+
+**Owner choices:**
+- Plex Serif for headings.
+- Scope: the shell plus screens B1–B3; challenges and Food later.
+- Stitch is a layout reference only.
+- Avatar: DiceBear Thumbs.
+- Before play, show only the food tokens.
+- The photo rights audit is deferred: the photos may be used as they are.
+
+These are recorded in `product-decisions.md`.
+
+- **Built:**
+  - **Tokens:** `--font-display` (IBM Plex Serif 600/700 in `app/layout.tsx`). Stitch surfaces as derived tokens, marked unconfirmed: `--surface-raised`, `--surface-recessed`, `--line-stone`, `--ink-subdued`, `--shadow-float`.
+  - **Avatar:**
+    - `participant-avatar.ts` uses Thumbs (CC0 1.0, per the package's LICENSE.md).
+    - Its shape colour is sumac, za'atar or amber by ID, and the face is ink or chalk for contrast.
+    - It sits in a round frame with a `--line-stone` ring; the avatar toggle is round too.
+    - The Dori agent's identity line now says Thumbs (owner request).
+  - **Header:** new `PreviewShukHeader`, sticky.
+    - The eyebrow, the Serif title and the avatar on one row; the role pills (with `compass` and `textAnswer` icons) and two chips below.
+    - The points chip: sumac fill, "N pts". The tokens chip: amber edge, ink text, "N tokens". Accessible names "Group points: N" and "Food tokens: N".
+    - The old balance card is gone.
+  - **Bottom bar:** raised surface with a stone top rule.
+  - **Map:** `LeafletBaseMap` gets an opt-in `frameClassName`. Its height and border now read `--map-height` and `--map-border`, defaulting to the old values, so the Memory Protocol is unchanged. The Shuk passes a rounded field card that fills the screen between the header and the nav.
+  - **Preview sheet:**
+    - A pill "Mission N · status" in the pin's state colour replaces the separate badge and status line.
+    - Serif title, rounded photo, summary in a box, round × button, raised sheet with rounded top corners.
+    - No Hebrew name, rewards or drag notch, per the Dori agent's preview list.
+  - **Location view:**
+    - A sumac "Back to map" link and a "Mission N · status" pill (no "of M": missions are played in any order).
+    - A framed photo, the Serif title, the Hebrew name in sumac at the end side, the area line with a pin.
+    - A recessed "Look for" card with a sumac start edge and the new `search` icon; it holds the clue, the clue photo and the landmarks.
+    - A recessed "We're Here?" card; the existing button now has a `compass` icon.
+    - Open Challenge in a card, with "+N food tokens" under it from `rewards.foodTokens`.
+- **Changes from the plan:**
+  - The token chip is not amber-filled: ink on amber is 4.2:1, below 4.5:1.
+  - The photo caption badge on the location view was dropped. It repeated the area line, and the only "verified" flag is the marker placement, not the place.
+- **Stitch conflicts left out by decision:**
+  - points promises before play;
+  - "Mission 2 of 4";
+  - the Hebrew name and rewards on the preview;
+  - Material icons;
+  - the filter chips, map scale, path line, audio button and "Built 1882";
+  - the scrim behind the sheet.
+- **Recorded for the challenge slice (C1):**
+  - Stitch's moves counter and "optimal", its permanent Fill/Pour/Empty grid and the "-15 pts" on hint buttons conflict with the approved patterns: contextual controls, invisible timing and progressive hints.
+  - Its C1-refined and E1 screenshots failed to download; re-export them.
+- **Draft labels:** "pts", "tokens", "Mission N · status", "+N food tokens".
+- **Open questions:**
+  - Restyle the map markers as Stitch does? That changes the map the Memory Protocol shares.
+  - Filter chips, map scale, path line?
+  - A read-aloud audio button?
+- **Verified:**
+  - In `shuk-dev`: `test:shuk` 118/118. The new tests cover the header chips, the preview's pill with no rewards, the location's pill, the Look-for card and food tokens with no points, and the Thumbs licence and token colours.
+  - On the host: `npm test` 61/61.
+  - In a one-shot container: ESLint (Shuk, map, layout), `next typegen` and `tsc` all pass. Every changed Sass module compiles, and none contains a hex value.
+- **Not checked in a browser or on a phone:**
+  - avatars at 24 and 40px;
+  - the sticky header height and wrapping at 360px;
+  - the chips in sunlight;
+  - the map card's height;
+  - the sheet over the map;
+  - the location cards;
+  - the Memory Protocol map.
+- **Don't commit `docs/RUN_PREVIEW.md`** (the owner's invitation links). `docs/design/stitch-reference/` stays the owner's.
+
+## Earlier handoff - missions 4 (Montefiore gate) and 5 (Rabbi Aryeh Levin), 25 Oct 2026
+
+Committed and pushed on `main`. Owner approved (25 Oct 2026): Montefiore's three languages as the main challenge and the year as an optional bonus, made easier; a Rabbi Aryeh Levin mission at his home, with the Kramer-Rechtman plaque as its bonus; the Olei HaGardom story told respectfully.
+
+- **Mission 4, `lib/amazing-shuk/montefiore-task.ts`** (`montefiore-testimonial-gate`):
+  - Pick 3 of 5: Hebrew, English and Arabic are right; Ladino and Yiddish are invented distractors.
+  - Bonus: find תרמ"ב beside "1882" on the Photograph in Stone plaque (#02), then pick the word in "אָמַרְתִּי אֶעֱלֶה בְּתָמָר" with the same four letters (בתמר; אמרתי is the near miss). It is a letter shuffle, so no arithmetic is needed (Hamichlol explains the name as reordered letters). 10 points, no food tokens.
+- **Mission 5, `lib/amazing-shuk/levin-task.ts`** (`aryeh-levin-prisoners`):
+  - Story: Levin, Feinstein (Ashkenazi, Old City, his student) and Barazani (born in Baghdad, Kurdish family), and the grenades in oranges.
+  - Pick 1 of 4: "A rabbi would be with them, and they would not risk his life." Three invented distractors.
+  - Untimed, no hints; completion title "Answer received".
+  - Bonus: name Feinstein's fiancée from the Kramer-Rechtman plaque on HaCarmel St (#25): Rachel.
+- **Shared changes:**
+  - `ChoiceOption.lang: "he"` renders a card with `.rtl` and `lang="he"`.
+  - `BonusContent.verse` and `letters` render a verse and letter tiles of at least 3rem.
+  - `ChoiceTaskContent.completionTitle`.
+  - `MissionDefinition.timed: false`: the start records the timing as excluded, so the award is untimed by the approved rule.
+  - Both missions are in `SHUK_MISSIONS` (markers 4 and 5) and `CHOICE_TASKS`.
+- **Sources** (read 25 Oct 2026):
+  - Owner's photos #05 (gate panels, read at 4x zoom), #02 (plaque badge "אוהל משה תרמ"ב 1882", June 1882, the Montefiore fund, Yemenite families) and #25 (Kramer-Rechtman plaque).
+  - Hamichlol, "עליית אעלה בתמר".
+  - Hebrew Wikipedia, "מאיר פיינשטיין" and "משה ברזני"; English Wikipedia, "Meir Feinstein" (quotes Begin's 1981 speech).
+  - Site research run 06, rows 1 and 3.
+- **Conflicts recorded, not resolved:**
+  - Which rabbi they meant to spare. Levin declared he would attend; Hebrew Wikipedia ties the change of plan to Rabbi Yaakov Goldman; Begin says only "the Rabbi". The question doesn't name him; the reveal says sources differ.
+  - The embrace with the grenade between them is labelled Attributed tradition; English Wikipedia calls it romanticized.
+  - The number of Yemenite immigrants: Hamichlol about 150, NLI about 200. The copy gives no number.
+- **Draft copy for owner review:** every story, question, hint, reveal, bonus and location line in both files, except quotes from plaques. The Arabic panel's wording is a `TODO(copy)` in the code and is not shown.
+- **Field checks:**
+  - The Arabic panel's text. My reading: "أوهل موسى … موسى مونتفيوري رحمه الله". "رحمه الله" would be odd in 1882, while Montefiore was alive, so the panel may be later.
+  - The rosette on the gate ("במספר … לפ"ק" wording, possibly a year written as a phrase).
+  - The gate is the Ohel Moshe entrance at Agripas and Hermon streets.
+  - Levin's house marking.
+  - Whether the Kramer plaque is legible.
+  - Both markers are manual guesses. GPS is off for both: the gate reuses Gan HaTut's candidate point, and Levin's is a provisional point between the Nominatim centroids of the two streets.
+  - Missions 1 and 4 share the gate photo.
+- **Verified** in a clean `node:22-alpine` container (25 Oct 2026):
+  - `test:shuk` 115/115. New tests: both missions' keys, labels and spoiler checks; the anagram and the 642 sum; the untimed award after 20 minutes; Hebrew cards with `rtl` and `lang`; letter tiles; the quiet title.
+  - `npm test` 61/61. `next typegen` + `tsc` pass. ESLint on `lib/amazing-shuk` and `components/amazing-shuk` is clean. Changed Sass modules compile.
+  - `shuk-dev` serves the page (HTTP 200).
+  - `git diff --check` is clean for these changes. The only hit is a trailing space in the owner's own `docs/RUN_PREVIEW.md` edit.
+- **Not checked** in a browser or on a phone: tile size and RTL layout, the Levin story's tone on screen, and the new markers' positions on the map.
+- **Don't commit `docs/RUN_PREVIEW.md` as it stands.** The owner's uncommitted edit added live invitation links. `docs/design/stitch-reference/` is the owner's, untracked and not part of this work.
+- **Next:** owner review of the draft copy and the field checks above; then the slim header; then the earlier photo rights audit (entry below).
+
+## Latest handoff - historical photo rights audit (started), 24 Oct 2026
+
+Owner: Israel Revealed to the Eye (Yad Izhak Ben-Zvi) "Open Use" photos may be used commercially with attribution; Fair Use and protected images must not ship without permission. Uncommitted; no code or assets changed yet.
+
+- **How to read rights:** item pages (israelalbum.org.il/image-page/?type=objects&id=…) load data from the public GraphQL API `https://api.eshmor.org.il/graphql`, query `getItemByID(appID: "924c217a-d119-42d3-91af-72ade1e9b2e2", index: "objects", id: …)` with fields `permissions { nameHE nameEN }`, `photographer`, `proPhotographer`, `creator`, `collectionNameHE/EN`, `createdDate`, `notes`, `titleHE`, `imageOriginal`. Classifications seen in the site's code: Fair Use (שימוש הוגן), "Copyright Free - Public Usage", Protected Copyright (מוגן בזכויות יוצרים).
+- **ybz.0024.002** (Armoza family portrait with Luna, photo index #108): https://israelalbum.org.il/image-page/?type=objects&id=ybz.0024.002. Collection: "Armoza Family, via the "Lev Ha-Ir" Community Center, Jerusalem" (YBZ.0024). Date 1935–1940, studio photograph; photographer/creator not recorded. **Permission: Fair Use** — not cleared for the app. Not used anywhere; keep out of production.
+- **Still to do:** query the other archival candidates (#111–#116, Armoza collection YBZ.0024 and the Hesed VeRahamim founders/interior photos; IDs still TODO in the photo index); find the catalogue entry of `public/shuk/mural-before.jpg` (owner-supplied; source, photographer and rights unknown) and, if it isn't Open Use, exclude it from the production build until cleared (a decision on gameplay, since it is the mural's completion reveal); add a small credit line to the image component; record all of this in `design/inputs/photos/photo_index_ALL.csv` (`credit_rights`).
+>>>>>>> bb4234fb5b66e55047f6343e266fa8ee539f0a27
 
 ## Earlier handoff - Chesed VeRachamim bonus (literary Luna) and Eshet Chayil, 24 Oct 2026
 
@@ -507,7 +2380,7 @@ Targeted lint and TypeScript no-emit check also passed after the origin fix. No 
 
 Owner requested one focused water revision plus explicit Brand Book adherence. Completed this slice, not new market tasks. Preserved existing dirty changes, including package-lock and earlier auth work. Claude's UX designer agent was read for its brand index and not changed.
 
-- Original story found: docs/scavenger_hunt/HE_trans.txt lines 60-66; existing English retelling at Machane_Yehuda_Tour_EN.md Stop 5. English wording reused; expandable original Hebrew copied directly from lines 62/64. Read-aloud instruction and question use owner wording. Story labeled Attributed tradition. Once-per-year detail is absent and not invented; transcript's Yossi Banai attribution is not independent verification. Fiction/Puzzle scenario label separates the invented 4-liter ration premise.
+- Original story found: docs/knowledge/HE_trans.txt lines 60-66; existing English retelling at Machane_Yehuda_Tour_EN.md Stop 5. English wording reused; expandable original Hebrew copied directly from lines 62/64. Read-aloud instruction and question use owner wording. Story labeled Attributed tradition. Once-per-year detail is absent and not invented; transcript's Yossi Banai attribution is not independent verification. Fiction/Puzzle scenario label separates the invented 4-liter ration premise.
 - State now liters {small, large, jar}, capacities 3/5/4. Jar cannot be filled from well or poured out. Maximal pours include both vessels to jar. Only jar===4 solves it. Explicit Submit Group Answer is backend-authorized for guide/submitter. Guide cannot override an unsolved jar. Authenticated unfinished reset empties containers and keeps roles/identity/receipts; finalized task cannot reset/re-award. Rewards stay zero.
 - Schema migration 1 to 2 preserves credentials, roles and receipts, starts revised puzzle empty. New HTTP actions require puzzleRevision 2; queues use revision-specific keys. Both two-move and classic longer solutions are allowed and tested. Filling 5 then pouring into the 4 L jar is valid under the owner's rules; do not silently impose extra restrictions.
 - Index/List/Preview boundary now prepares pure view models. Story opens before puzzle and remembers collapse locally. CSS straight-sided vessels differ in size; Sumac ceramic jar has round body and narrow neck. Shared ActionButton, liters/meters, ready/accepted feedback, disabled reasons and reset; guide role assignment remains a separate feature.

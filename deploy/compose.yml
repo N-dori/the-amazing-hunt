@@ -15,6 +15,9 @@ services:
     # Server-authoritative game state (SQLite). Never removed by a deploy or rollback.
     volumes:
       - game_data:/data
+      # The image pipeline's variants (docs/images-howto.md), read-only, never part of the image. The game's own
+      # media root, separate from the platform's /srv/dori/media, so neither project's prune can touch the other's files.
+      - /srv/dori/game-media:/app/public/media:ro
     # OPENAI_API_KEY / OPENAI_MODEL / GUIDE_CREATE_KEY, all optional. Without OpenAI settings
     # HARMONY uses its scripted replies. The file is gitignored; see .env.example.
     env_file:

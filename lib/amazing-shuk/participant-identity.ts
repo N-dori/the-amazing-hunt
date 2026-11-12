@@ -1,4 +1,10 @@
-import type { GroupRoleAssignments } from "./roles.ts";
+import { holderOf, MAIN_ROLES, type AssignableGroupRole, type GroupRoleAssignments, type ParticipantRole } from "./roles.ts";
+
+/** What players see for a role, or null for a player with no main role: Advisor was removed (owner, 5 Nov 2026); those players get
+ * the stop's parts instead. The code keeps "follower". */
+export function roleLabel(role: ParticipantRole | "guide"): string | null {
+  return { navigator: "Navigator", answerSubmitter: "Answer-submitter", navigatorAndAnswerSubmitter: "Navigator and answer-submitter", follower: null, guide: "Guide" }[role];
+}
 export type ParticipantIdentity = Readonly<{ id: string; name: string; customImageSrc?: string | null }>;
 export type ParticipantIdentityView = Readonly<{ participantId: string; displayName: string; customImageSrc?: string | null; responsibilities: readonly string[] }>;
 const responsibilitiesOf = (id: string, roles: GroupRoleAssignments) =>
@@ -16,11 +22,48 @@ export function buildParticipantIdentities(participants: readonly ParticipantIde
   };
 }
 
-/** Everyone in the group, in roster order, each with their responsibilities and whether they are the signed-in participant. */
-export function buildGroupRoster(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string) {
+/** Everyone in the group, in roster order, each with their responsibilities and whether they are the signed-in participant.
+ * Players without a main role show none (Advisor was removed, owner, 5 Nov 2026); the guide is the guide. */
+export function buildGroupRoster(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guideId = "guide") {
   return participants.map(participant => ({
     participantId: participant.id, displayName: participant.name, customImageSrc: participant.customImageSrc,
-    responsibilities: responsibilitiesOf(participant.id, roles),
+    responsibilities: participant.id === guideId ? ["Guide"] : responsibilitiesOf(participant.id, roles),
     current: participant.id === currentId,
   }));
+}
+
+export type RoleChoiceView = Readonly<{ role: AssignableGroupRole; label: string; holderId: string | null; holder: string | null; mine: boolean; canClaim: boolean }>;
+const CHOICE_LABEL: Readonly<Record<AssignableGroupRole, string>> = { navigator: "Navigator", answerSubmitter: "Answer-submitter", researcher: "Researcher", photographer: "Photographer" };
+/** The four main roles as the signed-in player sees them (owner, 5 Nov 2026): who holds each, and whether they can take it or step down. */
+export function buildRoleChoices(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guide: boolean): readonly RoleChoiceView[] {
+  return MAIN_ROLES.map(role => {
+    const holderId = holderOf(roles, role);
+    return { role, label: CHOICE_LABEL[role], holderId,
+      holder: holderId === null ? null : participants.find(participant => participant.id === holderId)?.name ?? holderId,
+      mine: holderId === currentId, canClaim: !guide && holderId === null };
+  });
+}
+
+export type RoleAssigneeView = Readonly<{ id: string; name: string; you: boolean }>;
+/** Who a team's leader can give a role to (I4a): the team's own members, in roster order, never the guide. */
+export function buildRoleAssignees(participants: readonly ParticipantIdentity[], currentId: string, guideId = "guide"): readonly RoleAssigneeView[] {
+  return participants.filter(participant => participant.id !== guideId).map(participant => ({ id: participant.id, name: participant.name, you: participant.id === currentId }));
+}
+
+export type LobbyRoleChipView = Readonly<{ id: string; name: string; you: boolean; selected: boolean }>;
+export type LobbyRoleRowView = Readonly<{ role: AssignableGroupRole; holderId: string | null; chips: readonly LobbyRoleChipView[] }>;
+/** The roles step of the lobby, the casting call (owner, 5 Nov 2026): one row per main role, in order (Navigator, Submitter, Researcher,
+ * Photographer; the Photographer always shown), each with a chip for every member of the team (never the guide), the holder selected.
+ * One player may hold several roles. */
+export function buildLobbyRoleRows(participants: readonly ParticipantIdentity[], roles: GroupRoleAssignments, currentId: string, guideId = "guide"): readonly LobbyRoleRowView[] {
+  const assignees = buildRoleAssignees(participants, currentId, guideId);
+  return MAIN_ROLES.map(role => ({ role, holderId: holderOf(roles, role),
+    chips: assignees.map(person => ({ ...person, selected: person.id === holderOf(roles, role) })) }));
+}
+
+/** The team's players, never the guide (who signs in and is listed for names, but isn't a player): what the lobby counts, lists and
+ * asks roles of. Found in the owner's live test, 6 Nov 2026: the guide was listed in "Who's here" and counted, and a solo player with
+ * the guide signed in would have been asked for roles. */
+export function teamPlayers(participants: readonly ParticipantIdentity[], guideId = "guide"): readonly ParticipantIdentity[] {
+  return participants.filter(participant => participant.id !== guideId);
 }

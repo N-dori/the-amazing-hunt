@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
 import StatusTag from "@/components/ui/StatusTag";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import type { firstKeepers } from "@/lib/game/library";
 import styles from "./PreviewPuzzleQuestion.module.scss";
 
@@ -31,7 +31,7 @@ export default function PreviewPuzzleQuestion({ content: c, answer, feedback, hi
         </p>
         <p className={styles.text}>{c.location.text}</p>
         <figure className={styles.locator}>
-          <img src={`${BASE_PATH}/library/timeline-wall-level-minus2.jpg`} alt={c.locatorAlt.text} className={styles.locatorImage} loading="lazy" />
+          <Picture src="/library/timeline-wall-level-minus2.jpg" alt={c.locatorAlt.text} className={styles.locatorImage} loading="lazy" />
           <figcaption className={styles.caption}>
             {c.locatorCaption.text}
             <StatusTag status={c.locatorCaption.status} />
@@ -45,7 +45,7 @@ export default function PreviewPuzzleQuestion({ content: c, answer, feedback, hi
           {c.observeLabel.text}
         </p>
         <figure className={styles.clue}>
-          <img src={`${BASE_PATH}/library/timeline-1946-scene.jpg`} alt={c.clueAlt.text} className={styles.clueImage} />
+          <Picture src="/library/timeline-1946-scene.jpg" alt={c.clueAlt.text} className={styles.clueImage} loading="eager" />
           <figcaption className={styles.clueCaption}>{c.clueCaption.text}</figcaption>
         </figure>
       </div>

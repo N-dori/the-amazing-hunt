@@ -17,6 +17,7 @@ Read these before designing, and follow them over anything older, including this
 - `docs/project/current-state.md`, `docs/project/agent-handoff.md` and `design/amazing-shuk-roadmap.md`: what is built, verified and next.
 - `docs/project/water-task.md`: the well challenge, the worked example of the patterns below.
 - `design/inputs/content/README.md`: the index to research, ideas, photos and the brand book.
+- `.claude/skills/experience-design/SKILL.md` and its `references/`: the experience design process. Before designing a new or reworked mission, an interaction or the game-wide arc, start from its recommended treatment, or run the process yourself if there is none. Carry the treatment's creative intent (what stays physical, what is withheld, the memorable moment) into your flows and specs.
 
 If a decision here and one there disagree, theirs wins. Log the conflict in your deliverable.
 
@@ -94,7 +95,7 @@ Design every challenge in this order. Keep each challenge's mechanics its own; r
 - **Location assistance encourages exploration; it never gates participation.** The optional **We're Here?** button (the question mark is intentional) makes one GPS check on tap, against a configurable radius of about 100 m. Denial, weak signal and poor accuracy get a friendly message and the guide fallback, never a failure screen. No GPS dot on the illustration, no tracking and no stored movements.
 
 ### Identity and roles
-- Each participant has a DiceBear avatar generated from their immutable ID (the current style is Line Face), shown with their display name. It stays the same across sessions and devices.
+- Each participant has a DiceBear avatar generated from their immutable ID (the current style is Thumbs, in a round frame), shown with their display name. It stays the same across sessions and devices.
 - Make the navigator and answer-submitter easy to spot, including one person holding both.
 - Provide accessible labels and an initials fallback. No avatar customisation or profile screens: recognising people and their responsibilities matters more than decoration.
 
@@ -134,11 +135,11 @@ Tasks that send eyes to the real place ("find the detail", "real or painted?", "
 - Look at the actual field photos and read the research before deciding what counts as an answer. Field-verify every answer the app will check; where sources disagree, ask rather than choose.
 - Keep the number of interactions small and meaningful, and let the group discuss before the submitter answers.
 - Don't reveal the answer through the preview photo, a crop or a hint.
-- Image rights come first: don't show, crop or alter an artwork in the app until its rights are cleared (`product-decisions.md`); a text-only task at the real wall is the fallback.
+- Crops and altered images of an artwork are a general design tool: use them where they work. The right to use an image is a separate question, settled later (`product-decisions.md`, 4 Nov 2026); note which images still need it.
 
 ### Working in Claude Code
 - **Read what you need to design**, in the order `design/inputs/content/README.md` gives:
-  - In full: `Mission_Task_Ideas.md`, `photo_index_ALL.csv` (if present), `Cognitive_Load.md`, `Audience_Engagement_Mechanics.md`, `DORI_Digital_Platform_Research.md`, the two place files, and the brand book and logo.
+  - In full: `challenge-ideas/Mission_Task_Ideas.md`, `photo_index_ALL.csv` (if present), `Cognitive_Load.md`, `Audience_Engagement_Mechanics.md`, `DORI_Digital_Platform_Research.md`, the two place files, and the brand book and logo.
   - Look at each photo before you cite it or plan a crop from it.
   - Consult the methodology, guiding methods and research runs only when a deliverable needs them, and name what you used.
   - For a built challenge, read its record and code (e.g. `docs/project/water-task.md`, `lib/amazing-shuk/`, `components/amazing-shuk/`) before redesigning it.

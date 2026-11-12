@@ -2,7 +2,7 @@ import { Icon } from "@/components/icons";
 import ActionButton from "@/components/ui/ActionButton";
 import EvidenceTag from "@/components/ui/EvidenceTag";
 import StatusTag from "@/components/ui/StatusTag";
-import { BASE_PATH } from "@/lib/base-path";
+import Picture from "@/components/media/Picture";
 import type { firstKeepers } from "@/lib/game/library";
 import styles from "./PreviewPuzzleReveal.module.scss";
 
@@ -26,7 +26,7 @@ export default function PreviewPuzzleReveal({ content: c, solvedBy, onContinue }
       </header>
 
       <figure className={styles.entry}>
-        <img src={`${BASE_PATH}/library/timeline-1946-entry.jpg`} alt={c.entryAlt.text} className={styles.entryImage} />
+        <Picture src="/library/timeline-1946-entry.jpg" alt={c.entryAlt.text} className={styles.entryImage} loading="eager" />
       </figure>
 
       <blockquote className={styles.documented}>
